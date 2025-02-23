@@ -12,6 +12,11 @@ export const languageKeyboard: ReplyKeyboardMarkup = {
     resize_keyboard: true,
 }
 
+export const prepareMessageKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [[t("ok_lets_start")]],
+    resize_keyboard: true,
+})
+
 export const acceptPrivacyKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
     keyboard: [
         [t("ok")]
@@ -37,6 +42,13 @@ export const interestedInKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup 
 export const cityKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
     keyboard: [
         [{ text: t("send_location"), request_location: true }]
+    ],
+    resize_keyboard: true,
+})
+
+export const skipKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("skip")]
     ],
     resize_keyboard: true,
 })

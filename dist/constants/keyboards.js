@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.languageKeyboard = void 0;
+exports.skipKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 exports.languageKeyboard = {
     keyboard: [
         ['🇷🇺 Русский', '🇬🇧 English', '🇺🇦 Українська'],
@@ -10,6 +10,11 @@ exports.languageKeyboard = {
     ],
     resize_keyboard: true,
 };
+const prepareMessageKeyboard = (t) => ({
+    keyboard: [[t("ok_lets_start")]],
+    resize_keyboard: true,
+});
+exports.prepareMessageKeyboard = prepareMessageKeyboard;
 const acceptPrivacyKeyboard = (t) => ({
     keyboard: [
         [t("ok")]
@@ -38,3 +43,10 @@ const cityKeyboard = (t) => ({
     resize_keyboard: true,
 });
 exports.cityKeyboard = cityKeyboard;
+const skipKeyboard = (t) => ({
+    keyboard: [
+        [t("skip")]
+    ],
+    resize_keyboard: true,
+});
+exports.skipKeyboard = skipKeyboard;
