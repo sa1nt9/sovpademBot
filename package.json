@@ -1,0 +1,31 @@
+{
+    "name": "sovpad-bot",
+    "version": "1.0.0",
+    "scripts": {
+        "lint": "eslint .",
+        "format": "eslint . --fix",
+        "typecheck": "tsc",
+        "build": "tsc --noEmit false",
+        "dev": "tsc-watch --onSuccess \"tsx ./src/main.ts\"",
+        "start": "tsc && tsx ./src/main.ts",
+        "start:force": "tsx ./src/main.ts"
+    },
+    "devDependencies": {
+        "eslint": "^9.21.0",
+        "typescript": "^5.7.3"
+    },
+    "dependencies": {
+        "@grammyjs/i18n": "^1.1.2",
+        "@prisma/client": "^6.4.1",
+        "dotenv": "^16.4.7",
+        "grammy": "^1.35.0",
+        "i18next": "^24.2.2",
+        "lint": "^0.8.19",
+        "nodemon": "^3.1.9",
+        "pg": "^8.13.3",
+        "prisma": "^6.4.1",
+        "ts-node": "^10.9.2",
+        "tsc-watch": "^6.2.1",
+        "tsx": "^4.19.3"
+    }
+}
