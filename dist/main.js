@@ -41,14 +41,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const grammy_1 = require("grammy");
 const dotenv = __importStar(require("dotenv"));
 const i18n_1 = require("@grammyjs/i18n");
 const languages_1 = require("./constants/languages");
 const keyboards_1 = require("./constants/keyboards");
+const fs_1 = __importDefault(require("fs"));
 dotenv.config();
 console.log(process.env.BOT_TOKEN);
+const txttojson = () => {
+    const data = fs_1.default.readFileSync("./data/cities1000.txt", 'utf-8');
+    // Разбиваем на строки
+    const lines = data.split('\n');
+    // Парсим строки в объекты
+    const cities = lines.map(line => {
+        var _a;
+        const parts = line.split('\t');
+        return {
+            id: parts[0], // GeoNames ID
+            name: parts[1], // Официальное название
+            alternateNames: (_a = parts[3]) === null || _a === void 0 ? void 0 : _a.split(','), // Альтернативные названия (массив)
+            latitude: parseFloat(parts[4]), // Широта
+            longitude: parseFloat(parts[5]), // Долгота
+            country: parts[8] // Код страны
+        };
+    }).filter(city => city.name); // Убираем пустые строки
+    // Сохраняем в JSON
+    fs_1.default.writeFileSync('./data/cities.json', JSON.stringify(cities, null, 2), 'utf-8');
+    console.log(`✅ Успешно сохранено ${cities.length} городов в cities.json`);
+};
 const bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 const i18n = new i18n_1.I18n({
     defaultLocale: "ru",
@@ -61,6 +86,7 @@ function initial() {
 bot.use((0, grammy_1.session)({ initial }));
 bot.use(i18n);
 bot.command("start", (ctx) => {
+    txttojson();
     ctx.session.step = "choose_language_start";
     ctx.reply(ctx.t('choose_language'), {
         reply_markup: keyboards_1.languageKeyboard
@@ -187,12 +213,9 @@ bot.on("message", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                     }
                     break;
                 case "city":
+                    console.log('location', ctx.message.location);
                     if (ctx.message.location) {
                         ctx.session.question = "name";
-                        const response = yield fetch("https://countriesnow.space/api/v0.1/countries", {
-                            method: 'GET'
-                        });
-                        console.log(response);
                         yield ctx.reply(ctx.t('name_question'), {
                             reply_markup: {
                                 remove_keyboard: true
@@ -200,9 +223,24 @@ bot.on("message", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                         });
                     }
                     else {
-                        yield ctx.reply(ctx.t('no_such_answer'), {
-                            reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t)
-                        });
+                        // try {
+                        //     const foundCity = cities.find(city => city.name.toLowerCase() === message?.trim().toLowerCase());
+                        //     if (foundCity) {
+                        //         console.log('Найден город:', foundCity);
+                        //         await ctx.reply(ctx.t('name_question'), {
+                        //             reply_markup: {
+                        //                 remove_keyboard: true
+                        //             }
+                        //         });
+                        //     } else {
+                        //         await ctx.reply(ctx.t('no_such_answer'), {
+                        //             reply_markup: cityKeyboard(ctx.t)
+                        //         });
+                        //     }
+                        // } catch (error) {
+                        //     console.error('Ошибка чтения файла cities.json:', error);
+                        //     await ctx.reply('Произошла ошибка при поиске города.');
+                        // }
                     }
                     break;
             }

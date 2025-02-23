@@ -3,12 +3,41 @@ import * as dotenv from 'dotenv';
 import { I18n, I18nFlavor } from "@grammyjs/i18n";
 import { languages } from "./constants/languages";
 import { acceptPrivacyKeyboard, cityKeyboard, genderKeyboard, interestedInKeyboard, languageKeyboard } from "./constants/keyboards";
+import fs from 'fs';
+import fetch from "node-fetch";
+import path from 'path';
+
 dotenv.config();
 console.log(process.env.BOT_TOKEN)
 
 interface SessionData {
     step?: "choose_language_start" | "profile" | "prepare_message" | "choose_language" | "accept_privacy" | 'questions';
     question?: 'years' | 'gender' | 'interested_in' | 'city' | "name" | "text" | "file" | "all_right"
+}
+
+const txttojson = () => {
+    const data = fs.readFileSync("./data/cities1000.txt", 'utf-8');
+
+    // Разбиваем на строки
+    const lines = data.split('\n');
+
+    // Парсим строки в объекты
+    const cities = lines.map(line => {
+        const parts = line.split('\t');
+        return {
+            id: parts[0], // GeoNames ID
+            name: parts[1], // Официальное название
+            alternateNames: parts[3]?.split(','), // Альтернативные названия (массив)
+            latitude: parseFloat(parts[4]), // Широта
+            longitude: parseFloat(parts[5]), // Долгота
+            country: parts[8] // Код страны
+        };
+    }).filter(city => city.name); // Убираем пустые строки
+
+    // Сохраняем в JSON
+    fs.writeFileSync('./data/cities.json', JSON.stringify(cities, null, 2), 'utf-8');
+
+    console.log(`✅ Успешно сохранено ${cities.length} городов в cities.json`);
 }
 
 
@@ -36,6 +65,8 @@ bot.use(i18n);
 
 
 bot.command("start", (ctx) => {
+    
+    txttojson()
 
     ctx.session.step = "choose_language_start";
 
@@ -178,12 +209,10 @@ bot.on("message", async (ctx) => {
                     break;
 
                 case "city":
+                    console.log('location', ctx.message.location)
                     if (ctx.message.location) {
                         ctx.session.question = "name";
-                        const response = await fetch("https://countriesnow.space/api/v0.1/countries", {
-                            method: 'GET'
-                        })
-                        console.log(response)
+
 
                         await ctx.reply(ctx.t('name_question'), {
                             reply_markup: {
@@ -191,9 +220,25 @@ bot.on("message", async (ctx) => {
                             }
                         });
                     } else {
-                        await ctx.reply(ctx.t('no_such_answer'), {
-                            reply_markup: cityKeyboard(ctx.t)
-                        });
+                        // try {
+                        //     const foundCity = cities.find(city => city.name.toLowerCase() === message?.trim().toLowerCase());
+
+                        //     if (foundCity) {
+                        //         console.log('Найден город:', foundCity);
+                        //         await ctx.reply(ctx.t('name_question'), {
+                        //             reply_markup: {
+                        //                 remove_keyboard: true
+                        //             }
+                        //         });
+                        //     } else {
+                        //         await ctx.reply(ctx.t('no_such_answer'), {
+                        //             reply_markup: cityKeyboard(ctx.t)
+                        //         });
+                        //     }
+                        // } catch (error) {
+                        //     console.error('Ошибка чтения файла cities.json:', error);
+                        //     await ctx.reply('Произошла ошибка при поиске города.');
+                        // }
                     }
 
                     break;
