@@ -53,6 +53,10 @@ const keyboards_1 = require("./constants/keyboards");
 const fs_1 = __importDefault(require("fs"));
 const storage_psql_1 = require("@grammyjs/storage-psql");
 const pg_1 = require("pg");
+const haversine_1 = require("./functions/haversine");
+const checkSubscription_1 = require("./functions/checkSubscription");
+const sessionInitial_1 = require("./functions/sessionInitial");
+const client_s3_1 = require("@aws-sdk/client-s3");
 dotenv.config();
 console.log(process.env.BOT_TOKEN);
 const bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
@@ -61,9 +65,6 @@ const i18n = new i18n_1.I18n({
     directory: "locales",
     useSession: true,
 });
-function initial() {
-    return { step: "choose_language_start", question: 'years' };
-}
 function startBot() {
     return __awaiter(this, void 0, void 0, function* () {
         const client = new pg_1.Client({
@@ -73,18 +74,58 @@ function startBot() {
             password: process.env.POSTGRES_PASSWORD || 'root',
             database: process.env.POSTGRES_NAME || 'postgres',
         });
+        const s3 = new client_s3_1.S3Client({
+            region: process.env.S3_REGION || "us-east-1",
+            endpoint: process.env.S3_ENDPOINT || undefined,
+            credentials: {
+                accessKeyId: process.env.S3_ACCESS_KEY || "",
+                secretAccessKey: process.env.S3_SECRET_KEY || "",
+            },
+        });
         yield client.connect();
         bot.use((0, grammy_1.session)({
-            initial,
+            initial: sessionInitial_1.sessionInitial,
             storage: yield storage_psql_1.PsqlAdapter.create({ tableName: 'sessions', client }),
         }));
         bot.use(i18n);
-        bot.command("start", (ctx) => {
+        const checkSubscriptionMiddleware = (ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            if (((_b = (_a = ctx.message) === null || _a === void 0 ? void 0 : _a.text) === null || _b === void 0 ? void 0 : _b.startsWith('/start')) || ctx.session.step === 'choose_language_start') {
+                ctx.session.isNeededSubscription = false;
+                return next();
+            }
+            // if (ctx.session.isNeededSubscription) {
+            //     await ctx.reply(ctx.t('not_subscribed'), {
+            //         reply_markup: subscribeChannelKeyboard(ctx.t),
+            //     });
+            // }
+            const isSubscribed = yield (0, checkSubscription_1.checkSubscription)(ctx, String(process.env.CHANNEL_NAME));
+            if (isSubscribed) {
+                if (ctx.session.isNeededSubscription) {
+                    yield ctx.reply(ctx.t('thanks_for_subscription'), {
+                        reply_markup: {
+                            remove_keyboard: true
+                        },
+                    });
+                }
+                ctx.session.isNeededSubscription = false;
+                next();
+            }
+            else {
+                ctx.session.isNeededSubscription = true;
+                yield ctx.reply(ctx.t('need_subscription'), {
+                    reply_markup: (0, keyboards_1.subscribeChannelKeyboard)(ctx.t),
+                    parse_mode: "Markdown"
+                });
+            }
+        });
+        bot.use(checkSubscriptionMiddleware);
+        bot.command("start", (ctx) => __awaiter(this, void 0, void 0, function* () {
             ctx.session.step = "choose_language_start";
             ctx.reply(ctx.t('choose_language'), {
                 reply_markup: keyboards_1.languageKeyboard
             });
-        });
+        }));
         bot.command("language", (ctx) => {
             ctx.session.step = "choose_language";
             ctx.reply(ctx.t('choose_language'), {
@@ -128,9 +169,7 @@ function startBot() {
                         ctx.session.step = "questions";
                         ctx.session.question = 'years';
                         yield ctx.reply(ctx.t('years_question'), {
-                            reply_markup: {
-                                remove_keyboard: true,
-                            },
+                            reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
                         });
                     }
                     else {
@@ -142,30 +181,24 @@ function startBot() {
                 case "questions":
                     switch (ctx.session.question) {
                         case "years":
-                            console.log(yield ctx.i18n.getLocale());
                             const n = Number(message);
                             if (!/^\d+$/.test(message || "str")) {
                                 yield ctx.reply(ctx.t('type_years'), {
-                                    reply_markup: {
-                                        remove_keyboard: true
-                                    },
+                                    reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
                                 });
                             }
                             else if (n <= 8) {
                                 yield ctx.reply(ctx.t('type_bigger_year'), {
-                                    reply_markup: {
-                                        remove_keyboard: true
-                                    },
+                                    reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
                                 });
                             }
                             else if (n > 100) {
                                 yield ctx.reply(ctx.t('type_smaller_year'), {
-                                    reply_markup: {
-                                        remove_keyboard: true
-                                    },
+                                    reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
                                 });
                             }
                             else {
+                                ctx.session.form.age = n;
                                 ctx.session.question = "gender";
                                 yield ctx.reply(ctx.t('gender_question'), {
                                     reply_markup: (0, keyboards_1.genderKeyboard)(ctx.t)
@@ -173,9 +206,9 @@ function startBot() {
                             }
                             break;
                         case "gender":
-                            console.log(yield ctx.i18n.getLocale());
                             if ((_a = (0, keyboards_1.genderKeyboard)(ctx.t)) === null || _a === void 0 ? void 0 : _a.keyboard[0].includes(message || "")) {
                                 ctx.session.question = "interested_in";
+                                ctx.session.form.gender = message === ctx.t('i_man') ? 'male' : 'female';
                                 yield ctx.reply(ctx.t('interested_in_question'), {
                                     reply_markup: (0, keyboards_1.interestedInKeyboard)(ctx.t)
                                 });
@@ -189,8 +222,9 @@ function startBot() {
                         case "interested_in":
                             if ((_b = (0, keyboards_1.interestedInKeyboard)(ctx.t)) === null || _b === void 0 ? void 0 : _b.keyboard[0].includes(message || "")) {
                                 ctx.session.question = "city";
+                                ctx.session.form.interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
                                 yield ctx.reply(ctx.t('city_question'), {
-                                    reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t)
+                                    reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t, ctx.session)
                                 });
                             }
                             else {
@@ -202,12 +236,32 @@ function startBot() {
                         case "city":
                             console.log('location', ctx.message.location);
                             if (ctx.message.location) {
-                                ctx.session.question = "name";
-                                yield ctx.reply(ctx.t('name_question'), {
-                                    reply_markup: {
-                                        remove_keyboard: true
+                                const { latitude, longitude } = ctx.message.location;
+                                try {
+                                    const cities = JSON.parse(fs_1.default.readFileSync("./data/cities.json", "utf-8"));
+                                    let nearestCity = null;
+                                    let minDistance = Infinity;
+                                    for (const city of cities) {
+                                        const distance = (0, haversine_1.haversine)(latitude, longitude, city.latitude, city.longitude);
+                                        if (distance < minDistance) {
+                                            minDistance = distance;
+                                            nearestCity = city;
+                                        }
                                     }
-                                });
+                                    if (nearestCity) {
+                                        console.log("Ближайший город:", nearestCity.name, `(${minDistance.toFixed(2)} км)`);
+                                        ctx.session.form.city = nearestCity.name;
+                                        ctx.session.form.location = { longitude: nearestCity.longitude, latitude: nearestCity.latitude };
+                                    }
+                                    ctx.session.question = "name";
+                                    yield ctx.reply(ctx.t("name_question"), {
+                                        reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session),
+                                    });
+                                }
+                                catch (error) {
+                                    console.error("Ошибка чтения файла cities.json:", error);
+                                    yield ctx.reply("Ошибка обработки данных.");
+                                }
                             }
                             else {
                                 try {
@@ -218,14 +272,16 @@ function startBot() {
                                         return cityNames.some(cityName => cityName.toLowerCase() === normalizedMessage);
                                     });
                                     if (foundCity) {
+                                        ctx.session.form.city = message || "";
+                                        ctx.session.form.location = { longitude: foundCity.longitude, latitude: foundCity.latitude };
                                         ctx.session.question = "name";
                                         yield ctx.reply(ctx.t('name_question'), {
-                                            reply_markup: { remove_keyboard: true }
+                                            reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
                                         });
                                     }
                                     else {
                                         yield ctx.reply(ctx.t('no_such_city'), {
-                                            reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t)
+                                            reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t, ctx.session)
                                         });
                                     }
                                 }
@@ -238,54 +294,41 @@ function startBot() {
                         case "name":
                             if (!message) {
                                 yield ctx.reply(ctx.t('type_name'), {
-                                    reply_markup: { remove_keyboard: true }
+                                    reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
                                 });
                             }
                             else if (message.length > 100) {
                                 yield ctx.reply(ctx.t('long_name'), {
-                                    reply_markup: { remove_keyboard: true }
+                                    reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
                                 });
                             }
                             else {
                                 ctx.session.question = "text";
+                                if (ctx.session.form.name) {
+                                    ctx.session.form.previous_name = ctx.session.form.name;
+                                }
+                                ctx.session.form.name = message;
                                 yield ctx.reply(ctx.t('text_question'), {
-                                    reply_markup: (0, keyboards_1.skipKeyboard)(ctx.t)
-                                });
-                            }
-                            break;
-                        case "name":
-                            if (!message) {
-                                yield ctx.reply(ctx.t('type_name'), {
-                                    reply_markup: { remove_keyboard: true }
-                                });
-                            }
-                            else if (message.length > 100) {
-                                yield ctx.reply(ctx.t('long_name'), {
-                                    reply_markup: { remove_keyboard: true }
-                                });
-                            }
-                            else {
-                                ctx.session.question = "text";
-                                yield ctx.reply(ctx.t('text_question'), {
-                                    reply_markup: (0, keyboards_1.skipKeyboard)(ctx.t)
+                                    reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
                                 });
                             }
                             break;
                         case "text":
                             if (message && message.length > 1000) {
                                 yield ctx.reply(ctx.t('long_text'), {
-                                    reply_markup: (0, keyboards_1.skipKeyboard)(ctx.t)
+                                    reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
                                 });
                             }
                             else if (!message || message === ctx.t('skip')) {
                                 yield ctx.reply(ctx.t('file_question'), {
-                                    reply_markup: (0, keyboards_1.skipKeyboard)(ctx.t)
+                                    reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
                                 });
                             }
                             else {
                                 ctx.session.question = "file";
+                                ctx.session.form.text = (!message || message === ctx.t('skip')) ? "" : message;
                                 yield ctx.reply(ctx.t('file_question'), {
-                                    reply_markup: (0, keyboards_1.skipKeyboard)(ctx.t)
+                                    reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
                                 });
                             }
                             break;

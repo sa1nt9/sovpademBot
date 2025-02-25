@@ -1,5 +1,6 @@
 import { TranslateFunction } from "@grammyjs/i18n"
 import { ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove } from "grammy/types"
+import { ISessionData } from "../typescript/interfaces/ISessionData"
 
 
 export const languageKeyboard: ReplyKeyboardMarkup = {
@@ -39,16 +40,47 @@ export const interestedInKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup 
 })
 
 
-export const cityKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+export const cityKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
+    keyboard: (session.form?.city ? [[`${session.form?.myCoordinates ? "📍 " : ""}${session.form?.city}`], [{ text: t("send_location"), request_location: true }]] : [[{ text: t("send_location"), request_location: true }]]),
+    resize_keyboard: true,
+})
+
+export const textKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
+    keyboard: (session.form.text ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    resize_keyboard: true,
+})
+
+export const subscribeChannelKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
     keyboard: [
-        [{ text: t("send_location"), request_location: true }]
+        [t("ready")]
     ],
     resize_keyboard: true,
 })
 
-export const skipKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
-    keyboard: [
-        [t("skip")]
-    ],
-    resize_keyboard: true,
-})
+export const ageKeyboard = (session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => {
+    if (session.form.age) {
+        return {
+            keyboard: [
+                [String(session.form?.age)]
+            ],
+            resize_keyboard: true,
+        }
+    } else {
+        return {
+            remove_keyboard: true
+        }
+    }
+}
+
+export const nameKeyboard = (session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => {
+    if (session.form.name) {
+        return {
+            keyboard: ((session.form.previous_name && session.form.previous_name !== session.form.name) ? [[String(session.form?.name)], [String(session.form?.previous_name)]] : [[String(session.form?.name)]]),
+            resize_keyboard: true,
+        }
+    } else {
+        return {
+            remove_keyboard: true
+        }
+    }
+}
