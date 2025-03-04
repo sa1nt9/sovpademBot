@@ -5,6 +5,10 @@ function sessionInitial() {
     return {
         step: "choose_language_start",
         question: 'years',
+        additionalFormInfo: {
+            canGoBack: false
+        },
+        privacyAccepted: false,
         form: {
             name: '',
             previous_name: '',
@@ -17,8 +21,9 @@ function sessionInitial() {
             interestedIn: 'all',
             age: 0,
             text: '',
-            file: '',
-            myCoordinates: false,
+            files: [],
+            temp_files: [],
+            ownCoordinates: false,
             isFinished: false
         }
     };

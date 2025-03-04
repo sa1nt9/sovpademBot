@@ -4,6 +4,10 @@ export function sessionInitial(): ISessionData {
     return {
         step: "choose_language_start",
         question: 'years',
+        additionalFormInfo: {
+            canGoBack: false
+        },
+        privacyAccepted: false,
         form: {
             name: '',
             previous_name: '',
@@ -16,8 +20,9 @@ export function sessionInitial(): ISessionData {
             interestedIn: 'all',
             age: 0,
             text: '',
-            file: '',
-            myCoordinates: false,
+            files: [],
+            temp_files: [],
+            ownCoordinates: false,
             isFinished: false
         }
     };

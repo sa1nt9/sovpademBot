@@ -41,12 +41,52 @@ export const interestedInKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup 
 
 
 export const cityKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
-    keyboard: (session.form?.city ? [[`${session.form?.myCoordinates ? "📍 " : ""}${session.form?.city}`], [{ text: t("send_location"), request_location: true }]] : [[{ text: t("send_location"), request_location: true }]]),
+    keyboard: (session.form?.city ? [[`${session.form?.ownCoordinates ? "📍 " : ""}${session.form?.city}`], [{ text: t("send_location"), request_location: true }]] : [[{ text: t("send_location"), request_location: true }]]),
     resize_keyboard: true,
 })
 
 export const textKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
-    keyboard: (session.form.text ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : session.form.text ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    resize_keyboard: true,
+})
+
+export const fileKeyboard = (t: TranslateFunction, session: ISessionData, canLeaveCurrent: boolean): ReplyKeyboardMarkup | ReplyKeyboardRemove => {
+    if (session.additionalFormInfo.canGoBack) {
+        return {
+            keyboard: [[t("go_back")]],
+            resize_keyboard: true,
+        }
+    } else if (canLeaveCurrent) {
+        return {
+            keyboard: [[t("leave_current")]],
+            resize_keyboard: true,
+        }
+    } else {
+        return {
+            remove_keyboard: true
+        }
+    }
+}
+
+export const someFilesAddedKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
+    keyboard: session.additionalFormInfo.canGoBack
+        ?
+        [
+            [t("go_back")],
+            [t("its_all_save_files")]
+        ]
+        :
+        [
+            [t("its_all_save_files")]
+        ]
+    ,
+    resize_keyboard: true,
+})
+
+export const allRightKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("yes"), t("change_form")]
+    ],
     resize_keyboard: true,
 })
 
@@ -84,3 +124,10 @@ export const nameKeyboard = (session: ISessionData): ReplyKeyboardMarkup | Reply
         }
     }
 }
+
+export const profileKeyboard = (): ReplyKeyboardMarkup => ({
+    keyboard: [
+        ["1🚀", "2", "3", "4"]
+    ],
+    resize_keyboard: true,
+})
