@@ -1,11 +1,11 @@
 import type { ErrorHandler } from 'grammy'
-import { MyContext } from '../main'
+import { MyContext } from '../typescript/context'
 
 export const errorHandler: ErrorHandler<MyContext> = (error) => {
-  const { ctx } = error
+    const { ctx } = error
 
-  ctx.logger.error({
-    err: error.error,
-    update: getUpdateInfo(ctx),
-  })
+    ctx.logger.error({
+        err: error.error,
+        update: ctx.update,
+    })
 }

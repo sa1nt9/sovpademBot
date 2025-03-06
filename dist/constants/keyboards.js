@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 exports.languageKeyboard = {
     keyboard: [
         ['🇷🇺 Русский', '🇬🇧 English', '🇺🇦 Українська'],
@@ -13,6 +13,7 @@ exports.languageKeyboard = {
 const prepareMessageKeyboard = (t) => ({
     keyboard: [[t("ok_lets_start")]],
     resize_keyboard: true,
+    is_persistent: true,
 });
 exports.prepareMessageKeyboard = prepareMessageKeyboard;
 const acceptPrivacyKeyboard = (t) => ({
@@ -20,6 +21,7 @@ const acceptPrivacyKeyboard = (t) => ({
         [t("ok")]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 });
 exports.acceptPrivacyKeyboard = acceptPrivacyKeyboard;
 const genderKeyboard = (t) => ({
@@ -88,6 +90,7 @@ const allRightKeyboard = (t) => ({
         [t("yes"), t("change_form")]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 });
 exports.allRightKeyboard = allRightKeyboard;
 const subscribeChannelKeyboard = (t) => ({
@@ -95,6 +98,7 @@ const subscribeChannelKeyboard = (t) => ({
         [t("ready")]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 });
 exports.subscribeChannelKeyboard = subscribeChannelKeyboard;
 const ageKeyboard = (session) => {
@@ -134,5 +138,46 @@ const profileKeyboard = () => ({
         ["1🚀", "2", "3", "4"]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 });
 exports.profileKeyboard = profileKeyboard;
+const answerFormKeyboard = () => ({
+    keyboard: [
+        ["♥️", "💌/📹", "👎", "💤"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+});
+exports.answerFormKeyboard = answerFormKeyboard;
+const disableFormKeyboard = () => ({
+    keyboard: [
+        ["1", "2"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+});
+exports.disableFormKeyboard = disableFormKeyboard;
+const formDisabledKeyboard = (t) => ({
+    keyboard: [
+        [t("search_people")]
+    ],
+    is_persistent: true,
+    resize_keyboard: true,
+});
+exports.formDisabledKeyboard = formDisabledKeyboard;
+const notHaveFormToDeactiveKeyboard = (t) => ({
+    keyboard: [
+        [t("create_form")]
+    ],
+    is_persistent: true,
+    resize_keyboard: true,
+});
+exports.notHaveFormToDeactiveKeyboard = notHaveFormToDeactiveKeyboard;
+const goBackKeyboard = (t) => ({
+    keyboard: [
+        [t("back")]
+    ],
+    is_persistent: true,
+    resize_keyboard: true,
+});
+exports.goBackKeyboard = goBackKeyboard;

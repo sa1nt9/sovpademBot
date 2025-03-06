@@ -23,7 +23,10 @@ function checkSubscription(ctx, channelId) {
             }
         }
         catch (error) {
-            console.error("Ошибка проверки подписки:", error);
+            ctx.logger.error({
+                msg: 'Ошибка проверки подписки',
+                error: error
+            });
             return false; // Ошибка — считаем, что не подписан
         }
     });

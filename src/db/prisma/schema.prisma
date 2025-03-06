@@ -20,6 +20,7 @@ model User {
     files          Json // Массив файлов в JSON
     ownCoordinates Boolean? // Может быть null
     createdAt      DateTime     @default(now()) // Дата создания
+    isActive       Boolean      @default(true) // Активна ли анкета
 
     likesGiven    UserLike[] @relation(name: "UserLikesTarget")
     likesReceived UserLike[] @relation(name: "TargetLikedByUser")
@@ -30,10 +31,18 @@ model UserLike {
     userId    String // Кто лайкнул
     targetId  String // Кого лайкнули
     liked     Boolean // true — лайк, false — дизлайк
+    message   String? // Текстовое сообщение к лайку
+    videoFileId String? // ID файла видео, если было отправлено
     createdAt DateTime @default(now())
 
     user   User @relation(name: "UserLikesTarget", fields: [userId], references: [id])
     target User @relation(name: "TargetLikedByUser", fields: [targetId], references: [id])
+}
+
+model Session {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
 }
 
 enum Gender {

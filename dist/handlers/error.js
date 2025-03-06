@@ -5,7 +5,7 @@ const errorHandler = (error) => {
     const { ctx } = error;
     ctx.logger.error({
         err: error.error,
-        update: getUpdateInfo(ctx),
+        update: ctx.update,
     });
 };
 exports.errorHandler = errorHandler;

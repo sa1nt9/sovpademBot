@@ -45,213 +45,88 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const logger_1 = require("./logger");
 const grammy_1 = require("grammy");
 const dotenv = __importStar(require("dotenv"));
-const i18n_1 = require("@grammyjs/i18n");
 const languages_1 = require("./constants/languages");
 const keyboards_1 = require("./constants/keyboards");
 const fs_1 = __importDefault(require("fs"));
-const pg_1 = require("pg");
 const haversine_1 = require("./functions/haversine");
-const checkSubscription_1 = require("./functions/checkSubscription");
 const sessionInitial_1 = require("./functions/sessionInitial");
-const client_1 = require("@prisma/client");
 const sendForm_1 = require("./functions/sendForm");
-const ioredis_1 = __importDefault(require("ioredis"));
-const storage_redis_1 = require("@grammyjs/storage-redis");
 const error_1 = require("./handlers/error");
+const i18n_1 = require("./i18n");
+const postgres_1 = require("./db/postgres");
+const saveForm_1 = require("./functions/db/saveForm");
+const getCandidate_1 = require("./functions/db/getCandidate");
+const checkSubscriptionMiddleware_1 = require("./middlewares/checkSubscriptionMiddleware");
+const storage_prisma_1 = require("@grammyjs/storage-prisma");
+const saveLike_1 = require("./functions/db/saveLike");
+const toggleUserActive_1 = require("./functions/db/toggleUserActive");
 dotenv.config();
-console.log(process.env.BOT_TOKEN);
-const i18n = new i18n_1.I18n({
-    defaultLocale: "ru",
-    directory: "locales",
-    useSession: true,
-});
 function startBot() {
     return __awaiter(this, void 0, void 0, function* () {
         const bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
-        const client = new pg_1.Client({
-            host: process.env.POSTGRES_HOST || 'localhost',
-            port: Number(process.env.POSTGRES_PORT) || 5432,
-            user: process.env.POSTGRES_USERNAME || 'postgres',
-            password: process.env.POSTGRES_PASSWORD || 'root',
-            database: process.env.POSTGRES_NAME || 'postgres',
-        });
-        const prisma = new client_1.PrismaClient();
-        yield client.connect();
-        const redis = new ioredis_1.default({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: Number(process.env.REDIS_PORT) || 6379,
-            password: "123456",
-        });
+        yield (0, postgres_1.connectPostgres)();
+        bot.catch(error_1.errorHandler);
+        bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            ctx.logger = logger_1.logger;
+            yield next();
+        }));
         bot.use((0, grammy_1.session)({
             initial: sessionInitial_1.sessionInitial,
-            storage: new storage_redis_1.RedisAdapter({ instance: redis })
+            storage: new storage_prisma_1.PrismaAdapter(postgres_1.prisma.session),
         }));
-        function saveForm(ctx) {
-            return __awaiter(this, void 0, void 0, function* () {
-                var _a;
-                try {
-                    const userData = ctx.session.form;
-                    const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-                    const existingUser = yield prisma.user.findUnique({
-                        where: { id: userId },
-                    });
-                    if (existingUser) {
-                        const updatedUser = yield prisma.user.update({
-                            where: { id: userId },
-                            data: {
-                                name: userData.name || "",
-                                city: userData.city || "",
-                                gender: userData.gender || "",
-                                age: userData.age || 0,
-                                interestedIn: userData.interestedIn || "",
-                                longitude: userData.location.longitude,
-                                latitude: userData.location.latitude,
-                                text: userData.text || "",
-                                files: JSON.stringify(userData.files || []),
-                                ownCoordinates: userData.ownCoordinates
-                            },
-                        });
-                        console.log('Данные пользователя обновлены:', updatedUser);
-                        return updatedUser;
-                    }
-                    else {
-                        const newUser = yield prisma.user.create({
-                            data: {
-                                id: userId,
-                                name: userData.name || "",
-                                city: userData.city || "",
-                                gender: userData.gender || "",
-                                age: userData.age || 0,
-                                interestedIn: userData.interestedIn || "",
-                                longitude: userData.location.longitude,
-                                latitude: userData.location.latitude,
-                                text: userData.text || "",
-                                files: JSON.stringify(userData.files || []),
-                                ownCoordinates: userData.ownCoordinates
-                            },
-                        });
-                        console.log('Новый пользователь сохранен:', newUser);
-                        return newUser;
-                    }
-                }
-                catch (error) {
-                    console.error('Ошибка при сохранении пользователя:', error);
-                }
-            });
-        }
-        function getCandidate(ctx) {
-            return __awaiter(this, void 0, void 0, function* () {
-                var _a;
-                const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-                const user = yield prisma.user.findUnique({
-                    where: { id: userId },
-                    select: { latitude: true, longitude: true, gender: true, interestedIn: true }
-                });
-                if (user) {
-                    const candidates = yield prisma.$queryRaw `
-                SELECT * FROM "User"
-                WHERE "id" <> ${userId}
-                    AND "id" NOT IN (
-                        SELECT "targetId" FROM "UserLike" WHERE "userId" = ${userId}
-                    )
-                    AND (
-                        CASE 
-                            WHEN ${user.interestedIn} = 'all' THEN TRUE
-                            ELSE "gender"::text = ${user.interestedIn}
-                        END
-                    )
-                    AND (
-                        CASE 
-                            WHEN ${user.interestedIn} = 'all' THEN TRUE
-                            ELSE "interestedIn"::text = ${user.gender}
-                        END
-                    )
-
-                ORDER BY (
-                    6371 * acos(
-                        cos(radians(${user.latitude})) * cos(radians("latitude")) *
-                        cos(radians("longitude") - radians(${user.longitude})) +
-                        sin(radians(${user.latitude})) * sin(radians("latitude"))
-                    )
-                ) ASC
-                LIMIT 1;
-            `;
-                    return candidates[0];
-                }
-            });
-        }
-        bot.use(i18n);
-        const checkSubscriptionMiddleware = (ctx, next) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
-            if (((_b = (_a = ctx.message) === null || _a === void 0 ? void 0 : _a.text) === null || _b === void 0 ? void 0 : _b.startsWith('/start')) || ctx.session.step === 'choose_language_start') {
-                ctx.session.isNeededSubscription = false;
-                yield next();
-                return;
-            }
-            // if (ctx.session.isNeededSubscription) {
-            //     await ctx.reply(ctx.t('not_subscribed'), {
-            //         reply_markup: subscribeChannelKeyboard(ctx.t),
-            //     });
-            // }
-            const isSubscribed = yield (0, checkSubscription_1.checkSubscription)(ctx, String(process.env.CHANNEL_NAME));
-            if (isSubscribed) {
-                if (ctx.session.isNeededSubscription) {
-                    yield ctx.reply(ctx.t('thanks_for_subscription'), {
-                        reply_markup: {
-                            remove_keyboard: true
-                        },
-                    });
-                }
-                ctx.session.isNeededSubscription = false;
-                yield next();
-            }
-            else {
-                ctx.session.isNeededSubscription = true;
-                yield ctx.reply(ctx.t('need_subscription'), {
-                    reply_markup: (0, keyboards_1.subscribeChannelKeyboard)(ctx.t),
-                    parse_mode: "Markdown"
-                });
-            }
-        });
-        bot.use(checkSubscriptionMiddleware);
-        bot.erro(error_1.errorHandler);
+        bot.use(i18n_1.i18n);
+        bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
         bot.command("start", (ctx) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a;
             const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-            const existingUser = yield prisma.user.findUnique({
+            const existingUser = yield postgres_1.prisma.user.findUnique({
                 where: { id: userId },
             });
             if (existingUser) {
                 ctx.session.step = "profile";
-                const user = yield prisma.user.findUnique({
-                    where: { id: String((_b = ctx.message) === null || _b === void 0 ? void 0 : _b.from.id) },
-                });
-                yield (0, sendForm_1.sendForm)(ctx, user);
+                yield (0, sendForm_1.sendForm)(ctx);
                 yield ctx.reply(ctx.t('profile_menu'), {
                     reply_markup: (0, keyboards_1.profileKeyboard)()
                 });
             }
             else {
                 ctx.session.step = "choose_language_start";
-                ctx.reply(ctx.t('choose_language'), {
+                yield ctx.reply(ctx.t('choose_language'), {
                     reply_markup: keyboards_1.languageKeyboard
                 });
             }
         }));
-        bot.command("myprofile", (ctx) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+        bot.command("deactivate", (ctx) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-            const existingUser = yield prisma.user.findUnique({
+            const existingUser = yield postgres_1.prisma.user.findUnique({
+                where: { id: userId },
+            });
+            if (existingUser) {
+                ctx.session.step = 'disable_form';
+                yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
+                    reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                });
+            }
+            else {
+                ctx.session.step = "you_dont_have_form";
+                yield ctx.reply(ctx.t('you_dont_have_form'), {
+                    reply_markup: (0, keyboards_1.notHaveFormToDeactiveKeyboard)(ctx.t)
+                });
+            }
+        }));
+        bot.command("myprofile", (ctx) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+            const existingUser = yield postgres_1.prisma.user.findUnique({
                 where: { id: userId },
             });
             if (existingUser) {
                 ctx.session.step = "profile";
-                const user = yield prisma.user.findUnique({
-                    where: { id: String((_b = ctx.message) === null || _b === void 0 ? void 0 : _b.from.id) },
-                });
-                yield (0, sendForm_1.sendForm)(ctx, user);
+                yield (0, sendForm_1.sendForm)(ctx);
                 yield ctx.reply(ctx.t('profile_menu'), {
                     reply_markup: (0, keyboards_1.profileKeyboard)()
                 });
@@ -279,7 +154,7 @@ function startBot() {
             });
         });
         bot.on("message", (ctx) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
             const message = ctx.message.text;
             if (ctx.session.step === "choose_language_start") {
                 const language = languages_1.languages.find(i => i.name === message);
@@ -408,7 +283,11 @@ function startBot() {
                                 }
                             }
                             if (nearestCity) {
-                                console.log("Ближайший город:", nearestCity.name, `(${minDistance.toFixed(2)} км)`);
+                                ctx.logger.info({
+                                    nearestCity: nearestCity.name,
+                                    distance: `${minDistance.toFixed(2)} км`,
+                                    msg: "Ближайший город"
+                                });
                                 ctx.session.form.city = nearestCity.name;
                                 ctx.session.form.ownCoordinates = true;
                                 ctx.session.form.location = { longitude: nearestCity.longitude, latitude: nearestCity.latitude };
@@ -479,10 +358,7 @@ function startBot() {
                         ctx.session.question = "years";
                         ctx.session.step = 'profile';
                         ctx.session.additionalFormInfo.canGoBack = false;
-                        const user = yield prisma.user.findUnique({
-                            where: { id: String((_c = ctx.message) === null || _c === void 0 ? void 0 : _c.from.id) },
-                        });
-                        yield (0, sendForm_1.sendForm)(ctx, user);
+                        yield (0, sendForm_1.sendForm)(ctx);
                         yield ctx.reply(ctx.t('profile_menu'), {
                             reply_markup: (0, keyboards_1.profileKeyboard)()
                         });
@@ -498,18 +374,15 @@ function startBot() {
                             ctx.session.question = "years";
                             ctx.session.step = 'profile';
                             ctx.session.additionalFormInfo.canGoBack = false;
-                            yield saveForm(ctx);
-                            const user = yield prisma.user.findUnique({
-                                where: { id: String((_d = ctx.message) === null || _d === void 0 ? void 0 : _d.from.id) },
-                            });
-                            yield (0, sendForm_1.sendForm)(ctx, user);
+                            yield (0, saveForm_1.saveForm)(ctx);
+                            yield (0, sendForm_1.sendForm)(ctx);
                             yield ctx.reply(ctx.t('profile_menu'), {
                                 reply_markup: (0, keyboards_1.profileKeyboard)()
                             });
                         }
                         else {
                             ctx.session.question = "file";
-                            const user = yield prisma.user.findUnique({
+                            const user = yield postgres_1.prisma.user.findUnique({
                                 where: { id: String(ctx.message.from.id) },
                                 select: { files: true },
                             });
@@ -526,35 +399,29 @@ function startBot() {
                         ctx.session.question = "years";
                         ctx.session.step = 'profile';
                         ctx.session.additionalFormInfo.canGoBack = false;
-                        const user = yield prisma.user.findUnique({
-                            where: { id: String((_e = ctx.message) === null || _e === void 0 ? void 0 : _e.from.id) },
-                        });
-                        yield (0, sendForm_1.sendForm)(ctx, user);
+                        yield (0, sendForm_1.sendForm)(ctx);
                         yield ctx.reply(ctx.t('profile_menu'), {
                             reply_markup: (0, keyboards_1.profileKeyboard)()
                         });
                     }
                     else {
-                        const user = yield prisma.user.findUnique({
+                        const user = yield postgres_1.prisma.user.findUnique({
                             where: { id: String(ctx.message.from.id) },
                             select: { files: true },
                         });
                         const files = (user === null || user === void 0 ? void 0 : user.files) ? JSON.parse(user === null || user === void 0 ? void 0 : user.files) : [];
                         if (message === ctx.t("leave_current") && (user === null || user === void 0 ? void 0 : user.files) && files.length > 0) {
-                            yield saveForm(ctx);
-                            const user = yield prisma.user.findUnique({
-                                where: { id: String((_f = ctx.message) === null || _f === void 0 ? void 0 : _f.from.id) },
-                            });
-                            yield (0, sendForm_1.sendForm)(ctx, user);
+                            yield (0, saveForm_1.saveForm)(ctx);
+                            yield (0, sendForm_1.sendForm)(ctx);
                             ctx.session.question = "all_right";
                             yield ctx.reply(ctx.t('all_right_question'), {
                                 reply_markup: (0, keyboards_1.allRightKeyboard)(ctx.t)
                             });
                         }
                         else {
-                            const isImage = (_g = ctx.message) === null || _g === void 0 ? void 0 : _g.photo;
-                            const isVideo = (_h = ctx.message) === null || _h === void 0 ? void 0 : _h.video;
-                            if (isVideo && ((_k = (_j = ctx.message) === null || _j === void 0 ? void 0 : _j.video) === null || _k === void 0 ? void 0 : _k.duration) && ((_m = (_l = ctx.message) === null || _l === void 0 ? void 0 : _l.video) === null || _m === void 0 ? void 0 : _m.duration) < 15) {
+                            const isImage = (_c = ctx.message) === null || _c === void 0 ? void 0 : _c.photo;
+                            const isVideo = (_d = ctx.message) === null || _d === void 0 ? void 0 : _d.video;
+                            if (isVideo && ((_f = (_e = ctx.message) === null || _e === void 0 ? void 0 : _e.video) === null || _f === void 0 ? void 0 : _f.duration) && ((_h = (_g = ctx.message) === null || _g === void 0 ? void 0 : _g.video) === null || _h === void 0 ? void 0 : _h.duration) < 15) {
                                 yield ctx.reply(ctx.t('video_must_be_less_15'), {
                                     reply_markup: (0, keyboards_1.fileKeyboard)(ctx.t, ctx.session, files.length > 0)
                                 });
@@ -581,10 +448,7 @@ function startBot() {
                         ctx.session.question = "years";
                         ctx.session.step = 'profile';
                         ctx.session.additionalFormInfo.canGoBack = false;
-                        const user = yield prisma.user.findUnique({
-                            where: { id: String((_o = ctx.message) === null || _o === void 0 ? void 0 : _o.from.id) },
-                        });
-                        yield (0, sendForm_1.sendForm)(ctx, user);
+                        yield (0, sendForm_1.sendForm)(ctx);
                         yield ctx.reply(ctx.t('profile_menu'), {
                             reply_markup: (0, keyboards_1.profileKeyboard)()
                         });
@@ -595,11 +459,8 @@ function startBot() {
                             ctx.session.form.files = ctx.session.form.temp_files;
                             ctx.session.form.temp_files = [];
                             ctx.session.additionalFormInfo.canGoBack = false;
-                            yield saveForm(ctx);
-                            const user = yield prisma.user.findUnique({
-                                where: { id: String((_p = ctx.message) === null || _p === void 0 ? void 0 : _p.from.id) },
-                            });
-                            yield (0, sendForm_1.sendForm)(ctx, user);
+                            yield (0, saveForm_1.saveForm)(ctx);
+                            yield (0, sendForm_1.sendForm)(ctx);
                             yield ctx.reply(ctx.t('profile_menu'), {
                                 reply_markup: (0, keyboards_1.profileKeyboard)()
                             });
@@ -609,20 +470,17 @@ function startBot() {
                             ctx.session.form.files = ctx.session.form.temp_files;
                             ctx.session.form.temp_files = [];
                             ctx.session.additionalFormInfo.canGoBack = false;
-                            yield saveForm(ctx);
-                            const user = yield prisma.user.findUnique({
-                                where: { id: String((_q = ctx.message) === null || _q === void 0 ? void 0 : _q.from.id) },
-                            });
-                            yield (0, sendForm_1.sendForm)(ctx, user);
+                            yield (0, saveForm_1.saveForm)(ctx);
+                            yield (0, sendForm_1.sendForm)(ctx);
                             yield ctx.reply(ctx.t('all_right_question'), {
                                 reply_markup: (0, keyboards_1.allRightKeyboard)(ctx.t)
                             });
                         }
                     }
                     else {
-                        const isImage = (_r = ctx.message) === null || _r === void 0 ? void 0 : _r.photo;
-                        const isVideo = (_s = ctx.message) === null || _s === void 0 ? void 0 : _s.video;
-                        if (isVideo && ((_u = (_t = ctx.message) === null || _t === void 0 ? void 0 : _t.video) === null || _u === void 0 ? void 0 : _u.duration) && ((_w = (_v = ctx.message) === null || _v === void 0 ? void 0 : _v.video) === null || _w === void 0 ? void 0 : _w.duration) < 15) {
+                        const isImage = (_j = ctx.message) === null || _j === void 0 ? void 0 : _j.photo;
+                        const isVideo = (_k = ctx.message) === null || _k === void 0 ? void 0 : _k.video;
+                        if (isVideo && ((_m = (_l = ctx.message) === null || _l === void 0 ? void 0 : _l.video) === null || _m === void 0 ? void 0 : _m.duration) && ((_p = (_o = ctx.message) === null || _o === void 0 ? void 0 : _o.video) === null || _p === void 0 ? void 0 : _p.duration) < 15) {
                             yield ctx.reply(ctx.t('video_must_be_less_15'), {
                                 reply_markup: (0, keyboards_1.someFilesAddedKeyboard)(ctx.t, ctx.session)
                             });
@@ -641,11 +499,8 @@ function startBot() {
                                     ctx.session.form.files = ctx.session.form.temp_files;
                                     ctx.session.form.temp_files = [];
                                     ctx.session.additionalFormInfo.canGoBack = false;
-                                    yield saveForm(ctx);
-                                    const user = yield prisma.user.findUnique({
-                                        where: { id: String((_x = ctx.message) === null || _x === void 0 ? void 0 : _x.from.id) },
-                                    });
-                                    yield (0, sendForm_1.sendForm)(ctx, user);
+                                    yield (0, saveForm_1.saveForm)(ctx);
+                                    yield (0, sendForm_1.sendForm)(ctx);
                                     yield ctx.reply(ctx.t('profile_menu'), {
                                         reply_markup: (0, keyboards_1.profileKeyboard)()
                                     });
@@ -654,11 +509,8 @@ function startBot() {
                                     ctx.session.question = "all_right";
                                     ctx.session.form.files = ctx.session.form.temp_files;
                                     ctx.session.form.temp_files = [];
-                                    yield saveForm(ctx);
-                                    const user = yield prisma.user.findUnique({
-                                        where: { id: String((_y = ctx.message) === null || _y === void 0 ? void 0 : _y.from.id) },
-                                    });
-                                    yield (0, sendForm_1.sendForm)(ctx, user);
+                                    yield (0, saveForm_1.saveForm)(ctx);
+                                    yield (0, sendForm_1.sendForm)(ctx);
                                     yield ctx.reply(ctx.t('all_right_question'), {
                                         reply_markup: (0, keyboards_1.allRightKeyboard)(ctx.t)
                                     });
@@ -666,7 +518,7 @@ function startBot() {
                             }
                         }
                         else {
-                            const user = yield prisma.user.findUnique({
+                            const user = yield postgres_1.prisma.user.findUnique({
                                 where: { id: String(ctx.message.from.id) },
                                 select: { files: true },
                             });
@@ -682,9 +534,7 @@ function startBot() {
                         ctx.session.step = 'search_people';
                         ctx.session.question = 'years';
                         yield ctx.reply("✨🔍", {
-                            reply_markup: {
-                                remove_keyboard: true
-                            }
+                            reply_markup: (0, keyboards_1.answerFormKeyboard)()
                         });
                     }
                     else if (message === ctx.t('change_form')) {
@@ -705,13 +555,11 @@ function startBot() {
                     ctx.session.step = 'search_people';
                     ctx.session.question = 'years';
                     yield ctx.reply("✨🔍", {
-                        reply_markup: {
-                            remove_keyboard: true
-                        }
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
                     });
-                    const candidate = yield getCandidate(ctx);
-                    console.log(candidate);
-                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { notSendThisIs: true });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
                 }
                 else if (message === '2') {
                     ctx.session.step = 'questions';
@@ -741,6 +589,187 @@ function startBot() {
                         reply_markup: (0, keyboards_1.profileKeyboard)()
                     });
                 }
+            }
+            else if (ctx.session.step === 'sleep_menu') {
+                if (message === '1🚀') {
+                    ctx.session.step = 'search_people';
+                    ctx.session.question = 'years';
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else if (message === '2') {
+                    ctx.session.step = 'profile';
+                    yield (0, sendForm_1.sendForm)(ctx);
+                    yield ctx.reply(ctx.t('profile_menu'), {
+                        reply_markup: (0, keyboards_1.profileKeyboard)()
+                    });
+                }
+                else if (message === '3') {
+                    ctx.session.step = 'disable_form';
+                    yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
+                        reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                    });
+                }
+                else if (message === '4') {
+                    ctx.session.step = 'friends';
+                    yield ctx.reply(ctx.t('invite_friends_message', { bonus: 0, comeIn14Days: 0 }), {
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    });
+                    yield ctx.reply(ctx.t('invite_link_message', { link: '' }), {
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    });
+                }
+                else {
+                    yield ctx.reply(ctx.t('no_such_answer'), {
+                        reply_markup: (0, keyboards_1.profileKeyboard)()
+                    });
+                }
+            }
+            else if (ctx.session.step === 'friends') {
+                ctx.session.step = 'sleep_menu';
+                yield ctx.reply(ctx.t('sleep_menu'), {
+                    reply_markup: (0, keyboards_1.profileKeyboard)()
+                });
+            }
+            else if (ctx.session.step === 'disable_form') {
+                if (message === '1') {
+                    yield (0, toggleUserActive_1.toggleUserActive)(ctx, false);
+                    ctx.session.step = 'form_disabled';
+                    yield ctx.reply(ctx.t('form_disabled_message'), {
+                        reply_markup: (0, keyboards_1.formDisabledKeyboard)(ctx.t)
+                    });
+                }
+                else if (message === '2') {
+                    ctx.session.step = 'sleep_menu';
+                    yield ctx.reply(ctx.t('sleep_menu'), {
+                        reply_markup: (0, keyboards_1.profileKeyboard)()
+                    });
+                }
+                else {
+                    yield ctx.reply(ctx.t('no_such_answer'), {
+                        reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                    });
+                }
+            }
+            else if (ctx.session.step === 'form_disabled') {
+                if (message === ctx.t("search_people")) {
+                    ctx.session.step = 'profile';
+                    yield (0, sendForm_1.sendForm)(ctx);
+                    yield ctx.reply(ctx.t('profile_menu'), {
+                        reply_markup: (0, keyboards_1.profileKeyboard)()
+                    });
+                }
+                else {
+                    yield ctx.reply(ctx.t('no_such_answer'), {
+                        reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                    });
+                }
+            }
+            else if (ctx.session.step === 'you_dont_have_form') {
+                if (message === ctx.t('create_form')) {
+                    if (ctx.session.privacyAccepted) {
+                        ctx.session.step = "questions";
+                        ctx.session.question = 'years';
+                        yield ctx.reply(ctx.t('years_question'), {
+                            reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
+                        });
+                    }
+                    else {
+                        ctx.session.step = "accept_privacy";
+                        yield ctx.reply(ctx.t('privacy_message'), {
+                            reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),
+                        });
+                    }
+                }
+                else {
+                    yield ctx.reply(ctx.t('no_such_answer'), {
+                        reply_markup: (0, keyboards_1.notHaveFormToDeactiveKeyboard)(ctx.t)
+                    });
+                }
+            }
+            else if (ctx.session.step === 'search_people') {
+                if (message === '♥️') {
+                    if (ctx.session.currentCandidate) {
+                        yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true);
+                    }
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else if (message === '💌/📹') {
+                    ctx.session.step = 'text_or_video_to_user';
+                    ctx.session.additionalFormInfo.awaitingLikeContent = true;
+                    yield ctx.reply(ctx.t('text_or_video_to_user'), {
+                        reply_markup: {
+                            remove_keyboard: true
+                        }
+                    });
+                }
+                else if (message === '👎') {
+                    if (ctx.session.currentCandidate) {
+                        yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, false);
+                    }
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else if (message === '💤') {
+                    ctx.session.step = 'sleep_menu';
+                    yield ctx.reply(ctx.t('wait_somebody_to_see_your_form'));
+                    yield ctx.reply(ctx.t('sleep_menu'), {
+                        reply_markup: (0, keyboards_1.profileKeyboard)()
+                    });
+                }
+                else {
+                    yield ctx.reply(ctx.t('no_such_answer'), {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                }
+            }
+            else if (ctx.session.step === 'text_or_video_to_user') {
+                if (!ctx.session.currentCandidate || !ctx.session.additionalFormInfo.awaitingLikeContent) {
+                    ctx.session.step = 'search_people';
+                    yield ctx.reply(ctx.t('operation_cancelled'), {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    return;
+                }
+                const isVideo = (_q = ctx.message) === null || _q === void 0 ? void 0 : _q.video;
+                if (isVideo) {
+                    if (((_r = ctx.message.video) === null || _r === void 0 ? void 0 : _r.duration) && ctx.message.video.duration > 15) {
+                        yield ctx.reply(ctx.t('video_must_be_less_15'));
+                        return;
+                    }
+                    yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, {
+                        videoFileId: (_s = ctx.message.video) === null || _s === void 0 ? void 0 : _s.file_id
+                    });
+                }
+                else if (message) {
+                    yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, {
+                        message: message
+                    });
+                }
+                // Возвращаемся к поиску и показываем следующую анкету
+                ctx.session.step = 'search_people';
+                ctx.session.additionalFormInfo.awaitingLikeContent = false;
+                yield ctx.reply(ctx.t('like_sended_wait_for_answer'), {
+                    reply_markup: {
+                        remove_keyboard: true
+                    }
+                });
+                yield ctx.reply("✨🔍", {
+                    reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                });
+                const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                ctx.logger.info(candidate, 'This is new candidate');
             }
             else {
                 yield ctx.reply(ctx.t('no_such_answer'));

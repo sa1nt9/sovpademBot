@@ -1,4 +1,4 @@
-import { MyContext } from "../main";
+import { MyContext } from "../typescript/context";
 
 export async function checkSubscription(ctx: MyContext, channelId: string) {
     try {
@@ -9,7 +9,10 @@ export async function checkSubscription(ctx: MyContext, channelId: string) {
             return false; // Не подписан
         }
     } catch (error) {
-        console.error("Ошибка проверки подписки:", error);
+        ctx.logger.error({
+            msg: 'Ошибка проверки подписки',
+            error: error
+        })
         return false; // Ошибка — считаем, что не подписан
     }
 }

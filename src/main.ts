@@ -1,205 +1,52 @@
-import { Logger, logger } from './logger';
-import { Bot, BotError, Context, ErrorHandler, session, SessionFlavor } from "grammy";
+import { logger } from './logger';
+import { Bot, session } from "grammy";
 import * as dotenv from 'dotenv';
-import { I18n, I18nFlavor } from "@grammyjs/i18n";
 import { languages } from "./constants/languages";
-import { acceptPrivacyKeyboard, ageKeyboard, allRightKeyboard, cityKeyboard, fileKeyboard, genderKeyboard, interestedInKeyboard, languageKeyboard, nameKeyboard, prepareMessageKeyboard, profileKeyboard, someFilesAddedKeyboard, subscribeChannelKeyboard, textKeyboard } from "./constants/keyboards";
+import { acceptPrivacyKeyboard, ageKeyboard, allRightKeyboard, answerFormKeyboard, cityKeyboard, disableFormKeyboard, fileKeyboard, formDisabledKeyboard, genderKeyboard, goBackKeyboard, interestedInKeyboard, languageKeyboard, nameKeyboard, notHaveFormToDeactiveKeyboard, prepareMessageKeyboard, profileKeyboard, someFilesAddedKeyboard, subscribeChannelKeyboard, textKeyboard } from "./constants/keyboards";
 import fs from 'fs';
-import { ISessionData } from "./typescript/interfaces/ISessionData";
 import { haversine } from "./functions/haversine";
-import { checkSubscription } from "./functions/checkSubscription";
 import { sessionInitial } from "./functions/sessionInitial";
-import { PrismaClient, User } from "@prisma/client";
 import { sendForm } from "./functions/sendForm";
-import Redis from "ioredis";
-import { RedisAdapter } from "@grammyjs/storage-redis";
 import { errorHandler } from "./handlers/error";
 import { i18n } from './i18n';
-
+import { connectPostgres, prisma, postgresClient } from './db/postgres';
+import { MyContext } from './typescript/context';
+import { saveForm } from './functions/db/saveForm';
+import { getCandidate } from './functions/db/getCandidate';
+import { checkSubscriptionMiddleware } from './middlewares/checkSubscriptionMiddleware';
+import { PrismaAdapter } from '@grammyjs/storage-prisma';
+import { saveLike } from './functions/db/saveLike';
+import { toggleUserActive } from './functions/db/toggleUserActive';
 
 
 dotenv.config();
-console.log(process.env.BOT_TOKEN)
-
-
-interface LoggerFravor {
-    logger: Logger
-}
-
-export type MyContext =
-    Context
-    & SessionFlavor<ISessionData>
-    & I18nFlavor
-    & LoggerFravor;
-
-
 
 
 async function startBot() {
     const bot = new Bot<MyContext>(String(process.env.BOT_TOKEN));
 
+    await connectPostgres()
 
-    const redis = new Redis({
-        host: process.env.REDIS_HOST || 'localhost',
-        port: Number(process.env.REDIS_PORT) || 6379,
-        password: "123456",
-    });
 
-    
     bot.catch(errorHandler);
 
+
     bot.use(async (ctx, next) => {
-        ctx.logger = logger.child({
-            update_id: ctx.update.update_id,
-        })
+        ctx.logger = logger
 
         await next()
     })
 
-
     bot.use(
         session({
             initial: sessionInitial,
-            storage: new RedisAdapter({ instance: redis })
+            storage: new PrismaAdapter(prisma.session),
         })
     );
 
-
-    async function saveForm(ctx: MyContext) {
-        try {
-            const userData = ctx.session.form;
-            const userId = String(ctx.message?.from.id);
-
-            const existingUser = await prisma.user.findUnique({
-                where: { id: userId },
-            });
-
-            if (existingUser) {
-                const updatedUser = await prisma.user.update({
-                    where: { id: userId },
-                    data: {
-                        name: userData.name || "",
-                        city: userData.city || "",
-                        gender: userData.gender || "",
-                        age: userData.age || 0,
-                        interestedIn: userData.interestedIn || "",
-                        longitude: userData.location.longitude,
-                        latitude: userData.location.latitude,
-                        text: userData.text || "",
-                        files: JSON.stringify(userData.files || []),
-                        ownCoordinates: userData.ownCoordinates
-                    },
-                });
-
-                console.log('Данные пользователя обновлены:', updatedUser);
-                return updatedUser;
-            } else {
-                const newUser = await prisma.user.create({
-                    data: {
-                        id: userId,
-                        name: userData.name || "",
-                        city: userData.city || "",
-                        gender: userData.gender || "",
-                        age: userData.age || 0,
-                        interestedIn: userData.interestedIn || "",
-                        longitude: userData.location.longitude,
-                        latitude: userData.location.latitude,
-                        text: userData.text || "",
-                        files: JSON.stringify(userData.files || []),
-                        ownCoordinates: userData.ownCoordinates
-                    },
-                });
-
-                console.log('Новый пользователь сохранен:', newUser);
-                return newUser;
-            }
-        } catch (error) {
-            console.error('Ошибка при сохранении пользователя:', error);
-        }
-    }
-
-    async function getCandidate(ctx: MyContext) {
-        const userId = String(ctx.message?.from.id)
-
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: { latitude: true, longitude: true, gender: true, interestedIn: true }
-        });
-
-        if (user) {
-            const candidates: User[] = await prisma.$queryRaw`
-                SELECT * FROM "User"
-                WHERE "id" <> ${userId}
-                    AND "id" NOT IN (
-                        SELECT "targetId" FROM "UserLike" WHERE "userId" = ${userId}
-                    )
-                    AND (
-                        CASE 
-                            WHEN ${user.interestedIn} = 'all' THEN TRUE
-                            ELSE "gender"::text = ${user.interestedIn}
-                        END
-                    )
-                    AND (
-                        CASE 
-                            WHEN ${user.interestedIn} = 'all' THEN TRUE
-                            ELSE "interestedIn"::text = ${user.gender}
-                        END
-                    )
-
-                ORDER BY (
-                    6371 * acos(
-                        cos(radians(${user.latitude})) * cos(radians("latitude")) *
-                        cos(radians("longitude") - radians(${user.longitude})) +
-                        sin(radians(${user.latitude})) * sin(radians("latitude"))
-                    )
-                ) ASC
-                LIMIT 1;
-            `;
-
-            return candidates[0]
-        }
-
-    }
-
-
     bot.use(i18n);
 
-    const checkSubscriptionMiddleware = async (ctx: MyContext, next: () => Promise<void>) => {
-        if (ctx.message?.text?.startsWith('/start') || ctx.session.step === 'choose_language_start') {
-            ctx.session.isNeededSubscription = false;
-            await next();
-            return
-        }
-
-        // if (ctx.session.isNeededSubscription) {
-        //     await ctx.reply(ctx.t('not_subscribed'), {
-        //         reply_markup: subscribeChannelKeyboard(ctx.t),
-        //     });
-        // }
-
-        const isSubscribed = await checkSubscription(ctx, String(process.env.CHANNEL_NAME));
-        if (isSubscribed) {
-            if (ctx.session.isNeededSubscription) {
-                await ctx.reply(ctx.t('thanks_for_subscription'), {
-                    reply_markup: {
-                        remove_keyboard: true
-                    },
-                });
-            }
-            ctx.session.isNeededSubscription = false;
-            await next();
-        } else {
-            ctx.session.isNeededSubscription = true;
-
-            await ctx.reply(ctx.t('need_subscription'), {
-                reply_markup: subscribeChannelKeyboard(ctx.t),
-                parse_mode: "Markdown"
-            });
-        }
-    };
-
     bot.use(checkSubscriptionMiddleware)
-
 
 
     bot.command("start", async (ctx) => {
@@ -211,11 +58,8 @@ async function startBot() {
         if (existingUser) {
             ctx.session.step = "profile";
 
-            const user = await prisma.user.findUnique({
-                where: { id: String(ctx.message?.from.id) },
-            });
 
-            await sendForm(ctx, user)
+            await sendForm(ctx)
 
             await ctx.reply(ctx.t('profile_menu'), {
                 reply_markup: profileKeyboard()
@@ -223,8 +67,29 @@ async function startBot() {
         } else {
             ctx.session.step = "choose_language_start";
 
-            ctx.reply(ctx.t('choose_language'), {
+            await ctx.reply(ctx.t('choose_language'), {
                 reply_markup: languageKeyboard
+            })
+        }
+    });
+
+    bot.command("deactivate", async (ctx) => {
+        const userId = String(ctx.message?.from.id);
+
+        const existingUser = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+        if (existingUser) {
+            ctx.session.step = 'disable_form'
+
+            await ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
+                reply_markup: disableFormKeyboard()
+            })
+        } else {
+            ctx.session.step = "you_dont_have_form";
+
+            await ctx.reply(ctx.t('you_dont_have_form'), {
+                reply_markup: notHaveFormToDeactiveKeyboard(ctx.t)
             })
         }
     });
@@ -238,11 +103,8 @@ async function startBot() {
         if (existingUser) {
             ctx.session.step = "profile";
 
-            const user = await prisma.user.findUnique({
-                where: { id: String(ctx.message?.from.id) },
-            });
 
-            await sendForm(ctx, user)
+            await sendForm(ctx)
 
             await ctx.reply(ctx.t('profile_menu'), {
                 reply_markup: profileKeyboard()
@@ -409,7 +271,11 @@ async function startBot() {
                         }
 
                         if (nearestCity) {
-                            console.log("Ближайший город:", nearestCity.name, `(${minDistance.toFixed(2)} км)`);
+                            ctx.logger.info({
+                                nearestCity: nearestCity.name,
+                                distance: `${minDistance.toFixed(2)} км`,
+                                msg: "Ближайший город"
+                            })
                             ctx.session.form.city = nearestCity.name
                             ctx.session.form.ownCoordinates = true
                             ctx.session.form.location = { longitude: nearestCity.longitude, latitude: nearestCity.latitude }
@@ -480,11 +346,8 @@ async function startBot() {
                     ctx.session.step = 'profile'
                     ctx.session.additionalFormInfo.canGoBack = false
 
-                    const user = await prisma.user.findUnique({
-                        where: { id: String(ctx.message?.from.id) },
-                    });
 
-                    await sendForm(ctx, user)
+                    await sendForm(ctx)
 
                     await ctx.reply(ctx.t('profile_menu'), {
                         reply_markup: profileKeyboard()
@@ -501,11 +364,8 @@ async function startBot() {
                         ctx.session.additionalFormInfo.canGoBack = false
 
                         await saveForm(ctx)
-                        const user = await prisma.user.findUnique({
-                            where: { id: String(ctx.message?.from.id) },
-                        });
 
-                        await sendForm(ctx, user)
+                        await sendForm(ctx)
                         await ctx.reply(ctx.t('profile_menu'), {
                             reply_markup: profileKeyboard()
                         });
@@ -530,11 +390,8 @@ async function startBot() {
                     ctx.session.step = 'profile'
                     ctx.session.additionalFormInfo.canGoBack = false
 
-                    const user = await prisma.user.findUnique({
-                        where: { id: String(ctx.message?.from.id) },
-                    });
 
-                    await sendForm(ctx, user)
+                    await sendForm(ctx)
                     await ctx.reply(ctx.t('profile_menu'), {
                         reply_markup: profileKeyboard()
                     });
@@ -547,11 +404,8 @@ async function startBot() {
 
                     if (message === ctx.t("leave_current") && user?.files && files.length > 0) {
                         await saveForm(ctx)
-                        const user = await prisma.user.findUnique({
-                            where: { id: String(ctx.message?.from.id) },
-                        });
 
-                        await sendForm(ctx, user)
+                        await sendForm(ctx)
                         ctx.session.question = "all_right";
 
 
@@ -589,11 +443,8 @@ async function startBot() {
                     ctx.session.step = 'profile'
                     ctx.session.additionalFormInfo.canGoBack = false
 
-                    const user = await prisma.user.findUnique({
-                        where: { id: String(ctx.message?.from.id) },
-                    });
 
-                    await sendForm(ctx, user)
+                    await sendForm(ctx)
                     await ctx.reply(ctx.t('profile_menu'), {
                         reply_markup: profileKeyboard()
                     });
@@ -605,11 +456,8 @@ async function startBot() {
                         ctx.session.additionalFormInfo.canGoBack = false
 
                         await saveForm(ctx)
-                        const user = await prisma.user.findUnique({
-                            where: { id: String(ctx.message?.from.id) },
-                        });
 
-                        await sendForm(ctx, user)
+                        await sendForm(ctx)
                         await ctx.reply(ctx.t('profile_menu'), {
                             reply_markup: profileKeyboard()
                         });
@@ -621,11 +469,8 @@ async function startBot() {
                         ctx.session.additionalFormInfo.canGoBack = false
 
                         await saveForm(ctx)
-                        const user = await prisma.user.findUnique({
-                            where: { id: String(ctx.message?.from.id) },
-                        });
 
-                        await sendForm(ctx, user)
+                        await sendForm(ctx)
                         await ctx.reply(ctx.t('all_right_question'), {
                             reply_markup: allRightKeyboard(ctx.t)
                         });
@@ -654,11 +499,8 @@ async function startBot() {
                                 ctx.session.additionalFormInfo.canGoBack = false
 
                                 await saveForm(ctx)
-                                const user = await prisma.user.findUnique({
-                                    where: { id: String(ctx.message?.from.id) },
-                                });
 
-                                await sendForm(ctx, user)
+                                await sendForm(ctx)
                                 await ctx.reply(ctx.t('profile_menu'), {
                                     reply_markup: profileKeyboard()
                                 });
@@ -667,11 +509,8 @@ async function startBot() {
                                 ctx.session.form.files = ctx.session.form.temp_files
                                 ctx.session.form.temp_files = []
                                 await saveForm(ctx)
-                                const user = await prisma.user.findUnique({
-                                    where: { id: String(ctx.message?.from.id) },
-                                });
 
-                                await sendForm(ctx, user)
+                                await sendForm(ctx)
 
                                 await ctx.reply(ctx.t('all_right_question'), {
                                     reply_markup: allRightKeyboard(ctx.t)
@@ -698,9 +537,7 @@ async function startBot() {
                     ctx.session.question = 'years'
 
                     await ctx.reply("✨🔍", {
-                        reply_markup: {
-                            remove_keyboard: true
-                        }
+                        reply_markup: answerFormKeyboard()
                     });
 
                 } else if (message === ctx.t('change_form')) {
@@ -723,15 +560,14 @@ async function startBot() {
                 ctx.session.question = 'years'
 
                 await ctx.reply("✨🔍", {
-                    reply_markup: {
-                        remove_keyboard: true
-                    }
+                    reply_markup: answerFormKeyboard()
                 });
 
                 const candidate = await getCandidate(ctx)
-                console.log(candidate)
+                ctx.logger.info(candidate, 'This is new candidate')
 
-                await sendForm(ctx, candidate || null, { notSendThisIs: true })
+                await sendForm(ctx, candidate || null, { myForm: false })
+
             } else if (message === '2') {
                 ctx.session.step = 'questions'
                 ctx.session.question = 'years'
@@ -743,6 +579,7 @@ async function startBot() {
             } else if (message === '3') {
                 ctx.session.step = 'questions'
                 ctx.session.question = 'file'
+
                 ctx.session.additionalFormInfo.canGoBack = true
 
                 await ctx.reply(ctx.t('file_question'), {
@@ -762,6 +599,201 @@ async function startBot() {
                     reply_markup: profileKeyboard()
                 });
             }
+        } else if (ctx.session.step === 'sleep_menu') {
+            if (message === '1🚀') {
+                ctx.session.step = 'search_people'
+                ctx.session.question = 'years'
+
+                await ctx.reply("✨🔍", {
+                    reply_markup: answerFormKeyboard()
+                });
+
+                const candidate = await getCandidate(ctx)
+                ctx.logger.info(candidate, 'This is new candidate')
+
+                await sendForm(ctx, candidate || null, { myForm: false })
+
+            } else if (message === '2') {
+                ctx.session.step = 'profile';
+
+                await sendForm(ctx)
+                await ctx.reply(ctx.t('profile_menu'), {
+                    reply_markup: profileKeyboard()
+                });
+
+            } else if (message === '3') {
+                ctx.session.step = 'disable_form'
+
+                await ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
+                    reply_markup: disableFormKeyboard()
+                })
+
+            } else if (message === '4') {
+                ctx.session.step = 'friends'
+
+
+                await ctx.reply(ctx.t('invite_friends_message', { bonus: 0, comeIn14Days: 0 }), {
+                    reply_markup: goBackKeyboard(ctx.t)
+                });
+                await ctx.reply(ctx.t('invite_link_message', { link: '' }), {
+                    reply_markup: goBackKeyboard(ctx.t)
+                });
+            } else {
+                await ctx.reply(ctx.t('no_such_answer'), {
+                    reply_markup: profileKeyboard()
+                });
+            }
+        } else if (ctx.session.step === 'friends') {
+            ctx.session.step = 'sleep_menu'
+
+            await ctx.reply(ctx.t('sleep_menu'), {
+                reply_markup: profileKeyboard()
+            })
+        } else if (ctx.session.step === 'disable_form') {
+            if (message === '1') {
+                await toggleUserActive(ctx, false)
+
+                ctx.session.step = 'form_disabled'
+
+                await ctx.reply(ctx.t('form_disabled_message'), {
+                    reply_markup: formDisabledKeyboard(ctx.t)
+                });
+
+            } else if (message === '2') {
+                ctx.session.step = 'sleep_menu';
+
+                await ctx.reply(ctx.t('sleep_menu'), {
+                    reply_markup: profileKeyboard()
+                });
+
+            } else {
+                await ctx.reply(ctx.t('no_such_answer'), {
+                    reply_markup: disableFormKeyboard()
+                });
+            }
+        } else if (ctx.session.step === 'form_disabled') {
+            if (message === ctx.t("search_people")) {
+                ctx.session.step = 'profile'
+
+                await sendForm(ctx)
+                await ctx.reply(ctx.t('profile_menu'), {
+                    reply_markup: profileKeyboard()
+                });
+
+            } else {
+                await ctx.reply(ctx.t('no_such_answer'), {
+                    reply_markup: disableFormKeyboard()
+                });
+            }
+        } else if (ctx.session.step === 'you_dont_have_form') {
+            if (message === ctx.t('create_form')) {
+                if (ctx.session.privacyAccepted) {
+                    ctx.session.step = "questions";
+                    ctx.session.question = 'years'
+
+                    await ctx.reply(ctx.t('years_question'), {
+                        reply_markup: ageKeyboard(ctx.session)
+                    });
+                } else {
+                    ctx.session.step = "accept_privacy";
+
+                    await ctx.reply(ctx.t('privacy_message'), {
+                        reply_markup: acceptPrivacyKeyboard(ctx.t),
+                    });
+                }
+            } else {
+                await ctx.reply(ctx.t('no_such_answer'), {
+                    reply_markup: notHaveFormToDeactiveKeyboard(ctx.t)
+                });
+            }
+        } else if (ctx.session.step === 'search_people') {
+            if (message === '♥️') {
+                if (ctx.session.currentCandidate) {
+                    await saveLike(ctx, ctx.session.currentCandidate.id, true);
+                }
+
+                const candidate = await getCandidate(ctx)
+                ctx.logger.info(candidate, 'This is new candidate')
+
+                await sendForm(ctx, candidate || null, { myForm: false })
+            } else if (message === '💌/📹') {
+                ctx.session.step = 'text_or_video_to_user'
+                ctx.session.additionalFormInfo.awaitingLikeContent = true;
+
+                await ctx.reply(ctx.t('text_or_video_to_user'), {
+                    reply_markup: {
+                        remove_keyboard: true
+                    }
+                })
+
+            } else if (message === '👎') {
+                if (ctx.session.currentCandidate) {
+                    await saveLike(ctx, ctx.session.currentCandidate.id, false);
+                }
+
+                const candidate = await getCandidate(ctx)
+                ctx.logger.info(candidate, 'This is new candidate')
+
+                await sendForm(ctx, candidate || null, { myForm: false })
+            } else if (message === '💤') {
+                ctx.session.step = 'sleep_menu'
+                await ctx.reply(ctx.t('wait_somebody_to_see_your_form'))
+
+                await ctx.reply(ctx.t('sleep_menu'), {
+                    reply_markup: profileKeyboard()
+                })
+            } else {
+                await ctx.reply(ctx.t('no_such_answer'), {
+                    reply_markup: answerFormKeyboard()
+                });
+            }
+        } else if (ctx.session.step === 'text_or_video_to_user') {
+            if (!ctx.session.currentCandidate || !ctx.session.additionalFormInfo.awaitingLikeContent) {
+                ctx.session.step = 'search_people';
+                await ctx.reply(ctx.t('operation_cancelled'), {
+                    reply_markup: answerFormKeyboard()
+                });
+                const candidate = await getCandidate(ctx);
+                await sendForm(ctx, candidate || null, { myForm: false });
+                ctx.logger.info(candidate, 'This is new candidate')
+
+                return;
+            }
+
+            const isVideo = ctx.message?.video;
+
+            if (isVideo) {
+                if (ctx.message.video?.duration && ctx.message.video.duration > 15) {
+                    await ctx.reply(ctx.t('video_must_be_less_15'));
+                    return;
+                }
+
+
+                await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+                    videoFileId: ctx.message.video?.file_id
+                });
+            } else if (message) {
+                await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+                    message: message
+                });
+            }
+
+            // Возвращаемся к поиску и показываем следующую анкету
+            ctx.session.step = 'search_people';
+            ctx.session.additionalFormInfo.awaitingLikeContent = false;
+
+            await ctx.reply(ctx.t('like_sended_wait_for_answer'), {
+                reply_markup: {
+                    remove_keyboard: true
+                }
+            });
+
+            await ctx.reply("✨🔍", {
+                reply_markup: answerFormKeyboard()
+            });
+            const candidate = await getCandidate(ctx);
+            await sendForm(ctx, candidate || null, { myForm: false });
+            ctx.logger.info(candidate, 'This is new candidate')
         } else {
             await ctx.reply(ctx.t('no_such_answer'));
         }

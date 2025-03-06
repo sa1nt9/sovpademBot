@@ -1,5 +1,5 @@
 import { TranslateFunction } from "@grammyjs/i18n"
-import { ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove } from "grammy/types"
+import { ReplyKeyboardMarkup, ReplyKeyboardRemove } from "grammy/types"
 import { ISessionData } from "../typescript/interfaces/ISessionData"
 
 
@@ -16,6 +16,7 @@ export const languageKeyboard: ReplyKeyboardMarkup = {
 export const prepareMessageKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
     keyboard: [[t("ok_lets_start")]],
     resize_keyboard: true,
+    is_persistent: true,
 })
 
 export const acceptPrivacyKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
@@ -23,6 +24,7 @@ export const acceptPrivacyKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup
         [t("ok")]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 })
 
 export const genderKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
@@ -88,6 +90,7 @@ export const allRightKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => (
         [t("yes"), t("change_form")]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 })
 
 export const subscribeChannelKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
@@ -95,6 +98,7 @@ export const subscribeChannelKeyboard = (t: TranslateFunction): ReplyKeyboardMar
         [t("ready")]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 })
 
 export const ageKeyboard = (session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => {
@@ -130,4 +134,46 @@ export const profileKeyboard = (): ReplyKeyboardMarkup => ({
         ["1🚀", "2", "3", "4"]
     ],
     resize_keyboard: true,
+    is_persistent: true,
 })
+
+export const answerFormKeyboard = (): ReplyKeyboardMarkup => ({
+    keyboard: [
+        ["♥️", "💌/📹", "👎", "💤"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+})
+
+export const disableFormKeyboard = (): ReplyKeyboardMarkup => ({
+    keyboard: [
+        ["1", "2"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+})
+
+export const formDisabledKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("search_people")]
+    ],
+    is_persistent: true,
+    resize_keyboard: true,
+})
+
+export const notHaveFormToDeactiveKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("create_form")]
+    ],
+    is_persistent: true,
+    resize_keyboard: true,
+})
+
+export const goBackKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("back")]
+    ],
+    is_persistent: true,
+    resize_keyboard: true,
+})
+
