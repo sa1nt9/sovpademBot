@@ -219,3 +219,5 @@ complain_will_be_examined = Жалоба будет обработана в бл
 complain_can_be_sended_only_while_searching = Жалобу можно оставить только при просмотре анкеты
 
 very_close_distance = Очень близко
+
+this_text_breaks_the_rules = Этот текст нарушает правила, введи другой

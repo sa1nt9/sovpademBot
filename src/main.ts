@@ -26,6 +26,7 @@ import { languageCommand } from './commands/language';
 import { deactivateCommand } from './commands/deactivate';
 import { startCommand } from './commands/start';
 import { complainCommand } from './commands/complain';
+import { hasLinks } from './functions/hasLinks';
 
 
 dotenv.config();
@@ -294,6 +295,10 @@ async function startBot() {
                     });
                 } else if (message && message.length > 1000) {
                     await ctx.reply(ctx.t('long_text'), {
+                        reply_markup: textKeyboard(ctx.t, ctx.session)
+                    });
+                }  else if (hasLinks(message || "")) {
+                    await ctx.reply(ctx.t('this_text_breaks_the_rules'), {
                         reply_markup: textKeyboard(ctx.t, ctx.session)
                     });
                 } else {

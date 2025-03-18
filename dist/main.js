@@ -73,6 +73,7 @@ const language_1 = require("./commands/language");
 const deactivate_1 = require("./commands/deactivate");
 const start_1 = require("./commands/start");
 const complain_1 = require("./commands/complain");
+const hasLinks_1 = require("./functions/hasLinks");
 dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
@@ -312,6 +313,11 @@ function startBot() {
                     }
                     else if (message && message.length > 1000) {
                         yield ctx.reply(ctx.t('long_text'), {
+                            reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
+                        });
+                    }
+                    else if ((0, hasLinks_1.hasLinks)(message || "")) {
+                        yield ctx.reply(ctx.t('this_text_breaks_the_rules'), {
                             reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
                         });
                     }
