@@ -9,6 +9,7 @@ export const postgresClient = new Client({
     user: process.env.POSTGRES_USERNAME || 'postgres',
     password: process.env.POSTGRES_PASSWORD || 'root',
     database: process.env.POSTGRES_NAME || 'postgres',
+    
 });
 
 export const connectPostgres = async () => {

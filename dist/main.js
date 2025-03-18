@@ -45,6 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.bot = void 0;
 const logger_1 = require("./logger");
 const grammy_1 = require("grammy");
 const dotenv = __importStar(require("dotenv"));
@@ -63,98 +64,38 @@ const checkSubscriptionMiddleware_1 = require("./middlewares/checkSubscriptionMi
 const storage_prisma_1 = require("@grammyjs/storage-prisma");
 const saveLike_1 = require("./functions/db/saveLike");
 const toggleUserActive_1 = require("./functions/db/toggleUserActive");
+const encodeId_1 = require("./functions/encodeId");
+const sendLikesNotification_1 = require("./functions/sendLikesNotification");
+const getOneLike_1 = require("./functions/db/getOneLike");
+const setMutualLike_1 = require("./functions/db/setMutualLike");
+const myprofile_1 = require("./commands/myprofile");
+const language_1 = require("./commands/language");
+const deactivate_1 = require("./commands/deactivate");
+const start_1 = require("./commands/start");
+const complain_1 = require("./commands/complain");
 dotenv.config();
+exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
     return __awaiter(this, void 0, void 0, function* () {
-        const bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
         yield (0, postgres_1.connectPostgres)();
-        bot.catch(error_1.errorHandler);
-        bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+        exports.bot.catch(error_1.errorHandler);
+        exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
             ctx.logger = logger_1.logger;
             yield next();
         }));
-        bot.use((0, grammy_1.session)({
+        exports.bot.use((0, grammy_1.session)({
             initial: sessionInitial_1.sessionInitial,
             storage: new storage_prisma_1.PrismaAdapter(postgres_1.prisma.session),
         }));
-        bot.use(i18n_1.i18n);
-        bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
-        bot.command("start", (ctx) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-            const existingUser = yield postgres_1.prisma.user.findUnique({
-                where: { id: userId },
-            });
-            if (existingUser) {
-                ctx.session.step = "profile";
-                yield (0, sendForm_1.sendForm)(ctx);
-                yield ctx.reply(ctx.t('profile_menu'), {
-                    reply_markup: (0, keyboards_1.profileKeyboard)()
-                });
-            }
-            else {
-                ctx.session.step = "choose_language_start";
-                yield ctx.reply(ctx.t('choose_language'), {
-                    reply_markup: keyboards_1.languageKeyboard
-                });
-            }
-        }));
-        bot.command("deactivate", (ctx) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-            const existingUser = yield postgres_1.prisma.user.findUnique({
-                where: { id: userId },
-            });
-            if (existingUser) {
-                ctx.session.step = 'disable_form';
-                yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
-                    reply_markup: (0, keyboards_1.disableFormKeyboard)()
-                });
-            }
-            else {
-                ctx.session.step = "you_dont_have_form";
-                yield ctx.reply(ctx.t('you_dont_have_form'), {
-                    reply_markup: (0, keyboards_1.notHaveFormToDeactiveKeyboard)(ctx.t)
-                });
-            }
-        }));
-        bot.command("myprofile", (ctx) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-            const existingUser = yield postgres_1.prisma.user.findUnique({
-                where: { id: userId },
-            });
-            if (existingUser) {
-                ctx.session.step = "profile";
-                yield (0, sendForm_1.sendForm)(ctx);
-                yield ctx.reply(ctx.t('profile_menu'), {
-                    reply_markup: (0, keyboards_1.profileKeyboard)()
-                });
-            }
-            else {
-                if (ctx.session.privacyAccepted) {
-                    ctx.session.step = "questions";
-                    ctx.session.question = 'years';
-                    yield ctx.reply(ctx.t('years_question'), {
-                        reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
-                    });
-                }
-                else {
-                    ctx.session.step = "accept_privacy";
-                    yield ctx.reply(ctx.t('privacy_message'), {
-                        reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),
-                    });
-                }
-            }
-        }));
-        bot.command("language", (ctx) => {
-            ctx.session.step = "choose_language";
-            ctx.reply(ctx.t('choose_language'), {
-                reply_markup: keyboards_1.languageKeyboard
-            });
-        });
-        bot.on("message", (ctx) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+        exports.bot.use(i18n_1.i18n);
+        exports.bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
+        exports.bot.command("start", start_1.startCommand);
+        exports.bot.command("deactivate", deactivate_1.deactivateCommand);
+        exports.bot.command("complain", complain_1.complainCommand);
+        exports.bot.command("myprofile", myprofile_1.myprofileCommand);
+        exports.bot.command("language", language_1.languageCommand);
+        exports.bot.on("message", (ctx) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
             const message = ctx.message.text;
             if (ctx.session.step === "choose_language_start") {
                 const language = languages_1.languages.find(i => i.name === message);
@@ -269,7 +210,13 @@ function startBot() {
                     }
                 }
                 else if (ctx.session.question === "city") {
-                    if (ctx.message.location) {
+                    if (message === `${((_c = ctx.session.form) === null || _c === void 0 ? void 0 : _c.ownCoordinates) ? "📍 " : ""}${(_d = ctx.session.form) === null || _d === void 0 ? void 0 : _d.city}`) {
+                        ctx.session.question = "name";
+                        yield ctx.reply(ctx.t('name_question'), {
+                            reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
+                        });
+                    }
+                    else if (ctx.message.location) {
                         const { latitude, longitude } = ctx.message.location;
                         try {
                             const cities = JSON.parse(fs_1.default.readFileSync("./data/cities.json", "utf-8"));
@@ -419,9 +366,9 @@ function startBot() {
                             });
                         }
                         else {
-                            const isImage = (_c = ctx.message) === null || _c === void 0 ? void 0 : _c.photo;
-                            const isVideo = (_d = ctx.message) === null || _d === void 0 ? void 0 : _d.video;
-                            if (isVideo && ((_f = (_e = ctx.message) === null || _e === void 0 ? void 0 : _e.video) === null || _f === void 0 ? void 0 : _f.duration) && ((_h = (_g = ctx.message) === null || _g === void 0 ? void 0 : _g.video) === null || _h === void 0 ? void 0 : _h.duration) < 15) {
+                            const isImage = (_e = ctx.message) === null || _e === void 0 ? void 0 : _e.photo;
+                            const isVideo = (_f = ctx.message) === null || _f === void 0 ? void 0 : _f.video;
+                            if (isVideo && ((_h = (_g = ctx.message) === null || _g === void 0 ? void 0 : _g.video) === null || _h === void 0 ? void 0 : _h.duration) && ((_k = (_j = ctx.message) === null || _j === void 0 ? void 0 : _j.video) === null || _k === void 0 ? void 0 : _k.duration) < 15) {
                                 yield ctx.reply(ctx.t('video_must_be_less_15'), {
                                     reply_markup: (0, keyboards_1.fileKeyboard)(ctx.t, ctx.session, files.length > 0)
                                 });
@@ -478,9 +425,9 @@ function startBot() {
                         }
                     }
                     else {
-                        const isImage = (_j = ctx.message) === null || _j === void 0 ? void 0 : _j.photo;
-                        const isVideo = (_k = ctx.message) === null || _k === void 0 ? void 0 : _k.video;
-                        if (isVideo && ((_m = (_l = ctx.message) === null || _l === void 0 ? void 0 : _l.video) === null || _m === void 0 ? void 0 : _m.duration) && ((_p = (_o = ctx.message) === null || _o === void 0 ? void 0 : _o.video) === null || _p === void 0 ? void 0 : _p.duration) < 15) {
+                        const isImage = (_l = ctx.message) === null || _l === void 0 ? void 0 : _l.photo;
+                        const isVideo = (_m = ctx.message) === null || _m === void 0 ? void 0 : _m.video;
+                        if (isVideo && ((_p = (_o = ctx.message) === null || _o === void 0 ? void 0 : _o.video) === null || _p === void 0 ? void 0 : _p.duration) && ((_r = (_q = ctx.message) === null || _q === void 0 ? void 0 : _q.video) === null || _r === void 0 ? void 0 : _r.duration) < 15) {
                             yield ctx.reply(ctx.t('video_must_be_less_15'), {
                                 reply_markup: (0, keyboards_1.someFilesAddedKeyboard)(ctx.t, ctx.session)
                             });
@@ -536,6 +483,9 @@ function startBot() {
                         yield ctx.reply("✨🔍", {
                             reply_markup: (0, keyboards_1.answerFormKeyboard)()
                         });
+                        const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                        ctx.logger.info(candidate, 'This is new candidate');
+                        yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
                     }
                     else if (message === ctx.t('change_form')) {
                         ctx.session.step = 'profile';
@@ -616,11 +566,32 @@ function startBot() {
                 }
                 else if (message === '4') {
                     ctx.session.step = 'friends';
-                    yield ctx.reply(ctx.t('invite_friends_message', { bonus: 0, comeIn14Days: 0 }), {
-                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    const encodedId = (0, encodeId_1.encodeId)(String(ctx.message.from.id));
+                    const url = `https://t.me/${process.env.BOT_USERNAME}?start=i_${encodedId}`;
+                    const text = `${ctx.t('invite_link_message', { botname: process.env.CHANNEL_NAME || "" })}`;
+                    const now = new Date();
+                    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+                    const comeIn14Days = yield postgres_1.prisma.user.count({
+                        where: {
+                            referrerId: String(ctx.message.from.id),
+                            createdAt: {
+                                gte: fourteenDaysAgo
+                            }
+                        }
                     });
-                    yield ctx.reply(ctx.t('invite_link_message', { link: '' }), {
-                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    const comeInAll = yield postgres_1.prisma.user.count({
+                        where: {
+                            referrerId: String(ctx.message.from.id)
+                        }
+                    });
+                    const bonus = Math.min(comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5, 100);
+                    yield ctx.reply(ctx.t('invite_friends_message', { bonus, comeIn14Days, comeInAll }), {
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t),
+                    });
+                    const inviteLinkText = `${ctx.t('invite_link_message', { botname: process.env.CHANNEL_NAME || "" })}
+👉 ${url}`;
+                    yield ctx.reply(inviteLinkText, {
+                        reply_markup: (0, keyboards_1.inviteFriendsKeyboard)(ctx.t, url, text),
                     });
                 }
                 else {
@@ -691,10 +662,40 @@ function startBot() {
                     });
                 }
             }
+            else if (ctx.session.step === 'cannot_send_complain') {
+                const existingUser = yield postgres_1.prisma.user.findUnique({
+                    where: { id: String(ctx.message.from.id) },
+                });
+                if (existingUser) {
+                    ctx.session.step = 'search_people';
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else {
+                    if (ctx.session.privacyAccepted) {
+                        ctx.session.step = "questions";
+                        ctx.session.question = 'years';
+                        yield ctx.reply(ctx.t('years_question'), {
+                            reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
+                        });
+                    }
+                    else {
+                        ctx.session.step = "accept_privacy";
+                        yield ctx.reply(ctx.t('privacy_message'), {
+                            reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),
+                        });
+                    }
+                }
+            }
             else if (ctx.session.step === 'search_people') {
-                if (message === '♥️') {
+                if (message === '❤️') {
                     if (ctx.session.currentCandidate) {
                         yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true);
+                        yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
                     }
                     const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
                     ctx.logger.info(candidate, 'This is new candidate');
@@ -704,9 +705,7 @@ function startBot() {
                     ctx.session.step = 'text_or_video_to_user';
                     ctx.session.additionalFormInfo.awaitingLikeContent = true;
                     yield ctx.reply(ctx.t('text_or_video_to_user'), {
-                        reply_markup: {
-                            remove_keyboard: true
-                        }
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t, true)
                     });
                 }
                 else if (message === '👎') {
@@ -730,6 +729,74 @@ function startBot() {
                     });
                 }
             }
+            else if (ctx.session.step === 'search_people_with_likes') {
+                if (message === '❤️') {
+                    if (ctx.session.currentCandidate) {
+                        ctx.logger.info(ctx.session.currentCandidate, 'Candidate to set mutual like');
+                        yield (0, setMutualLike_1.setMutualLike)(ctx.session.currentCandidate.id, String(ctx.from.id));
+                        yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, { isMutual: true });
+                        const userInfo = yield exports.bot.api.getChat(ctx.session.currentCandidate.id);
+                        yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id, true);
+                        ctx.session.step = 'continue_see_likes_forms';
+                        yield ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidate.name}](https://t.me/${userInfo.username})`, {
+                            parse_mode: 'Markdown',
+                            reply_markup: (0, keyboards_1.continueSeeFormsKeyboard)(ctx.t)
+                        });
+                    }
+                }
+                else if (message === '👎') {
+                    if (ctx.session.currentCandidate) {
+                        yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, false);
+                        const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id));
+                        if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.user) {
+                            yield (0, sendForm_1.sendForm)(ctx, oneLike.user, { myForm: false, like: oneLike });
+                        }
+                        else {
+                            ctx.session.step = 'continue_see_forms';
+                            ctx.session.additionalFormInfo.searchingLikes = false;
+                            yield ctx.reply(ctx.t('its_all_go_next_question'), {
+                                reply_markup: (0, keyboards_1.continueSeeFormsKeyboard)(ctx.t)
+                            });
+                        }
+                    }
+                }
+                else {
+                    yield ctx.reply(ctx.t('no_such_answer'), {
+                        reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
+                    });
+                }
+            }
+            else if (ctx.session.step === 'continue_see_forms') {
+                ctx.session.step = 'search_people';
+                ctx.session.question = 'years';
+                yield ctx.reply("✨🔍", {
+                    reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                });
+                const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                ctx.logger.info(candidate, 'This is new candidate');
+                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+            }
+            else if (ctx.session.step === 'continue_see_likes_forms') {
+                ctx.session.step = 'search_people_with_likes';
+                ctx.session.additionalFormInfo.searchingLikes = true;
+                const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id));
+                if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.user) {
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
+                    });
+                    yield (0, sendForm_1.sendForm)(ctx, oneLike.user, { myForm: false, like: oneLike });
+                }
+                else {
+                    ctx.session.step = 'search_people';
+                    ctx.session.additionalFormInfo.searchingLikes = false;
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+            }
             else if (ctx.session.step === 'text_or_video_to_user') {
                 if (!ctx.session.currentCandidate || !ctx.session.additionalFormInfo.awaitingLikeContent) {
                     ctx.session.step = 'search_people';
@@ -741,22 +808,38 @@ function startBot() {
                     ctx.logger.info(candidate, 'This is new candidate');
                     return;
                 }
-                const isVideo = (_q = ctx.message) === null || _q === void 0 ? void 0 : _q.video;
+                if (message === ctx.t('go_back')) {
+                    ctx.session.step = 'search_people';
+                    ctx.session.question = 'years';
+                    ctx.session.additionalFormInfo.awaitingLikeContent = false;
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    ctx.logger.info(candidate, 'This is new candidate');
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                    return;
+                }
+                const isVideo = (_s = ctx.message) === null || _s === void 0 ? void 0 : _s.video;
                 if (isVideo) {
-                    if (((_r = ctx.message.video) === null || _r === void 0 ? void 0 : _r.duration) && ctx.message.video.duration > 15) {
+                    if (((_t = ctx.message.video) === null || _t === void 0 ? void 0 : _t.duration) && ctx.message.video.duration > 15) {
                         yield ctx.reply(ctx.t('video_must_be_less_15'));
                         return;
                     }
                     yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, {
-                        videoFileId: (_s = ctx.message.video) === null || _s === void 0 ? void 0 : _s.file_id
+                        videoFileId: (_u = ctx.message.video) === null || _u === void 0 ? void 0 : _u.file_id
                     });
+                    yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
                 }
                 else if (message) {
                     yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, {
                         message: message
                     });
+                    yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
                 }
-                // Возвращаемся к поиску и показываем следующую анкету
+                else {
+                    yield ctx.reply(ctx.t('not_message_and_not_video'));
+                }
                 ctx.session.step = 'search_people';
                 ctx.session.additionalFormInfo.awaitingLikeContent = false;
                 yield ctx.reply(ctx.t('like_sended_wait_for_answer'), {
@@ -771,11 +854,139 @@ function startBot() {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
                 ctx.logger.info(candidate, 'This is new candidate');
             }
+            else if (ctx.session.step === 'somebodys_liked_you') {
+                if (message === '1 👍') {
+                    ctx.session.step = 'search_people_with_likes';
+                    ctx.session.additionalFormInfo.searchingLikes = true;
+                    const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id));
+                    ctx.session.currentCandidate = oneLike === null || oneLike === void 0 ? void 0 : oneLike.user;
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
+                    });
+                    if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.user) {
+                        yield (0, sendForm_1.sendForm)(ctx, oneLike.user, { myForm: false, like: oneLike });
+                    }
+                }
+                else if (message === '2 💤') {
+                    ctx.session.step = 'disable_form';
+                    yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
+                        reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                    });
+                }
+                else {
+                    yield ctx.reply(ctx.t('no_such_answer'), {
+                        reply_markup: (0, keyboards_1.somebodysLikedYouKeyboard)()
+                    });
+                }
+            }
+            else if (ctx.session.step === 'complain') {
+                // Обработка выбора типа жалобы
+                if (message === '1 🔞') {
+                    ctx.session.additionalFormInfo.reportType = 'adult_content';
+                    ctx.session.step = 'complain_text';
+                    yield ctx.reply(ctx.t('write_complain_comment'), {
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    });
+                }
+                else if (message === '2 💰') {
+                    ctx.session.additionalFormInfo.reportType = 'sale';
+                    ctx.session.step = 'complain_text';
+                    yield ctx.reply(ctx.t('write_complain_comment'), {
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    });
+                }
+                else if (message === '3 💩') {
+                    ctx.session.additionalFormInfo.reportType = 'dislike';
+                    ctx.session.step = 'complain_text';
+                    yield ctx.reply(ctx.t('write_complain_comment'), {
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    });
+                }
+                else if (message === '4 🦨') {
+                    ctx.session.additionalFormInfo.reportType = 'other';
+                    ctx.session.step = 'complain_text';
+                    yield ctx.reply(ctx.t('write_complain_comment'), {
+                        reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                    });
+                }
+                else if (message === '9') {
+                    ctx.session.step = 'search_people';
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else {
+                    yield ctx.reply(ctx.t('complain_text'), {
+                        reply_markup: (0, keyboards_1.complainKeyboard)()
+                    });
+                }
+            }
+            else if (ctx.session.step === 'complain_text') {
+                // Сохранение жалобы с комментарием в базу данных
+                if (message === ctx.t('back')) {
+                    // Возврат к выбору типа жалобы
+                    ctx.session.step = 'complain';
+                    ctx.session.additionalFormInfo.reportType = undefined;
+                    yield ctx.reply(ctx.t('complain_text'), {
+                        reply_markup: (0, keyboards_1.complainKeyboard)()
+                    });
+                    return;
+                }
+                try {
+                    if (ctx.session.additionalFormInfo.reportType && ctx.session.currentCandidate) {
+                        // Создаем запись о жалобе в базе данных
+                        yield postgres_1.prisma.report.create({
+                            data: {
+                                reporterId: String((_v = ctx.from) === null || _v === void 0 ? void 0 : _v.id),
+                                targetId: (_w = ctx.session.currentCandidate) === null || _w === void 0 ? void 0 : _w.id,
+                                type: ctx.session.additionalFormInfo.reportType,
+                                text: message || undefined
+                            }
+                        });
+                        yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, false);
+                        // Очищаем данные о жалобе в сессии
+                        ctx.session.additionalFormInfo.reportType = undefined;
+                        // Информируем пользователя о принятии жалобы
+                        yield ctx.reply(ctx.t('complain_will_be_examined'));
+                    }
+                    if (ctx.session.additionalFormInfo.searchingLikes) {
+                        ctx.session.step = 'search_people_with_likes';
+                        const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id));
+                        yield ctx.reply("✨🔍", {
+                            reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
+                        });
+                        if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.user) {
+                            ctx.session.currentCandidate = oneLike === null || oneLike === void 0 ? void 0 : oneLike.user;
+                            yield (0, sendForm_1.sendForm)(ctx, oneLike.user, { myForm: false, like: oneLike });
+                        }
+                    }
+                    else {
+                        ctx.session.step = 'search_people';
+                        yield ctx.reply("✨🔍", {
+                            reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                        });
+                        const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                        yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                    }
+                }
+                catch (error) {
+                    ctx.logger.error(error, 'Error saving report');
+                    // В случае ошибки возвращаемся к просмотру анкет
+                    ctx.session.step = 'search_people';
+                    yield ctx.reply("✨🔍", {
+                        reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                    });
+                    const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+            }
             else {
                 yield ctx.reply(ctx.t('no_such_answer'));
             }
         }));
-        bot.start();
+        exports.bot.start();
     });
 }
 startBot();

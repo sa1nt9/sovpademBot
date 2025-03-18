@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.complainKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 exports.languageKeyboard = {
     keyboard: [
         ['🇷🇺 Русский', '🇬🇧 English', '🇺🇦 Українська'],
@@ -143,12 +143,20 @@ const profileKeyboard = () => ({
 exports.profileKeyboard = profileKeyboard;
 const answerFormKeyboard = () => ({
     keyboard: [
-        ["♥️", "💌/📹", "👎", "💤"]
+        ["❤️", "💌/📹", "👎", "💤"]
     ],
     resize_keyboard: true,
     is_persistent: true,
 });
 exports.answerFormKeyboard = answerFormKeyboard;
+const answerLikesFormKeyboard = () => ({
+    keyboard: [
+        ["❤️", "👎"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+});
+exports.answerLikesFormKeyboard = answerLikesFormKeyboard;
 const disableFormKeyboard = () => ({
     keyboard: [
         ["1", "2"]
@@ -173,11 +181,51 @@ const notHaveFormToDeactiveKeyboard = (t) => ({
     resize_keyboard: true,
 });
 exports.notHaveFormToDeactiveKeyboard = notHaveFormToDeactiveKeyboard;
-const goBackKeyboard = (t) => ({
+const goBackKeyboard = (t, go) => ({
     keyboard: [
-        [t("back")]
+        [go ? t("go_back") : t("back")]
     ],
     is_persistent: true,
     resize_keyboard: true,
 });
 exports.goBackKeyboard = goBackKeyboard;
+const inviteFriendsKeyboard = (t, url, text) => ({
+    inline_keyboard: [
+        [
+            {
+                text: t("send_telegram_friends"),
+                url: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
+            },
+        ],
+        [
+            {
+                text: t("send_whatsapp_friends"),
+                url: `https://wa.me/?text=${encodeURIComponent(`${text}
+${url}`)}`
+            }
+        ]
+    ],
+});
+exports.inviteFriendsKeyboard = inviteFriendsKeyboard;
+const somebodysLikedYouKeyboard = () => ({
+    keyboard: [
+        ["1 👍", "2 💤"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+});
+exports.somebodysLikedYouKeyboard = somebodysLikedYouKeyboard;
+const continueSeeFormsKeyboard = (t) => ({
+    keyboard: [
+        [t("continue_see_forms")]
+    ],
+    resize_keyboard: true,
+});
+exports.continueSeeFormsKeyboard = continueSeeFormsKeyboard;
+const complainKeyboard = () => ({
+    keyboard: [
+        ["1 🔞", "2 💰", "3 💩", "4 🦨", "9"]
+    ],
+    resize_keyboard: true,
+});
+exports.complainKeyboard = complainKeyboard;

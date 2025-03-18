@@ -20,6 +20,8 @@ function getCandidate(ctx) {
                 where: { id: userId },
             });
             if (user) {
+                const now = new Date();
+                const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
                 const candidates = yield postgres_1.prisma.$queryRaw `
                 WITH RankedUsers AS (
                     SELECT *,
@@ -27,7 +29,23 @@ function getCandidate(ctx) {
                             cos(radians(${user.latitude})) * cos(radians("latitude")) *
                             cos(radians("longitude") - radians(${user.longitude})) +
                             sin(radians(${user.latitude})) * sin(radians("latitude"))
-                        ) as distance
+                        ) as distance,
+                        CASE WHEN ${user.ownCoordinates} IS TRUE AND "ownCoordinates" IS TRUE THEN 1 ELSE 0 END as ownCoordSort,
+                        CAST(
+                            (
+                                SELECT COUNT(*) 
+                                FROM "User" as refs 
+                                WHERE refs."referrerId" = "User"."id" 
+                                AND refs."createdAt" >= ${fourteenDaysAgo}
+                            ) AS INTEGER
+                        ) as comeIn14Days,
+                        CAST(
+                            (
+                                SELECT COUNT(*) 
+                                FROM "User" as refs 
+                                WHERE refs."referrerId" = "User"."id"
+                            ) AS INTEGER
+                        ) as comeInAll
                     FROM "User"
                     WHERE "id" <> ${userId}
                         AND "isActive" = true
@@ -46,10 +64,18 @@ function getCandidate(ctx) {
                                 ELSE "interestedIn"::text = ${user.gender}
                             END
                         )
+                        AND ABS("age" - ${user.age}) <= 2
                 )
-                SELECT *
+                SELECT *,
+                    LEAST(
+                        comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5,
+                        100
+                    ) as bonus
                 FROM RankedUsers
-                ORDER BY distance ASC
+                ORDER BY 
+                    ownCoordSort DESC,
+                    ROUND(distance * 100) / 100, 
+                    bonus DESC
                 LIMIT 1;
             `;
                 const candidate = candidates[0];

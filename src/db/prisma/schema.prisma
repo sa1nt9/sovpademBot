@@ -18,31 +18,55 @@ model User {
     age            Int
     text           String
     files          Json // Массив файлов в JSON
-    ownCoordinates Boolean? // Может быть null
+    ownCoordinates Boolean      @default(false) // Может быть null
     createdAt      DateTime     @default(now()) // Дата создания
     isActive       Boolean      @default(true) // Активна ли анкета
+    referrerId     String? // ID пользователя, который пригласил
 
     likesGiven    UserLike[] @relation(name: "UserLikesTarget")
     likesReceived UserLike[] @relation(name: "TargetLikedByUser")
+
+    reportsGiven    Report[] @relation(name: "UserReports")
+    reportsReceived Report[] @relation(name: "UserReported")
 }
 
 model UserLike {
-    id        String   @id @default(uuid())
-    userId    String // Кто лайкнул
-    targetId  String // Кого лайкнули
-    liked     Boolean // true — лайк, false — дизлайк
-    message   String? // Текстовое сообщение к лайку
+    id          String   @id @default(uuid())
+    userId      String // Кто лайкнул
+    targetId    String // Кого лайкнули
+    liked       Boolean // true — лайк, false — дизлайк
+    message     String? // Текстовое сообщение к лайку
     videoFileId String? // ID файла видео, если было отправлено
-    createdAt DateTime @default(now())
+    createdAt   DateTime @default(now())
+    isMutual    Boolean  @default(false)
 
-    user   User @relation(name: "UserLikesTarget", fields: [userId], references: [id])
-    target User @relation(name: "TargetLikedByUser", fields: [targetId], references: [id])
+    user   User @relation(name: "UserLikesTarget", fields: [userId], references: [id], onDelete: Cascade)
+    target User @relation(name: "TargetLikedByUser", fields: [targetId], references: [id], onDelete: Cascade)
 }
 
 model Session {
-  id    Int    @id @default(autoincrement())
-  key   String @unique
-  value String
+    id    Int    @id @default(autoincrement())
+    key   String @unique
+    value String
+}
+
+model Report {
+    id         String     @id @default(uuid())
+    reporterId String // ID пользователя, который подал жалобу
+    targetId   String // ID пользователя, на которого подана жалоба
+    type       ReportType // Тип жалобы
+    text       String? // Дополнительный текст жалобы (опциональный)
+    createdAt  DateTime   @default(now())
+
+    reporter User @relation(name: "UserReports", fields: [reporterId], references: [id], onDelete: Cascade)
+    target   User @relation(name: "UserReported", fields: [targetId], references: [id], onDelete: Cascade)
+}
+
+enum ReportType {
+    other
+    sale
+    dislike
+    adult_content
 }
 
 enum Gender {

@@ -10,8 +10,14 @@
         "start": "tsc && tsx ./src/main.ts",
         "start:prod": "NODE_ENV=production tsc && tsx ./dist/main.js",
         "start:force": "tsx ./src/main.ts",
-        "migrate:create": "npx prisma migrate dev",
-        "migrate:reset": "npx prisma migrate reset"
+        "prisma:studio": "prisma studio",
+        "prisma:generate": "prisma generate",
+        "prisma:migrate:dev": "prisma migrate dev",
+        "prisma:migrate:deploy": "dprisma migrate deploy",
+        "prisma:seed": "ts-node prisma/seed.ts",
+        "prisma:reset": "prisma migrate reset --force",
+        "prisma:setup:dev": "npm run prisma:generate && npm run prisma:migrate:dev",
+        "prisma:setup:prod": " npm run prisma:generate && npm run prisma:migrate:deploy"
     },
     "prisma": {
         "schema": "src/db/prisma/schema.prisma"

@@ -1,6 +1,7 @@
 import { TranslateFunction } from "@grammyjs/i18n"
-import { ReplyKeyboardMarkup, ReplyKeyboardRemove } from "grammy/types"
+import { InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove } from "grammy/types"
 import { ISessionData } from "../typescript/interfaces/ISessionData"
+import { InlineKeyboard } from "grammy"
 
 
 export const languageKeyboard: ReplyKeyboardMarkup = {
@@ -139,7 +140,15 @@ export const profileKeyboard = (): ReplyKeyboardMarkup => ({
 
 export const answerFormKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
-        ["♥️", "💌/📹", "👎", "💤"]
+        ["❤️", "💌/📹", "👎", "💤"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+})
+
+export const answerLikesFormKeyboard = (): ReplyKeyboardMarkup => ({
+    keyboard: [
+        ["❤️", "👎"]
     ],
     resize_keyboard: true,
     is_persistent: true,
@@ -169,11 +178,52 @@ export const notHaveFormToDeactiveKeyboard = (t: TranslateFunction): ReplyKeyboa
     resize_keyboard: true,
 })
 
-export const goBackKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+export const goBackKeyboard = (t: TranslateFunction, go?: boolean): ReplyKeyboardMarkup => ({
     keyboard: [
-        [t("back")]
+        [go ? t("go_back") : t("back")]
     ],
     is_persistent: true,
+    resize_keyboard: true,
+})
+
+
+export const inviteFriendsKeyboard = (t: TranslateFunction, url: string, text: string): InlineKeyboardMarkup => ({
+    inline_keyboard: [
+        [
+            {
+                text: t("send_telegram_friends"),
+                url: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
+            },
+        ],
+        [
+            {
+                text: t("send_whatsapp_friends"),
+                url: `https://wa.me/?text=${encodeURIComponent(`${text}
+${url}`)}`
+            }
+        ]
+    ],
+})
+
+export const somebodysLikedYouKeyboard = (): ReplyKeyboardMarkup => ({
+    keyboard: [
+        ["1 👍", "2 💤"]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+})
+
+export const continueSeeFormsKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("continue_see_forms")]
+    ],
+    resize_keyboard: true,
+})
+
+export const complainKeyboard = (): ReplyKeyboardMarkup => ({
+    keyboard: [
+        ["1 🔞", "2 💰", "3 💩", "4 🦨", "9"]
+    ],
     resize_keyboard: true,
 })
 

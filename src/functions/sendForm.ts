@@ -1,46 +1,83 @@
-import { User } from "@prisma/client";
+import { User, UserLike } from "@prisma/client";
 import { IFile } from "../typescript/interfaces/IFile";
 import { MyContext } from "../typescript/context";
 import { answerFormKeyboard } from "../constants/keyboards";
 import { prisma } from "../db/postgres";
 import { toggleUserActive } from "./db/toggleUserActive";
+import { TranslateFunction } from "@grammyjs/i18n";
+import { getLikesCount, getLikesInfo } from "./db/getLikesInfo";
+import { bot } from "../main";
+import { getMe } from "./db/getMe";
+import { haversine, formatDistance } from "./haversine";
 
-export const buildTextForm = (form: User) => {
-    return `${form.name}, ${form.age}, ${form.city}${form.text ? `, ${form.text}` : ''}`
-}
 
 interface IOptions {
-    myForm: boolean
+    myForm?: boolean
+    like?: UserLike | null
+    sendTo?: string
 }
 
 const defaultOptions = {
-    myForm: true
+    myForm: true,
+    like: null,
+    sendTo: ''
+}
+
+
+export const buildTextForm = async (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
+    let count: number = 0
+    if (options.like) {
+        count = await getLikesCount(String(ctx.from?.id))
+    }
+
+    return (
+        (options.like ? `${ctx.t('somebody_liked_you_text', { count: count - 1 })}
+
+` : '')
+        +
+        `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}${form.text ? `, ${form.text}` : ''}`
+        +
+        (options.like?.message ? `${ctx.t('message_for_you')} ${options.like.message}` : '')
+    )
 }
 
 export const sendForm = async (ctx: MyContext, form?: User | null, options: IOptions = defaultOptions) => {
     let user: User | null | undefined = form
 
-
+    ctx.logger.info(options, 'This is options')
     if (options?.myForm) {
-        await ctx.reply(ctx.t('this_is_your_form'));
-        user = await prisma.user.findUnique({
-            where: { id: String(ctx.message?.from.id) },
-        });
+        if (!options.sendTo) {
+            await ctx.reply(ctx.t('this_is_your_form'));
+        }
+        user = await getMe(String(ctx.from?.id))
     }
     if (!user) return;
-    
+
     if (!user.isActive && options?.myForm) {
         await toggleUserActive(ctx, true)
     }
 
-    const text = buildTextForm(user);
-    
+    const text = await buildTextForm(ctx, user, options);
+
     if (user?.files) {
         const files: IFile[] = JSON.parse(user.files as any);
-
-        await ctx.replyWithMediaGroup(files.map((i, index) => ({
-            ...i,
-            caption: index === 0 ? text : ''
-        })));
+        
+        if (options.sendTo) {
+            await bot.api.sendMediaGroup(options.sendTo, files.map((i, index) => ({
+                ...i,
+                caption: index === 0 ? text : ''
+            })));
+        } else {
+            await ctx.replyWithMediaGroup(files.map((i, index) => ({
+                ...i,
+                caption: index === 0 ? text : ''
+            })));
+    
+            if (options.like?.videoFileId) {
+                await ctx.replyWithVideo(options.like.videoFileId, {
+                    caption: ctx.t('video_for_you')
+                });
+            }
+        }
     }
 }

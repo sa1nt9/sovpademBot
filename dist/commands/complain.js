@@ -1,0 +1,34 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.complainCommand = void 0;
+const keyboards_1 = require("../constants/keyboards");
+const postgres_1 = require("../db/postgres");
+const complainCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    const existingUser = yield postgres_1.prisma.user.findUnique({
+        where: { id: userId },
+    });
+    if (existingUser && ctx.session.currentCandidate && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes")) {
+        ctx.session.step = "complain";
+        yield ctx.reply(ctx.t('complain_text'), {
+            reply_markup: (0, keyboards_1.complainKeyboard)()
+        });
+    }
+    else {
+        ctx.session.step = "cannot_send_complain";
+        yield ctx.reply(ctx.t('complain_can_be_sended_only_while_searching'), {
+            reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t, true)
+        });
+    }
+});
+exports.complainCommand = complainCommand;

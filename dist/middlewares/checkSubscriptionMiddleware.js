@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkSubscriptionMiddleware = void 0;
+const myprofile_1 = require("../commands/myprofile");
 const keyboards_1 = require("../constants/keyboards");
 const checkSubscription_1 = require("../functions/checkSubscription");
 const checkSubscriptionMiddleware = (ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -24,21 +25,31 @@ const checkSubscriptionMiddleware = (ctx, next) => __awaiter(void 0, void 0, voi
     //         reply_markup: subscribeChannelKeyboard(ctx.t),
     //     });
     // }
-    const isSubscribed = yield (0, checkSubscription_1.checkSubscription)(ctx, String(process.env.CHANNEL_NAME));
+    const isSubscribed = yield (0, checkSubscription_1.checkSubscription)(ctx, String(process.env.CHANNEL_USERNAME));
     if (isSubscribed) {
         if (ctx.session.isNeededSubscription) {
+            ctx.session.isNeededSubscription = false;
             yield ctx.reply(ctx.t('thanks_for_subscription'), {
                 reply_markup: {
                     remove_keyboard: true
                 },
             });
+            if (ctx.session.step === 'prepare_message') {
+                yield ctx.reply(ctx.t('lets_start'), {
+                    reply_markup: (0, keyboards_1.prepareMessageKeyboard)(ctx.t),
+                });
+            }
+            else {
+                yield (0, myprofile_1.myprofileCommand)(ctx);
+            }
         }
-        ctx.session.isNeededSubscription = false;
-        yield next();
+        else {
+            yield next();
+        }
     }
     else {
         ctx.session.isNeededSubscription = true;
-        yield ctx.reply(ctx.t('need_subscription'), {
+        yield ctx.reply(ctx.t('need_subscription', { botname: process.env.CHANNEL_NAME || "" }), {
             reply_markup: (0, keyboards_1.subscribeChannelKeyboard)(ctx.t),
             parse_mode: "Markdown"
         });

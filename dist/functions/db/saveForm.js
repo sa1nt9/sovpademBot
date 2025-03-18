@@ -37,7 +37,7 @@ function saveForm(ctx) {
                     },
                 });
                 ctx.logger.info({
-                    msg: 'Важ дываол ыжвдаол',
+                    msg: 'Пользователь обновлен',
                     updatedUser: updatedUser
                 });
                 return updatedUser;
@@ -52,6 +52,7 @@ function saveForm(ctx) {
                         age: userData.age || 0,
                         interestedIn: userData.interestedIn || "",
                         longitude: userData.location.longitude,
+                        referrerId: ctx.session.referrerId || "",
                         latitude: userData.location.latitude,
                         text: userData.text || "",
                         files: JSON.stringify(userData.files || []),
