@@ -151,7 +151,7 @@ const answerFormKeyboard = () => ({
 exports.answerFormKeyboard = answerFormKeyboard;
 const answerLikesFormKeyboard = () => ({
     keyboard: [
-        ["❤️", "👎"]
+        ["❤️", "👎", "⚠️", "💤"]
     ],
     resize_keyboard: true,
     is_persistent: true,

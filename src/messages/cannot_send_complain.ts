@@ -1,0 +1,39 @@
+import { acceptPrivacyKeyboard, ageKeyboard, answerFormKeyboard } from '../constants/keyboards';
+import { prisma } from '../db/postgres';
+import { getCandidate } from '../functions/db/getCandidate';
+import { sendForm } from '../functions/sendForm';
+import { MyContext } from '../typescript/context';
+
+export async function cannotSendComplainStep(ctx: MyContext) {    
+    const existingUser = await prisma.user.findUnique({
+        where: { id: String(ctx.message!.from.id) },
+    });
+
+    if (existingUser) {
+        ctx.session.step = 'search_people'
+
+        await ctx.reply("✨🔍", {
+            reply_markup: answerFormKeyboard()
+        });
+
+        const candidate = await getCandidate(ctx)
+        ctx.logger.info(candidate, 'This is new candidate')
+
+        await sendForm(ctx, candidate || null, { myForm: false })
+    } else {
+        if (ctx.session.privacyAccepted) {
+            ctx.session.step = "questions";
+            ctx.session.question = 'years'
+
+            await ctx.reply(ctx.t('years_question'), {
+                reply_markup: ageKeyboard(ctx.session)
+            });
+        } else {
+            ctx.session.step = "accept_privacy";
+
+            await ctx.reply(ctx.t('privacy_message'), {
+                reply_markup: acceptPrivacyKeyboard(ctx.t),
+            });
+        }
+    }
+} 

@@ -148,7 +148,7 @@ export const answerFormKeyboard = (): ReplyKeyboardMarkup => ({
 
 export const answerLikesFormKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
-        ["❤️", "👎"]
+        ["❤️", "👎", "⚠️", "💤"]
     ],
     resize_keyboard: true,
     is_persistent: true,

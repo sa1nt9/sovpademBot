@@ -1,0 +1,79 @@
+import { answerFormKeyboard } from '../constants/keyboards';
+import { getCandidate } from '../functions/db/getCandidate';
+import { saveLike } from '../functions/db/saveLike';
+import { sendForm } from '../functions/sendForm';
+import { sendLikesNotification } from '../functions/sendLikesNotification';
+import { MyContext } from '../typescript/context';
+
+export async function textOrVideoToUserStep(ctx: MyContext) {
+    const message = ctx.message!.text;
+
+    if (!ctx.session.currentCandidate || !ctx.session.additionalFormInfo.awaitingLikeContent) {
+
+        ctx.session.step = 'search_people';
+        await ctx.reply(ctx.t('operation_cancelled'), {
+            reply_markup: answerFormKeyboard()
+        });
+        const candidate = await getCandidate(ctx);
+        await sendForm(ctx, candidate || null, { myForm: false });
+        ctx.logger.info(candidate, 'This is new candidate')
+
+        return;
+    }
+    if (message === ctx.t('go_back')) {
+        ctx.session.step = 'search_people'
+        ctx.session.question = 'years'
+        ctx.session.additionalFormInfo.awaitingLikeContent = false;
+
+        await ctx.reply("✨🔍", {
+            reply_markup: answerFormKeyboard()
+        });
+
+        const candidate = await getCandidate(ctx)
+        ctx.logger.info(candidate, 'This is new candidate')
+
+        await sendForm(ctx, candidate || null, { myForm: false })
+
+        return
+    }
+
+    const isVideo = ctx.message?.video;
+
+    if (isVideo) {
+        if (ctx.message.video?.duration && ctx.message.video.duration > 15) {
+            await ctx.reply(ctx.t('video_must_be_less_15'));
+            return;
+        }
+
+
+        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            videoFileId: ctx.message.video?.file_id
+        });
+
+        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+    } else if (message) {
+        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            message: message
+        });
+
+        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+    } else {
+        await ctx.reply(ctx.t('not_message_and_not_video'));
+    }
+
+    ctx.session.step = 'search_people';
+    ctx.session.additionalFormInfo.awaitingLikeContent = false;
+
+    await ctx.reply(ctx.t('like_sended_wait_for_answer'), {
+        reply_markup: {
+            remove_keyboard: true
+        }
+    });
+
+    await ctx.reply("✨🔍", {
+        reply_markup: answerFormKeyboard()
+    });
+    const candidate = await getCandidate(ctx);
+    await sendForm(ctx, candidate || null, { myForm: false });
+    ctx.logger.info(candidate, 'This is new candidate')
+} 
