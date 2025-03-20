@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.complainKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 exports.languageKeyboard = {
     keyboard: [
         ['🇷🇺 Русский', '🇬🇧 English', '🇺🇦 Українська'],
@@ -60,7 +60,7 @@ const fileKeyboard = (t, session, canLeaveCurrent) => {
     }
     else if (canLeaveCurrent) {
         return {
-            keyboard: [[t("leave_current")]],
+            keyboard: [[t("leave_current_m")]],
             resize_keyboard: true,
         };
     }
@@ -157,6 +157,17 @@ const answerLikesFormKeyboard = () => ({
     is_persistent: true,
 });
 exports.answerLikesFormKeyboard = answerLikesFormKeyboard;
+const complainToUserKeyboard = (t, userId) => ({
+    inline_keyboard: [
+        [
+            {
+                text: t("complain_to_user"),
+                callback_data: `complain:${userId}`
+            }
+        ]
+    ]
+});
+exports.complainToUserKeyboard = complainToUserKeyboard;
 const disableFormKeyboard = () => ({
     keyboard: [
         ["1", "2"]
@@ -222,9 +233,16 @@ const continueSeeFormsKeyboard = (t) => ({
     resize_keyboard: true,
 });
 exports.continueSeeFormsKeyboard = continueSeeFormsKeyboard;
+const continueKeyboard = (t) => ({
+    keyboard: [
+        [t("continue")]
+    ],
+    resize_keyboard: true,
+});
+exports.continueKeyboard = continueKeyboard;
 const complainKeyboard = () => ({
     keyboard: [
-        ["1 🔞", "2 💰", "3 💩", "4 🦨", "9"]
+        ["1 🔞", "2 💰", "3 💩", "4 🦨", "✖️"]
     ],
     resize_keyboard: true,
 });

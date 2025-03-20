@@ -89,50 +89,88 @@ async function startBot() {
 
     bot.on("message", async (ctx) => {
         if (ctx.session.step === "choose_language_start") {
-            chooseLanguageStartStep(ctx)
+            await chooseLanguageStartStep(ctx)
         } else if (ctx.session.step === "choose_language") {
-            chooseLanguageStep(ctx)
+            await chooseLanguageStep(ctx)
         } else if (ctx.session.step === "prepare_message") {
-            prepareMessageStep(ctx)
+            await prepareMessageStep(ctx)
         } else if (ctx.session.step === "accept_privacy") {
-            acceptPrivacyStep(ctx)
+            await acceptPrivacyStep(ctx)
         } else if (ctx.session.step === "questions") {
-            questionsStep(ctx)
+            await questionsStep(ctx)
         } else if (ctx.session.step === 'profile') {
-            profileStep(ctx)
+            await profileStep(ctx)
         } else if (ctx.session.step === 'sleep_menu') {
-            sleepMenuStep(ctx)
+            await sleepMenuStep(ctx)
         } else if (ctx.session.step === 'friends') {
-            friendsStep(ctx)
+            await friendsStep(ctx)
         } else if (ctx.session.step === 'disable_form') {
-            disableFormStep(ctx)
+            await disableFormStep(ctx)
         } else if (ctx.session.step === 'form_disabled') {
-            formDisabledStep(ctx)
+            await formDisabledStep(ctx)
         } else if (ctx.session.step === 'you_dont_have_form') {
-            youDontHaveFormStep(ctx)
+            await youDontHaveFormStep(ctx)
         } else if (ctx.session.step === 'cannot_send_complain') {
-            cannotSendComplainStep(ctx)
+            await cannotSendComplainStep(ctx)
         } else if (ctx.session.step === 'search_people') {
-            searchPeopleStep(ctx)
+            await searchPeopleStep(ctx)
         } else if (ctx.session.step === 'search_people_with_likes') {
-            searchPeopleWithLikesStep(ctx)
+            await searchPeopleWithLikesStep(ctx)
         } else if (ctx.session.step === 'continue_see_forms') {
-            continueSeeFormsStep(ctx)
+            await continueSeeFormsStep(ctx)
         } else if (ctx.session.step === 'continue_see_likes_forms') {
-            continueSeeLikesFormsStep(ctx)
+            await continueSeeLikesFormsStep(ctx)
         } else if (ctx.session.step === 'text_or_video_to_user') {
-            textOrVideoToUserStep(ctx)
+            await textOrVideoToUserStep(ctx)
         } else if (ctx.session.step === 'somebodys_liked_you') {
-            somebodysLikedYouStep(ctx)
+            await somebodysLikedYouStep(ctx)
         } else if (ctx.session.step === 'complain') {
-            complainStep(ctx)
+            await complainStep(ctx)
         } else if (ctx.session.step === 'complain_text') {
-            complainTextStep(ctx)
+            await complainTextStep(ctx)
         } else {
             await ctx.reply(ctx.t('no_such_answer'));
         }
     });
 
+    // Обработчик для callback_query (inline кнопок)
+    bot.on("callback_query", async (ctx) => {
+        const callbackData = ctx.callbackQuery.data;
+        
+        if (callbackData) {
+            // Проверяем, устаревшая ли кнопка (сообщение старое)
+            const currentDate = new Date();
+            const messageDate = new Date(ctx.callbackQuery.message?.date || 0);
+            const messageAgeInSeconds = (currentDate.getTime() - messageDate.getTime()) / 1000;
+            
+            // Если сообщение старше 5 минут (300 секунд), считаем кнопку устаревшей
+            const isObsoleteButton = messageAgeInSeconds > 300;
+            
+            if (callbackData.startsWith("complain:")) {
+                // Если кнопка устаревшая, показываем уведомление с анимацией "палец вниз"
+                if (isObsoleteButton) {
+                    await ctx.answerCallbackQuery({
+                        text: "👇",
+                        show_alert: false,
+                        cache_time: 3
+                    });
+                }
+                
+                const userId = callbackData.split(":")[1];
+                
+                ctx.session.additionalFormInfo.reportedUserId = userId;
+                
+                ctx.session.step = 'complain';
+                
+                await ctx.answerCallbackQuery();
+                
+                await ctx.reply(ctx.t('complain_text'), {
+                    reply_markup: complainKeyboard()
+                });
+            }
+        }
+        
+    });
 
 
     bot.start();

@@ -1,17 +1,24 @@
-import { answerFormKeyboard, goBackKeyboard, profileKeyboard } from '../constants/keyboards';
+import { answerFormKeyboard, continueSeeFormsKeyboard, goBackKeyboard, profileKeyboard } from '../constants/keyboards';
 import { getCandidate } from '../functions/db/getCandidate';
 import { saveLike } from '../functions/db/saveLike';
 import { sendForm } from '../functions/sendForm';
 import { sendLikesNotification } from '../functions/sendLikesNotification';
 import { MyContext } from '../typescript/context';
+import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
 
 export async function searchPeopleStep(ctx: MyContext) {
     const message = ctx.message!.text;
-    
+
     if (message === '❤️') {
         if (ctx.session.currentCandidate) {
             await saveLike(ctx, ctx.session.currentCandidate.id, true);
             await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        }
+
+        // Проверяем наличие отложенной взаимной симпатии
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            await sendMutualSympathyAfterAnswer(ctx)
+            return
         }
 
         const candidate = await getCandidate(ctx)
@@ -32,6 +39,11 @@ export async function searchPeopleStep(ctx: MyContext) {
             await saveLike(ctx, ctx.session.currentCandidate.id, false);
         }
 
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            await sendMutualSympathyAfterAnswer(ctx)
+            return
+        }
+
         const candidate = await getCandidate(ctx)
         ctx.logger.info(candidate, 'This is new candidate')
         await sendForm(ctx, candidate || null, { myForm: false })
@@ -39,6 +51,11 @@ export async function searchPeopleStep(ctx: MyContext) {
     } else if (message === '💤') {
         ctx.session.step = 'sleep_menu'
         await ctx.reply(ctx.t('wait_somebody_to_see_your_form'))
+
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            await sendMutualSympathyAfterAnswer(ctx)
+            return
+        }
 
         await ctx.reply(ctx.t('sleep_menu'), {
             reply_markup: profileKeyboard()

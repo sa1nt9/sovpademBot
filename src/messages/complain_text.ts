@@ -1,5 +1,6 @@
 import { answerFormKeyboard, answerLikesFormKeyboard, complainKeyboard } from '../constants/keyboards';
 import { prisma } from '../db/postgres';
+import { continueSeeLikesForms } from '../functions/continueSeeLikesForms';
 import { getCandidate } from '../functions/db/getCandidate';
 import { getOneLike } from '../functions/db/getOneLike';
 import { saveLike } from '../functions/db/saveLike';
@@ -13,6 +14,7 @@ export async function complainTextStep(ctx: MyContext) {
         // Возврат к выбору типа жалобы
         ctx.session.step = 'complain';
         ctx.session.additionalFormInfo.reportType = undefined;
+        ctx.session.additionalFormInfo.reportedUserId = ''
 
         await ctx.reply(ctx.t('complain_text'), {
             reply_markup: complainKeyboard()
@@ -22,20 +24,23 @@ export async function complainTextStep(ctx: MyContext) {
     }
 
     try {
-        if (ctx.session.additionalFormInfo.reportType && ctx.session.currentCandidate) {
+        if (ctx.session.additionalFormInfo.reportType && (ctx.session.currentCandidate || ctx.session.additionalFormInfo.reportedUserId)) {
             // Создаем запись о жалобе в базе данных
             await prisma.report.create({
                 data: {
                     reporterId: String(ctx.from?.id),
-                    targetId: ctx.session.currentCandidate?.id,
+                    targetId: ctx.session.currentCandidate?.id || ctx.session.additionalFormInfo.reportedUserId || "",
                     type: ctx.session.additionalFormInfo.reportType as any,
                     text: message || undefined
                 }
             });
-            await saveLike(ctx, ctx.session.currentCandidate.id, false);
+            if (ctx.session.currentCandidate) {
+                await saveLike(ctx, ctx.session.currentCandidate?.id, false);
+            }
 
             // Очищаем данные о жалобе в сессии
             ctx.session.additionalFormInfo.reportType = undefined;
+            ctx.session.additionalFormInfo.reportedUserId = ''
 
             // Информируем пользователя о принятии жалобы
             await ctx.reply(ctx.t('complain_will_be_examined'));
@@ -44,17 +49,7 @@ export async function complainTextStep(ctx: MyContext) {
         if (ctx.session.additionalFormInfo.searchingLikes) {
             ctx.session.step = 'search_people_with_likes'
 
-            const oneLike = await getOneLike(String(ctx.from!.id));
-
-
-            await ctx.reply("✨🔍", {
-                reply_markup: answerLikesFormKeyboard()
-            });
-
-            if (oneLike?.user) {
-                ctx.session.currentCandidate = oneLike?.user
-                await sendForm(ctx, oneLike.user, { myForm: false, like: oneLike });
-            }
+            await continueSeeLikesForms(ctx)
         } else {
             ctx.session.step = 'search_people';
 

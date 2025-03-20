@@ -30,15 +30,16 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
 
 ` : '')
         +
-            `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}${form.text ? `, ${form.text}` : ''}`
+            `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}${form.text ? ` - ${form.text}` : ''}`
         +
-            (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `${ctx.t('message_for_you')} ${options.like.message}` : ''));
+            (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `
+            
+            ${ctx.t('message_for_you')} ${options.like.message}` : ''));
 });
 exports.buildTextForm = buildTextForm;
 const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1, ...args_1], void 0, function* (ctx, form, options = defaultOptions) {
     var _a, _b;
     let user = form;
-    ctx.logger.info(options, 'This is options');
     if (options === null || options === void 0 ? void 0 : options.myForm) {
         if (!options.sendTo) {
             yield ctx.reply(ctx.t('this_is_your_form'));

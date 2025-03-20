@@ -61,7 +61,7 @@ export const fileKeyboard = (t: TranslateFunction, session: ISessionData, canLea
         }
     } else if (canLeaveCurrent) {
         return {
-            keyboard: [[t("leave_current")]],
+            keyboard: [[t("leave_current_m")]],
             resize_keyboard: true,
         }
     } else {
@@ -154,6 +154,17 @@ export const answerLikesFormKeyboard = (): ReplyKeyboardMarkup => ({
     is_persistent: true,
 })
 
+export const complainToUserKeyboard = (t: TranslateFunction, userId: string): InlineKeyboardMarkup => ({
+    inline_keyboard: [
+        [
+            {
+                text: t("complain_to_user"),
+                callback_data: `complain:${userId}`
+            }
+        ]
+    ]
+})
+
 export const disableFormKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
         ["1", "2"]
@@ -220,9 +231,16 @@ export const continueSeeFormsKeyboard = (t: TranslateFunction): ReplyKeyboardMar
     resize_keyboard: true,
 })
 
+export const continueKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("continue")]
+    ],
+    resize_keyboard: true,
+})
+
 export const complainKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
-        ["1 🔞", "2 💰", "3 💩", "4 🦨", "9"]
+        ["1 🔞", "2 💰", "3 💩", "4 🦨", "✖️"]
     ],
     resize_keyboard: true,
 })

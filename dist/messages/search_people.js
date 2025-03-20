@@ -15,6 +15,7 @@ const getCandidate_1 = require("../functions/db/getCandidate");
 const saveLike_1 = require("../functions/db/saveLike");
 const sendForm_1 = require("../functions/sendForm");
 const sendLikesNotification_1 = require("../functions/sendLikesNotification");
+const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
 function searchPeopleStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
@@ -22,6 +23,11 @@ function searchPeopleStep(ctx) {
             if (ctx.session.currentCandidate) {
                 yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true);
                 yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
+            }
+            // Проверяем наличие отложенной взаимной симпатии
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+                yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
+                return;
             }
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             ctx.logger.info(candidate, 'This is new candidate');
@@ -38,6 +44,10 @@ function searchPeopleStep(ctx) {
             if (ctx.session.currentCandidate) {
                 yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, false);
             }
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+                yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
+                return;
+            }
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             ctx.logger.info(candidate, 'This is new candidate');
             yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
@@ -45,6 +55,10 @@ function searchPeopleStep(ctx) {
         else if (message === '💤') {
             ctx.session.step = 'sleep_menu';
             yield ctx.reply(ctx.t('wait_somebody_to_see_your_form'));
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+                yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
+                return;
+            }
             yield ctx.reply(ctx.t('sleep_menu'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
             });

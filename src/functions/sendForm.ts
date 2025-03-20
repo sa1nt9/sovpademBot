@@ -35,16 +35,17 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
 ` : '')
         +
-        `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}${form.text ? `, ${form.text}` : ''}`
+        `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}${form.text ? ` - ${form.text}` : ''}`
         +
-        (options.like?.message ? `${ctx.t('message_for_you')} ${options.like.message}` : '')
+        (options.like?.message ? `
+            
+            ${ctx.t('message_for_you')} ${options.like.message}` : '')
     )
 }
 
 export const sendForm = async (ctx: MyContext, form?: User | null, options: IOptions = defaultOptions) => {
     let user: User | null | undefined = form
 
-    ctx.logger.info(options, 'This is options')
     if (options?.myForm) {
         if (!options.sendTo) {
             await ctx.reply(ctx.t('this_is_your_form'));

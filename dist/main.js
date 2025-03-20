@@ -46,6 +46,7 @@ exports.bot = void 0;
 const logger_1 = require("./logger");
 const grammy_1 = require("grammy");
 const dotenv = __importStar(require("dotenv"));
+const keyboards_1 = require("./constants/keyboards");
 const sessionInitial_1 = require("./functions/sessionInitial");
 const error_1 = require("./handlers/error");
 const i18n_1 = require("./i18n");
@@ -100,67 +101,97 @@ function startBot() {
         exports.bot.command("language", language_1.languageCommand);
         exports.bot.on("message", (ctx) => __awaiter(this, void 0, void 0, function* () {
             if (ctx.session.step === "choose_language_start") {
-                (0, choose_language_start_1.chooseLanguageStartStep)(ctx);
+                yield (0, choose_language_start_1.chooseLanguageStartStep)(ctx);
             }
             else if (ctx.session.step === "choose_language") {
-                (0, choose_language_1.chooseLanguageStep)(ctx);
+                yield (0, choose_language_1.chooseLanguageStep)(ctx);
             }
             else if (ctx.session.step === "prepare_message") {
-                (0, prepare_message_1.prepareMessageStep)(ctx);
+                yield (0, prepare_message_1.prepareMessageStep)(ctx);
             }
             else if (ctx.session.step === "accept_privacy") {
-                (0, accept_privacy_1.acceptPrivacyStep)(ctx);
+                yield (0, accept_privacy_1.acceptPrivacyStep)(ctx);
             }
             else if (ctx.session.step === "questions") {
-                (0, questions_1.questionsStep)(ctx);
+                yield (0, questions_1.questionsStep)(ctx);
             }
             else if (ctx.session.step === 'profile') {
-                (0, profile_1.profileStep)(ctx);
+                yield (0, profile_1.profileStep)(ctx);
             }
             else if (ctx.session.step === 'sleep_menu') {
-                (0, sleep_menu_1.sleepMenuStep)(ctx);
+                yield (0, sleep_menu_1.sleepMenuStep)(ctx);
             }
             else if (ctx.session.step === 'friends') {
-                (0, friends_1.friendsStep)(ctx);
+                yield (0, friends_1.friendsStep)(ctx);
             }
             else if (ctx.session.step === 'disable_form') {
-                (0, disable_form_1.disableFormStep)(ctx);
+                yield (0, disable_form_1.disableFormStep)(ctx);
             }
             else if (ctx.session.step === 'form_disabled') {
-                (0, form_disabled_1.formDisabledStep)(ctx);
+                yield (0, form_disabled_1.formDisabledStep)(ctx);
             }
             else if (ctx.session.step === 'you_dont_have_form') {
-                (0, you_dont_have_form_1.youDontHaveFormStep)(ctx);
+                yield (0, you_dont_have_form_1.youDontHaveFormStep)(ctx);
             }
             else if (ctx.session.step === 'cannot_send_complain') {
-                (0, cannot_send_complain_1.cannotSendComplainStep)(ctx);
+                yield (0, cannot_send_complain_1.cannotSendComplainStep)(ctx);
             }
             else if (ctx.session.step === 'search_people') {
-                (0, search_people_1.searchPeopleStep)(ctx);
+                yield (0, search_people_1.searchPeopleStep)(ctx);
             }
             else if (ctx.session.step === 'search_people_with_likes') {
-                (0, search_people_with_likes_1.searchPeopleWithLikesStep)(ctx);
+                yield (0, search_people_with_likes_1.searchPeopleWithLikesStep)(ctx);
             }
             else if (ctx.session.step === 'continue_see_forms') {
-                (0, continue_see_forms_1.continueSeeFormsStep)(ctx);
+                yield (0, continue_see_forms_1.continueSeeFormsStep)(ctx);
             }
             else if (ctx.session.step === 'continue_see_likes_forms') {
-                (0, continue_see_likes_forms_1.continueSeeLikesFormsStep)(ctx);
+                yield (0, continue_see_likes_forms_1.continueSeeLikesFormsStep)(ctx);
             }
             else if (ctx.session.step === 'text_or_video_to_user') {
-                (0, text_or_video_to_user_1.textOrVideoToUserStep)(ctx);
+                yield (0, text_or_video_to_user_1.textOrVideoToUserStep)(ctx);
             }
             else if (ctx.session.step === 'somebodys_liked_you') {
-                (0, somebodys_liked_you_1.somebodysLikedYouStep)(ctx);
+                yield (0, somebodys_liked_you_1.somebodysLikedYouStep)(ctx);
             }
             else if (ctx.session.step === 'complain') {
-                (0, complain_2.complainStep)(ctx);
+                yield (0, complain_2.complainStep)(ctx);
             }
             else if (ctx.session.step === 'complain_text') {
-                (0, complain_text_1.complainTextStep)(ctx);
+                yield (0, complain_text_1.complainTextStep)(ctx);
             }
             else {
                 yield ctx.reply(ctx.t('no_such_answer'));
+            }
+        }));
+        // Обработчик для callback_query (inline кнопок)
+        exports.bot.on("callback_query", (ctx) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const callbackData = ctx.callbackQuery.data;
+            if (callbackData) {
+                // Проверяем, устаревшая ли кнопка (сообщение старое)
+                const currentDate = new Date();
+                const messageDate = new Date(((_a = ctx.callbackQuery.message) === null || _a === void 0 ? void 0 : _a.date) || 0);
+                const messageAgeInSeconds = (currentDate.getTime() - messageDate.getTime()) / 1000;
+                // Если сообщение старше 5 минут (300 секунд), считаем кнопку устаревшей
+                const isObsoleteButton = messageAgeInSeconds > 300;
+                if (callbackData.startsWith("complain:")) {
+                    // Если кнопка устаревшая, показываем уведомление с анимацией "палец вниз"
+                    if (isObsoleteButton) {
+                        yield ctx.answerCallbackQuery({
+                            text: "👇",
+                            show_alert: false,
+                            cache_time: 3
+                        });
+                    }
+                    const userId = callbackData.split(":")[1];
+                    ctx.session.additionalFormInfo.reportedUserId = userId;
+                    ctx.session.step = 'complain';
+                    yield ctx.answerCallbackQuery();
+                    yield ctx.reply(ctx.t('complain_text'), {
+                        reply_markup: (0, keyboards_1.complainKeyboard)()
+                    });
+                }
             }
         }));
         exports.bot.start();

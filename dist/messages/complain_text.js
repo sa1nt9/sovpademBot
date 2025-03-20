@@ -12,50 +12,47 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.complainTextStep = complainTextStep;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
+const continueSeeLikesForms_1 = require("../functions/continueSeeLikesForms");
 const getCandidate_1 = require("../functions/db/getCandidate");
-const getOneLike_1 = require("../functions/db/getOneLike");
 const saveLike_1 = require("../functions/db/saveLike");
 const sendForm_1 = require("../functions/sendForm");
 function complainTextStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
+        var _a, _b, _c;
         const message = ctx.message.text;
         if (message === ctx.t('back')) {
             // Возврат к выбору типа жалобы
             ctx.session.step = 'complain';
             ctx.session.additionalFormInfo.reportType = undefined;
+            ctx.session.additionalFormInfo.reportedUserId = '';
             yield ctx.reply(ctx.t('complain_text'), {
                 reply_markup: (0, keyboards_1.complainKeyboard)()
             });
             return;
         }
         try {
-            if (ctx.session.additionalFormInfo.reportType && ctx.session.currentCandidate) {
+            if (ctx.session.additionalFormInfo.reportType && (ctx.session.currentCandidate || ctx.session.additionalFormInfo.reportedUserId)) {
                 // Создаем запись о жалобе в базе данных
                 yield postgres_1.prisma.report.create({
                     data: {
                         reporterId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
-                        targetId: (_b = ctx.session.currentCandidate) === null || _b === void 0 ? void 0 : _b.id,
+                        targetId: ((_b = ctx.session.currentCandidate) === null || _b === void 0 ? void 0 : _b.id) || ctx.session.additionalFormInfo.reportedUserId || "",
                         type: ctx.session.additionalFormInfo.reportType,
                         text: message || undefined
                     }
                 });
-                yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, false);
+                if (ctx.session.currentCandidate) {
+                    yield (0, saveLike_1.saveLike)(ctx, (_c = ctx.session.currentCandidate) === null || _c === void 0 ? void 0 : _c.id, false);
+                }
                 // Очищаем данные о жалобе в сессии
                 ctx.session.additionalFormInfo.reportType = undefined;
+                ctx.session.additionalFormInfo.reportedUserId = '';
                 // Информируем пользователя о принятии жалобы
                 yield ctx.reply(ctx.t('complain_will_be_examined'));
             }
             if (ctx.session.additionalFormInfo.searchingLikes) {
                 ctx.session.step = 'search_people_with_likes';
-                const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id));
-                yield ctx.reply("✨🔍", {
-                    reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
-                });
-                if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.user) {
-                    ctx.session.currentCandidate = oneLike === null || oneLike === void 0 ? void 0 : oneLike.user;
-                    yield (0, sendForm_1.sendForm)(ctx, oneLike.user, { myForm: false, like: oneLike });
-                }
+                yield (0, continueSeeLikesForms_1.continueSeeLikesForms)(ctx);
             }
             else {
                 ctx.session.step = 'search_people';

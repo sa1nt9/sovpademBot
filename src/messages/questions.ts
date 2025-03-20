@@ -10,8 +10,10 @@ import { haversine } from '../functions/haversine';
 
 export async function questionsStep(ctx: MyContext) {
     const message = ctx.message!.text;
-    
-    
+
+    ctx.logger.info({ message, question: ctx.session.question })
+
+
     if (ctx.session.question === "years") {
         const n = Number(message)
         if (!/^\d+$/.test(message || "str")) {
@@ -173,7 +175,7 @@ export async function questionsStep(ctx: MyContext) {
             await ctx.reply(ctx.t('long_text'), {
                 reply_markup: textKeyboard(ctx.t, ctx.session)
             });
-        }  else if (hasLinks(message || "")) {
+        } else if (hasLinks(message || "")) {
             await ctx.reply(ctx.t('this_text_breaks_the_rules'), {
                 reply_markup: textKeyboard(ctx.t, ctx.session)
             });
@@ -223,11 +225,14 @@ export async function questionsStep(ctx: MyContext) {
             });
             const files = user?.files ? JSON.parse(user?.files as any) : []
 
-            if (message === ctx.t("leave_current") && user?.files && files.length > 0) {
+            if (message === ctx.t("leave_current_m") && user?.files && files.length > 0) {
+                ctx.logger.info('leave_current_m')
                 await saveForm(ctx)
 
                 await sendForm(ctx)
+
                 ctx.session.question = "all_right";
+                ctx.logger.info({ question: ctx.session.question }, 'all_right')
 
 
                 await ctx.reply(ctx.t('all_right_question'), {
@@ -353,7 +358,9 @@ export async function questionsStep(ctx: MyContext) {
         }
 
     } else if (ctx.session.question === "all_right") {
+        ctx.logger.info('all_right')
         if (message === ctx.t("yes")) {
+            ctx.logger.info('yes')
             ctx.session.step = 'search_people'
             ctx.session.question = 'years'
 
@@ -367,6 +374,7 @@ export async function questionsStep(ctx: MyContext) {
             await sendForm(ctx, candidate || null, { myForm: false })
 
         } else if (message === ctx.t('change_form')) {
+            ctx.logger.info('change_form')
             ctx.session.step = 'profile'
 
             await ctx.reply(ctx.t('profile_menu'), {

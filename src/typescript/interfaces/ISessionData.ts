@@ -7,6 +7,7 @@ interface IAdditionalFormInfo {
     showLikes?: boolean;
     reportType?: string;
     searchingLikes?: boolean;
+    reportedUserId?: string;
 }
 
 type TStep =
@@ -26,9 +27,9 @@ type TStep =
     'somebodys_liked_you' |
     'search_people_with_likes' |
     "continue_see_forms" |
-    "continue_see_likes_forms" | 
-    "complain" | 
-    "complain_text" | 
+    "continue_see_likes_forms" |
+    "complain" |
+    "complain_text" |
     "cannot_send_complain"
 
 type TQuestion =
@@ -51,4 +52,6 @@ export interface ISessionData {
     form: IUser;
     isNeededSubscription?: boolean;
     currentCandidate?: User | null;
+    pendingMutualLike?: boolean;
+    pendingMutualLikeUserId?: string;
 }

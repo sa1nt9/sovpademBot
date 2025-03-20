@@ -14,10 +14,26 @@ exports.getLikesInfo = getLikesInfo;
 const postgres_1 = require("../../db/postgres");
 function getLikesCount(targetUserId) {
     return __awaiter(this, void 0, void 0, function* () {
+        // Получаем все ID пользователей, которым текущий пользователь уже поставил лайк или дизлайк
+        const alreadyRespondedToIds = yield postgres_1.prisma.userLike.findMany({
+            where: {
+                userId: targetUserId, // Лайки, которые поставил текущий пользователь
+            },
+            select: {
+                targetId: true // Выбираем только ID пользователей
+            }
+        });
+        // Формируем массив ID, которым уже был дан ответ
+        const respondedIds = alreadyRespondedToIds.map(item => item.targetId);
         const count = yield postgres_1.prisma.userLike.count({
             where: {
                 targetId: targetUserId,
-                liked: true
+                liked: true,
+                user: {
+                    id: {
+                        notIn: respondedIds // Исключаем пользователей, которым уже был дан ответ
+                    }
+                }
             }
         });
         return count;
@@ -25,10 +41,26 @@ function getLikesCount(targetUserId) {
 }
 function getLikesInfo(targetUserId) {
     return __awaiter(this, void 0, void 0, function* () {
+        // Получаем все ID пользователей, которым текущий пользователь уже поставил лайк или дизлайк
+        const alreadyRespondedToIds = yield postgres_1.prisma.userLike.findMany({
+            where: {
+                userId: targetUserId, // Лайки, которые поставил текущий пользователь
+            },
+            select: {
+                targetId: true // Выбираем только ID пользователей
+            }
+        });
+        // Формируем массив ID, которым уже был дан ответ
+        const respondedIds = alreadyRespondedToIds.map(item => item.targetId);
         const likers = yield postgres_1.prisma.userLike.findMany({
             where: {
                 targetId: targetUserId,
-                liked: true
+                liked: true,
+                user: {
+                    id: {
+                        notIn: respondedIds // Исключаем пользователей, которым уже был дан ответ
+                    }
+                }
             },
             include: {
                 user: {

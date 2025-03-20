@@ -15,7 +15,6 @@ const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
 function continueSeeFormsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        const message = ctx.message.text;
         ctx.session.step = 'search_people';
         ctx.session.question = 'years';
         yield ctx.reply("✨🔍", {

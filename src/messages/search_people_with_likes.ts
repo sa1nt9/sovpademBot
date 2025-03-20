@@ -1,4 +1,4 @@
-import { answerLikesFormKeyboard, complainKeyboard, continueSeeFormsKeyboard, profileKeyboard } from '../constants/keyboards';
+import { answerLikesFormKeyboard, complainKeyboard, complainToUserKeyboard, continueSeeFormsKeyboard, profileKeyboard } from '../constants/keyboards';
 import { getOneLike } from '../functions/db/getOneLike';
 import { saveLike } from '../functions/db/saveLike';
 import { setMutualLike } from '../functions/db/setMutualLike';
@@ -6,6 +6,7 @@ import { sendForm } from '../functions/sendForm';
 import { sendLikesNotification } from '../functions/sendLikesNotification';
 import { bot } from '../main';
 import { MyContext } from '../typescript/context';
+import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
 
 export async function searchPeopleWithLikesStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -24,8 +25,8 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
             ctx.session.step = 'continue_see_likes_forms'
 
             await ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidate.name}](https://t.me/${userInfo.username})`, {
+                reply_markup: complainToUserKeyboard(ctx.t, String(ctx.session.currentCandidate.id)),
                 parse_mode: 'Markdown',
-                reply_markup: continueSeeFormsKeyboard(ctx.t)
             });
         }
 
@@ -33,9 +34,15 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
         if (ctx.session.currentCandidate) {
             await saveLike(ctx, ctx.session.currentCandidate.id, false);
 
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+                await sendMutualSympathyAfterAnswer(ctx)
+                return
+            }
+
             const oneLike = await getOneLike(String(ctx.from!.id));
 
             if (oneLike?.user) {
+                ctx.session.currentCandidate = oneLike.user
                 await sendForm(ctx, oneLike.user, { myForm: false, like: oneLike });
             } else {
                 ctx.session.step = 'continue_see_forms'
@@ -45,7 +52,6 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
                     reply_markup: continueSeeFormsKeyboard(ctx.t)
                 });
             }
-
         }
 
 
@@ -58,6 +64,11 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
     } else if (message === '💤') {
         ctx.session.step = 'sleep_menu'
         await ctx.reply(ctx.t('wait_somebody_to_see_your_form'))
+
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            await sendMutualSympathyAfterAnswer(ctx)
+            return
+        }
 
         await ctx.reply(ctx.t('sleep_menu'), {
             reply_markup: profileKeyboard()

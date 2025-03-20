@@ -43,3 +43,5 @@ city_question = Which city are you from?
 send_location = 📍 Send my coordinates
 
 name_question = What should I call you?
+
+scroll_down_to_latest_message = Scroll down to latest messages 👇

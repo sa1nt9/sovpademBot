@@ -25,6 +25,7 @@ function questionsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
         const message = ctx.message.text;
+        ctx.logger.info({ message, question: ctx.session.question });
         if (ctx.session.question === "years") {
             const n = Number(message);
             if (!/^\d+$/.test(message || "str")) {
@@ -231,10 +232,12 @@ function questionsStep(ctx) {
                     select: { files: true },
                 });
                 const files = (user === null || user === void 0 ? void 0 : user.files) ? JSON.parse(user === null || user === void 0 ? void 0 : user.files) : [];
-                if (message === ctx.t("leave_current") && (user === null || user === void 0 ? void 0 : user.files) && files.length > 0) {
+                if (message === ctx.t("leave_current_m") && (user === null || user === void 0 ? void 0 : user.files) && files.length > 0) {
+                    ctx.logger.info('leave_current_m');
                     yield (0, saveForm_1.saveForm)(ctx);
                     yield (0, sendForm_1.sendForm)(ctx);
                     ctx.session.question = "all_right";
+                    ctx.logger.info({ question: ctx.session.question }, 'all_right');
                     yield ctx.reply(ctx.t('all_right_question'), {
                         reply_markup: (0, keyboards_1.allRightKeyboard)(ctx.t)
                     });
@@ -351,7 +354,9 @@ function questionsStep(ctx) {
             }
         }
         else if (ctx.session.question === "all_right") {
+            ctx.logger.info('all_right');
             if (message === ctx.t("yes")) {
+                ctx.logger.info('yes');
                 ctx.session.step = 'search_people';
                 ctx.session.question = 'years';
                 yield ctx.reply("✨🔍", {
@@ -362,6 +367,7 @@ function questionsStep(ctx) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             }
             else if (message === ctx.t('change_form')) {
+                ctx.logger.info('change_form');
                 ctx.session.step = 'profile';
                 yield ctx.reply(ctx.t('profile_menu'), {
                     reply_markup: (0, keyboards_1.profileKeyboard)()

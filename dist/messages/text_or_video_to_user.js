@@ -15,6 +15,7 @@ const getCandidate_1 = require("../functions/db/getCandidate");
 const saveLike_1 = require("../functions/db/saveLike");
 const sendForm_1 = require("../functions/sendForm");
 const sendLikesNotification_1 = require("../functions/sendLikesNotification");
+const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
 function textOrVideoToUserStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
@@ -68,6 +69,10 @@ function textOrVideoToUserStep(ctx) {
                 remove_keyboard: true
             }
         });
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
+            return;
+        }
         yield ctx.reply("✨🔍", {
             reply_markup: (0, keyboards_1.answerFormKeyboard)()
         });

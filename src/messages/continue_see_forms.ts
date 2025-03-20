@@ -4,8 +4,6 @@ import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
 
 export async function continueSeeFormsStep(ctx: MyContext) {
-    const message = ctx.message!.text;
-
     ctx.session.step = 'search_people'
     ctx.session.question = 'years'
 

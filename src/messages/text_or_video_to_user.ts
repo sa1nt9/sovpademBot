@@ -3,6 +3,7 @@ import { getCandidate } from '../functions/db/getCandidate';
 import { saveLike } from '../functions/db/saveLike';
 import { sendForm } from '../functions/sendForm';
 import { sendLikesNotification } from '../functions/sendLikesNotification';
+import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
 import { MyContext } from '../typescript/context';
 
 export async function textOrVideoToUserStep(ctx: MyContext) {
@@ -69,6 +70,11 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
             remove_keyboard: true
         }
     });
+
+    if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+        await sendMutualSympathyAfterAnswer(ctx)
+        return
+    }
 
     await ctx.reply("✨🔍", {
         reply_markup: answerFormKeyboard()
