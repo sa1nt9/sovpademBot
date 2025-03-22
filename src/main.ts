@@ -18,6 +18,8 @@ import { complainCommand } from './commands/complain';
 import { rouletteCommand } from './commands/roulette';
 import { messageEvent } from './events/message';
 import { callbackQueryEvent } from './events/callback_query';
+import { rouletteMiddleware } from './middlewares/rouletteMiddleware';
+import { stopRouletteCommand } from './commands/stop_roulette';
 
 
 dotenv.config();
@@ -50,6 +52,8 @@ async function startBot() {
 
     bot.use(checkSubscriptionMiddleware)
 
+    bot.use(rouletteMiddleware)
+
 
     bot.command("start", startCommand);
 
@@ -58,6 +62,8 @@ async function startBot() {
     bot.command("complain", complainCommand);
     
     bot.command("roulette", rouletteCommand);
+
+    bot.command("stop_roulette", stopRouletteCommand);
 
     bot.command("language", languageCommand);
     

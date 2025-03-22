@@ -43,10 +43,8 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                     reply_markup: rouletteStartKeyboard(ctx.t)
                 });
                 
-                // Получаем количество реакций для пользователя
                 const userReactionCounts = await getReactionCounts(userId);
                 
-                // Предлагаем собеседнику оценить пользователя
                 await ctx.api.sendMessage(prevPartnerId, ctx.t('roulette_put_reaction_on_your_partner'), {
                     reply_markup: rouletteReactionKeyboard(ctx.t, userId, userReactionCounts)
                 });

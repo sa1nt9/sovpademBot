@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.complainReasonKeyboard = exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 const reaction_1 = require("./reaction");
 exports.languageKeyboard = {
     keyboard: [
@@ -281,7 +281,7 @@ exports.rouletteKeyboard = rouletteKeyboard;
 const rouletteStartKeyboard = (t) => ({
     keyboard: [
         [t('roulette_find')],
-        [t("go_back")]
+        [t("main_menu")]
     ],
     resize_keyboard: true,
     is_persistent: true,
@@ -330,3 +330,29 @@ const rouletteReactionKeyboard = (t, partnerId = "", counts) => {
     };
 };
 exports.rouletteReactionKeyboard = rouletteReactionKeyboard;
+const complainReasonKeyboard = (t, targetUserId) => ({
+    inline_keyboard: [
+        [
+            { text: t("complain_1"), callback_data: `complain_reason:1:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_2"), callback_data: `complain_reason:2:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_3"), callback_data: `complain_reason:3:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_4"), callback_data: `complain_reason:4:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_5"), callback_data: `complain_reason:5:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_6"), callback_data: `complain_reason:6:${targetUserId}` }
+        ],
+        [
+            { text: `↩️ ${t("back")}`, callback_data: `complain_back:${targetUserId}` }
+        ]
+    ]
+});
+exports.complainReasonKeyboard = complainReasonKeyboard;

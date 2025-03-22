@@ -13,59 +13,45 @@ exports.reactionCallbackQuery = void 0;
 const postgres_1 = require("../db/postgres");
 const reaction_1 = require("../constants/reaction");
 const complain_1 = require("../constants/complain");
+const keyboards_1 = require("../constants/keyboards");
 const reactionCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e;
-    const callbackData = ((_a = ctx.callbackQuery) === null || _a === void 0 ? void 0 : _a.data) || "";
+    var _a;
+    const callbackQuery = ctx.callbackQuery;
+    const callbackData = callbackQuery.data || "";
     const callbackParts = callbackData.split(":");
     const reactionType = callbackParts[1];
     const targetUserId = callbackParts[2];
-    const fromUserId = String((_b = ctx.callbackQuery) === null || _b === void 0 ? void 0 : _b.from.id);
+    const fromUserId = String(callbackQuery.from.id);
+    const currentDate = new Date();
+    const messageTimestamp = ((_a = callbackQuery.message) === null || _a === void 0 ? void 0 : _a.date) || Math.floor(currentDate.getTime() / 1000) - 600;
+    const messageDate = new Date(messageTimestamp * 1000);
+    const messageAgeInSeconds = Math.floor((currentDate.getTime() - messageDate.getTime()) / 1000);
+    const isMessageTooOld = messageAgeInSeconds > 3600;
+    if (isMessageTooOld) {
+        yield ctx.answerCallbackQuery({
+            text: ctx.t('reaction_time_expired'),
+            show_alert: true
+        });
+        return;
+    }
     ctx.logger.info({
         action: 'Reaction',
         fromUserId,
         targetUserId,
-        reactionType
+        reactionType,
+        messageAgeInSeconds
     });
-    // Если выбрана жалоба
     if (reactionType === "complain") {
-        // Сохраняем исходное сообщение, чтобы можно было восстановить при нажатии "Назад"
-        if ((_c = ctx.callbackQuery) === null || _c === void 0 ? void 0 : _c.message) {
-            // Сохраняем информацию об оригинальном сообщении в сессии
+        if (callbackQuery.message) {
             ctx.session.originalReactionMessage = {
-                text: ctx.callbackQuery.message.text || "",
-                messageId: ctx.callbackQuery.message.message_id,
-                chatId: ctx.callbackQuery.message.chat.id
+                text: callbackQuery.message.text || "",
+                messageId: callbackQuery.message.message_id,
+                chatId: callbackQuery.message.chat.id
             };
         }
-        // Создаем клавиатуру с причинами жалобы
-        const complainReasons = {
-            inline_keyboard: [
-                [
-                    { text: ctx.t("complain_1"), callback_data: `complain_reason:1:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_2"), callback_data: `complain_reason:2:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_3"), callback_data: `complain_reason:3:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_4"), callback_data: `complain_reason:4:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_5"), callback_data: `complain_reason:5:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_6"), callback_data: `complain_reason:6:${targetUserId}` }
-                ],
-                [
-                    { text: `↩️ ${ctx.t("back")}`, callback_data: `complain_back:${targetUserId}` }
-                ]
-            ]
-        };
         // Меняем текст и клавиатуру
-        if ((_d = ctx.callbackQuery) === null || _d === void 0 ? void 0 : _d.message) {
-            yield ctx.api.editMessageText(ctx.callbackQuery.message.chat.id, ctx.callbackQuery.message.message_id, ctx.t('complain_text'), { reply_markup: complainReasons });
+        if (callbackQuery.message) {
+            yield ctx.api.editMessageText(callbackQuery.message.chat.id, callbackQuery.message.message_id, ctx.t('complain_type_select'), { reply_markup: (0, keyboards_1.complainReasonKeyboard)(ctx.t, targetUserId) });
         }
         yield ctx.answerCallbackQuery();
         return;
@@ -110,9 +96,9 @@ const reactionCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, functio
         // Получаем эмодзи для типа реакции
         const reactionEmoji = (0, reaction_1.getReactionEmoji)(reactionType);
         // Обновляем сообщение, убираем клавиатуру и меняем текст
-        if ((_e = ctx.callbackQuery) === null || _e === void 0 ? void 0 : _e.message) {
+        if (callbackQuery.message) {
             ctx.logger.info('1');
-            yield ctx.api.editMessageText(ctx.callbackQuery.message.chat.id, ctx.callbackQuery.message.message_id, `${ctx.t('reaction_you_added')} ${reactionEmoji}`, { reply_markup: { inline_keyboard: [] } });
+            yield ctx.api.editMessageText(callbackQuery.message.chat.id, callbackQuery.message.message_id, `${ctx.t('reaction_you_added')} ${reactionEmoji}`, { reply_markup: { inline_keyboard: [] } });
             ctx.logger.info('2');
         }
     }

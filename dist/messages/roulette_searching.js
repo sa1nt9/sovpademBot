@@ -47,9 +47,7 @@ function rouletteSearchingStep(ctx) {
                     yield ctx.api.sendMessage(prevPartnerId, ctx.t('roulette_partner_left'), {
                         reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)
                     });
-                    // Получаем количество реакций для пользователя
                     const userReactionCounts = yield (0, getReactionCounts_1.getReactionCounts)(userId);
-                    // Предлагаем собеседнику оценить пользователя
                     yield ctx.api.sendMessage(prevPartnerId, ctx.t('roulette_put_reaction_on_your_partner'), {
                         reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(ctx.t, userId, userReactionCounts)
                     });

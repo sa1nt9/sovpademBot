@@ -283,7 +283,7 @@ export const rouletteKeyboard = (t: TranslateFunction, profileRevealed: boolean 
 export const rouletteStartKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
     keyboard: [
         [t('roulette_find')],
-        [t("go_back")]
+        [t("main_menu")]
     ],
     resize_keyboard: true,
     is_persistent: true,
@@ -336,3 +336,30 @@ export const rouletteReactionKeyboard = (t: TranslateFunction, partnerId: string
         inline_keyboard: rows
     };
 }
+
+
+export const complainReasonKeyboard = (t: TranslateFunction, targetUserId: string): InlineKeyboardMarkup => ({
+    inline_keyboard: [
+        [
+            { text: t("complain_1"), callback_data: `complain_reason:1:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_2"), callback_data: `complain_reason:2:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_3"), callback_data: `complain_reason:3:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_4"), callback_data: `complain_reason:4:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_5"), callback_data: `complain_reason:5:${targetUserId}` }
+        ],
+        [
+            { text: t("complain_6"), callback_data: `complain_reason:6:${targetUserId}` }
+        ],
+        [
+            { text: `↩️ ${t("back")}`, callback_data: `complain_back:${targetUserId}` }
+        ]
+    ]
+})

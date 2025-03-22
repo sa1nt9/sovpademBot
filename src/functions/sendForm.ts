@@ -23,6 +23,10 @@ const defaultOptions = {
     sendTo: ''
 }
 
+export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
+    return `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
+}
+
 
 export const buildTextForm = async (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
     let count: number = 0
@@ -35,7 +39,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
 ` : '')
         +
-        `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}${form.text ? ` - ${form.text}` : ''}`
+        `${buildInfoText(ctx, form, options)}${form.text ? ` - ${form.text}` : ''}`
         +
         (options.like?.message ? `
             

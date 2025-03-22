@@ -12,6 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.findRouletteUser = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
+const getUserReactions_1 = require("./getUserReactions");
+const getRoulettePartner_1 = require("./db/getRoulettePartner");
+const sendForm_1 = require("./sendForm");
 const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
@@ -26,27 +29,21 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
             chatPartnerId: null
         }
     });
-    // Ищем собеседника
-    const partner = yield postgres_1.prisma.rouletteUser.findFirst({
-        where: {
-            id: { not: userId },
-            chatPartnerId: null,
-            searchingPartner: true
-        }
-    });
-    if (partner) {
+    // Используем getRoulettePartner для поиска подходящего партнера с учетом сортировки
+    const partnerId = yield (0, getRoulettePartner_1.getRoulettePartner)(ctx);
+    if (partnerId) {
         // Связываем пользователей
         yield postgres_1.prisma.rouletteUser.update({
             where: { id: userId },
             data: {
-                chatPartnerId: partner.id,
+                chatPartnerId: partnerId,
                 searchingPartner: false,
                 usernameRevealed: false,
                 profileRevealed: false
             }
         });
         yield postgres_1.prisma.rouletteUser.update({
-            where: { id: partner.id },
+            where: { id: partnerId },
             data: {
                 chatPartnerId: userId,
                 searchingPartner: false,
@@ -54,10 +51,55 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
                 profileRevealed: false
             }
         });
-        yield ctx.reply(ctx.t('roulette_found'), {
+        // Получаем данные пользователей для отображения информации
+        const currentUser = yield postgres_1.prisma.user.findUnique({ where: { id: userId } });
+        const partnerUser = yield postgres_1.prisma.user.findUnique({ where: { id: partnerId } });
+        const reactionsMessagePartner = yield (0, getUserReactions_1.getUserReactions)(ctx, partnerId);
+        let fullMessagePartner;
+        // Добавляем информацию о пользователе в сообщение
+        if (currentUser && partnerUser) {
+            // Информация о текущем пользователе для партнера
+            const partnerInfoText = (0, sendForm_1.buildInfoText)(ctx, partnerUser, { myForm: false });
+            if (reactionsMessagePartner) {
+                fullMessagePartner = `${ctx.t('roulette_found')}\n\n${partnerInfoText}\n\n${reactionsMessagePartner}`;
+            }
+            else {
+                fullMessagePartner = `${ctx.t('roulette_found')}\n\n${partnerInfoText}`;
+            }
+        }
+        else {
+            if (reactionsMessagePartner) {
+                fullMessagePartner = `${ctx.t('roulette_found')}\n\n${reactionsMessagePartner}`;
+            }
+            else {
+                fullMessagePartner = ctx.t('roulette_found');
+            }
+        }
+        yield ctx.reply(fullMessagePartner, {
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t)
         });
-        yield ctx.api.sendMessage(partner.id, ctx.t('roulette_found'), {
+        const reactionsMessageYou = yield (0, getUserReactions_1.getUserReactions)(ctx, userId);
+        let fullMessageYou;
+        // Добавляем информацию о партнере в сообщение
+        if (currentUser && partnerUser) {
+            // Информация о партнере для текущего пользователя
+            const userInfoText = (0, sendForm_1.buildInfoText)(ctx, currentUser, { myForm: false });
+            if (reactionsMessageYou) {
+                fullMessageYou = `${ctx.t('roulette_found')}\n\n${userInfoText}\n\n${reactionsMessageYou}`;
+            }
+            else {
+                fullMessageYou = `${ctx.t('roulette_found')}\n\n${userInfoText}`;
+            }
+        }
+        else {
+            if (reactionsMessageYou) {
+                fullMessageYou = `${ctx.t('roulette_found')}\n\n${reactionsMessageYou}`;
+            }
+            else {
+                fullMessageYou = ctx.t('roulette_found');
+            }
+        }
+        yield ctx.api.sendMessage(partnerId, fullMessageYou, {
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t)
         });
     }

@@ -12,16 +12,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.chooseLanguageStep = chooseLanguageStep;
 const languages_1 = require("../constants/languages");
 const keyboards_1 = require("../constants/keyboards");
+const sendForm_1 = require("../functions/sendForm");
+const postgres_1 = require("../db/postgres");
 function chooseLanguageStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         const message = ctx.message.text;
         const language = languages_1.languages.find(i => i.name === message);
         if (language) {
             yield ctx.i18n.setLocale(language.mark || "ru");
-            ctx.session.step = "prepare_message";
-            yield ctx.reply(ctx.t('lets_start'), {
-                reply_markup: (0, keyboards_1.prepareMessageKeyboard)(ctx.t),
+            const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+            const existingUser = yield postgres_1.prisma.user.findUnique({
+                where: { id: userId },
             });
+            if (existingUser) {
+                ctx.session.step = "profile";
+                yield (0, sendForm_1.sendForm)(ctx);
+                yield ctx.reply(ctx.t('profile_menu'), {
+                    reply_markup: (0, keyboards_1.profileKeyboard)()
+                });
+            }
+            else {
+                if (ctx.session.privacyAccepted) {
+                    ctx.session.step = "questions";
+                    ctx.session.question = 'years';
+                    yield ctx.reply(ctx.t('years_question'), {
+                        reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
+                    });
+                }
+                else {
+                    ctx.session.step = "accept_privacy";
+                    yield ctx.reply(ctx.t('privacy_message'), {
+                        reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),
+                    });
+                }
+            }
         }
         else {
             yield ctx.reply(ctx.t('no_such_answer'), {

@@ -1,7 +1,6 @@
 import { myprofileCommand } from "../commands/myprofile";
 import { prepareMessageKeyboard, subscribeChannelKeyboard } from "../constants/keyboards";
 import { checkSubscription } from "../functions/checkSubscription";
-import { sendForm } from "../functions/sendForm";
 import { MyContext } from "../typescript/context";
 
 export const checkSubscriptionMiddleware = async (ctx: MyContext, next: () => Promise<void>) => {

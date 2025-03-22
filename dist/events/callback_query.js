@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.callbackQueryEvent = void 0;
 const complain_1 = require("../callback_queries/complain");
+const complain_back_1 = require("../callback_queries/complain_back");
+const complain_reason_1 = require("../callback_queries/complain_reason");
 const reaction_1 = require("../callback_queries/reaction");
 const reveal_accept_1 = require("../callback_queries/reveal_accept");
 const reveal_reject_1 = require("../callback_queries/reveal_reject");
@@ -37,6 +39,12 @@ const callbackQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* 
         }
         else if (callbackData.startsWith("reaction:")) {
             yield (0, reaction_1.reactionCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("complain_reason:")) {
+            yield (0, complain_reason_1.complainReasonCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("complain_back:")) {
+            yield (0, complain_back_1.complainBackCallbackQuery)(ctx);
         }
     }
 });

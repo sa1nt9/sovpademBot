@@ -47,12 +47,14 @@ export const revealAcceptCallbackQuery = async (ctx: MyContext) => {
             data: { profileRevealed: true }
         });
 
-        // Сначала отправляем сообщения и профиль текущему пользователю
-        await ctx.reply(ctx.t('roulette_revealed'));
-        await sendForm(ctx, requestingUser, { myForm: false });
-
         const profileRevealed = true;
         const usernameRevealed = currentUser.rouletteUser?.usernameRevealed || false;
+
+        await ctx.reply(ctx.t('roulette_revealed'), {
+            reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed)
+        });
+        await sendForm(ctx, requestingUser, { myForm: false });
+
 
         await ctx.api.sendMessage(userId, ctx.t('roulette_your_profile_revealed'));
         await ctx.api.sendMessage(userId, ctx.t('roulette_revealed'), {

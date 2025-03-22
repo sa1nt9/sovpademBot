@@ -3,68 +3,57 @@ import { ReactionType } from "@prisma/client";
 import { prisma } from "../db/postgres";
 import { getReactionEmoji } from "../constants/reaction";
 import { MAX_USER_REACTIONS } from "../constants/complain";
-import { InlineKeyboardMarkup } from "@grammyjs/types";
+import { complainReasonKeyboard } from "../constants/keyboards";
 
 export const reactionCallbackQuery = async (ctx: MyContext) => {
-    const callbackData = ctx.callbackQuery?.data || "";
+    const callbackQuery = ctx.callbackQuery!;
+    const callbackData = callbackQuery.data || "";
     const callbackParts = callbackData.split(":");
     const reactionType = callbackParts[1] as ReactionType | "complain";
     const targetUserId = callbackParts[2];
-    const fromUserId = String(ctx.callbackQuery?.from.id);
+    const fromUserId = String(callbackQuery.from.id);
+
+    const currentDate = new Date();
+    
+    const messageTimestamp = callbackQuery.message?.date || Math.floor(currentDate.getTime() / 1000) - 600;
+    const messageDate = new Date(messageTimestamp * 1000);
+    
+    const messageAgeInSeconds = Math.floor((currentDate.getTime() - messageDate.getTime()) / 1000);
+    
+    const isMessageTooOld = messageAgeInSeconds > 3600;
+    
+    if (isMessageTooOld) {
+        await ctx.answerCallbackQuery({
+            text: ctx.t('reaction_time_expired'),
+            show_alert: true
+        });
+        return;
+    }
 
     ctx.logger.info({
         action: 'Reaction',
         fromUserId,
         targetUserId,
-        reactionType
+        reactionType,
+        messageAgeInSeconds
     });
 
-    // Если выбрана жалоба
     if (reactionType === "complain") {
-        // Сохраняем исходное сообщение, чтобы можно было восстановить при нажатии "Назад"
-        if (ctx.callbackQuery?.message) {
-            // Сохраняем информацию об оригинальном сообщении в сессии
+        if (callbackQuery.message) {
             ctx.session.originalReactionMessage = {
-                text: ctx.callbackQuery.message.text || "",
-                messageId: ctx.callbackQuery.message.message_id,
-                chatId: ctx.callbackQuery.message.chat.id
+                text: callbackQuery.message.text || "",
+                messageId: callbackQuery.message.message_id,
+                chatId: callbackQuery.message.chat.id
             };
         }
 
-        // Создаем клавиатуру с причинами жалобы
-        const complainReasons: InlineKeyboardMarkup = {
-            inline_keyboard: [
-                [
-                    { text: ctx.t("complain_1"), callback_data: `complain_reason:1:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_2"), callback_data: `complain_reason:2:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_3"), callback_data: `complain_reason:3:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_4"), callback_data: `complain_reason:4:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_5"), callback_data: `complain_reason:5:${targetUserId}` }
-                ],
-                [
-                    { text: ctx.t("complain_6"), callback_data: `complain_reason:6:${targetUserId}` }
-                ],
-                [
-                    { text: `↩️ ${ctx.t("back")}`, callback_data: `complain_back:${targetUserId}` }
-                ]
-            ]
-        };
-
         // Меняем текст и клавиатуру
-        if (ctx.callbackQuery?.message) {
+        if (callbackQuery.message) {
             await ctx.api.editMessageText(
-                ctx.callbackQuery.message.chat.id,
-                ctx.callbackQuery.message.message_id,
-                ctx.t('complain_text'),
-                { reply_markup: complainReasons }
+                callbackQuery.message.chat.id,
+                callbackQuery.message.message_id,
+                ctx.t('complain_type_select'),
+                { reply_markup: complainReasonKeyboard(ctx.t, targetUserId) }
             );
         }
 
@@ -118,11 +107,11 @@ export const reactionCallbackQuery = async (ctx: MyContext) => {
         const reactionEmoji = getReactionEmoji(reactionType);
 
         // Обновляем сообщение, убираем клавиатуру и меняем текст
-        if (ctx.callbackQuery?.message) {
+        if (callbackQuery.message) {
             ctx.logger.info('1');
             await ctx.api.editMessageText(
-                ctx.callbackQuery.message.chat.id,
-                ctx.callbackQuery.message.message_id,
+                callbackQuery.message.chat.id,
+                callbackQuery.message.message_id,
                 `${ctx.t('reaction_you_added')} ${reactionEmoji}`,
                 { reply_markup: { inline_keyboard: [] } }
             )

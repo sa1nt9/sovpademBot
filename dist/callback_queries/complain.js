@@ -12,22 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.complainCallbackQuery = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const complainCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
-    const currentDate = new Date();
-    const messageDate = new Date(((_a = callbackQuery.message) === null || _a === void 0 ? void 0 : _a.date) || 0);
-    const messageAgeInSeconds = (currentDate.getTime() - messageDate.getTime()) / 1000;
-    // Если сообщение старше 5 минут (300 секунд), считаем кнопку устаревшей
-    const isObsoleteButton = messageAgeInSeconds > 300;
-    // Если кнопка устаревшая, показываем уведомление с анимацией "палец вниз"
-    if (isObsoleteButton) {
-        yield ctx.answerCallbackQuery({
-            text: "👇",
-            show_alert: false,
-            cache_time: 86400
-        });
-    }
+    yield ctx.answerCallbackQuery({
+        text: "👇",
+        show_alert: false,
+        cache_time: 86400
+    });
     const userId = callbackData.split(":")[1];
     ctx.session.additionalFormInfo.reportedUserId = userId;
     ctx.session.step = 'complain';

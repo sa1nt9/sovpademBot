@@ -46,11 +46,12 @@ const revealAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, fun
             where: { id: userId },
             data: { profileRevealed: true }
         });
-        // Сначала отправляем сообщения и профиль текущему пользователю
-        yield ctx.reply(ctx.t('roulette_revealed'));
-        yield (0, sendForm_1.sendForm)(ctx, requestingUser, { myForm: false });
         const profileRevealed = true;
         const usernameRevealed = ((_a = currentUser.rouletteUser) === null || _a === void 0 ? void 0 : _a.usernameRevealed) || false;
+        yield ctx.reply(ctx.t('roulette_revealed'), {
+            reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
+        });
+        yield (0, sendForm_1.sendForm)(ctx, requestingUser, { myForm: false });
         yield ctx.api.sendMessage(userId, ctx.t('roulette_your_profile_revealed'));
         yield ctx.api.sendMessage(userId, ctx.t('roulette_revealed'), {
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)

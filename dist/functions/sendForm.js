@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendForm = exports.buildTextForm = void 0;
+exports.sendForm = exports.buildTextForm = exports.buildInfoText = void 0;
 const toggleUserActive_1 = require("./db/toggleUserActive");
 const getLikesInfo_1 = require("./db/getLikesInfo");
 const getMe_1 = require("./db/getMe");
@@ -19,6 +19,10 @@ const defaultOptions = {
     like: null,
     sendTo: ''
 };
+const buildInfoText = (ctx, form, options = defaultOptions) => {
+    return `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
+};
+exports.buildInfoText = buildInfoText;
 const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1, ...args_1], void 0, function* (ctx, form, options = defaultOptions) {
     var _a, _b;
     let count = 0;
@@ -29,7 +33,7 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
 
 ` : '')
         +
-            `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}${form.text ? ` - ${form.text}` : ''}`
+            `${(0, exports.buildInfoText)(ctx, form, options)}${form.text ? ` - ${form.text}` : ''}`
         +
             (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `
             

@@ -20,7 +20,7 @@ const rouletteStartStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
     var _a;
     const message = ctx.message.text;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-    if (message === ctx.t('go_back')) {
+    if (message === ctx.t('main_menu')) {
         ctx.session.step = 'profile';
         yield (0, sendForm_1.sendForm)(ctx);
         yield ctx.reply(ctx.t('profile_menu'), {
