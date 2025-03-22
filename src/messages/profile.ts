@@ -1,12 +1,13 @@
-import { ageKeyboard, answerFormKeyboard, fileKeyboard, profileKeyboard, textKeyboard } from '../constants/keyboards';
+import { ageKeyboard, answerFormKeyboard, fileKeyboard, profileKeyboard, rouletteStartKeyboard, textKeyboard } from '../constants/keyboards';
 import { getCandidate } from '../functions/db/getCandidate';
 import { sendForm } from '../functions/sendForm';
+import { showRouletteStart } from './roulette_start';
 import { MyContext } from '../typescript/context';
 
 export async function profileStep(ctx: MyContext) {
     const message = ctx.message!.text;
-    
-    if (message === '1🚀') {
+
+    if (message === '1 🚀') {
         ctx.session.step = 'search_people'
         ctx.session.question = 'years'
 
@@ -45,6 +46,10 @@ export async function profileStep(ctx: MyContext) {
         await ctx.reply(ctx.t('text_question'), {
             reply_markup: textKeyboard(ctx.t, ctx.session)
         });
+    } else if (message === '5 🎲') {
+        ctx.session.step = 'roulette_start';
+        
+        await showRouletteStart(ctx);
     } else {
         await ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: profileKeyboard()

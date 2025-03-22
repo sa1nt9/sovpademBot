@@ -42,14 +42,32 @@ function textOrVideoToUserStep(ctx) {
             yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             return;
         }
-        const isVideo = (_a = ctx.message) === null || _a === void 0 ? void 0 : _a.video;
-        if (isVideo) {
-            if (((_b = ctx.message.video) === null || _b === void 0 ? void 0 : _b.duration) && ctx.message.video.duration > 15) {
+        const video = (_a = ctx.message) === null || _a === void 0 ? void 0 : _a.video;
+        const voice = (_b = ctx.message) === null || _b === void 0 ? void 0 : _b.voice;
+        const videoNote = (_c = ctx.message) === null || _c === void 0 ? void 0 : _c.video_note;
+        if (video) {
+            if (video.duration && video.duration > 15) {
                 yield ctx.reply(ctx.t('video_must_be_less_15'));
                 return;
             }
             yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, {
-                videoFileId: (_c = ctx.message.video) === null || _c === void 0 ? void 0 : _c.file_id
+                videoFileId: video.file_id
+            });
+            yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
+        }
+        else if (voice) {
+            if (voice.duration && voice.duration > 60) {
+                yield ctx.reply(ctx.t('voice_must_be_less_60'));
+                return;
+            }
+            yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, {
+                voiceFileId: voice.file_id
+            });
+            yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
+        }
+        else if (videoNote) {
+            yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, {
+                videoNoteFileId: videoNote.file_id
             });
             yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
         }

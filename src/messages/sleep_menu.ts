@@ -1,9 +1,10 @@
-import { answerFormKeyboard, disableFormKeyboard, goBackKeyboard, inviteFriendsKeyboard, profileKeyboard } from '../constants/keyboards';
+import { answerFormKeyboard, disableFormKeyboard, goBackKeyboard, inviteFriendsKeyboard, profileKeyboard, rouletteStartKeyboard } from '../constants/keyboards';
 import { prisma } from '../db/postgres';
 import { getCandidate } from '../functions/db/getCandidate';
 import { encodeId } from '../functions/encodeId';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
+import { showRouletteStart } from './roulette_start';
 
 export async function sleepMenuStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -71,6 +72,10 @@ export async function sleepMenuStep(ctx: MyContext) {
         await ctx.reply(inviteLinkText, {
             reply_markup: inviteFriendsKeyboard(ctx.t, url, text),
         });
+    } else if (message === '5 🎲') {
+        ctx.session.step = 'roulette_start';
+        
+        await showRouletteStart(ctx);
     } else {
         await ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: profileKeyboard()

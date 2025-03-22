@@ -13,10 +13,11 @@ exports.profileStep = profileStep;
 const keyboards_1 = require("../constants/keyboards");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
+const roulette_start_1 = require("./roulette_start");
 function profileStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
-        if (message === '1🚀') {
+        if (message === '1 🚀') {
             ctx.session.step = 'search_people';
             ctx.session.question = 'years';
             yield ctx.reply("✨🔍", {
@@ -48,6 +49,10 @@ function profileStep(ctx) {
             yield ctx.reply(ctx.t('text_question'), {
                 reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
             });
+        }
+        else if (message === '5 🎲') {
+            ctx.session.step = 'roulette_start';
+            yield (0, roulette_start_1.showRouletteStart)(ctx);
         }
         else {
             yield ctx.reply(ctx.t('no_such_answer'), {

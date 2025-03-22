@@ -39,7 +39,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
         +
         (options.like?.message ? `
             
-            ${ctx.t('message_for_you')} ${options.like.message}` : '')
+${ctx.t('message_for_you')} ${options.like.message}` : '')
     )
 }
 
@@ -64,7 +64,7 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
         const files: IFile[] = JSON.parse(user.files as any);
         
         if (options.sendTo) {
-            await bot.api.sendMediaGroup(options.sendTo, files.map((i, index) => ({
+            await ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => ({
                 ...i,
                 caption: index === 0 ? text : ''
             })));
@@ -77,6 +77,19 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
             if (options.like?.videoFileId) {
                 await ctx.replyWithVideo(options.like.videoFileId, {
                     caption: ctx.t('video_for_you')
+                });
+            }
+            
+            if (options.like?.voiceFileId) {
+                await ctx.replyWithVoice(options.like.voiceFileId, {
+                    caption: ctx.t('voice_for_you')
+                });
+            }
+
+            if (options.like?.videoNoteFileId) {
+                const videoNote = await ctx.replyWithVideoNote(options.like.videoNoteFileId);
+                await ctx.reply(ctx.t('video_note_for_you'), {
+                    reply_to_message_id: videoNote.message_id
                 });
             }
         }

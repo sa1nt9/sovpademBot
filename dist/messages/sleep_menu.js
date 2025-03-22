@@ -15,6 +15,7 @@ const postgres_1 = require("../db/postgres");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const encodeId_1 = require("../functions/encodeId");
 const sendForm_1 = require("../functions/sendForm");
+const roulette_start_1 = require("./roulette_start");
 function sleepMenuStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
@@ -70,6 +71,10 @@ function sleepMenuStep(ctx) {
             yield ctx.reply(inviteLinkText, {
                 reply_markup: (0, keyboards_1.inviteFriendsKeyboard)(ctx.t, url, text),
             });
+        }
+        else if (message === '5 🎲') {
+            ctx.session.step = 'roulette_start';
+            yield (0, roulette_start_1.showRouletteStart)(ctx);
         }
         else {
             yield ctx.reply(ctx.t('no_such_answer'), {

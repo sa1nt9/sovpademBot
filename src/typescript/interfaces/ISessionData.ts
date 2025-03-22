@@ -10,6 +10,17 @@ interface IAdditionalFormInfo {
     reportedUserId?: string;
 }
 
+interface IRouletteData {
+    chatPartnerId: string | null;
+    searchingPartner: boolean;
+}
+
+interface IOriginalReactionMessage {
+    text: string;
+    messageId: number;
+    chatId: number;
+}
+
 type TStep =
     "choose_language_start" |
     "profile" |
@@ -30,7 +41,9 @@ type TStep =
     "continue_see_likes_forms" |
     "complain" |
     "complain_text" |
-    "cannot_send_complain"
+    "cannot_send_complain" | 
+    "roulette_start" |
+    "roulette_searching"
 
 type TQuestion =
     'years' |
@@ -46,7 +59,7 @@ type TQuestion =
 export interface ISessionData {
     step?: TStep;
     question?: TQuestion;
-    additionalFormInfo: IAdditionalFormInfo
+    additionalFormInfo: IAdditionalFormInfo;
     privacyAccepted: boolean;
     referrerId?: string;
     form: IUser;
@@ -54,4 +67,6 @@ export interface ISessionData {
     currentCandidate?: User | null;
     pendingMutualLike?: boolean;
     pendingMutualLikeUserId?: string;
+    roulette?: IRouletteData;
+    originalReactionMessage?: IOriginalReactionMessage;
 }

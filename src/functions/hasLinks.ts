@@ -1,5 +1,5 @@
-import { urlRegex } from "../regex/urlRegex";
-import { wwwRegex } from "../regex/wwwRegex";
+import { urlRegex } from "../constants/regex/urlRegex";
+import { wwwRegex } from "../constants/regex/wwwRegex";
 
 export function hasLinks(text: string): boolean {
     if (!text) return false;

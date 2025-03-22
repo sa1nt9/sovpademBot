@@ -23,11 +23,13 @@ model User {
     isActive       Boolean      @default(true) // Активна ли анкета
     referrerId     String? // ID пользователя, который пригласил
 
-    likesGiven    UserLike[] @relation(name: "UserLikesTarget")
-    likesReceived UserLike[] @relation(name: "TargetLikedByUser")
+    likesGiven    UserLike[] @relation("UserLikes")
+    likesReceived UserLike[] @relation("UserLiked")
 
-    reportsGiven    Report[] @relation(name: "UserReports")
-    reportsReceived Report[] @relation(name: "UserReported")
+    reports     Report[] @relation("UserReports")
+    reportedBy  Report[] @relation("UserReported")
+
+    rouletteUser RouletteUser?
 }
 
 model UserLike {
@@ -37,11 +39,13 @@ model UserLike {
     liked       Boolean // true — лайк, false — дизлайк
     message     String? // Текстовое сообщение к лайку
     videoFileId String? // ID файла видео, если было отправлено
-    createdAt   DateTime @default(now())
+    voiceFileId    String?
+    videoNoteFileId String?
     isMutual    Boolean  @default(false)
+    createdAt   DateTime @default(now())
 
-    user   User @relation(name: "UserLikesTarget", fields: [userId], references: [id], onDelete: Cascade)
-    target User @relation(name: "TargetLikedByUser", fields: [targetId], references: [id], onDelete: Cascade)
+    user   User @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
+    target User @relation("UserLiked", fields: [targetId], references: [id], onDelete: Cascade)
 }
 
 model Session {
@@ -65,8 +69,10 @@ model Report {
 enum ReportType {
     other
     sale
-    dislike
     adult_content
+    advertising
+    scam
+    dislike
 }
 
 enum Gender {
@@ -79,3 +85,41 @@ enum InterestedIn {
     female
     all
 }
+
+model RouletteUser {
+    id              String   @id
+    chatPartnerId   String?
+    searchingPartner Boolean @default(true)
+    createdAt       DateTime @default(now())
+    profileRevealed  Boolean @default(false)
+    usernameRevealed Boolean @default(false)
+
+    user            User     @relation(fields: [id], references: [id], onDelete: Cascade)
+    chatPartner     RouletteUser? @relation("ChatPartners", fields: [chatPartnerId], references: [id])
+    partners        RouletteUser[] @relation("ChatPartners")
+    
+    // Связи для реакций
+    reactionsGiven    RouletteReaction[] @relation("ReactionGiver")
+    reactionsReceived RouletteReaction[] @relation("ReactionReceiver")
+}
+
+model RouletteReaction {
+    id          String         @id @default(uuid())
+    fromUserId  String         // ID пользователя, который поставил реакцию
+    toUserId    String         // ID пользователя, которому поставили реакцию
+    type        ReactionType   // Тип реакции
+    createdAt   DateTime       @default(now())
+    
+    fromUser    RouletteUser   @relation("ReactionGiver", fields: [fromUserId], references: [id], onDelete: Cascade)
+    toUser      RouletteUser   @relation("ReactionReceiver", fields: [toUserId], references: [id], onDelete: Cascade)
+}
+
+enum ReactionType {
+    LIKE        // 👍
+    DISLIKE     // 👎
+    CLOWN       // 🤡
+    FUNNY       // 😂
+    BORING      // 😴
+    RUDE        // 😡
+}
+

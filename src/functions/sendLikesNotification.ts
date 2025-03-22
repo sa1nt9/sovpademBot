@@ -34,7 +34,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
             if (isAnswer) {
                 ctx.logger.info({ currentValue, targetUserId, isAnswer })
                 if (currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') {
-                    await bot.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
+                    await ctx.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
 
                     await prisma.session.update({
                         where: {
@@ -51,7 +51,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                 } else {
                     await sendForm(ctx, null, { myForm: true, sendTo: targetUserId });
 
-                    await bot.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${ctx.from?.username})`, {
+                    await ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${ctx.from?.username})`, {
                         reply_markup: complainToUserKeyboard(ctx.t, String(ctx.from?.id)),
                         parse_mode: 'Markdown',
                     });
@@ -68,7 +68,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                         }
                     });
 
-                    await bot.api.sendMessage(targetUserId, ctx.t('sleep_menu'), {
+                    await ctx.api.sendMessage(targetUserId, ctx.t('sleep_menu'), {
                         reply_markup: profileKeyboard()
                     });
                 }
@@ -85,7 +85,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                     }
                 });
 
-                await bot.api.sendMessage(targetUserId, ctx.t('somebodys_liked_you', {
+                await ctx.api.sendMessage(targetUserId, ctx.t('somebodys_liked_you', {
                     count,
                     gender,
                     userGender

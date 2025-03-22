@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.complainStep = complainStep;
+const complain_1 = require("../constants/complain");
 const keyboards_1 = require("../constants/keyboards");
 const continueSeeLikesForms_1 = require("../functions/continueSeeLikesForms");
 const getCandidate_1 = require("../functions/db/getCandidate");
@@ -17,36 +18,18 @@ const sendForm_1 = require("../functions/sendForm");
 const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
 function complainStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        const message = ctx.message.text;
-        if (message === '1 🔞') {
-            ctx.session.additionalFormInfo.reportType = 'adult_content';
+        const message = ctx.message.text || '';
+        // Обработка жалоб разных типов
+        if (message && message in complain_1.complainTypes) {
+            ctx.session.additionalFormInfo.reportType = complain_1.complainTypes[message];
             ctx.session.step = 'complain_text';
             yield ctx.reply(ctx.t('write_complain_comment'), {
-                reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
+                reply_markup: (0, keyboards_1.sendComplainWithoutCommentKeyboard)(ctx.t)
             });
+            return;
         }
-        else if (message === '2 💰') {
-            ctx.session.additionalFormInfo.reportType = 'sale';
-            ctx.session.step = 'complain_text';
-            yield ctx.reply(ctx.t('write_complain_comment'), {
-                reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
-            });
-        }
-        else if (message === '3 💩') {
-            ctx.session.additionalFormInfo.reportType = 'dislike';
-            ctx.session.step = 'complain_text';
-            yield ctx.reply(ctx.t('write_complain_comment'), {
-                reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
-            });
-        }
-        else if (message === '4 🦨') {
-            ctx.session.additionalFormInfo.reportType = 'other';
-            ctx.session.step = 'complain_text';
-            yield ctx.reply(ctx.t('write_complain_comment'), {
-                reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t)
-            });
-        }
-        else if (message === '✖️') {
+        // Обработка отмены жалобы
+        if (message === '✖️') {
             ctx.session.additionalFormInfo.reportedUserId = '';
             if (ctx.session.additionalFormInfo.searchingLikes) {
                 ctx.session.step = 'search_people_with_likes';

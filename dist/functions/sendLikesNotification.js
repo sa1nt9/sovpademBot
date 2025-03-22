@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendLikesNotification = sendLikesNotification;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
-const main_1 = require("../main");
 const getLikesInfo_1 = require("./db/getLikesInfo");
 const sendForm_1 = require("./sendForm");
 function sendLikesNotification(ctx, targetUserId, isAnswer) {
@@ -41,7 +40,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                 if (isAnswer) {
                     ctx.logger.info({ currentValue, targetUserId, isAnswer });
                     if (currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') {
-                        yield main_1.bot.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
+                        yield ctx.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
                         yield postgres_1.prisma.session.update({
                             where: {
                                 key: targetUserId
@@ -53,7 +52,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                     }
                     else {
                         yield (0, sendForm_1.sendForm)(ctx, null, { myForm: true, sendTo: targetUserId });
-                        yield main_1.bot.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${(_b = ctx.from) === null || _b === void 0 ? void 0 : _b.username})`, {
+                        yield ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${(_b = ctx.from) === null || _b === void 0 ? void 0 : _b.username})`, {
                             reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String((_c = ctx.from) === null || _c === void 0 ? void 0 : _c.id)),
                             parse_mode: 'Markdown',
                         });
@@ -65,7 +64,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                                 value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { step: 'sleep_menu' }))
                             }
                         });
-                        yield main_1.bot.api.sendMessage(targetUserId, ctx.t('sleep_menu'), {
+                        yield ctx.api.sendMessage(targetUserId, ctx.t('sleep_menu'), {
                             reply_markup: (0, keyboards_1.profileKeyboard)()
                         });
                     }
@@ -79,7 +78,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                             value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { step: 'somebodys_liked_you' }))
                         }
                     });
-                    yield main_1.bot.api.sendMessage(targetUserId, ctx.t('somebodys_liked_you', {
+                    yield ctx.api.sendMessage(targetUserId, ctx.t('somebodys_liked_you', {
                         count,
                         gender,
                         userGender

@@ -21,7 +21,6 @@ function complainTextStep(ctx) {
         var _a, _b, _c;
         const message = ctx.message.text;
         if (message === ctx.t('back')) {
-            // Возврат к выбору типа жалобы
             ctx.session.step = 'complain';
             ctx.session.additionalFormInfo.reportType = undefined;
             ctx.session.additionalFormInfo.reportedUserId = '';
@@ -38,7 +37,7 @@ function complainTextStep(ctx) {
                         reporterId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
                         targetId: ((_b = ctx.session.currentCandidate) === null || _b === void 0 ? void 0 : _b.id) || ctx.session.additionalFormInfo.reportedUserId || "",
                         type: ctx.session.additionalFormInfo.reportType,
-                        text: message || undefined
+                        text: message === ctx.t('send_complain_without_comment') ? 'withour comment' : message
                     }
                 });
                 if (ctx.session.currentCandidate) {

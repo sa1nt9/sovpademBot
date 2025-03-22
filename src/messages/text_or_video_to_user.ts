@@ -10,7 +10,6 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
     const message = ctx.message!.text;
 
     if (!ctx.session.currentCandidate || !ctx.session.additionalFormInfo.awaitingLikeContent) {
-
         ctx.session.step = 'search_people';
         await ctx.reply(ctx.t('operation_cancelled'), {
             reply_markup: answerFormKeyboard()
@@ -21,6 +20,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
 
         return;
     }
+
     if (message === ctx.t('go_back')) {
         ctx.session.step = 'search_people'
         ctx.session.question = 'years'
@@ -38,17 +38,35 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
         return
     }
 
-    const isVideo = ctx.message?.video;
+    const video = ctx.message?.video;
+    const voice = ctx.message?.voice;
+    const videoNote = ctx.message?.video_note;
 
-    if (isVideo) {
-        if (ctx.message.video?.duration && ctx.message.video.duration > 15) {
+    if (video) {
+        if (video.duration && video.duration > 15) {
             await ctx.reply(ctx.t('video_must_be_less_15'));
             return;
         }
 
+        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            videoFileId: video.file_id
+        });
+
+        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+    } else if (voice) {
+        if (voice.duration && voice.duration > 60) {
+            await ctx.reply(ctx.t('voice_must_be_less_60'));
+            return;
+        }
 
         await saveLike(ctx, ctx.session.currentCandidate.id, true, {
-            videoFileId: ctx.message.video?.file_id
+            voiceFileId: voice.file_id
+        });
+
+        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+    } else if (videoNote) {
+        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            videoNoteFileId: videoNote.file_id
         });
 
         await sendLikesNotification(ctx, ctx.session.currentCandidate.id);

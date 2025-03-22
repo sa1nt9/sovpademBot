@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.hasLinks = hasLinks;
 exports.removeLinks = removeLinks;
-const urlRegex_1 = require("../regex/urlRegex");
-const wwwRegex_1 = require("../regex/wwwRegex");
+const urlRegex_1 = require("../constants/regex/urlRegex");
+const wwwRegex_1 = require("../constants/regex/wwwRegex");
 function hasLinks(text) {
     if (!text)
         return false;

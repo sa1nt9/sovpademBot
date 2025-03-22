@@ -27,7 +27,7 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
         
         ctx.session.step = 'continue_see_forms'
 
-        const userInfo = await bot.api.getChat(likedUser.id);
+        const userInfo = await ctx.api.getChat(likedUser.id);
 
         await ctx.reply(`${ctx.t('mutual_sympathy')} [${likedUser.name}](https://t.me/${userInfo.username})`, {
             reply_markup: complainToUserKeyboard(ctx.t, String(likedUser.id)),

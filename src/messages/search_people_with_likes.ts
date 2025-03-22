@@ -18,7 +18,7 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
             await setMutualLike(ctx.session.currentCandidate.id, String(ctx.from!.id));
             await saveLike(ctx, ctx.session.currentCandidate.id, true, { isMutual: true });
 
-            const userInfo = await bot.api.getChat(ctx.session.currentCandidate.id);
+            const userInfo = await ctx.api.getChat(ctx.session.currentCandidate.id);
 
             await sendLikesNotification(ctx, ctx.session.currentCandidate.id, true)
 

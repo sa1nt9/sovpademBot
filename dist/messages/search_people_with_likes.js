@@ -16,7 +16,6 @@ const saveLike_1 = require("../functions/db/saveLike");
 const setMutualLike_1 = require("../functions/db/setMutualLike");
 const sendForm_1 = require("../functions/sendForm");
 const sendLikesNotification_1 = require("../functions/sendLikesNotification");
-const main_1 = require("../main");
 const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
 function searchPeopleWithLikesStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -26,7 +25,7 @@ function searchPeopleWithLikesStep(ctx) {
                 ctx.logger.info(ctx.session.currentCandidate, 'Candidate to set mutual like');
                 yield (0, setMutualLike_1.setMutualLike)(ctx.session.currentCandidate.id, String(ctx.from.id));
                 yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true, { isMutual: true });
-                const userInfo = yield main_1.bot.api.getChat(ctx.session.currentCandidate.id);
+                const userInfo = yield ctx.api.getChat(ctx.session.currentCandidate.id);
                 yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id, true);
                 ctx.session.step = 'continue_see_likes_forms';
                 yield ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidate.name}](https://t.me/${userInfo.username})`, {

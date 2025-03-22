@@ -2,6 +2,7 @@ import { TranslateFunction } from "@grammyjs/i18n"
 import { InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove } from "grammy/types"
 import { ISessionData } from "../typescript/interfaces/ISessionData"
 import { InlineKeyboard } from "grammy"
+import { REACTIONS } from "./reaction"
 
 
 export const languageKeyboard: ReplyKeyboardMarkup = {
@@ -132,7 +133,7 @@ export const nameKeyboard = (session: ISessionData): ReplyKeyboardMarkup | Reply
 
 export const profileKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
-        ["1🚀", "2", "3", "4"]
+        ["1 🚀", "2", "3", "4", "5 🎲"]
     ],
     resize_keyboard: true,
     is_persistent: true,
@@ -197,6 +198,14 @@ export const goBackKeyboard = (t: TranslateFunction, go?: boolean): ReplyKeyboar
     resize_keyboard: true,
 })
 
+export const sendComplainWithoutCommentKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("send_complain_without_comment")],
+        [t("back")]
+    ],
+    resize_keyboard: true,
+})
+
 
 export const inviteFriendsKeyboard = (t: TranslateFunction, url: string, text: string): InlineKeyboardMarkup => ({
     inline_keyboard: [
@@ -240,8 +249,90 @@ export const continueKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => (
 
 export const complainKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
-        ["1 🔞", "2 💰", "3 💩", "4 🦨", "✖️"]
+        ["1 🔞", "2 💰", "3 📰", "4 ⛔️", "5 💩", "6 🦨", "✖️"]
     ],
     resize_keyboard: true,
 })
 
+export const rouletteKeyboard = (t: TranslateFunction, profileRevealed: boolean = false, usernameRevealed: boolean = false): ReplyKeyboardMarkup => {
+    const buttons = [];
+
+    // Первый ряд кнопок всегда одинаковый
+    buttons.push([t('roulette_next'), t('roulette_stop')]);
+
+    // Второй ряд зависит от статуса раскрытия
+    const secondRow = [];
+    if (!profileRevealed) {
+        secondRow.push(t('roulette_reveal'));
+    }
+    if (!usernameRevealed) {
+        secondRow.push(t("roulette_reveal_username"));
+    }
+
+    // Добавляем второй ряд только если в нем есть кнопки
+    if (secondRow.length > 0) {
+        buttons.push(secondRow);
+    }
+
+    return {
+        keyboard: buttons,
+        resize_keyboard: true,
+    };
+}
+
+export const rouletteStartKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t('roulette_find')],
+        [t("go_back")]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+})
+
+export const rouletteStopKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t('roulette_stop_searching')]
+    ],
+    resize_keyboard: true,
+})
+
+
+export const confirmRevealKeyboard = (t: TranslateFunction, userId: string, isUsername?: boolean): InlineKeyboardMarkup => ({
+    inline_keyboard: [
+        [
+            {
+                text: t(`roulette_reveal_${isUsername ? 'username_' : ''}accept`),
+                callback_data: `reveal_${isUsername ? 'username_' : ''}accept:${userId}`
+            },
+            {
+                text: t(`roulette_reveal_${isUsername ? 'username_' : ''}reject`),
+                callback_data: `reveal_${isUsername ? 'username_' : ''}reject:${userId}`
+            }
+        ]
+    ]
+})
+
+export const rouletteReactionKeyboard = (t: TranslateFunction, partnerId: string = "", counts?: Record<string, number>): InlineKeyboardMarkup => {
+    // Создаем двумерный массив кнопок, по 3 кнопки в ряду
+    const rows = [];
+    const buttonsPerRow = 3;
+
+    for (let i = 0; i < REACTIONS.length; i += buttonsPerRow) {
+        const row = REACTIONS.slice(i, i + buttonsPerRow).map(reaction => {
+            const count = counts?.[reaction.type] || 0;
+            const countDisplay = count > 0 ? ` ${count}` : '';
+
+            return {
+                text: `${reaction.emoji}${countDisplay}`,
+                callback_data: `reaction:${reaction.type}:${partnerId}`
+            };
+        });
+        rows.push(row);
+    }
+
+    rows.push([{ text: t("complain_to_user"), callback_data: `reaction:complain:${partnerId}` }])
+
+    return {
+        inline_keyboard: rows
+    };
+}

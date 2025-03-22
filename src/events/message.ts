@@ -1,0 +1,73 @@
+import { acceptPrivacyStep } from "../messages/accept_privacy"
+import { cannotSendComplainStep } from "../messages/cannot_send_complain"
+import { chooseLanguageStep } from "../messages/choose_language"
+import { chooseLanguageStartStep } from "../messages/choose_language_start"
+import { complainStep } from "../messages/complain"
+import { complainTextStep } from "../messages/complain_text"
+import { continueSeeFormsStep } from "../messages/continue_see_forms"
+import { continueSeeLikesFormsStep } from "../messages/continue_see_likes_forms"
+import { disableFormStep } from "../messages/disable_form"
+import { formDisabledStep } from "../messages/form_disabled"
+import { friendsStep } from "../messages/friends"
+import { prepareMessageStep } from "../messages/prepare_message"
+import { profileStep } from "../messages/profile"
+import { questionsStep } from "../messages/questions"
+import { rouletteSearchingStep } from "../messages/roulette_searching"
+import { rouletteStartStep } from "../messages/roulette_start"
+import { searchPeopleStep } from "../messages/search_people"
+import { searchPeopleWithLikesStep } from "../messages/search_people_with_likes"
+import { sleepMenuStep } from "../messages/sleep_menu"
+import { somebodysLikedYouStep } from "../messages/somebodys_liked_you"
+import { textOrVideoToUserStep } from "../messages/text_or_video_to_user"
+import { youDontHaveFormStep } from "../messages/you_dont_have_form"
+import { MyContext } from "../typescript/context"
+
+export const messageEvent = async (ctx: MyContext) => {
+    if (ctx.session.step === "choose_language_start") {
+        await chooseLanguageStartStep(ctx)
+    } else if (ctx.session.step === "choose_language") {
+        await chooseLanguageStep(ctx)
+    } else if (ctx.session.step === "prepare_message") {
+        await prepareMessageStep(ctx)
+    } else if (ctx.session.step === "accept_privacy") {
+        await acceptPrivacyStep(ctx)
+    } else if (ctx.session.step === "questions") {
+        await questionsStep(ctx)
+    } else if (ctx.session.step === 'profile') {
+        await profileStep(ctx)
+    } else if (ctx.session.step === 'sleep_menu') {
+        await sleepMenuStep(ctx)
+    } else if (ctx.session.step === 'friends') {
+        await friendsStep(ctx)
+    } else if (ctx.session.step === 'disable_form') {
+        await disableFormStep(ctx)
+    } else if (ctx.session.step === 'form_disabled') {
+        await formDisabledStep(ctx)
+    } else if (ctx.session.step === 'you_dont_have_form') {
+        await youDontHaveFormStep(ctx)
+    } else if (ctx.session.step === 'cannot_send_complain') {
+        await cannotSendComplainStep(ctx)
+    } else if (ctx.session.step === 'search_people') {
+        await searchPeopleStep(ctx)
+    } else if (ctx.session.step === 'search_people_with_likes') {
+        await searchPeopleWithLikesStep(ctx)
+    } else if (ctx.session.step === 'continue_see_forms') {
+        await continueSeeFormsStep(ctx)
+    } else if (ctx.session.step === 'continue_see_likes_forms') {
+        await continueSeeLikesFormsStep(ctx)
+    } else if (ctx.session.step === 'text_or_video_to_user') {
+        await textOrVideoToUserStep(ctx)
+    } else if (ctx.session.step === 'somebodys_liked_you') {
+        await somebodysLikedYouStep(ctx)
+    } else if (ctx.session.step === 'complain') {
+        await complainStep(ctx)
+    } else if (ctx.session.step === 'complain_text') {
+        await complainTextStep(ctx)
+    } else if (ctx.session.step === 'roulette_searching') {
+        await rouletteSearchingStep(ctx)
+    } else if (ctx.session.step === 'roulette_start') {
+        await rouletteStartStep(ctx)
+    } else {
+        await ctx.reply(ctx.t('no_such_answer'));
+    }
+}

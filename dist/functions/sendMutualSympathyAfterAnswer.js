@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendMutualSympathyAfterAnswer = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
-const main_1 = require("../main");
 const sendForm_1 = require("./sendForm");
 const defaultOptions = {
     withoutSleepMenu: false
@@ -28,7 +27,7 @@ const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [c
         // Отправляем анкету пользователя, который поставил лайк
         yield (0, sendForm_1.sendForm)(ctx, likedUser, { myForm: false });
         ctx.session.step = 'continue_see_forms';
-        const userInfo = yield main_1.bot.api.getChat(likedUser.id);
+        const userInfo = yield ctx.api.getChat(likedUser.id);
         yield ctx.reply(`${ctx.t('mutual_sympathy')} [${likedUser.name}](https://t.me/${userInfo.username})`, {
             reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String(likedUser.id)),
             parse_mode: 'Markdown',

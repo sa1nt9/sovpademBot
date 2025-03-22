@@ -1,43 +1,28 @@
-import { answerFormKeyboard, answerLikesFormKeyboard, complainKeyboard, continueSeeFormsKeyboard, goBackKeyboard } from '../constants/keyboards';
+import { complainTypes } from '../constants/complain';
+import { answerFormKeyboard, answerLikesFormKeyboard, complainKeyboard, continueSeeFormsKeyboard, goBackKeyboard, sendComplainWithoutCommentKeyboard } from '../constants/keyboards';
 import { continueSeeLikesForms } from '../functions/continueSeeLikesForms';
 import { getCandidate } from '../functions/db/getCandidate';
-import { getOneLike } from '../functions/db/getOneLike';
 import { sendForm } from '../functions/sendForm';
 import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
 import { MyContext } from '../typescript/context';
 
+
 export async function complainStep(ctx: MyContext) {
-    const message = ctx.message!.text;
+    const message = ctx.message!.text || '';
 
-    if (message === '1 🔞') {
-        ctx.session.additionalFormInfo.reportType = 'adult_content';
+    // Обработка жалоб разных типов
+    if (message && message in complainTypes) {
+        ctx.session.additionalFormInfo.reportType = complainTypes[message];
         ctx.session.step = 'complain_text';
-
+        
         await ctx.reply(ctx.t('write_complain_comment'), {
-            reply_markup: goBackKeyboard(ctx.t)
+            reply_markup: sendComplainWithoutCommentKeyboard(ctx.t)
         });
-    } else if (message === '2 💰') {
-        ctx.session.additionalFormInfo.reportType = 'sale';
-        ctx.session.step = 'complain_text';
-
-        await ctx.reply(ctx.t('write_complain_comment'), {
-            reply_markup: goBackKeyboard(ctx.t)
-        });
-    } else if (message === '3 💩') {
-        ctx.session.additionalFormInfo.reportType = 'dislike';
-        ctx.session.step = 'complain_text';
-
-        await ctx.reply(ctx.t('write_complain_comment'), {
-            reply_markup: goBackKeyboard(ctx.t)
-        });
-    } else if (message === '4 🦨') {
-        ctx.session.additionalFormInfo.reportType = 'other';
-        ctx.session.step = 'complain_text';
-
-        await ctx.reply(ctx.t('write_complain_comment'), {
-            reply_markup: goBackKeyboard(ctx.t)
-        });
-    } else if (message === '✖️') {
+        return;
+    }
+    
+    // Обработка отмены жалобы
+    if (message === '✖️') {
         ctx.session.additionalFormInfo.reportedUserId = ''
         if (ctx.session.additionalFormInfo.searchingLikes) {
             ctx.session.step = 'search_people_with_likes'
@@ -59,11 +44,9 @@ export async function complainStep(ctx: MyContext) {
             const candidate = await getCandidate(ctx);
             await sendForm(ctx, candidate || null, { myForm: false });
         }
-
-            
-        } else {
-            await ctx.reply(ctx.t('no_such_answer'), {
-                reply_markup: complainKeyboard()
-            });
-        }
-    } 
+    } else {
+        await ctx.reply(ctx.t('no_such_answer'), {
+            reply_markup: complainKeyboard()
+        });
+    }
+} 

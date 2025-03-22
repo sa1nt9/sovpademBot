@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+const reaction_1 = require("./reaction");
 exports.languageKeyboard = {
     keyboard: [
         ['🇷🇺 Русский', '🇬🇧 English', '🇺🇦 Українська'],
@@ -135,7 +136,7 @@ const nameKeyboard = (session) => {
 exports.nameKeyboard = nameKeyboard;
 const profileKeyboard = () => ({
     keyboard: [
-        ["1🚀", "2", "3", "4"]
+        ["1 🚀", "2", "3", "4", "5 🎲"]
     ],
     resize_keyboard: true,
     is_persistent: true,
@@ -200,6 +201,14 @@ const goBackKeyboard = (t, go) => ({
     resize_keyboard: true,
 });
 exports.goBackKeyboard = goBackKeyboard;
+const sendComplainWithoutCommentKeyboard = (t) => ({
+    keyboard: [
+        [t("send_complain_without_comment")],
+        [t("back")]
+    ],
+    resize_keyboard: true,
+});
+exports.sendComplainWithoutCommentKeyboard = sendComplainWithoutCommentKeyboard;
 const inviteFriendsKeyboard = (t, url, text) => ({
     inline_keyboard: [
         [
@@ -242,8 +251,82 @@ const continueKeyboard = (t) => ({
 exports.continueKeyboard = continueKeyboard;
 const complainKeyboard = () => ({
     keyboard: [
-        ["1 🔞", "2 💰", "3 💩", "4 🦨", "✖️"]
+        ["1 🔞", "2 💰", "3 📰", "4 ⛔️", "5 💩", "6 🦨", "✖️"]
     ],
     resize_keyboard: true,
 });
 exports.complainKeyboard = complainKeyboard;
+const rouletteKeyboard = (t, profileRevealed = false, usernameRevealed = false) => {
+    const buttons = [];
+    // Первый ряд кнопок всегда одинаковый
+    buttons.push([t('roulette_next'), t('roulette_stop')]);
+    // Второй ряд зависит от статуса раскрытия
+    const secondRow = [];
+    if (!profileRevealed) {
+        secondRow.push(t('roulette_reveal'));
+    }
+    if (!usernameRevealed) {
+        secondRow.push(t("roulette_reveal_username"));
+    }
+    // Добавляем второй ряд только если в нем есть кнопки
+    if (secondRow.length > 0) {
+        buttons.push(secondRow);
+    }
+    return {
+        keyboard: buttons,
+        resize_keyboard: true,
+    };
+};
+exports.rouletteKeyboard = rouletteKeyboard;
+const rouletteStartKeyboard = (t) => ({
+    keyboard: [
+        [t('roulette_find')],
+        [t("go_back")]
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+});
+exports.rouletteStartKeyboard = rouletteStartKeyboard;
+const rouletteStopKeyboard = (t) => ({
+    keyboard: [
+        [t('roulette_stop_searching')]
+    ],
+    resize_keyboard: true,
+});
+exports.rouletteStopKeyboard = rouletteStopKeyboard;
+const confirmRevealKeyboard = (t, userId, isUsername) => ({
+    inline_keyboard: [
+        [
+            {
+                text: t(`roulette_reveal_${isUsername ? 'username_' : ''}accept`),
+                callback_data: `reveal_${isUsername ? 'username_' : ''}accept:${userId}`
+            },
+            {
+                text: t(`roulette_reveal_${isUsername ? 'username_' : ''}reject`),
+                callback_data: `reveal_${isUsername ? 'username_' : ''}reject:${userId}`
+            }
+        ]
+    ]
+});
+exports.confirmRevealKeyboard = confirmRevealKeyboard;
+const rouletteReactionKeyboard = (t, partnerId = "", counts) => {
+    // Создаем двумерный массив кнопок, по 3 кнопки в ряду
+    const rows = [];
+    const buttonsPerRow = 3;
+    for (let i = 0; i < reaction_1.REACTIONS.length; i += buttonsPerRow) {
+        const row = reaction_1.REACTIONS.slice(i, i + buttonsPerRow).map(reaction => {
+            const count = (counts === null || counts === void 0 ? void 0 : counts[reaction.type]) || 0;
+            const countDisplay = count > 0 ? ` ${count}` : '';
+            return {
+                text: `${reaction.emoji}${countDisplay}`,
+                callback_data: `reaction:${reaction.type}:${partnerId}`
+            };
+        });
+        rows.push(row);
+    }
+    rows.push([{ text: t("complain_to_user"), callback_data: `reaction:complain:${partnerId}` }]);
+    return {
+        inline_keyboard: rows
+    };
+};
+exports.rouletteReactionKeyboard = rouletteReactionKeyboard;

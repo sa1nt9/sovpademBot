@@ -1,0 +1,61 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.revealAcceptCallbackQuery = void 0;
+const keyboards_1 = require("../constants/keyboards");
+const postgres_1 = require("../db/postgres");
+const sendForm_1 = require("../functions/sendForm");
+const revealAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const callbackQuery = ctx.callbackQuery;
+    const callbackData = callbackQuery.data;
+    const userId = callbackData.split(":")[1];
+    yield ctx.answerCallbackQuery({
+        text: ctx.t('roulette_reveal_accepted'),
+        show_alert: false
+    });
+    // Изменяем текст и удаляем клавиатуру
+    if (callbackQuery.message) {
+        yield ctx.api.editMessageText(callbackQuery.message.chat.id, callbackQuery.message.message_id, ctx.t('roulette_reveal_accepted'), { reply_markup: { inline_keyboard: [] } });
+    }
+    // Получаем информацию о пользователях
+    const currentUser = yield postgres_1.prisma.user.findUnique({
+        where: { id: String(callbackQuery.from.id) },
+        include: { rouletteUser: true }
+    });
+    const requestingUser = yield postgres_1.prisma.user.findUnique({
+        where: { id: userId }
+    });
+    if (currentUser && requestingUser) {
+        // Обновляем статус раскрытия профилей для обоих пользователей
+        if (currentUser.rouletteUser) {
+            yield postgres_1.prisma.rouletteUser.update({
+                where: { id: currentUser.id },
+                data: { profileRevealed: true }
+            });
+        }
+        yield postgres_1.prisma.rouletteUser.update({
+            where: { id: userId },
+            data: { profileRevealed: true }
+        });
+        // Сначала отправляем сообщения и профиль текущему пользователю
+        yield ctx.reply(ctx.t('roulette_revealed'));
+        yield (0, sendForm_1.sendForm)(ctx, requestingUser, { myForm: false });
+        const profileRevealed = true;
+        const usernameRevealed = ((_a = currentUser.rouletteUser) === null || _a === void 0 ? void 0 : _a.usernameRevealed) || false;
+        yield ctx.api.sendMessage(userId, ctx.t('roulette_your_profile_revealed'));
+        yield ctx.api.sendMessage(userId, ctx.t('roulette_revealed'), {
+            reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
+        });
+        yield (0, sendForm_1.sendForm)(ctx, currentUser, { myForm: false, sendTo: userId });
+    }
+});
+exports.revealAcceptCallbackQuery = revealAcceptCallbackQuery;

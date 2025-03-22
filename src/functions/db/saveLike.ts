@@ -4,6 +4,8 @@ import { prisma } from "../../db/postgres";
 interface SaveLikeOptions {
     message?: string;
     videoFileId?: string;
+    voiceFileId?: string;
+    videoNoteFileId?: string;
     isMutual?: boolean;
 }
 
@@ -18,6 +20,8 @@ export const saveLike = async (ctx: MyContext, targetId: string, liked: boolean,
                 liked,
                 message: options?.message,
                 videoFileId: options?.videoFileId,
+                voiceFileId: options?.voiceFileId,
+                videoNoteFileId: options?.videoNoteFileId,
                 isMutual: options?.isMutual
             }
         });

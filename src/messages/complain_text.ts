@@ -11,7 +11,6 @@ export async function complainTextStep(ctx: MyContext) {
     const message = ctx.message!.text;
 
     if (message === ctx.t('back')) {
-        // Возврат к выбору типа жалобы
         ctx.session.step = 'complain';
         ctx.session.additionalFormInfo.reportType = undefined;
         ctx.session.additionalFormInfo.reportedUserId = ''
@@ -31,7 +30,7 @@ export async function complainTextStep(ctx: MyContext) {
                     reporterId: String(ctx.from?.id),
                     targetId: ctx.session.currentCandidate?.id || ctx.session.additionalFormInfo.reportedUserId || "",
                     type: ctx.session.additionalFormInfo.reportType as any,
-                    text: message || undefined
+                    text: message === ctx.t('send_complain_without_comment') ? 'withour comment' : message
                 }
             });
             if (ctx.session.currentCandidate) {

@@ -22,6 +22,8 @@ const saveLike = (ctx, targetId, liked, options) => __awaiter(void 0, void 0, vo
                 liked,
                 message: options === null || options === void 0 ? void 0 : options.message,
                 videoFileId: options === null || options === void 0 ? void 0 : options.videoFileId,
+                voiceFileId: options === null || options === void 0 ? void 0 : options.voiceFileId,
+                videoNoteFileId: options === null || options === void 0 ? void 0 : options.videoNoteFileId,
                 isMutual: options === null || options === void 0 ? void 0 : options.isMutual
             }
         });
