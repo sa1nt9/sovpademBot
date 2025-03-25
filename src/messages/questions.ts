@@ -7,6 +7,7 @@ import { saveForm } from '../functions/db/saveForm';
 import { hasLinks } from '../functions/hasLinks';
 import fs from 'fs';
 import { haversine } from '../functions/haversine';
+import { candidatesEnded } from '../functions/candidatesEnded';
 
 export async function questionsStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -371,7 +372,11 @@ export async function questionsStep(ctx: MyContext) {
             const candidate = await getCandidate(ctx)
             ctx.logger.info(candidate, 'This is new candidate')
 
-            await sendForm(ctx, candidate || null, { myForm: false })
+            if (candidate) {
+                await sendForm(ctx, candidate || null, { myForm: false })
+            } else {
+                candidatesEnded(ctx)
+            }
 
         } else if (message === ctx.t('change_form')) {
             ctx.logger.info('change_form')

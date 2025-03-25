@@ -15,12 +15,14 @@ interface IOptions {
     myForm?: boolean
     like?: UserLike | null
     sendTo?: string
+    privateNote?: string | null
 }
 
 const defaultOptions = {
     myForm: true,
     like: null,
-    sendTo: ''
+    sendTo: '',
+    privateNote: ''
 }
 
 export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
@@ -45,6 +47,10 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
             
 ${ctx.t('message_for_you')} ${options.like.message}` : '')
     )
+        +
+        (options.privateNote ? `
+    
+${ctx.t('your_text_note')} ${options.privateNote}` : '')
 }
 
 export const sendForm = async (ctx: MyContext, form?: User | null, options: IOptions = defaultOptions) => {
@@ -66,7 +72,7 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
 
     if (user?.files) {
         const files: IFile[] = JSON.parse(user.files as any);
-        
+
         if (options.sendTo) {
             await ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => ({
                 ...i,
@@ -77,13 +83,13 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
                 ...i,
                 caption: index === 0 ? text : ''
             })));
-    
+
             if (options.like?.videoFileId) {
                 await ctx.replyWithVideo(options.like.videoFileId, {
                     caption: ctx.t('video_for_you')
                 });
             }
-            
+
             if (options.like?.voiceFileId) {
                 await ctx.replyWithVoice(options.like.voiceFileId, {
                     caption: ctx.t('voice_for_you')

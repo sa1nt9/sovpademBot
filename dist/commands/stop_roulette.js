@@ -50,6 +50,19 @@ const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function*
                     profileRevealed: false
                 }
             });
+            yield postgres_1.prisma.rouletteChat.updateMany({
+                where: {
+                    OR: [
+                        { user1Id: userId, user2Id: partnerUserId, endedAt: null },
+                        { user1Id: partnerUserId, user2Id: userId, endedAt: null }
+                    ]
+                },
+                data: {
+                    endedAt: new Date(),
+                    isProfileRevealed: existingUser.rouletteUser.profileRevealed,
+                    isUsernameRevealed: existingUser.rouletteUser.usernameRevealed
+                }
+            });
             // Уведомляем партнеру о завершении чата
             yield ctx.api.sendMessage(partnerUserId, ctx.t('roulette_partner_left'), {
                 reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)

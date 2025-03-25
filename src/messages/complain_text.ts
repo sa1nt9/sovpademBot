@@ -1,6 +1,7 @@
 import { answerFormKeyboard, answerLikesFormKeyboard, complainKeyboard } from '../constants/keyboards';
 import { prisma } from '../db/postgres';
 import { continueSeeLikesForms } from '../functions/continueSeeLikesForms';
+import { candidatesEnded } from '../functions/candidatesEnded';
 import { getCandidate } from '../functions/db/getCandidate';
 import { getOneLike } from '../functions/db/getOneLike';
 import { saveLike } from '../functions/db/saveLike';
@@ -57,7 +58,12 @@ export async function complainTextStep(ctx: MyContext) {
             });
 
             const candidate = await getCandidate(ctx);
-            await sendForm(ctx, candidate || null, { myForm: false });
+
+            if (candidate) {
+                await sendForm(ctx, candidate || null, { myForm: false });
+            } else {
+                candidatesEnded(ctx)
+            }
         }
     } catch (error) {
         ctx.logger.error(error, 'Error saving report');
@@ -70,6 +76,11 @@ export async function complainTextStep(ctx: MyContext) {
         });
 
         const candidate = await getCandidate(ctx);
-        await sendForm(ctx, candidate || null, { myForm: false });
+        
+        if (candidate) {
+            await sendForm(ctx, candidate || null, { myForm: false });
+        } else {
+            candidatesEnded(ctx)
+        }
     }
 } 

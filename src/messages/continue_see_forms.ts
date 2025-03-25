@@ -1,4 +1,5 @@
 import { answerFormKeyboard } from '../constants/keyboards';
+import { candidatesEnded } from '../functions/candidatesEnded';
 import { getCandidate } from '../functions/db/getCandidate';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
@@ -14,6 +15,10 @@ export async function continueSeeFormsStep(ctx: MyContext) {
     const candidate = await getCandidate(ctx)
     ctx.logger.info(candidate, 'This is new candidate')
 
-    await sendForm(ctx, candidate || null, { myForm: false })
+    if (candidate) {
+        await sendForm(ctx, candidate || null, { myForm: false })
+    } else {
+        candidatesEnded(ctx)
+    }
 
 } 

@@ -22,9 +22,23 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
     });
 
     if (likedUser) {
+        const userLike = await prisma.userLike.findFirst({
+            where: {
+                userId: String(ctx.from?.id),
+                targetId: likedUser.id,
+                liked: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            select: {
+                privateNote: true
+            }
+        });
+
         // Отправляем анкету пользователя, который поставил лайк
-        await sendForm(ctx, likedUser, { myForm: false });
-        
+        await sendForm(ctx, likedUser, { myForm: false, privateNote: userLike?.privateNote });
+
         ctx.session.step = 'continue_see_forms'
 
         const userInfo = await ctx.api.getChat(likedUser.id);

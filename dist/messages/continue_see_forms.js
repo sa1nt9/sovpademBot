@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.continueSeeFormsStep = continueSeeFormsStep;
 const keyboards_1 = require("../constants/keyboards");
+const candidatesEnded_1 = require("../functions/candidatesEnded");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
 function continueSeeFormsStep(ctx) {
@@ -22,6 +23,11 @@ function continueSeeFormsStep(ctx) {
         });
         const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
         ctx.logger.info(candidate, 'This is new candidate');
-        yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+        if (candidate) {
+            yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+        }
+        else {
+            (0, candidatesEnded_1.candidatesEnded)(ctx);
+        }
     });
 }

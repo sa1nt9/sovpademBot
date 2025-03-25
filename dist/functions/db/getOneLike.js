@@ -13,10 +13,15 @@ exports.getOneLike = getOneLike;
 const postgres_1 = require("../../db/postgres");
 function getOneLike(userId) {
     return __awaiter(this, void 0, void 0, function* () {
+        // Получаем дату 30 дней назад (30 * 24 * 60 * 60 * 1000 миллисекунд)
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
         // Получаем все ID пользователей, которым текущий пользователь уже поставил лайк или дизлайк
         const alreadyRespondedToIds = yield postgres_1.prisma.userLike.findMany({
             where: {
                 userId: userId, // Лайки, которые поставил текущий пользователь
+                createdAt: {
+                    gte: thirtyDaysAgo // Только за последние 30 дней
+                }
             },
             select: {
                 targetId: true // Выбираем только ID пользователей
@@ -29,6 +34,9 @@ function getOneLike(userId) {
             where: {
                 targetId: userId, // Лайки, поставленные текущему пользователю
                 liked: true,
+                createdAt: {
+                    gte: thirtyDaysAgo // Только за последние 30 дней
+                },
                 user: {
                     id: {
                         notIn: respondedIds // Исключаем пользователей, которым уже был дан ответ

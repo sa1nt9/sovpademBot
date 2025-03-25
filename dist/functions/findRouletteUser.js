@@ -32,6 +32,16 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
     // Используем getRoulettePartner для поиска подходящего партнера с учетом сортировки
     const partnerId = yield (0, getRoulettePartner_1.getRoulettePartner)(ctx);
     if (partnerId) {
+        // Создаем новый чат в рулетке
+        yield postgres_1.prisma.rouletteChat.create({
+            data: {
+                user1Id: userId,
+                user2Id: partnerId,
+                startedAt: new Date(),
+                isProfileRevealed: false,
+                isUsernameRevealed: false
+            }
+        });
         // Связываем пользователей
         yield postgres_1.prisma.rouletteUser.update({
             where: { id: userId },
@@ -54,7 +64,7 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
         // Получаем данные пользователей для отображения информации
         const currentUser = yield postgres_1.prisma.user.findUnique({ where: { id: userId } });
         const partnerUser = yield postgres_1.prisma.user.findUnique({ where: { id: partnerId } });
-        const reactionsMessagePartner = yield (0, getUserReactions_1.getUserReactions)(ctx, partnerId);
+        const reactionsMessagePartner = yield (0, getUserReactions_1.getUserReactions)(ctx, partnerId, { showTitle: true });
         let fullMessagePartner;
         // Добавляем информацию о пользователе в сообщение
         if (currentUser && partnerUser) {
@@ -78,7 +88,7 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
         yield ctx.reply(fullMessagePartner, {
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t)
         });
-        const reactionsMessageYou = yield (0, getUserReactions_1.getUserReactions)(ctx, userId);
+        const reactionsMessageYou = yield (0, getUserReactions_1.getUserReactions)(ctx, userId, { showTitle: true });
         let fullMessageYou;
         // Добавляем информацию о партнере в сообщение
         if (currentUser && partnerUser) {

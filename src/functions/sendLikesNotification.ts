@@ -2,6 +2,7 @@ import { complainToUserKeyboard, continueSeeFormsKeyboard, profileKeyboard, some
 import { prisma } from "../db/postgres";
 import { bot } from "../main";
 import { MyContext } from "../typescript/context";
+import { ISessionData } from "../typescript/interfaces/ISessionData";
 import { getLikesInfo } from "./db/getLikesInfo";
 import { sendForm } from "./sendForm";
 
@@ -16,7 +17,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
         });
 
         if (currentSession) {
-            const currentValue = currentSession ? JSON.parse(currentSession.value as string) : {};
+            const currentValue = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
 
             // Получаем пользователя, чтобы узнать его пол
             const targetUser = await prisma.user.findUnique({
@@ -33,7 +34,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
 
             if (isAnswer) {
                 ctx.logger.info({ currentValue, targetUserId, isAnswer })
-                if (currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') {
+                if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && currentValue.currentCandidate?.id) {
                     await ctx.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
 
                     await prisma.session.update({
@@ -49,7 +50,25 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                         }
                     });
                 } else {
-                    await sendForm(ctx, null, { myForm: true, sendTo: targetUserId });
+                    const userLike = await prisma.userLike.findFirst({
+                        where: {
+                            userId: targetUserId,
+                            targetId: String(ctx.from?.id),
+                            liked: true
+                        },
+                        orderBy: {
+                            createdAt: 'desc'
+                        },
+                        select: {
+                            privateNote: true
+                        }
+                    });
+
+                    await sendForm(ctx, null, {
+                        myForm: true,
+                        sendTo: targetUserId,
+                        privateNote: userLike?.privateNote
+                    });
 
                     await ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${ctx.from?.username})`, {
                         reply_markup: complainToUserKeyboard(ctx.t, String(ctx.from?.id)),

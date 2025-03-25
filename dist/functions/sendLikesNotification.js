@@ -16,7 +16,7 @@ const getLikesInfo_1 = require("./db/getLikesInfo");
 const sendForm_1 = require("./sendForm");
 function sendLikesNotification(ctx, targetUserId, isAnswer) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         const { count, gender } = yield (0, getLikesInfo_1.getLikesInfo)(targetUserId);
         try {
             const currentSession = yield postgres_1.prisma.session.findUnique({
@@ -39,21 +39,38 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                 const userGender = (targetUser === null || targetUser === void 0 ? void 0 : targetUser.gender) === 'female' ? 'female' : 'male';
                 if (isAnswer) {
                     ctx.logger.info({ currentValue, targetUserId, isAnswer });
-                    if (currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') {
+                    if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && ((_a = currentValue.currentCandidate) === null || _a === void 0 ? void 0 : _a.id)) {
                         yield ctx.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
                         yield postgres_1.prisma.session.update({
                             where: {
                                 key: targetUserId
                             },
                             data: {
-                                value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { pendingMutualLike: true, pendingMutualLikeUserId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id) }))
+                                value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { pendingMutualLike: true, pendingMutualLikeUserId: String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id) }))
                             }
                         });
                     }
                     else {
-                        yield (0, sendForm_1.sendForm)(ctx, null, { myForm: true, sendTo: targetUserId });
-                        yield ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${(_b = ctx.from) === null || _b === void 0 ? void 0 : _b.username})`, {
-                            reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String((_c = ctx.from) === null || _c === void 0 ? void 0 : _c.id)),
+                        const userLike = yield postgres_1.prisma.userLike.findFirst({
+                            where: {
+                                userId: targetUserId,
+                                targetId: String((_c = ctx.from) === null || _c === void 0 ? void 0 : _c.id),
+                                liked: true
+                            },
+                            orderBy: {
+                                createdAt: 'desc'
+                            },
+                            select: {
+                                privateNote: true
+                            }
+                        });
+                        yield (0, sendForm_1.sendForm)(ctx, null, {
+                            myForm: true,
+                            sendTo: targetUserId,
+                            privateNote: userLike === null || userLike === void 0 ? void 0 : userLike.privateNote
+                        });
+                        yield ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${(_d = ctx.from) === null || _d === void 0 ? void 0 : _d.username})`, {
+                            reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String((_e = ctx.from) === null || _e === void 0 ? void 0 : _e.id)),
                             parse_mode: 'Markdown',
                         });
                         yield postgres_1.prisma.session.update({

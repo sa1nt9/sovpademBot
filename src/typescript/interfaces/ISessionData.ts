@@ -43,7 +43,9 @@ type TStep =
     "complain_text" |
     "cannot_send_complain" | 
     "roulette_start" |
-    "roulette_searching"
+    "roulette_searching" |
+    "add_private_note" |
+    "added_private_note"
 
 type TQuestion =
     'years' |
@@ -69,4 +71,5 @@ export interface ISessionData {
     pendingMutualLikeUserId?: string;
     roulette?: IRouletteData;
     originalReactionMessage?: IOriginalReactionMessage;
+    privateNote?: string;
 }

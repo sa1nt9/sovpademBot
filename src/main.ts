@@ -20,6 +20,7 @@ import { messageEvent } from './events/message';
 import { callbackQueryEvent } from './events/callback_query';
 import { rouletteMiddleware } from './middlewares/rouletteMiddleware';
 import { stopRouletteCommand } from './commands/stop_roulette';
+import { statsCommand } from './commands/stats';
 
 
 dotenv.config();
@@ -62,6 +63,8 @@ async function startBot() {
     bot.command("complain", complainCommand);
     
     bot.command("roulette", rouletteCommand);
+
+    bot.command("stats", statsCommand);
 
     bot.command("stop_roulette", stopRouletteCommand);
 

@@ -7,6 +7,7 @@ interface SaveLikeOptions {
     voiceFileId?: string;
     videoNoteFileId?: string;
     isMutual?: boolean;
+    privateNote?: string;
 }
 
 export const saveLike = async (ctx: MyContext, targetId: string, liked: boolean, options?: SaveLikeOptions) => {
@@ -22,7 +23,8 @@ export const saveLike = async (ctx: MyContext, targetId: string, liked: boolean,
                 videoFileId: options?.videoFileId,
                 voiceFileId: options?.voiceFileId,
                 videoNoteFileId: options?.videoNoteFileId,
-                isMutual: options?.isMutual
+                isMutual: options?.isMutual,
+                privateNote: options?.privateNote
             }
         });
 

@@ -3,7 +3,16 @@ import { prisma } from '../db/postgres';
 import { ReactionType } from '@prisma/client';
 import { REACTIONS } from '../constants/reaction';
 
-export async function getUserReactions(ctx: MyContext, userId: string, me?: boolean): Promise<string> {
+interface GetUserReactionsOptions {
+    me?: boolean;
+    showTitle?: boolean;
+}
+
+export async function getUserReactions(
+    ctx: MyContext, 
+    userId: string, 
+    options: GetUserReactionsOptions = {}
+): Promise<string> {
     // Получаем все реакции пользователя
     const reactions = await prisma.rouletteReaction.findMany({
         where: {
@@ -28,7 +37,13 @@ export async function getUserReactions(ctx: MyContext, userId: string, me?: bool
     });
 
     // Формируем сообщение с реакциями
-    let message = me ? ctx.t('roulette_your_reactions') + ' '  : ctx.t('roulette_user_reactions') + ' ';
+    let message = '';
+    
+    // Если нужно показать заголовок
+    if (options.showTitle) {
+        message = options.me ? ctx.t('roulette_your_reactions') + ' ' : ctx.t('roulette_user_reactions') + ' ';
+    }
+    
     let hasReactions = false;
 
     // Добавляем только те реакции, которые есть у пользователя
@@ -36,7 +51,13 @@ export async function getUserReactions(ctx: MyContext, userId: string, me?: bool
         const count = reactionCounts[reaction.type];
         if (count > 0) {
             const reactionKey = `roulette_reaction_${reaction.type.toLowerCase()}`;
-            message += ctx.t(reactionKey, { count }) + ' ';
+            
+            // Если это не первая реакция, добавляем разделитель
+            if (hasReactions) {
+                message += ` `;
+            }
+            
+            message += ctx.t(reactionKey, { count });
             hasReactions = true;
         }
     }

@@ -1,4 +1,5 @@
 import { acceptPrivacyStep } from "../messages/accept_privacy"
+import { addPrivateNoteStep } from "../messages/add_private_note"
 import { cannotSendComplainStep } from "../messages/cannot_send_complain"
 import { chooseLanguageStep } from "../messages/choose_language"
 import { chooseLanguageStartStep } from "../messages/choose_language_start"
@@ -56,6 +57,10 @@ export const messageEvent = async (ctx: MyContext) => {
     } else if (ctx.session.step === 'continue_see_likes_forms') {
         await continueSeeLikesFormsStep(ctx)
     } else if (ctx.session.step === 'text_or_video_to_user') {
+        await textOrVideoToUserStep(ctx)
+    } else if (ctx.session.step === 'add_private_note') {
+        await addPrivateNoteStep(ctx)
+    } else if (ctx.session.step === 'added_private_note') {
         await textOrVideoToUserStep(ctx)
     } else if (ctx.session.step === 'somebodys_liked_you') {
         await somebodysLikedYouStep(ctx)

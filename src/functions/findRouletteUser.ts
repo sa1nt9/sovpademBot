@@ -24,6 +24,17 @@ export const findRouletteUser = async (ctx: MyContext) => {
     const partnerId = await getRoulettePartner(ctx);
 
     if (partnerId) {
+        // Создаем новый чат в рулетке
+        await prisma.rouletteChat.create({
+            data: {
+                user1Id: userId,
+                user2Id: partnerId,
+                startedAt: new Date(),
+                isProfileRevealed: false,
+                isUsernameRevealed: false
+            }
+        });
+
         // Связываем пользователей
         await prisma.rouletteUser.update({
             where: { id: userId },
@@ -49,7 +60,7 @@ export const findRouletteUser = async (ctx: MyContext) => {
         const currentUser = await prisma.user.findUnique({ where: { id: userId } });
         const partnerUser = await prisma.user.findUnique({ where: { id: partnerId } });
 
-        const reactionsMessagePartner = await getUserReactions(ctx, partnerId);
+        const reactionsMessagePartner = await getUserReactions(ctx, partnerId, { showTitle: true });
 
         let fullMessagePartner;
         
@@ -75,7 +86,7 @@ export const findRouletteUser = async (ctx: MyContext) => {
             reply_markup: rouletteKeyboard(ctx.t)
         });
 
-        const reactionsMessageYou = await getUserReactions(ctx, userId);
+        const reactionsMessageYou = await getUserReactions(ctx, userId, { showTitle: true });
 
         let fullMessageYou;
 

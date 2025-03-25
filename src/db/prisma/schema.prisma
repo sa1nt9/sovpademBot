@@ -30,6 +30,10 @@ model User {
     reportedBy  Report[] @relation("UserReported")
 
     rouletteUser RouletteUser?
+
+    // Связи для черного списка
+    blacklist     Blacklist[] @relation("UserBlacklist")
+    blacklistedBy Blacklist[] @relation("BlacklistedBy")
 }
 
 model UserLike {
@@ -38,6 +42,7 @@ model UserLike {
     targetId    String // Кого лайкнули
     liked       Boolean // true — лайк, false — дизлайк
     message     String? // Текстовое сообщение к лайку
+    privateNote String? // Личная заметка к лайку (видна только отправителю)
     videoFileId String? // ID файла видео, если было отправлено
     voiceFileId    String?
     videoNoteFileId String?
@@ -101,6 +106,10 @@ model RouletteUser {
     // Связи для реакций
     reactionsGiven    RouletteReaction[] @relation("ReactionGiver")
     reactionsReceived RouletteReaction[] @relation("ReactionReceiver")
+
+    // Связи для чатов
+    chatsAsUser1    RouletteChat[] @relation("UserChats1")
+    chatsAsUser2    RouletteChat[] @relation("UserChats2")
 }
 
 model RouletteReaction {
@@ -121,5 +130,28 @@ enum ReactionType {
     FUNNY       // 😂
     BORING      // 😴
     RUDE        // 😡
+}
+
+model RouletteChat {
+    id                String      @id @default(uuid())
+    user1Id          String      // ID первого пользователя
+    user2Id          String      // ID второго пользователя
+    startedAt        DateTime    @default(now())
+    endedAt          DateTime?   // Время окончания чата (null если чат активен)
+    isProfileRevealed Boolean    @default(false)  // Были ли раскрыты анкеты
+    isUsernameRevealed Boolean   @default(false)  // Были ли раскрыты Telegram-профили
+    
+    user1            RouletteUser @relation("UserChats1", fields: [user1Id], references: [id], onDelete: Cascade)
+    user2            RouletteUser @relation("UserChats2", fields: [user2Id], references: [id], onDelete: Cascade)
+}
+
+model Blacklist {
+    id        String   @id @default(uuid())
+    userId    String   // Кто добавил в ЧС
+    targetId  String   // Кого добавили в ЧС
+    createdAt DateTime @default(now())
+
+    user   User @relation("UserBlacklist", fields: [userId], references: [id], onDelete: Cascade)
+    target User @relation("BlacklistedBy", fields: [targetId], references: [id], onDelete: Cascade)
 }
 

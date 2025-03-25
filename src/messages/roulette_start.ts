@@ -8,6 +8,7 @@ import { MyContext } from "../typescript/context";
 export const rouletteStartStep = async (ctx: MyContext) => {
     const message = ctx.message!.text;
     const userId = String(ctx.message?.from.id);
+    console.log(message);
 
     if (message === ctx.t('main_menu')) {
         ctx.session.step = 'profile';
@@ -47,7 +48,7 @@ export const rouletteStartStep = async (ctx: MyContext) => {
 export async function showRouletteStart(ctx: MyContext) {
     const userId = String(ctx.from?.id);
 
-    const reactionsMessage = await getUserReactions(ctx, userId, true);
+    const reactionsMessage = await getUserReactions(ctx, userId, { me: true, showTitle: true });
 
     let fullMessage;
 

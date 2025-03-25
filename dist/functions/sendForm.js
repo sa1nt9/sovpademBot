@@ -17,7 +17,8 @@ const haversine_1 = require("./haversine");
 const defaultOptions = {
     myForm: true,
     like: null,
-    sendTo: ''
+    sendTo: '',
+    privateNote: ''
 };
 const buildInfoText = (ctx, form, options = defaultOptions) => {
     return `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
@@ -37,7 +38,11 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
         +
             (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `
             
-${ctx.t('message_for_you')} ${options.like.message}` : ''));
+${ctx.t('message_for_you')} ${options.like.message}` : ''))
+        +
+            (options.privateNote ? `
+    
+${ctx.t('your_text_note')} ${options.privateNote}` : '');
 });
 exports.buildTextForm = buildTextForm;
 const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1, ...args_1], void 0, function* (ctx, form, options = defaultOptions) {

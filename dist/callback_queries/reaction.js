@@ -34,13 +34,6 @@ const reactionCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, functio
         });
         return;
     }
-    ctx.logger.info({
-        action: 'Reaction',
-        fromUserId,
-        targetUserId,
-        reactionType,
-        messageAgeInSeconds
-    });
     if (reactionType === "complain") {
         if (callbackQuery.message) {
             ctx.session.originalReactionMessage = {
@@ -57,6 +50,13 @@ const reactionCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, functio
         return;
     }
     try {
+        ctx.logger.info({
+            action: 'Reaction',
+            fromUserId,
+            targetUserId,
+            reactionType,
+            messageAgeInSeconds
+        });
         const userReactionsCount = yield postgres_1.prisma.rouletteReaction.count({
             where: {
                 fromUserId,

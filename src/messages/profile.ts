@@ -3,6 +3,7 @@ import { getCandidate } from '../functions/db/getCandidate';
 import { sendForm } from '../functions/sendForm';
 import { showRouletteStart } from './roulette_start';
 import { MyContext } from '../typescript/context';
+import { candidatesEnded } from '../functions/candidatesEnded';
 
 export async function profileStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -18,7 +19,11 @@ export async function profileStep(ctx: MyContext) {
         const candidate = await getCandidate(ctx)
         ctx.logger.info(candidate, 'This is new candidate')
 
-        await sendForm(ctx, candidate || null, { myForm: false })
+        if (candidate) {
+            await sendForm(ctx, candidate || null, { myForm: false })   
+        } else {
+            candidatesEnded(ctx)
+        }
 
     } else if (message === '2') {
         ctx.session.step = 'questions'

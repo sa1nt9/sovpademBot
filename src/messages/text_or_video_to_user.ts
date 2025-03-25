@@ -1,6 +1,8 @@
-import { answerFormKeyboard } from '../constants/keyboards';
+import { answerFormKeyboard, goBackKeyboard } from '../constants/keyboards';
+import { candidatesEnded } from '../functions/candidatesEnded';
 import { getCandidate } from '../functions/db/getCandidate';
 import { saveLike } from '../functions/db/saveLike';
+import { hasLinks } from '../functions/hasLinks';
 import { sendForm } from '../functions/sendForm';
 import { sendLikesNotification } from '../functions/sendLikesNotification';
 import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
@@ -15,70 +17,111 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
             reply_markup: answerFormKeyboard()
         });
         const candidate = await getCandidate(ctx);
-        await sendForm(ctx, candidate || null, { myForm: false });
         ctx.logger.info(candidate, 'This is new candidate')
+
+        if (candidate) {
+            await sendForm(ctx, candidate || null, { myForm: false });
+        } else {
+            candidatesEnded(ctx)
+        }
 
         return;
     }
 
-    if (message === ctx.t('go_back')) {
-        ctx.session.step = 'search_people'
-        ctx.session.question = 'years'
-        ctx.session.additionalFormInfo.awaitingLikeContent = false;
+    let isPrivateNote = ctx.session.step === 'added_private_note';
 
-        await ctx.reply("✨🔍", {
-            reply_markup: answerFormKeyboard()
-        });
-
-        const candidate = await getCandidate(ctx)
-        ctx.logger.info(candidate, 'This is new candidate')
-
-        await sendForm(ctx, candidate || null, { myForm: false })
-
-        return
-    }
-
-    const video = ctx.message?.video;
-    const voice = ctx.message?.voice;
-    const videoNote = ctx.message?.video_note;
-
-    if (video) {
-        if (video.duration && video.duration > 15) {
-            await ctx.reply(ctx.t('video_must_be_less_15'));
-            return;
-        }
-
+    if (isPrivateNote && message === ctx.t('skip')) {
         await saveLike(ctx, ctx.session.currentCandidate.id, true, {
-            videoFileId: video.file_id
+            privateNote: ctx.session.privateNote
         });
 
         await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
-    } else if (voice) {
-        if (voice.duration && voice.duration > 60) {
-            await ctx.reply(ctx.t('voice_must_be_less_60'));
-            return;
-        }
-
-        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
-            voiceFileId: voice.file_id
-        });
-
-        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
-    } else if (videoNote) {
-        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
-            videoNoteFileId: videoNote.file_id
-        });
-
-        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
-    } else if (message) {
-        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
-            message: message
-        });
-
-        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        
     } else {
-        await ctx.reply(ctx.t('not_message_and_not_video'));
+
+        if (message === ctx.t('go_back')) {
+            ctx.session.step = 'search_people'
+            ctx.session.question = 'years'
+            ctx.session.additionalFormInfo.awaitingLikeContent = false;
+    
+            await ctx.reply("✨🔍", {
+                reply_markup: answerFormKeyboard()
+            });
+    
+            const candidate = await getCandidate(ctx)
+            ctx.logger.info(candidate, 'This is new candidate')
+    
+            if (candidate) {
+                await sendForm(ctx, candidate || null, { myForm: false })
+            } else {
+                candidatesEnded(ctx)
+            }
+    
+            return
+        } else if (message === ctx.t('add_private_note') && !isPrivateNote) {
+            ctx.session.step = 'add_private_note'
+    
+            await ctx.reply(ctx.t('add_private_note_message'), {
+                reply_markup: goBackKeyboard(ctx.t)
+            })
+            return
+        }
+    
+        const video = ctx.message?.video;
+        const voice = ctx.message?.voice;
+        const videoNote = ctx.message?.video_note;
+    
+        if (video) {
+            if (video.duration && video.duration > 15) {
+                await ctx.reply(ctx.t('video_must_be_less_15'));
+                return;
+            }
+    
+            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+                videoFileId: video.file_id,
+                privateNote: isPrivateNote ? ctx.session.privateNote : undefined
+            });
+    
+            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        } else if (voice) {
+            if (voice.duration && voice.duration > 60) {
+                await ctx.reply(ctx.t('voice_must_be_less_60'));
+                return;
+            }
+    
+            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+                voiceFileId: voice.file_id,
+                privateNote: isPrivateNote ? ctx.session.privateNote : undefined
+            });
+    
+            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        } else if (videoNote) {
+            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+                videoNoteFileId: videoNote.file_id,
+                privateNote: isPrivateNote ? ctx.session.privateNote : undefined
+            });
+    
+            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        } else if (message) {
+            if (message.length > 400) {
+                await ctx.reply(ctx.t('long_message'));
+                return;
+            } else if (hasLinks(message)) {
+                await ctx.reply(ctx.t('this_text_breaks_the_rules'));
+                return;
+            }
+    
+            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+                message: message,
+                privateNote: isPrivateNote ? ctx.session.privateNote : undefined
+            });
+    
+            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        } else {
+            await ctx.reply(ctx.t('not_message_and_not_video'));
+        }
     }
+
 
     ctx.session.step = 'search_people';
     ctx.session.additionalFormInfo.awaitingLikeContent = false;
@@ -98,6 +141,11 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
         reply_markup: answerFormKeyboard()
     });
     const candidate = await getCandidate(ctx);
-    await sendForm(ctx, candidate || null, { myForm: false });
     ctx.logger.info(candidate, 'This is new candidate')
+
+    if (candidate) {
+        await sendForm(ctx, candidate || null, { myForm: false });
+    } else {
+        candidatesEnded(ctx)
+    }
 } 

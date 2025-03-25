@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageEvent = void 0;
 const accept_privacy_1 = require("../messages/accept_privacy");
+const add_private_note_1 = require("../messages/add_private_note");
 const cannot_send_complain_1 = require("../messages/cannot_send_complain");
 const choose_language_1 = require("../messages/choose_language");
 const choose_language_start_1 = require("../messages/choose_language_start");
@@ -82,6 +83,12 @@ const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, continue_see_likes_forms_1.continueSeeLikesFormsStep)(ctx);
     }
     else if (ctx.session.step === 'text_or_video_to_user') {
+        yield (0, text_or_video_to_user_1.textOrVideoToUserStep)(ctx);
+    }
+    else if (ctx.session.step === 'add_private_note') {
+        yield (0, add_private_note_1.addPrivateNoteStep)(ctx);
+    }
+    else if (ctx.session.step === 'added_private_note') {
         yield (0, text_or_video_to_user_1.textOrVideoToUserStep)(ctx);
     }
     else if (ctx.session.step === 'somebodys_liked_you') {

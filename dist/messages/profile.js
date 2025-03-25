@@ -14,6 +14,7 @@ const keyboards_1 = require("../constants/keyboards");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
 const roulette_start_1 = require("./roulette_start");
+const candidatesEnded_1 = require("../functions/candidatesEnded");
 function profileStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
@@ -25,7 +26,12 @@ function profileStep(ctx) {
             });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             ctx.logger.info(candidate, 'This is new candidate');
-            yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+            if (candidate) {
+                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+            }
+            else {
+                (0, candidatesEnded_1.candidatesEnded)(ctx);
+            }
         }
         else if (message === '2') {
             ctx.session.step = 'questions';

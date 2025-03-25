@@ -13,6 +13,7 @@ exports.complainTextStep = complainTextStep;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
 const continueSeeLikesForms_1 = require("../functions/continueSeeLikesForms");
+const candidatesEnded_1 = require("../functions/candidatesEnded");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const saveLike_1 = require("../functions/db/saveLike");
 const sendForm_1 = require("../functions/sendForm");
@@ -59,7 +60,12 @@ function complainTextStep(ctx) {
                     reply_markup: (0, keyboards_1.answerFormKeyboard)()
                 });
                 const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                if (candidate) {
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else {
+                    (0, candidatesEnded_1.candidatesEnded)(ctx);
+                }
             }
         }
         catch (error) {
@@ -70,7 +76,12 @@ function complainTextStep(ctx) {
                 reply_markup: (0, keyboards_1.answerFormKeyboard)()
             });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-            yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+            if (candidate) {
+                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+            }
+            else {
+                (0, candidatesEnded_1.candidatesEnded)(ctx);
+            }
         }
     });
 }

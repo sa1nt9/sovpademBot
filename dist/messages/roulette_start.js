@@ -20,6 +20,7 @@ const rouletteStartStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
     var _a;
     const message = ctx.message.text;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    console.log(message);
     if (message === ctx.t('main_menu')) {
         ctx.session.step = 'profile';
         yield (0, sendForm_1.sendForm)(ctx);
@@ -57,7 +58,7 @@ function showRouletteStart(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
-        const reactionsMessage = yield (0, getUserReactions_1.getUserReactions)(ctx, userId, true);
+        const reactionsMessage = yield (0, getUserReactions_1.getUserReactions)(ctx, userId, { me: true, showTitle: true });
         let fullMessage;
         if (reactionsMessage) {
             fullMessage = ctx.t('roulette_start', { reactions: `\n${reactionsMessage}\n` });

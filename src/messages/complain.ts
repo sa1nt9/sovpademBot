@@ -1,6 +1,7 @@
 import { complainTypes } from '../constants/complain';
 import { answerFormKeyboard, answerLikesFormKeyboard, complainKeyboard, continueSeeFormsKeyboard, goBackKeyboard, sendComplainWithoutCommentKeyboard } from '../constants/keyboards';
 import { continueSeeLikesForms } from '../functions/continueSeeLikesForms';
+import { candidatesEnded } from '../functions/candidatesEnded';
 import { getCandidate } from '../functions/db/getCandidate';
 import { sendForm } from '../functions/sendForm';
 import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
@@ -42,7 +43,12 @@ export async function complainStep(ctx: MyContext) {
             });
 
             const candidate = await getCandidate(ctx);
-            await sendForm(ctx, candidate || null, { myForm: false });
+
+            if (candidate) {
+                await sendForm(ctx, candidate || null, { myForm: false });
+            } else {
+                candidatesEnded(ctx)
+            }
         }
     } else {
         await ctx.reply(ctx.t('no_such_answer'), {

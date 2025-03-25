@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.complainReasonKeyboard = exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.skipKeyboard = exports.afterNoteYouWantToAddTextToUserKeyboard = exports.textOrVideoKeyboard = exports.complainReasonKeyboard = exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 const reaction_1 = require("./reaction");
 exports.languageKeyboard = {
     keyboard: [
@@ -356,3 +356,28 @@ const complainReasonKeyboard = (t, targetUserId) => ({
     ]
 });
 exports.complainReasonKeyboard = complainReasonKeyboard;
+const textOrVideoKeyboard = (t) => ({
+    keyboard: [
+        [t("add_private_note")],
+        [t("back")]
+    ],
+    resize_keyboard: true,
+});
+exports.textOrVideoKeyboard = textOrVideoKeyboard;
+const afterNoteYouWantToAddTextToUserKeyboard = (t) => ({
+    keyboard: [
+        [t("add_text_to_user"), t("add_video_to_user")]
+    ],
+    resize_keyboard: true,
+});
+exports.afterNoteYouWantToAddTextToUserKeyboard = afterNoteYouWantToAddTextToUserKeyboard;
+const skipKeyboard = (t, withGoBack) => ({
+    keyboard: withGoBack ? [
+        [t("skip")],
+        [t("go_back")]
+    ] : [
+        [t("skip")]
+    ],
+    resize_keyboard: true,
+});
+exports.skipKeyboard = skipKeyboard;

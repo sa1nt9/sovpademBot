@@ -55,13 +55,11 @@ export const revealAcceptCallbackQuery = async (ctx: MyContext) => {
         });
         await sendForm(ctx, requestingUser, { myForm: false });
 
-
         await ctx.api.sendMessage(userId, ctx.t('roulette_your_profile_revealed'));
         await ctx.api.sendMessage(userId, ctx.t('roulette_revealed'), {
             reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed)
         });
         await sendForm(ctx, currentUser, { myForm: false, sendTo: userId });
-
     }
 }
 

@@ -1,5 +1,6 @@
 import { acceptPrivacyKeyboard, ageKeyboard, answerFormKeyboard } from '../constants/keyboards';
 import { prisma } from '../db/postgres';
+import { candidatesEnded } from '../functions/candidatesEnded';
 import { getCandidate } from '../functions/db/getCandidate';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
@@ -19,7 +20,11 @@ export async function cannotSendComplainStep(ctx: MyContext) {
         const candidate = await getCandidate(ctx)
         ctx.logger.info(candidate, 'This is new candidate')
 
-        await sendForm(ctx, candidate || null, { myForm: false })
+        if (candidate) {    
+            await sendForm(ctx, candidate || null, { myForm: false })
+        } else {
+            candidatesEnded(ctx)
+        }
     } else {
         if (ctx.session.privacyAccepted) {
             ctx.session.step = "questions";

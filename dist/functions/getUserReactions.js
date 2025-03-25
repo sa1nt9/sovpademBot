@@ -12,8 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserReactions = getUserReactions;
 const postgres_1 = require("../db/postgres");
 const reaction_1 = require("../constants/reaction");
-function getUserReactions(ctx, userId, me) {
-    return __awaiter(this, void 0, void 0, function* () {
+function getUserReactions(ctx_1, userId_1) {
+    return __awaiter(this, arguments, void 0, function* (ctx, userId, options = {}) {
         // Получаем все реакции пользователя
         const reactions = yield postgres_1.prisma.rouletteReaction.findMany({
             where: {
@@ -33,14 +33,22 @@ function getUserReactions(ctx, userId, me) {
             reactionCounts[reaction.type]++;
         });
         // Формируем сообщение с реакциями
-        let message = me ? ctx.t('roulette_your_reactions') + ' ' : ctx.t('roulette_user_reactions') + ' ';
+        let message = '';
+        // Если нужно показать заголовок
+        if (options.showTitle) {
+            message = options.me ? ctx.t('roulette_your_reactions') + ' ' : ctx.t('roulette_user_reactions') + ' ';
+        }
         let hasReactions = false;
         // Добавляем только те реакции, которые есть у пользователя
         for (const reaction of reaction_1.REACTIONS) {
             const count = reactionCounts[reaction.type];
             if (count > 0) {
                 const reactionKey = `roulette_reaction_${reaction.type.toLowerCase()}`;
-                message += ctx.t(reactionKey, { count }) + ' ';
+                // Если это не первая реакция, добавляем разделитель
+                if (hasReactions) {
+                    message += ` `;
+                }
+                message += ctx.t(reactionKey, { count });
                 hasReactions = true;
             }
         }

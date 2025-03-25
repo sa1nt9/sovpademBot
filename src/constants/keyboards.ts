@@ -363,3 +363,30 @@ export const complainReasonKeyboard = (t: TranslateFunction, targetUserId: strin
         ]
     ]
 })
+
+
+export const textOrVideoKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("add_private_note")],
+        [t("back")]
+    ],
+    resize_keyboard: true,
+})
+
+export const afterNoteYouWantToAddTextToUserKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("add_text_to_user"), t("add_video_to_user")]
+    ],
+    resize_keyboard: true,
+})
+
+export const skipKeyboard = (t: TranslateFunction, withGoBack?: boolean): ReplyKeyboardMarkup => ({
+    keyboard: withGoBack ? [
+        [t("skip")],
+        [t("go_back")]
+    ] : [
+        [t("skip")]
+    ],
+    resize_keyboard: true,
+})
+

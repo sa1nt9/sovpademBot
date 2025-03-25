@@ -50,7 +50,10 @@ function getCandidate(ctx) {
                     WHERE "id" <> ${userId}
                         AND "isActive" = true
                         AND "id" NOT IN (
-                            SELECT "targetId" FROM "UserLike" WHERE "userId" = ${userId}
+                            SELECT "targetId" 
+                            FROM "UserLike" 
+                            WHERE "userId" = ${userId}
+                            AND "createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                         )
                         AND (
                             CASE 

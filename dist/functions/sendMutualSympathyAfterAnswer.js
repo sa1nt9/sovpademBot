@@ -17,6 +17,7 @@ const defaultOptions = {
     withoutSleepMenu: false
 };
 const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [ctx_1, ...args_1], void 0, function* (ctx, options = defaultOptions) {
+    var _a;
     // Получаем данные пользователя, который поставил лайк
     const likedUser = yield postgres_1.prisma.user.findUnique({
         where: {
@@ -24,8 +25,21 @@ const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [c
         }
     });
     if (likedUser) {
+        const userLike = yield postgres_1.prisma.userLike.findFirst({
+            where: {
+                userId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
+                targetId: likedUser.id,
+                liked: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            select: {
+                privateNote: true
+            }
+        });
         // Отправляем анкету пользователя, который поставил лайк
-        yield (0, sendForm_1.sendForm)(ctx, likedUser, { myForm: false });
+        yield (0, sendForm_1.sendForm)(ctx, likedUser, { myForm: false, privateNote: userLike === null || userLike === void 0 ? void 0 : userLike.privateNote });
         ctx.session.step = 'continue_see_forms';
         const userInfo = yield ctx.api.getChat(likedUser.id);
         yield ctx.reply(`${ctx.t('mutual_sympathy')} [${likedUser.name}](https://t.me/${userInfo.username})`, {

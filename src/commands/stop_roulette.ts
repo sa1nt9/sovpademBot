@@ -44,6 +44,20 @@ export const stopRouletteCommand = async (ctx: MyContext) => {
                     profileRevealed: false
                 }
             });
+
+            await prisma.rouletteChat.updateMany({
+                where: {
+                    OR: [
+                        { user1Id: userId, user2Id: partnerUserId, endedAt: null },
+                        { user1Id: partnerUserId, user2Id: userId, endedAt: null }
+                    ]
+                },
+                data: {
+                    endedAt: new Date(),
+                    isProfileRevealed: existingUser.rouletteUser.profileRevealed,
+                    isUsernameRevealed: existingUser.rouletteUser.usernameRevealed
+                }
+            });
             
             // Уведомляем партнеру о завершении чата
             await ctx.api.sendMessage(partnerUserId, ctx.t('roulette_partner_left'), {

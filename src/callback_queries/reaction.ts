@@ -30,14 +30,7 @@ export const reactionCallbackQuery = async (ctx: MyContext) => {
         return;
     }
 
-    ctx.logger.info({
-        action: 'Reaction',
-        fromUserId,
-        targetUserId,
-        reactionType,
-        messageAgeInSeconds
-    });
-
+    
     if (reactionType === "complain") {
         if (callbackQuery.message) {
             ctx.session.originalReactionMessage = {
@@ -46,7 +39,7 @@ export const reactionCallbackQuery = async (ctx: MyContext) => {
                 chatId: callbackQuery.message.chat.id
             };
         }
-
+        
         // Меняем текст и клавиатуру
         if (callbackQuery.message) {
             await ctx.api.editMessageText(
@@ -56,19 +49,27 @@ export const reactionCallbackQuery = async (ctx: MyContext) => {
                 { reply_markup: complainReasonKeyboard(ctx.t, targetUserId) }
             );
         }
-
+        
         await ctx.answerCallbackQuery();
         return;
     }
-
+    
     try {
+        ctx.logger.info({
+            action: 'Reaction',
+            fromUserId,
+            targetUserId,
+            reactionType,
+            messageAgeInSeconds
+        });
+        
         const userReactionsCount = await prisma.rouletteReaction.count({
             where: {
                 fromUserId,
                 toUserId: targetUserId
             }
         });
-
+        
         if (userReactionsCount >= MAX_USER_REACTIONS) {
             const oldestReaction = await prisma.rouletteReaction.findFirst({
                 where: {

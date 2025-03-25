@@ -21,6 +21,7 @@ const saveForm_1 = require("../functions/db/saveForm");
 const hasLinks_1 = require("../functions/hasLinks");
 const fs_1 = __importDefault(require("fs"));
 const haversine_1 = require("../functions/haversine");
+const candidatesEnded_1 = require("../functions/candidatesEnded");
 function questionsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
@@ -364,7 +365,12 @@ function questionsStep(ctx) {
                 });
                 const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
                 ctx.logger.info(candidate, 'This is new candidate');
-                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                if (candidate) {
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else {
+                    (0, candidatesEnded_1.candidatesEnded)(ctx);
+                }
             }
             else if (message === ctx.t('change_form')) {
                 ctx.logger.info('change_form');
