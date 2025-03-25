@@ -10,7 +10,6 @@ export async function profileStep(ctx: MyContext) {
 
     if (message === '1 🚀') {
         ctx.session.step = 'search_people'
-        ctx.session.question = 'years'
 
         await ctx.reply("✨🔍", {
             reply_markup: answerFormKeyboard()
@@ -22,7 +21,7 @@ export async function profileStep(ctx: MyContext) {
         if (candidate) {
             await sendForm(ctx, candidate || null, { myForm: false })   
         } else {
-            candidatesEnded(ctx)
+            await candidatesEnded(ctx)
         }
 
     } else if (message === '2') {

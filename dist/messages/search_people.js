@@ -36,7 +36,7 @@ function searchPeopleStep(ctx) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             }
             else {
-                (0, candidatesEnded_1.candidatesEnded)(ctx);
+                yield (0, candidatesEnded_1.candidatesEnded)(ctx);
             }
         }
         else if (message === '💌/📹') {
@@ -60,18 +60,13 @@ function searchPeopleStep(ctx) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             }
             else {
-                (0, candidatesEnded_1.candidatesEnded)(ctx);
+                yield (0, candidatesEnded_1.candidatesEnded)(ctx);
             }
         }
-        else if (message === '💤') {
-            ctx.session.step = 'sleep_menu';
-            yield ctx.reply(ctx.t('wait_somebody_to_see_your_form'));
-            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
-                yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
-                return;
-            }
-            yield ctx.reply(ctx.t('sleep_menu'), {
-                reply_markup: (0, keyboards_1.profileKeyboard)()
+        else if (message === '📋') {
+            ctx.session.step = 'options_to_user';
+            yield ctx.reply(ctx.t('more_options_message'), {
+                reply_markup: (0, keyboards_1.optionsToUserKeyboard)(ctx.t)
             });
         }
         else {

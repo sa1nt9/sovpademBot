@@ -50,7 +50,7 @@ function complainStep(ctx) {
                     yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
                 }
                 else {
-                    (0, candidatesEnded_1.candidatesEnded)(ctx);
+                    yield (0, candidatesEnded_1.candidatesEnded)(ctx);
                 }
             }
         }

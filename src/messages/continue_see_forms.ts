@@ -18,7 +18,7 @@ export async function continueSeeFormsStep(ctx: MyContext) {
     if (candidate) {
         await sendForm(ctx, candidate || null, { myForm: false })
     } else {
-        candidatesEnded(ctx)
+        await candidatesEnded(ctx)
     }
 
 } 

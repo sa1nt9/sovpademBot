@@ -1,4 +1,4 @@
-import { answerFormKeyboard, continueSeeFormsKeyboard, goBackKeyboard, profileKeyboard, textOrVideoKeyboard } from '../constants/keyboards';
+import { answerFormKeyboard, continueSeeFormsKeyboard, goBackKeyboard, profileKeyboard, textOrVideoKeyboard, optionsToUserKeyboard } from '../constants/keyboards';
 import { getCandidate } from '../functions/db/getCandidate';
 import { saveLike } from '../functions/db/saveLike';
 import { sendForm } from '../functions/sendForm';
@@ -27,7 +27,7 @@ export async function searchPeopleStep(ctx: MyContext) {
         if (candidate) {
             await sendForm(ctx, candidate || null, { myForm: false })
         } else {
-            candidatesEnded(ctx)
+            await candidatesEnded(ctx)
         }
 
     } else if (message === '💌/📹') {
@@ -54,20 +54,14 @@ export async function searchPeopleStep(ctx: MyContext) {
         if (candidate) {
             await sendForm(ctx, candidate || null, { myForm: false })
         } else {
-            candidatesEnded(ctx)
+            await candidatesEnded(ctx)
         }
 
-    } else if (message === '💤') {
-        ctx.session.step = 'sleep_menu'
-        await ctx.reply(ctx.t('wait_somebody_to_see_your_form'))
+    } else if (message === '📋') {
+        ctx.session.step = 'options_to_user'
 
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
-            await sendMutualSympathyAfterAnswer(ctx)
-            return
-        }
-
-        await ctx.reply(ctx.t('sleep_menu'), {
-            reply_markup: profileKeyboard()
+        await ctx.reply(ctx.t('more_options_message'), {
+            reply_markup: optionsToUserKeyboard(ctx.t)
         })
     } else {
         await ctx.reply(ctx.t('no_such_answer'), {

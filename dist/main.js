@@ -63,6 +63,7 @@ const callback_query_1 = require("./events/callback_query");
 const rouletteMiddleware_1 = require("./middlewares/rouletteMiddleware");
 const stop_roulette_1 = require("./commands/stop_roulette");
 const stats_1 = require("./commands/stats");
+const blacklist_1 = require("./commands/blacklist");
 dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
@@ -82,8 +83,9 @@ function startBot() {
         exports.bot.use(rouletteMiddleware_1.rouletteMiddleware);
         exports.bot.command("start", start_1.startCommand);
         exports.bot.command("myprofile", myprofile_1.myprofileCommand);
-        exports.bot.command("complain", complain_1.complainCommand);
         exports.bot.command("roulette", roulette_1.rouletteCommand);
+        exports.bot.command("blacklist", blacklist_1.blacklistCommand);
+        exports.bot.command("complain", complain_1.complainCommand);
         exports.bot.command("stats", stats_1.statsCommand);
         exports.bot.command("stop_roulette", stop_roulette_1.stopRouletteCommand);
         exports.bot.command("language", language_1.languageCommand);

@@ -18,7 +18,9 @@ const defaultOptions = {
     myForm: true,
     like: null,
     sendTo: '',
-    privateNote: ''
+    privateNote: '',
+    isBlacklist: false,
+    blacklistCount: 0
 };
 const buildInfoText = (ctx, form, options = defaultOptions) => {
     return `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
@@ -31,6 +33,10 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
         count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id));
     }
     return ((options.like ? `${ctx.t('somebody_liked_you_text', { count: count - 1 })}
+
+` : '')
+        +
+            (options.isBlacklist ? `${ctx.t('blacklist_user_info', { count: options.blacklistCount ? options.blacklistCount : 0 })}
 
 ` : '')
         +

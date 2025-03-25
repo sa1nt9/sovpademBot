@@ -45,7 +45,9 @@ type TStep =
     "roulette_start" |
     "roulette_searching" |
     "add_private_note" |
-    "added_private_note"
+    "added_private_note" | 
+    "options_to_user" |
+    "blacklist_user"
 
 type TQuestion =
     'years' |
@@ -67,6 +69,7 @@ export interface ISessionData {
     form: IUser;
     isNeededSubscription?: boolean;
     currentCandidate?: User | null;
+    currentBlacklistedUser?: User | null;
     pendingMutualLike?: boolean;
     pendingMutualLikeUserId?: string;
     roulette?: IRouletteData;

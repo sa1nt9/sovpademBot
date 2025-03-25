@@ -23,7 +23,7 @@ export async function sleepMenuStep(ctx: MyContext) {
         if (candidate) {
             await sendForm(ctx, candidate || null, { myForm: false })
         } else {
-            candidatesEnded(ctx)
+            await candidatesEnded(ctx)
         }
 
     } else if (message === '2') {

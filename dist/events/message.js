@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageEvent = void 0;
 const accept_privacy_1 = require("../messages/accept_privacy");
 const add_private_note_1 = require("../messages/add_private_note");
+const blacklist_user_1 = require("../messages/blacklist_user");
 const cannot_send_complain_1 = require("../messages/cannot_send_complain");
 const choose_language_1 = require("../messages/choose_language");
 const choose_language_start_1 = require("../messages/choose_language_start");
@@ -22,6 +23,7 @@ const continue_see_likes_forms_1 = require("../messages/continue_see_likes_forms
 const disable_form_1 = require("../messages/disable_form");
 const form_disabled_1 = require("../messages/form_disabled");
 const friends_1 = require("../messages/friends");
+const options_to_user_1 = require("../messages/options_to_user");
 const prepare_message_1 = require("../messages/prepare_message");
 const profile_1 = require("../messages/profile");
 const questions_1 = require("../messages/questions");
@@ -105,6 +107,12 @@ const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     }
     else if (ctx.session.step === 'roulette_start') {
         yield (0, roulette_start_1.rouletteStartStep)(ctx);
+    }
+    else if (ctx.session.step === 'options_to_user') {
+        yield (0, options_to_user_1.optionsToUserStep)(ctx);
+    }
+    else if (ctx.session.step === 'blacklist_user') {
+        yield (0, blacklist_user_1.blacklistUserStep)(ctx);
     }
     else {
         yield ctx.reply(ctx.t('no_such_answer'));

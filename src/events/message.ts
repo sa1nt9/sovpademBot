@@ -1,5 +1,6 @@
 import { acceptPrivacyStep } from "../messages/accept_privacy"
 import { addPrivateNoteStep } from "../messages/add_private_note"
+import { blacklistUserStep } from "../messages/blacklist_user"
 import { cannotSendComplainStep } from "../messages/cannot_send_complain"
 import { chooseLanguageStep } from "../messages/choose_language"
 import { chooseLanguageStartStep } from "../messages/choose_language_start"
@@ -10,6 +11,7 @@ import { continueSeeLikesFormsStep } from "../messages/continue_see_likes_forms"
 import { disableFormStep } from "../messages/disable_form"
 import { formDisabledStep } from "../messages/form_disabled"
 import { friendsStep } from "../messages/friends"
+import { optionsToUserStep } from "../messages/options_to_user"
 import { prepareMessageStep } from "../messages/prepare_message"
 import { profileStep } from "../messages/profile"
 import { questionsStep } from "../messages/questions"
@@ -72,6 +74,10 @@ export const messageEvent = async (ctx: MyContext) => {
         await rouletteSearchingStep(ctx)
     } else if (ctx.session.step === 'roulette_start') {
         await rouletteStartStep(ctx)
+    } else if (ctx.session.step === 'options_to_user') {
+        await optionsToUserStep(ctx)
+    } else if (ctx.session.step === 'blacklist_user') {
+        await blacklistUserStep(ctx)
     } else {
         await ctx.reply(ctx.t('no_such_answer'));
     }

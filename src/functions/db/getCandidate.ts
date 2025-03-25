@@ -47,6 +47,11 @@ export async function getCandidate(ctx: MyContext) {
                             WHERE "userId" = ${userId}
                             AND "createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                         )
+                        AND "id" NOT IN (
+                            SELECT "targetId"
+                            FROM "Blacklist"
+                            WHERE "userId" = ${userId}
+                        )
                         AND (
                             CASE 
                                 WHEN ${user.interestedIn} = 'all' THEN TRUE

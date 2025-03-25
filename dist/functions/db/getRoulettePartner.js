@@ -80,6 +80,11 @@ function getRoulettePartner(ctx) {
                 WHERE u.id <> ${userId}
                     AND ru."searchingPartner" = true
                     AND ru."chatPartnerId" IS NULL
+                    AND u.id NOT IN (
+                        SELECT "targetId"
+                        FROM "Blacklist"
+                        WHERE "userId" = ${userId}
+                    )
             ),
             ScoredPartners AS (
                 SELECT 

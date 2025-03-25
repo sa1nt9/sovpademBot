@@ -47,7 +47,7 @@ export async function complainStep(ctx: MyContext) {
             if (candidate) {
                 await sendForm(ctx, candidate || null, { myForm: false });
             } else {
-                candidatesEnded(ctx)
+                await candidatesEnded(ctx)
             }
         }
     } else {

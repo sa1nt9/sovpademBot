@@ -1,4 +1,4 @@
-import { answerLikesFormKeyboard, complainKeyboard, complainToUserKeyboard, continueSeeFormsKeyboard, profileKeyboard } from '../constants/keyboards';
+import { answerLikesFormKeyboard, complainKeyboard, complainToUserKeyboard, continueSeeFormsKeyboard, optionsToUserKeyboard, profileKeyboard } from '../constants/keyboards';
 import { getOneLike } from '../functions/db/getOneLike';
 import { saveLike } from '../functions/db/saveLike';
 import { setMutualLike } from '../functions/db/setMutualLike';
@@ -61,17 +61,11 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
         await ctx.reply(ctx.t('complain_text'), {
             reply_markup: complainKeyboard()
         })
-    } else if (message === '💤') {
-        ctx.session.step = 'sleep_menu'
-        await ctx.reply(ctx.t('wait_somebody_to_see_your_form'))
+    } else if (message === '📋') {
+        ctx.session.step = 'options_to_user'
 
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
-            await sendMutualSympathyAfterAnswer(ctx)
-            return
-        }
-
-        await ctx.reply(ctx.t('sleep_menu'), {
-            reply_markup: profileKeyboard()
+        await ctx.reply(ctx.t('more_options_message'), {
+            reply_markup: optionsToUserKeyboard(ctx.t)
         })
     } else {
         await ctx.reply(ctx.t('no_such_answer'), {

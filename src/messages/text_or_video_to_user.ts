@@ -22,7 +22,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
         if (candidate) {
             await sendForm(ctx, candidate || null, { myForm: false });
         } else {
-            candidatesEnded(ctx)
+            await candidatesEnded(ctx)
         }
 
         return;
@@ -54,7 +54,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
             if (candidate) {
                 await sendForm(ctx, candidate || null, { myForm: false })
             } else {
-                candidatesEnded(ctx)
+                await candidatesEnded(ctx)
             }
     
             return
@@ -146,6 +146,6 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
     if (candidate) {
         await sendForm(ctx, candidate || null, { myForm: false });
     } else {
-        candidatesEnded(ctx)
+        await candidatesEnded(ctx)
     }
 } 

@@ -62,7 +62,7 @@ export async function complainTextStep(ctx: MyContext) {
             if (candidate) {
                 await sendForm(ctx, candidate || null, { myForm: false });
             } else {
-                candidatesEnded(ctx)
+                await candidatesEnded(ctx)
             }
         }
     } catch (error) {
@@ -80,7 +80,7 @@ export async function complainTextStep(ctx: MyContext) {
         if (candidate) {
             await sendForm(ctx, candidate || null, { myForm: false });
         } else {
-            candidatesEnded(ctx)
+            await candidatesEnded(ctx)
         }
     }
 } 

@@ -20,7 +20,6 @@ function profileStep(ctx) {
         const message = ctx.message.text;
         if (message === '1 🚀') {
             ctx.session.step = 'search_people';
-            ctx.session.question = 'years';
             yield ctx.reply("✨🔍", {
                 reply_markup: (0, keyboards_1.answerFormKeyboard)()
             });
@@ -30,7 +29,7 @@ function profileStep(ctx) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             }
             else {
-                (0, candidatesEnded_1.candidatesEnded)(ctx);
+                yield (0, candidatesEnded_1.candidatesEnded)(ctx);
             }
         }
         else if (message === '2') {

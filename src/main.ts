@@ -21,7 +21,7 @@ import { callbackQueryEvent } from './events/callback_query';
 import { rouletteMiddleware } from './middlewares/rouletteMiddleware';
 import { stopRouletteCommand } from './commands/stop_roulette';
 import { statsCommand } from './commands/stats';
-
+import { blacklistCommand } from './commands/blacklist';
 
 dotenv.config();
 
@@ -60,9 +60,11 @@ async function startBot() {
 
     bot.command("myprofile", myprofileCommand);
     
-    bot.command("complain", complainCommand);
-    
     bot.command("roulette", rouletteCommand);
+    
+    bot.command("blacklist", blacklistCommand);
+    
+    bot.command("complain", complainCommand);
 
     bot.command("stats", statsCommand);
 

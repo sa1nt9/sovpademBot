@@ -16,13 +16,17 @@ interface IOptions {
     like?: UserLike | null
     sendTo?: string
     privateNote?: string | null
+    isBlacklist?: boolean
+    blacklistCount?: number
 }
 
-const defaultOptions = {
+const defaultOptions: IOptions = {
     myForm: true,
     like: null,
     sendTo: '',
-    privateNote: ''
+    privateNote: '',
+    isBlacklist: false,
+    blacklistCount: 0
 }
 
 export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
@@ -38,6 +42,10 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
     return (
         (options.like ? `${ctx.t('somebody_liked_you_text', { count: count - 1 })}
+
+` : '')
+        +
+        (options.isBlacklist ? `${ctx.t('blacklist_user_info', { count: options.blacklistCount ? options.blacklistCount : 0 })}
 
 ` : '')
         +
