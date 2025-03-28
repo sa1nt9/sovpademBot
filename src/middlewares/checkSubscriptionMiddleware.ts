@@ -4,6 +4,11 @@ import { checkSubscription } from "../functions/checkSubscription";
 import { MyContext } from "../typescript/context";
 
 export const checkSubscriptionMiddleware = async (ctx: MyContext, next: () => Promise<void>) => {
+    if (ctx.inlineQuery) {
+        await next();
+        return
+    }
+
     if (ctx.message?.text?.startsWith('/start') || ctx.session.step === 'choose_language_start') {
         ctx.session.isNeededSubscription = false;
         await next();

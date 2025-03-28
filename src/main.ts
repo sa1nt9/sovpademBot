@@ -1,9 +1,7 @@
 import { logger } from './logger';
 import { Bot, session } from "grammy";
 import * as dotenv from 'dotenv';
-import { complainKeyboard, rouletteKeyboard } from "./constants/keyboards";
 import { sessionInitial } from "./functions/sessionInitial";
-import { sendForm } from "./functions/sendForm";
 import { errorHandler } from "./handlers/error";
 import { i18n } from './i18n';
 import { connectPostgres, prisma } from './db/postgres';
@@ -24,6 +22,7 @@ import { statsCommand } from './commands/stats';
 import { blacklistCommand } from './commands/blacklist';
 import { addToBlacklistCommand } from './commands/add_to_blacklist';
 import { matchesCommand } from './commands/matches';
+import { inlineQueryEvent } from './events/inline_query';
 
 dotenv.config();
 
@@ -44,14 +43,25 @@ async function startBot() {
         await next()
     })
 
-    bot.use(
-        session({
-            initial: sessionInitial,
-            storage: new PrismaAdapter(prisma.session),
-        })
-    );
+    const sessionMiddleware = session({
+        initial: sessionInitial,
+        storage: new PrismaAdapter(prisma.session),
+    } as any);
 
-    bot.use(i18n);
+
+    bot.use(async (ctx, next) => {
+        if (ctx.inlineQuery) {
+            return next();
+        }
+        return sessionMiddleware(ctx, next);
+    });
+
+    bot.use(async (ctx, next) => {
+        if (ctx.inlineQuery) {
+            return i18n(true).middleware()(ctx, next);
+        }
+        return i18n(false).middleware()(ctx, next);
+    });
 
     bot.use(checkSubscriptionMiddleware)
 
@@ -61,15 +71,15 @@ async function startBot() {
     bot.command("start", startCommand);
 
     bot.command("myprofile", myprofileCommand);
-    
+
     bot.command("roulette", rouletteCommand);
-    
+
     bot.command("blacklist", blacklistCommand);
 
     bot.command("matches", matchesCommand);
 
     bot.command("add_to_blacklist", addToBlacklistCommand);
-    
+
     bot.command("complain", complainCommand);
 
     bot.command("stats", statsCommand);
@@ -77,17 +87,20 @@ async function startBot() {
     bot.command("stop_roulette", stopRouletteCommand);
 
     bot.command("language", languageCommand);
-    
+
     bot.command("deactivate", deactivateCommand);
-    
+
 
     bot.on("message", messageEvent);
 
     bot.on("callback_query", callbackQueryEvent);
 
+    bot.on("inline_query", inlineQueryEvent);
+
 
     bot.start();
 }
+
 
 
 startBot().then(() => {

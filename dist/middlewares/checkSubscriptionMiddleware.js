@@ -15,6 +15,10 @@ const keyboards_1 = require("../constants/keyboards");
 const checkSubscription_1 = require("../functions/checkSubscription");
 const checkSubscriptionMiddleware = (ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
+    if (ctx.inlineQuery) {
+        yield next();
+        return;
+    }
     if (((_b = (_a = ctx.message) === null || _a === void 0 ? void 0 : _a.text) === null || _b === void 0 ? void 0 : _b.startsWith('/start')) || ctx.session.step === 'choose_language_start') {
         ctx.session.isNeededSubscription = false;
         yield next();

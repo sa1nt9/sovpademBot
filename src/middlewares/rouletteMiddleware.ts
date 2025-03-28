@@ -34,6 +34,11 @@ function isRouletteRelatedAction(ctx: MyContext): boolean {
 }
 
 export const rouletteMiddleware = async (ctx: MyContext, next: () => Promise<void>) => {
+    if (ctx.inlineQuery) {
+        await next();
+        return
+    }
+
     if (!ctx.from?.id) {
         return await next();
     }

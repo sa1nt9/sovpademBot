@@ -18,6 +18,7 @@ interface IOptions {
     privateNote?: string | null
     isBlacklist?: boolean
     blacklistCount?: number
+    isInline?: boolean
 }
 
 const defaultOptions: IOptions = {
@@ -26,11 +27,12 @@ const defaultOptions: IOptions = {
     sendTo: '',
     privateNote: '',
     isBlacklist: false,
-    blacklistCount: 0
+    blacklistCount: 0,
+    isInline: false
 }
 
 export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
-    return `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
+    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
 }
 
 

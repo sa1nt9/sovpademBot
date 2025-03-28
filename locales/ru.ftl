@@ -380,6 +380,8 @@ roulette_chatting_stop_notice = ⚠️ Вы сейчас в чате с собе
 
 error_occurred = ⚠️ Произошла ошибка
 
+error_occurred_description = Произошла ошибка. Попробуйте позже.
+
 reaction_time_expired = ⏰ Время на оценку пользователя вышло. 
     Оценить или пожаловаться на пользователя можно в течении 1 часа
 
@@ -475,3 +477,11 @@ mutual_sympathies_navigation = Используйте стрелки для на
 back_to_profile = Вернуться в профиль
 
 user_not_found = Анкета пользователя отключена
+
+no_profile = У вас нет анкеты или она отключена
+
+no_profile_description = Создайте анкету в боте
+
+no_profile_message = Создайте свою анкету в @{ $botname }
+
+share_profile = Поделиться анкетой

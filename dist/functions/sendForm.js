@@ -20,10 +20,11 @@ const defaultOptions = {
     sendTo: '',
     privateNote: '',
     isBlacklist: false,
-    blacklistCount: 0
+    blacklistCount: 0,
+    isInline: false
 };
 const buildInfoText = (ctx, form, options = defaultOptions) => {
-    return `${form.name}, ${form.age}, ${(ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
+    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
 };
 exports.buildInfoText = buildInfoText;
 const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1, ...args_1], void 0, function* (ctx, form, options = defaultOptions) {

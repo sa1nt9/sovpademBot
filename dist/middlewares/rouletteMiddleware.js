@@ -39,6 +39,10 @@ function isRouletteRelatedAction(ctx) {
 }
 const rouletteMiddleware = (ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    if (ctx.inlineQuery) {
+        yield next();
+        return;
+    }
     if (!((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id)) {
         return yield next();
     }

@@ -66,6 +66,7 @@ const stats_1 = require("./commands/stats");
 const blacklist_1 = require("./commands/blacklist");
 const add_to_blacklist_1 = require("./commands/add_to_blacklist");
 const matches_1 = require("./commands/matches");
+const inline_query_1 = require("./events/inline_query");
 dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
@@ -76,11 +77,22 @@ function startBot() {
             ctx.logger = logger_1.logger;
             yield next();
         }));
-        exports.bot.use((0, grammy_1.session)({
+        const sessionMiddleware = (0, grammy_1.session)({
             initial: sessionInitial_1.sessionInitial,
             storage: new storage_prisma_1.PrismaAdapter(postgres_1.prisma.session),
+        });
+        exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            if (ctx.inlineQuery) {
+                return next();
+            }
+            return sessionMiddleware(ctx, next);
         }));
-        exports.bot.use(i18n_1.i18n);
+        exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+            if (ctx.inlineQuery) {
+                return (0, i18n_1.i18n)(true).middleware()(ctx, next);
+            }
+            return (0, i18n_1.i18n)(false).middleware()(ctx, next);
+        }));
         exports.bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
         exports.bot.use(rouletteMiddleware_1.rouletteMiddleware);
         exports.bot.command("start", start_1.startCommand);
@@ -96,6 +108,7 @@ function startBot() {
         exports.bot.command("deactivate", deactivate_1.deactivateCommand);
         exports.bot.on("message", message_1.messageEvent);
         exports.bot.on("callback_query", callback_query_1.callbackQueryEvent);
+        exports.bot.on("inline_query", inline_query_1.inlineQueryEvent);
         exports.bot.start();
     });
 }
