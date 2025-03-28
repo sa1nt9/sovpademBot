@@ -44,6 +44,9 @@ const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [c
         const userInfo = yield ctx.api.getChat(likedUser.id);
         yield ctx.reply(`${ctx.t('mutual_sympathy')} [${likedUser.name}](https://t.me/${userInfo.username})`, {
             reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String(likedUser.id)),
+            link_preview_options: {
+                is_disabled: true
+            },
             parse_mode: 'Markdown',
         });
         if (!options.withoutSleepMenu) {

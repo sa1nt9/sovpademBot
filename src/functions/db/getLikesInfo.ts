@@ -21,7 +21,8 @@ export async function getLikesCount(targetUserId: string) {
             user: {
                 id: {
                     notIn: respondedIds // Исключаем пользователей, которым уже был дан ответ
-                }
+                },
+                isActive: true
             }
         }
     });
@@ -49,8 +50,9 @@ export async function getLikesInfo(targetUserId: string) {
             liked: true,
             user: {
                 id: {
-                    notIn: respondedIds // Исключаем пользователей, которым уже был дан ответ
-                }
+                    notIn: respondedIds
+                },
+                isActive: true
             }
         },
         include: {

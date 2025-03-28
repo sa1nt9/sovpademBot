@@ -9,21 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setMutualLike = setMutualLike;
-const postgres_1 = require("../../db/postgres");
-function setMutualLike(userId, targetId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Обновляем оригинальный лайк
-        yield postgres_1.prisma.userLike.updateMany({
-            where: {
-                userId: userId,
-                targetId: targetId,
-                liked: true
-            },
-            data: {
-                isMutual: true,
-                isMutualAt: new Date()
-            }
-        });
-    });
-}
+exports.showMatchesCommand = void 0;
+const showMatchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+});
+exports.showMatchesCommand = showMatchesCommand;

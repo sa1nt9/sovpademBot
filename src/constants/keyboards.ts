@@ -139,7 +139,7 @@ export const profileKeyboard = (): ReplyKeyboardMarkup => ({
     is_persistent: true,
 })
 
-export const answerFormKeyboard = (): ReplyKeyboardMarkup => ({
+export const answerFormKeyboard = (): ReplyKeyboardMarkup  => ({
     keyboard: [
         ["❤️", "💌/📹", "👎", "📋"]
     ],
@@ -401,6 +401,13 @@ export const optionsToUserKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup
 export const blacklistKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
     keyboard: [
         [t("see_next"), t("blacklist_remove")], 
+        [t("main_menu")]
+    ],
+    resize_keyboard: true,
+})
+
+export const mainMenuKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
         [t("main_menu")]
     ],
     resize_keyboard: true,

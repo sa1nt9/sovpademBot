@@ -23,6 +23,7 @@ const continue_see_likes_forms_1 = require("../messages/continue_see_likes_forms
 const disable_form_1 = require("../messages/disable_form");
 const form_disabled_1 = require("../messages/form_disabled");
 const friends_1 = require("../messages/friends");
+const go_main_menu_1 = require("../messages/go_main_menu");
 const options_to_user_1 = require("../messages/options_to_user");
 const prepare_message_1 = require("../messages/prepare_message");
 const profile_1 = require("../messages/profile");
@@ -113,6 +114,9 @@ const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     }
     else if (ctx.session.step === 'blacklist_user') {
         yield (0, blacklist_user_1.blacklistUserStep)(ctx);
+    }
+    else if (ctx.session.step === 'go_main_menu') {
+        yield (0, go_main_menu_1.goMainMenuStep)(ctx);
     }
     else {
         yield ctx.reply(ctx.t('no_such_answer'));

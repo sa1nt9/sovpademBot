@@ -52,6 +52,12 @@ export const statsCommand = async (ctx: MyContext) => {
                     liked: false
                 }
             });
+
+            const blacklistCount = await prisma.blacklist.count({
+                where: {
+                    userId: userId,
+                }
+            });
             
             // 3. Получаем статистику по просмотрам анкет
             const totalFormsViewed = likesGiven + dislikesGiven;
@@ -88,7 +94,8 @@ export const statsCommand = async (ctx: MyContext) => {
             
             // Статистика по просмотрам
             statsMessage += ctx.t('stats_forms_viewed', { count: totalFormsViewed }) + '\n';
-            statsMessage += ctx.t('stats_like_dislike_ratio', { percentage: likeDislikeRatio }) + '\n\n\n';
+            statsMessage += ctx.t('stats_like_dislike_ratio', { percentage: likeDislikeRatio }) + '\n';
+            statsMessage += ctx.t('stats_users_in_blacklist', { count: blacklistCount }) + '\n\n\n';
             
             // Статистика по рулетке (если есть)
             if (rouletteUser) {

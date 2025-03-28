@@ -47,6 +47,7 @@ model UserLike {
     voiceFileId    String?
     videoNoteFileId String?
     isMutual    Boolean  @default(false)
+    isMutualAt   DateTime?
     createdAt   DateTime @default(now())
 
     user   User @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)

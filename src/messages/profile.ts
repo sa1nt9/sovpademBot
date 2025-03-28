@@ -12,7 +12,7 @@ export async function profileStep(ctx: MyContext) {
         ctx.session.step = 'search_people'
 
         await ctx.reply("✨🔍", {
-            reply_markup: answerFormKeyboard()
+            reply_markup: answerFormKeyboard(),
         });
 
         const candidate = await getCandidate(ctx)

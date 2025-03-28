@@ -24,6 +24,7 @@ export const saveLike = async (ctx: MyContext, targetId: string, liked: boolean,
                 voiceFileId: options?.voiceFileId,
                 videoNoteFileId: options?.videoNoteFileId,
                 isMutual: options?.isMutual,
+                isMutualAt: options?.isMutual ? new Date() : undefined,
                 privateNote: options?.privateNote
             }
         });

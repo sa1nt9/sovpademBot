@@ -26,6 +26,9 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
 
             await ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidate.name}](https://t.me/${userInfo.username})`, {
                 reply_markup: complainToUserKeyboard(ctx.t, String(ctx.session.currentCandidate.id)),
+                link_preview_options: {
+                    is_disabled: true
+                },
                 parse_mode: 'Markdown',
             });
         }

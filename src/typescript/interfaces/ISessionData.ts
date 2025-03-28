@@ -47,7 +47,8 @@ type TStep =
     "add_private_note" |
     "added_private_note" | 
     "options_to_user" |
-    "blacklist_user"
+    "blacklist_user" |
+    "go_main_menu"
 
 type TQuestion =
     'years' |

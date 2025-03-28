@@ -32,7 +32,8 @@ function getLikesCount(targetUserId) {
                 user: {
                     id: {
                         notIn: respondedIds // Исключаем пользователей, которым уже был дан ответ
-                    }
+                    },
+                    isActive: true
                 }
             }
         });
@@ -58,8 +59,9 @@ function getLikesInfo(targetUserId) {
                 liked: true,
                 user: {
                     id: {
-                        notIn: respondedIds // Исключаем пользователей, которым уже был дан ответ
-                    }
+                        notIn: respondedIds
+                    },
+                    isActive: true
                 }
             },
             include: {

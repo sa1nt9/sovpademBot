@@ -21,7 +21,7 @@ function profileStep(ctx) {
         if (message === '1 🚀') {
             ctx.session.step = 'search_people';
             yield ctx.reply("✨🔍", {
-                reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                reply_markup: (0, keyboards_1.answerFormKeyboard)(),
             });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             ctx.logger.info(candidate, 'This is new candidate');

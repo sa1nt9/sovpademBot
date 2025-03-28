@@ -18,6 +18,7 @@ const reveal_accept_1 = require("../callback_queries/reveal_accept");
 const reveal_reject_1 = require("../callback_queries/reveal_reject");
 const reveal_username_accept_1 = require("../callback_queries/reveal_username_accept");
 const reveal_username_reject_1 = require("../callback_queries/reveal_username_reject");
+const match_1 = require("../callback_queries/match");
 const callbackQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
@@ -45,6 +46,9 @@ const callbackQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* 
         }
         else if (callbackData.startsWith("complain_back:")) {
             yield (0, complain_back_1.complainBackCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("match:")) {
+            yield (0, match_1.matchCallbackQuery)(ctx);
         }
     }
 });

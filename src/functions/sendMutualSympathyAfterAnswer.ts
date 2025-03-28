@@ -45,6 +45,9 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
 
         await ctx.reply(`${ctx.t('mutual_sympathy')} [${likedUser.name}](https://t.me/${userInfo.username})`, {
             reply_markup: complainToUserKeyboard(ctx.t, String(likedUser.id)),
+            link_preview_options: {
+                is_disabled: true
+            },
             parse_mode: 'Markdown',
         });
 

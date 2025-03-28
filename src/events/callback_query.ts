@@ -6,6 +6,7 @@ import { revealAcceptCallbackQuery } from "../callback_queries/reveal_accept";
 import { revealRejectCallbackQuery } from "../callback_queries/reveal_reject";
 import { revealUsernameAcceptCallbackQuery } from "../callback_queries/reveal_username_accept";
 import { revealUsernameRejectCallbackQuery } from "../callback_queries/reveal_username_reject";
+import { matchCallbackQuery } from "../callback_queries/match";
 
 import { MyContext } from "../typescript/context";
 
@@ -30,6 +31,8 @@ export const callbackQueryEvent = async (ctx: MyContext) => {
             await complainReasonCallbackQuery(ctx)
         } else if (callbackData.startsWith("complain_back:")) {
             await complainBackCallbackQuery(ctx)
+        } else if (callbackData.startsWith("match:")) {
+            await matchCallbackQuery(ctx)
         }
     }
 }

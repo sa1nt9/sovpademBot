@@ -72,6 +72,9 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
 
                     await ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${ctx.from?.username})`, {
                         reply_markup: complainToUserKeyboard(ctx.t, String(ctx.from?.id)),
+                        link_preview_options: {
+                            is_disabled: true
+                        },
                         parse_mode: 'Markdown',
                     });
 

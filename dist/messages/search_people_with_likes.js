@@ -30,6 +30,9 @@ function searchPeopleWithLikesStep(ctx) {
                 ctx.session.step = 'continue_see_likes_forms';
                 yield ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidate.name}](https://t.me/${userInfo.username})`, {
                     reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String(ctx.session.currentCandidate.id)),
+                    link_preview_options: {
+                        is_disabled: true
+                    },
                     parse_mode: 'Markdown',
                 });
             }

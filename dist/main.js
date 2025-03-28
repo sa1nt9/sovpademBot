@@ -64,6 +64,8 @@ const rouletteMiddleware_1 = require("./middlewares/rouletteMiddleware");
 const stop_roulette_1 = require("./commands/stop_roulette");
 const stats_1 = require("./commands/stats");
 const blacklist_1 = require("./commands/blacklist");
+const add_to_blacklist_1 = require("./commands/add_to_blacklist");
+const matches_1 = require("./commands/matches");
 dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
@@ -85,6 +87,8 @@ function startBot() {
         exports.bot.command("myprofile", myprofile_1.myprofileCommand);
         exports.bot.command("roulette", roulette_1.rouletteCommand);
         exports.bot.command("blacklist", blacklist_1.blacklistCommand);
+        exports.bot.command("matches", matches_1.matchesCommand);
+        exports.bot.command("add_to_blacklist", add_to_blacklist_1.addToBlacklistCommand);
         exports.bot.command("complain", complain_1.complainCommand);
         exports.bot.command("stats", stats_1.statsCommand);
         exports.bot.command("stop_roulette", stop_roulette_1.stopRouletteCommand);

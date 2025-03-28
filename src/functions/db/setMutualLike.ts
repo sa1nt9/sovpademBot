@@ -9,7 +9,8 @@ export async function setMutualLike(userId: string, targetId: string) {
             liked: true
         },
         data: {
-            isMutual: true
+            isMutual: true,
+            isMutualAt: new Date()
         }
     });
 } 

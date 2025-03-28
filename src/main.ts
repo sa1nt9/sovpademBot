@@ -22,6 +22,8 @@ import { rouletteMiddleware } from './middlewares/rouletteMiddleware';
 import { stopRouletteCommand } from './commands/stop_roulette';
 import { statsCommand } from './commands/stats';
 import { blacklistCommand } from './commands/blacklist';
+import { addToBlacklistCommand } from './commands/add_to_blacklist';
+import { matchesCommand } from './commands/matches';
 
 dotenv.config();
 
@@ -63,6 +65,10 @@ async function startBot() {
     bot.command("roulette", rouletteCommand);
     
     bot.command("blacklist", blacklistCommand);
+
+    bot.command("matches", matchesCommand);
+
+    bot.command("add_to_blacklist", addToBlacklistCommand);
     
     bot.command("complain", complainCommand);
 

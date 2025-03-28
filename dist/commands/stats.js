@@ -56,6 +56,11 @@ const statsCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                     liked: false
                 }
             });
+            const blacklistCount = yield postgres_1.prisma.blacklist.count({
+                where: {
+                    userId: userId,
+                }
+            });
             // 3. Получаем статистику по просмотрам анкет
             const totalFormsViewed = likesGiven + dislikesGiven;
             // 4. Получаем статистику по рулетке
@@ -84,7 +89,8 @@ const statsCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             statsMessage += ctx.t('stats_mutual_percentage', { percentage: mutualPercentage }) + '\n\n';
             // Статистика по просмотрам
             statsMessage += ctx.t('stats_forms_viewed', { count: totalFormsViewed }) + '\n';
-            statsMessage += ctx.t('stats_like_dislike_ratio', { percentage: likeDislikeRatio }) + '\n\n\n';
+            statsMessage += ctx.t('stats_like_dislike_ratio', { percentage: likeDislikeRatio }) + '\n';
+            statsMessage += ctx.t('stats_users_in_blacklist', { count: blacklistCount }) + '\n\n\n';
             // Статистика по рулетке (если есть)
             if (rouletteUser) {
                 statsMessage += ctx.t('stats_roulette_title') + '\n\n';

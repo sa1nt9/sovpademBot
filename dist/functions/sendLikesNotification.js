@@ -71,6 +71,9 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                         });
                         yield ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${(_d = ctx.from) === null || _d === void 0 ? void 0 : _d.username})`, {
                             reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String((_e = ctx.from) === null || _e === void 0 ? void 0 : _e.id)),
+                            link_preview_options: {
+                                is_disabled: true
+                            },
                             parse_mode: 'Markdown',
                         });
                         yield postgres_1.prisma.session.update({

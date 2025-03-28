@@ -11,6 +11,7 @@ import { continueSeeLikesFormsStep } from "../messages/continue_see_likes_forms"
 import { disableFormStep } from "../messages/disable_form"
 import { formDisabledStep } from "../messages/form_disabled"
 import { friendsStep } from "../messages/friends"
+import { goMainMenuStep } from "../messages/go_main_menu"
 import { optionsToUserStep } from "../messages/options_to_user"
 import { prepareMessageStep } from "../messages/prepare_message"
 import { profileStep } from "../messages/profile"
@@ -78,6 +79,8 @@ export const messageEvent = async (ctx: MyContext) => {
         await optionsToUserStep(ctx)
     } else if (ctx.session.step === 'blacklist_user') {
         await blacklistUserStep(ctx)
+    } else if (ctx.session.step === 'go_main_menu') {
+        await goMainMenuStep(ctx)
     } else {
         await ctx.reply(ctx.t('no_such_answer'));
     }
