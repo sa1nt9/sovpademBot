@@ -17,7 +17,7 @@ export const matchCallbackQuery = async (ctx: MyContext) => {
 
     if (!targetUser) {
         await ctx.answerCallbackQuery({
-            text: ctx.t('user_not_found'),
+            text: ctx.t('user_form_disabled'),
             show_alert: true
         });
         return;

@@ -44,6 +44,41 @@ const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
     }
+    if (startParam === null || startParam === void 0 ? void 0 : startParam.startsWith('profile_')) {
+        const encodedId = startParam.substring(8);
+        if (encodedId) {
+            try {
+                const userId = (0, encodeId_1.decodeId)(encodedId);
+                if (userId) {
+                    const user = yield postgres_1.prisma.user.findUnique({
+                        where: { id: userId, isActive: true },
+                    });
+                    if (user && (user === null || user === void 0 ? void 0 : user.id) !== (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id)) {
+                        if (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id) {
+                            ctx.session.step = "go_main_menu";
+                        }
+                        else {
+                            ctx.session.step = "start_using_bot";
+                        }
+                        yield ctx.reply(ctx.t('this_is_user_profile'), {
+                            reply_markup: (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id) ? (0, keyboards_1.mainMenuKeyboard)(ctx.t) : (0, keyboards_1.createFormKeyboard)(ctx.t)
+                        });
+                        yield (0, sendForm_1.sendForm)(ctx, user, { myForm: false });
+                        return;
+                    }
+                    else if ((user === null || user === void 0 ? void 0 : user.id) !== (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id)) {
+                        yield ctx.reply(ctx.t('user_not_found'));
+                    }
+                }
+            }
+            catch (error) {
+                ctx.logger.error({
+                    msg: 'Error decoding ID',
+                    error: error
+                });
+            }
+        }
+    }
     if (existingUser) {
         ctx.session.step = "profile";
         yield (0, sendForm_1.sendForm)(ctx);

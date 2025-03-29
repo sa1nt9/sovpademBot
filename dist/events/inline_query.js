@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.inlineQueryEvent = void 0;
 const postgres_1 = require("../db/postgres");
 const sendForm_1 = require("../functions/sendForm");
+const encodeId_1 = require("../functions/encodeId");
 const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = String(ctx.from.id);
     try {
-        // Получаем анкету пользователя
         const user = yield postgres_1.prisma.user.findUnique({
             where: {
                 id: userId,
@@ -29,40 +29,36 @@ const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
                     title: ctx.t("no_profile"),
                     description: ctx.t("no_profile_description"),
                     input_message_content: {
-                        message_text: ctx.t("no_profile_message", { botname: process.env.BOT_USERNAME || "" })
-                    }
+                        message_text: ctx.t("no_profile_message", { botname: `[${process.env.CHANNEL_NAME || ""}](https://t.me/${process.env.BOT_USERNAME || ""})` }),
+                        parse_mode: "Markdown",
+                        link_preview_options: {
+                            is_disabled: true
+                        }
+                    },
                 }], { cache_time: 0 });
             return;
         }
         const text = yield (0, sendForm_1.buildTextForm)(ctx, user, { isInline: true });
-        // Получаем все фото пользователя
-        let mediaGroup = [];
-        if (user.files) {
-            try {
-                mediaGroup = JSON.parse(user.files);
-            }
-            catch (error) {
-                console.error("Error parsing files:", error);
-            }
-        }
-        console.log(mediaGroup);
-        const results = [];
-        // Добавляем фото
-        if (mediaGroup.length > 0) {
-            results.push({
-                type: mediaGroup[0].type,
-                id: "photo",
-                photo_file_id: mediaGroup[0].media,
+        const results = [{
+                type: "article",
+                id: "profile",
                 title: ctx.t("share_profile"),
                 description: text,
-                caption: text + `\n\n👉 @${process.env.BOT_USERNAME}`,
+                input_message_content: {
+                    message_text: ctx.t("inline_message_text", { botname: `[${process.env.CHANNEL_NAME || ""}](https://t.me/${process.env.BOT_USERNAME || ""})` }) +
+                        "\n\n" +
+                        text,
+                    parse_mode: "Markdown",
+                    link_preview_options: {
+                        is_disabled: true
+                    }
+                },
                 reply_markup: {
                     inline_keyboard: [[
-                            { text: "Открыть анкету", url: `t.me/${process.env.BOT_USERNAME}` }
+                            { text: ctx.t("open_full_profile"), url: `t.me/${process.env.BOT_USERNAME}?start=profile_${(0, encodeId_1.encodeId)(userId)}` }
                         ]]
                 }
-            });
-        }
+            }];
         yield ctx.answerInlineQuery(results, { cache_time: 0 });
     }
     catch (error) {

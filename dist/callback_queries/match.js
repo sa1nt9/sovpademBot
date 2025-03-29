@@ -25,7 +25,7 @@ const matchCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* 
     });
     if (!targetUser) {
         yield ctx.answerCallbackQuery({
-            text: ctx.t('user_not_found'),
+            text: ctx.t('user_form_disabled'),
             show_alert: true
         });
         return;

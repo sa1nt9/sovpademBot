@@ -1,15 +1,13 @@
 import { prisma } from "../db/postgres";
-
 import { buildTextForm } from "../functions/sendForm";
 import { InlineQueryResult } from "grammy/types";
 import { MyContext } from "../typescript/context";
-import { IFile } from "../typescript/interfaces/IFile";
+import { encodeId } from "../functions/encodeId";
 
 export const inlineQueryEvent = async (ctx: MyContext) => {
     const userId = String(ctx.from!.id);
 
     try {
-        // Получаем анкету пользователя
         const user = await prisma.user.findUnique({
             where: {
                 id: userId,
@@ -24,42 +22,37 @@ export const inlineQueryEvent = async (ctx: MyContext) => {
                 title: ctx.t("no_profile"),
                 description: ctx.t("no_profile_description"),
                 input_message_content: {
-                    message_text: ctx.t("no_profile_message", { botname: process.env.BOT_USERNAME || "" })
-                }
+                    message_text: ctx.t("no_profile_message", { botname: `[${process.env.CHANNEL_NAME || ""}](https://t.me/${process.env.BOT_USERNAME || ""})` }),
+                    parse_mode: "Markdown",
+                    link_preview_options: {
+                        is_disabled: true
+                    }
+                },
             }], { cache_time: 0 });
             return;
         }
         const text = await buildTextForm(ctx, user, { isInline: true })
 
-        // Получаем все фото пользователя
-        let mediaGroup: IFile[] = [];
-        if (user.files) {
-            try {
-                mediaGroup = JSON.parse(user.files as any);
-            } catch (error) {
-                console.error("Error parsing files:", error);
-            }
-        }
-        console.log(mediaGroup)
-
-        const results: InlineQueryResult[] = [];
-
-        // Добавляем фото
-        if (mediaGroup.length > 0) {
-            results.push({
-                type: mediaGroup[0].type as any,
-                id: "photo",
-                photo_file_id: mediaGroup[0].media,
-                title: ctx.t("share_profile"),
-                description: text,
-                caption: text + `\n\n👉 @${process.env.BOT_USERNAME}`,
-                reply_markup: {
-                    inline_keyboard: [[
-                        { text: "Открыть анкету", url: `t.me/${process.env.BOT_USERNAME}` }
-                    ]]
+        const results: InlineQueryResult[] = [{
+            type: "article",
+            id: "profile",
+            title: ctx.t("share_profile"),
+            description: text,
+            input_message_content: {
+                message_text: ctx.t("inline_message_text", { botname: `[${process.env.CHANNEL_NAME || ""}](https://t.me/${process.env.BOT_USERNAME || ""})` }) +
+                    "\n\n" +
+                    text,
+                parse_mode: "Markdown",
+                link_preview_options: {
+                    is_disabled: true
                 }
-            });
-        }
+            },
+            reply_markup: {
+                inline_keyboard: [[
+                    { text: ctx.t("open_full_profile"), url: `t.me/${process.env.BOT_USERNAME}?start=profile_${encodeId(userId)}` }
+                ]]
+            }
+        }];
 
         await ctx.answerInlineQuery(results, { cache_time: 0 });
     } catch (error) {

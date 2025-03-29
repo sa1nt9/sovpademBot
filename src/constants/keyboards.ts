@@ -413,4 +413,11 @@ export const mainMenuKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => (
     resize_keyboard: true,
 })
 
+export const createFormKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("start_using_bot")]
+    ],
+    resize_keyboard: true,
+})
+
 

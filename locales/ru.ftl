@@ -476,12 +476,122 @@ match_you_select = Вы выбрали анкету пользователя { $
 mutual_sympathies_navigation = Используйте стрелки для навигации между анкетами
 back_to_profile = Вернуться в профиль
 
-user_not_found = Анкета пользователя отключена
+user_form_disabled = Анкета пользователя отключена
+
+user_not_found = Анкета пользователя отключена или не создана
 
 no_profile = У вас нет анкеты или она отключена
 
 no_profile_description = Создайте анкету в боте
 
-no_profile_message = Создайте свою анкету в @{ $botname }
+no_profile_message = Создайте свою анкету в { $botname }
 
 share_profile = Поделиться анкетой
+
+open_full_profile = Открыть полную анкету
+
+inline_message_text = Это моя анкета в { $botname } :
+
+this_is_user_profile = Это анкета данного пользователя:
+
+start_using_bot  = 🚀 Создать анкету
+
+# Типы анкет
+profile_type_title = Выберите тип анкеты:
+
+profile_type_relationship = 💑 Отношения
+profile_type_sport = 🏃‍♂️ Спорт
+profile_type_game = 🎮 Игры
+profile_type_hobby = 🎨 Хобби
+profile_type_it = 💻 IT
+profile_type_travel = 🌍 Путешествия
+
+# Подвиды спорта
+sport_type_title = Выберите вид спорта:
+sport_type_gym = 🏋️‍♀️ Тренажерный зал
+sport_type_running = 🏃‍♂️ Бег
+sport_type_swimming = 🏊‍♀️ Плавание
+sport_type_football = ⚽ Футбол
+sport_type_basketball = 🏀 Баскетбол
+sport_type_tennis = 🎾 Теннис
+sport_type_martial_arts = 🥋 Боевые искусства
+sport_type_yoga = 🧘‍♀️ Йога
+sport_type_cycling = 🚴‍♂️ Велоспорт
+sport_type_climbing = 🧗‍♀️ Скалолазание
+sport_type_ski_snowboard = 🏂 Лыжи/сноуборд
+
+# Подвиды игр
+game_type_title = Выберите игру:
+game_type_cs_go = 🔫 CS:GO/CS2
+game_type_dota2 = 🛡️ Dota 2
+game_type_valorant = 💥 Valorant
+game_type_rust = 🏕️ Rust
+game_type_minecraft = 🧱 Minecraft
+game_type_league_of_legends = ⚔️ League of Legends
+game_type_fortnite = 🏙️ Fortnite
+game_type_pubg = 🔥 PUBG
+game_type_gta = 🚗 GTA V/Online
+game_type_apex_legends = 👑 Apex Legends
+game_type_fifa = ⚽ FIFA/EA FC
+game_type_call_of_duty = 💣 Call of Duty
+game_type_wow = 🧙‍♂️ World of Warcraft
+game_type_genshin_impact = ⚡ Genshin Impact
+
+# Подвиды хобби
+hobby_type_title = Выберите хобби:
+hobby_type_music = 🎵 Музыка
+hobby_type_drawing = 🎨 Рисование/живопись
+hobby_type_photography = 📷 Фотография
+hobby_type_cooking = 🍳 Кулинария
+hobby_type_crafts = 🧶 Рукоделие
+hobby_type_dancing = 💃 Танцы
+hobby_type_reading = 📚 Чтение
+
+# Подвиды IT
+it_type_title = Выберите IT-направление:
+it_type_frontend = 🌐 Frontend
+it_type_backend = 🖥️ Backend
+it_type_fullstack = 💻 Full Stack
+it_type_mobile = 📱 Mobile
+it_type_devops = 🛠️ DevOps
+it_type_qa = 🔍 QA/Testing
+it_type_data_science = 📊 Data Science/AI
+it_type_game_dev = 🎮 Game Development
+it_type_cybersecurity = 🔒 Cybersecurity
+it_type_ui_ux = 🎨 UI/UX
+
+# Поля для спорт-анкеты
+sport_level_question = Укажите ваш уровень подготовки:
+sport_level_beginner = 🔰 Начинающий
+sport_level_intermediate = 🥈 Средний
+sport_level_advanced = 🥇 Продвинутый
+sport_level_professional = 🏆 Профессиональный
+
+# Поля для игровой анкеты
+game_rank_question = Укажите ваш ранг/уровень:
+game_account_question = Укажите ссылку на ваш игровой аккаунт (необязательно):
+
+# Поля для IT-анкеты
+it_experience_question = Укажите ваш опыт работы:
+it_experience_student = 🎓 Студент/обучаюсь
+it_experience_junior = 🌱 Junior (до 1 года)
+it_experience_middle = 💪 Middle (1-3 года)
+it_experience_senior = 🧠 Senior (3+ лет)
+it_technologies_question = Укажите ваши основные технологии/языки:
+it_portfolio_question = Укажите ссылку на ваш GitHub/портфолио:
+
+# Общие поля для профилей
+profile_description_question = Напишите описание для вашей анкеты:
+profile_select = Выбрать эту анкету
+
+# Переключение профилей
+switch_profile_title = Выберите анкету:
+current_profile = Текущая анкета: { $profileType }
+switch_profile = Сменить анкету
+create_new_profile = ➕ Создать новую анкету
+
+# Перенос медиа
+transfer_media_question = Хотите перенести медиафайлы из другой анкеты?
+transfer_media_from = Перенести медиа из анкеты: { $profileType }
+transfer_media_all = Перенести все файлы
+transfer_media_select = Выбрать файлы для переноса

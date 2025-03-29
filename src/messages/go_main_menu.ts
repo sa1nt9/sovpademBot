@@ -1,6 +1,4 @@
 import { answerFormKeyboard, mainMenuKeyboard, profileKeyboard } from '../constants/keyboards';
-import { candidatesEnded } from '../functions/candidatesEnded';
-import { getCandidate } from '../functions/db/getCandidate';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
 
