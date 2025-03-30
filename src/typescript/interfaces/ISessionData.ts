@@ -1,5 +1,5 @@
-import { User } from "@prisma/client";
-import { IUser } from "./IUser";
+import { User, ProfileType, SportType, GameType, HobbyType, ITType } from "@prisma/client";
+import { IProfile, IProfileInfo } from "./IProfile";
 
 interface IAdditionalFormInfo {
     canGoBack: boolean;
@@ -8,6 +8,9 @@ interface IAdditionalFormInfo {
     reportType?: string;
     searchingLikes?: boolean;
     reportedUserId?: string;
+    selectedProfileType?: ProfileType;
+    selectedSubType?: SportType | GameType | HobbyType | ITType;
+    transferMediaFrom?: string; // ID профиля, из которого переносятся медиафайлы
 }
 
 interface IRouletteData {
@@ -49,7 +52,11 @@ type TStep =
     "options_to_user" |
     "blacklist_user" |
     "go_main_menu" | 
-    "start_using_bot"
+    "start_using_bot" |
+    "choose_profile_type" |
+    "switch_profile" |
+    "select_subtype" |
+    "transfer_media"
 
 type TQuestion =
     'years' |
@@ -60,7 +67,14 @@ type TQuestion =
     "text" |
     "file" |
     "add_another_file" |
-    "all_right";
+    "all_right" |
+    "sport_level" |
+    "game_rank" |
+    "game_account" |
+    "it_experience" |
+    "it_technologies" |
+    "it_portfolio" |
+    "profile_description";
 
 export interface ISessionData {
     step?: TStep;
@@ -68,12 +82,14 @@ export interface ISessionData {
     additionalFormInfo: IAdditionalFormInfo;
     privacyAccepted: boolean;
     referrerId?: string;
-    form: IUser;
+    activeProfile: IProfile; // Текущий активный профиль пользователя
+    availableProfiles?: IProfileInfo[]; // Список доступных профилей пользователя
     isNeededSubscription?: boolean;
-    currentCandidate?: User | null;
+    currentCandidateProfile?: IProfile | null; // Профиль текущего кандидата
     currentBlacklistedUser?: User | null;
     pendingMutualLike?: boolean;
-    pendingMutualLikeUserId?: string;
+    pendingMutualLikeProfileId?: string; // ID профиля, с которым установлена взаимная симпатия
+    pendingMutualLikeProfileType?: ProfileType; // Тип профиля, с которым установлена взаимная симпатия
     roulette?: IRouletteData;
     originalReactionMessage?: IOriginalReactionMessage;
     privateNote?: string;

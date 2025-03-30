@@ -21,11 +21,11 @@ function searchPeopleStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         if (message === '❤️') {
-            if (ctx.session.currentCandidate) {
-                yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, true);
-                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidate.id);
+            if (ctx.session.currentCandidateProfile) {
+                yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidateProfile.id, true);
+                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.id);
                 // Проверяем наличие отложенной взаимной симпатии
-                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                     yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
                     return;
                 }
@@ -47,9 +47,9 @@ function searchPeopleStep(ctx) {
             });
         }
         else if (message === '👎') {
-            if (ctx.session.currentCandidate) {
-                yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidate.id, false);
-                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            if (ctx.session.currentCandidateProfile) {
+                yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidateProfile.id, false);
+                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                     yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
                     return;
                 }

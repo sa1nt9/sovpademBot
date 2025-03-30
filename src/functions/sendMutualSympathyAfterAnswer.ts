@@ -17,15 +17,15 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
     // Получаем данные пользователя, который поставил лайк
     const likedUser = await prisma.user.findUnique({
         where: {
-            id: String(ctx.session.pendingMutualLikeUserId)
+            id: String(ctx.session.pendingMutualLikeProfileId)
         }
     });
 
     if (likedUser) {
-        const userLike = await prisma.userLike.findFirst({
+        const userLike = await prisma.profileLike.findFirst({
             where: {
-                userId: String(ctx.from?.id),
-                targetId: likedUser.id,
+                fromProfileId: String(ctx.from?.id),
+                toProfileId: likedUser.id,
                 liked: true
             },
             orderBy: {
@@ -59,6 +59,6 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
         }
 
         ctx.session.pendingMutualLike = false;
-        ctx.session.pendingMutualLikeUserId = undefined;
+        ctx.session.pendingMutualLikeProfileId = undefined;
     }
 }

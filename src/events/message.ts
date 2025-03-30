@@ -22,6 +22,7 @@ import { searchPeopleStep } from "../messages/search_people"
 import { searchPeopleWithLikesStep } from "../messages/search_people_with_likes"
 import { sleepMenuStep } from "../messages/sleep_menu"
 import { somebodysLikedYouStep } from "../messages/somebodys_liked_you"
+import { startUsingBotStep } from "../messages/start_using_bot"
 import { textOrVideoToUserStep } from "../messages/text_or_video_to_user"
 import { youDontHaveFormStep } from "../messages/you_dont_have_form"
 import { MyContext } from "../typescript/context"
@@ -81,6 +82,8 @@ export const messageEvent = async (ctx: MyContext) => {
         await blacklistUserStep(ctx)
     } else if (ctx.session.step === 'go_main_menu') {
         await goMainMenuStep(ctx)
+    } else if (ctx.session.step === 'start_using_bot') {
+        await startUsingBotStep(ctx)
     } else {
         await ctx.reply(ctx.t('no_such_answer'));
     }

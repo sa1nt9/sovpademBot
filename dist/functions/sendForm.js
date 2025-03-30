@@ -24,15 +24,18 @@ const defaultOptions = {
     isInline: false
 };
 const buildInfoText = (ctx, form, options = defaultOptions) => {
-    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
+    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.activeProfile.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.activeProfile.location.latitude, ctx.session.activeProfile.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
 };
 exports.buildInfoText = buildInfoText;
 const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1, ...args_1], void 0, function* (ctx, form, options = defaultOptions) {
     var _a, _b;
     let count = 0;
     if (options.like) {
-        count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id));
+        count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), options.like.fromProfileType);
     }
+    const getDescription = () => {
+        return 'Описание профиля';
+    };
     return ((options.like ? `${ctx.t('somebody_liked_you_text', { count: count - 1 })}
 
 ` : '')
@@ -41,7 +44,7 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
 
 ` : '')
         +
-            `${(0, exports.buildInfoText)(ctx, form, options)}${form.text ? ` - ${form.text}` : ''}`
+            `${(0, exports.buildInfoText)(ctx, form, options)}${getDescription() ? ` - ${getDescription()}` : ''}`
         +
             (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `
             
@@ -67,8 +70,11 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
         yield (0, toggleUserActive_1.toggleUserActive)(ctx, true);
     }
     const text = yield (0, exports.buildTextForm)(ctx, user, options);
-    if (user === null || user === void 0 ? void 0 : user.files) {
-        const files = JSON.parse(user.files);
+    const getProfileFiles = (user) => {
+        return [];
+    };
+    const files = getProfileFiles(user);
+    if (files && files.length > 0) {
         if (options.sendTo) {
             yield ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '' }))));
         }
@@ -90,6 +96,14 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
                     reply_to_message_id: videoNote.message_id
                 });
             }
+        }
+    }
+    else {
+        if (options.sendTo) {
+            yield ctx.api.sendMessage(options.sendTo, text);
+        }
+        else {
+            yield ctx.reply(text);
         }
     }
 });

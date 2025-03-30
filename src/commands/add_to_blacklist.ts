@@ -11,7 +11,7 @@ export const addToBlacklistCommand = async (ctx: MyContext) => {
         where: { id: userId },
     });
     
-    if (existingUser && ctx.session.currentCandidate && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes" || ctx.session.step === "options_to_user")) {
+    if (existingUser && ctx.session.currentCandidateProfile && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes" || ctx.session.step === "options_to_user")) {
         await addToBlacklist(ctx)
     } else {
         ctx.session.step = "cannot_send_complain";

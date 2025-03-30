@@ -10,16 +10,16 @@ export async function somebodysLikedYouStep(ctx: MyContext) {
         ctx.session.step = 'search_people_with_likes'
         ctx.session.additionalFormInfo.searchingLikes = true
 
-        const oneLike = await getOneLike(String(ctx.from!.id));
+        const oneLike = await getOneLike(String(ctx.from!.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
 
-        ctx.session.currentCandidate = oneLike?.user
+        ctx.session.currentCandidateProfile = oneLike?.fromProfile
 
         await ctx.reply("✨🔍", {
             reply_markup: answerLikesFormKeyboard()
         });
 
-        if (oneLike?.user) {
-            await sendForm(ctx, oneLike.user, { myForm: false, like: oneLike });
+        if (oneLike?.fromProfile) {
+            await sendForm(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
         }
 
     } else if (message === '2 💤') {

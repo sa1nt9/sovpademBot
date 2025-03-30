@@ -1,16 +1,15 @@
 import { answerFormKeyboard, answerLikesFormKeyboard, continueKeyboard, continueSeeFormsKeyboard } from "../constants/keyboards";
 import { MyContext } from "../typescript/context";
-import { getCandidate } from "./db/getCandidate";
 import { getOneLike } from "./db/getOneLike";
 import { sendForm } from "./sendForm";
 import { sendMutualSympathyAfterAnswer } from "./sendMutualSympathyAfterAnswer";
 
 export const continueSeeLikesForms = async (ctx: MyContext) => {
-    const oneLike = await getOneLike(String(ctx.from!.id));
+    const oneLike = await getOneLike(String(ctx.from!.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
 
 
-    if (oneLike?.user) {
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+    if (oneLike?.fromProfile) {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             await sendMutualSympathyAfterAnswer(ctx, { withoutSleepMenu: true })
             ctx.session.step = 'continue_see_likes_forms'
             return
@@ -20,10 +19,10 @@ export const continueSeeLikesForms = async (ctx: MyContext) => {
             reply_markup: answerLikesFormKeyboard()
         });
 
-        ctx.session.currentCandidate = oneLike.user
-        await sendForm(ctx, oneLike.user, { myForm: false, like: oneLike });
+        ctx.session.currentCandidateProfile = oneLike.fromProfile
+        await sendForm(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
     } else {
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             await sendMutualSympathyAfterAnswer(ctx, { withoutSleepMenu: true })
         }
 

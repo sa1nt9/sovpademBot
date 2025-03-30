@@ -14,10 +14,12 @@ export const saveLike = async (ctx: MyContext, targetId: string, liked: boolean,
     try {
         const userId = String(ctx.message?.from.id);
 
-        const like = await prisma.userLike.create({
+        const like = await prisma.profileLike.create({
             data: {
-                userId,
-                targetId,
+                fromProfileId: userId,
+                toProfileId: targetId,
+                fromProfileType: 'RELATIONSHIP',
+                toProfileType: 'RELATIONSHIP',
                 liked,
                 message: options?.message,
                 videoFileId: options?.videoFileId,

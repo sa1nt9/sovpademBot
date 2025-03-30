@@ -15,10 +15,12 @@ const saveLike = (ctx, targetId, liked, options) => __awaiter(void 0, void 0, vo
     var _a;
     try {
         const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-        const like = yield postgres_1.prisma.userLike.create({
+        const like = yield postgres_1.prisma.profileLike.create({
             data: {
-                userId,
-                targetId,
+                fromProfileId: userId,
+                toProfileId: targetId,
+                fromProfileType: 'RELATIONSHIP',
+                toProfileType: 'RELATIONSHIP',
                 liked,
                 message: options === null || options === void 0 ? void 0 : options.message,
                 videoFileId: options === null || options === void 0 ? void 0 : options.videoFileId,

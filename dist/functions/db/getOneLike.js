@@ -11,39 +11,51 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOneLike = getOneLike;
 const postgres_1 = require("../../db/postgres");
-function getOneLike(userId) {
+const profilesService_1 = require("./profilesService");
+function getOneLike(userId, profileType, profileId) {
     return __awaiter(this, void 0, void 0, function* () {
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        const alreadyRespondedToIds = yield postgres_1.prisma.userLike.findMany({
+        // Получаем все профили, которым текущий профиль уже поставил лайк или дизлайк
+        const alreadyRespondedToIds = yield postgres_1.prisma.profileLike.findMany({
             where: {
-                userId: userId,
+                fromProfileId: profileId,
+                fromProfileType: profileType,
                 createdAt: {
                     gte: thirtyDaysAgo
                 }
             },
             select: {
-                targetId: true
+                toProfileId: true
             }
         });
         // Формируем массив ID, которым уже был дан ответ
-        const respondedIds = alreadyRespondedToIds.map(item => item.targetId);
-        return yield postgres_1.prisma.userLike.findFirst({
+        const respondedIds = alreadyRespondedToIds.map(item => item.toProfileId);
+        // Находим первый лайк, поставленный текущему профилю,
+        // на который пользователь еще не ответил
+        const like = yield postgres_1.prisma.profileLike.findFirst({
             where: {
-                targetId: userId,
+                toProfileId: profileId,
+                toProfileType: profileType,
                 liked: true,
                 createdAt: {
                     gte: thirtyDaysAgo
                 },
-                user: {
-                    id: {
-                        notIn: respondedIds
-                    },
-                    isActive: true
+                fromProfileId: {
+                    notIn: respondedIds
                 }
-            },
-            include: {
-                user: true
             }
         });
+        if (!like)
+            return null;
+        // Получаем информацию о профиле, который поставил лайк
+        const fromProfileModel = (0, profilesService_1.getProfileModelName)(like.fromProfileType);
+        const fromProfile = yield postgres_1.prisma[fromProfileModel].findUnique({
+            where: { id: like.fromProfileId },
+            include: { user: true }
+        });
+        // Проверяем, что профиль активен
+        if (!fromProfile || !fromProfile.isActive)
+            return null;
+        return Object.assign(Object.assign({}, like), { fromProfile });
     });
 }

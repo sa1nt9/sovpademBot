@@ -14,6 +14,8 @@ export async function getCandidate(ctx: MyContext) {
             const now = new Date();
             const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
+            // Временно используем упрощенную логику
+            // TODO: Реализовать полноценную логику с учетом типов профилей
             const candidates: User[] = await prisma.$queryRaw`
                 WITH RankedUsers AS (
                     SELECT *,
@@ -52,18 +54,6 @@ export async function getCandidate(ctx: MyContext) {
                             FROM "Blacklist"
                             WHERE "userId" = ${userId}
                         )
-                        AND (
-                            CASE 
-                                WHEN ${user.interestedIn} = 'all' THEN TRUE
-                                ELSE "gender"::text = ${user.interestedIn}
-                            END
-                        )
-                        AND (
-                            CASE 
-                                WHEN "interestedIn" = 'all' THEN TRUE
-                                ELSE "interestedIn"::text = ${user.gender}
-                            END
-                        )
                         AND ABS("age" - ${user.age}) <= 2
                 )
                 SELECT *,
@@ -81,10 +71,8 @@ export async function getCandidate(ctx: MyContext) {
 
             const candidate = candidates[0];
             
-            if (candidate) {
-                // Сохраняем кандидата в сессию
-                ctx.session.currentCandidate = candidate;
-            }
+            // Данные кандидата будут обрабатываться в вызывающем коде
+            // TODO: Реализовать сохранение в сессию после обновления интерфейса ISessionData
 
             return candidate;
         }

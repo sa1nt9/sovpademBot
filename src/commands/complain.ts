@@ -9,7 +9,7 @@ export const complainCommand = async (ctx: MyContext) => {
         where: { id: userId },
     });
     
-    if (existingUser && ctx.session.currentCandidate && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes" || ctx.session.step === "options_to_user")) {
+    if (existingUser && ctx.session.currentCandidateProfile && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes" || ctx.session.step === "options_to_user")) {
         ctx.session.step = "complain";
 
         await ctx.reply(ctx.t('complain_text'), {

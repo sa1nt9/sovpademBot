@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-    id             String       @id // Уникальный ID
+    id             String   @id // Уникальный ID
     name           String
     city           String
     longitude      Float
     latitude       Float
     age            Int
-    ownCoordinates Boolean      @default(false) // Может быть null
-    createdAt      DateTime     @default(now()) // Дата создания
-    isActive       Boolean      @default(true) // Активна ли анкета
+    gender         Gender
+    ownCoordinates Boolean  @default(false) // Может быть null
+    createdAt      DateTime @default(now()) // Дата создания
+    isActive       Boolean  @default(true) // Активна ли анкета
     referrerId     String? // ID пользователя, который пригласил
 
     // Типы анкет
@@ -27,11 +28,8 @@ model User {
     itProfiles          ITProfile[]
     travelProfile       TravelProfile?
 
-    likesGiven    UserLike[] @relation("UserLikes")
-    likesReceived UserLike[] @relation("UserLiked")
-
-    reports     Report[] @relation("UserReports")
-    reportedBy  Report[] @relation("UserReported")
+    reports    Report[] @relation("UserReports")
+    reportedBy Report[] @relation("UserReported")
 
     rouletteUser RouletteUser?
 
@@ -42,18 +40,17 @@ model User {
 
 // Основной тип анкеты (отношения)
 model RelationshipProfile {
-    id          String       @id @default(uuid())
-    userId      String       @unique
-    gender      Gender
+    id           String       @id @default(uuid())
+    userId       String       @unique
     interestedIn InterestedIn
-    text        String
-    files       Json // Массив файлов в JSON
-    isActive    Boolean      @default(true)
-    createdAt   DateTime     @default(now())
-    updatedAt   DateTime     @updatedAt
+    description  String
+    files        Json // Массив файлов в JSON
+    isActive     Boolean      @default(true)
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
 
-    user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-    
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     // Лайки для профиля отношений
     likesGiven    ProfileLike[] @relation("RelationshipProfileLikes")
     likesReceived ProfileLike[] @relation("RelationshipProfileLiked")
@@ -61,102 +58,102 @@ model RelationshipProfile {
 
 // Спортивная анкета
 model SportProfile {
-    id              String    @id @default(uuid())
-    userId          String
-    sportType       SportType
-    level           String? // Уровень подготовки
-    description     String
-    files           Json      // Массив файлов в JSON 
-    isActive        Boolean   @default(true)
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
+    id          String    @id @default(uuid())
+    userId      String
+    sportType   SportType
+    level       String? // Уровень подготовки
+    description String
+    files       Json // Массив файлов в JSON 
+    isActive    Boolean   @default(true)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 
-    user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     // Лайки для спортивных профилей
     likesGiven    ProfileLike[] @relation("SportProfileLikes")
     likesReceived ProfileLike[] @relation("SportProfileLiked")
-    
+
     @@unique([userId, sportType]) // Один пользователь может иметь только один профиль каждого спортивного типа
 }
 
 // Игровая анкета
 model GameProfile {
-    id              String    @id @default(uuid())
-    userId          String
-    gameType        GameType
-    rank            String?   // Ранг/уровень
-    accountLink     String?   // Ссылка на аккаунт
-    description     String
-    files           Json      // Массив файлов в JSON
-    isActive        Boolean   @default(true)
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
+    id          String   @id @default(uuid())
+    userId      String
+    gameType    GameType
+    rank        String? // Ранг/уровень
+    accountLink String? // Ссылка на аккаунт
+    description String
+    files       Json // Массив файлов в JSON
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
-    user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     // Лайки для игровых профилей
     likesGiven    ProfileLike[] @relation("GameProfileLikes")
     likesReceived ProfileLike[] @relation("GameProfileLiked")
-    
+
     @@unique([userId, gameType]) // Один пользователь может иметь только один профиль каждого типа игры
 }
 
 // Хобби анкета
 model HobbyProfile {
-    id              String    @id @default(uuid())
-    userId          String
-    hobbyType       HobbyType
-    description     String
-    files           Json      // Массив файлов в JSON
-    isActive        Boolean   @default(true)
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
+    id          String    @id @default(uuid())
+    userId      String
+    hobbyType   HobbyType
+    description String
+    files       Json // Массив файлов в JSON
+    isActive    Boolean   @default(true)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 
-    user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     // Лайки для хобби-профилей
     likesGiven    ProfileLike[] @relation("HobbyProfileLikes")
     likesReceived ProfileLike[] @relation("HobbyProfileLiked")
-    
+
     @@unique([userId, hobbyType]) // Один пользователь может иметь только один профиль каждого типа хобби
 }
 
 // IT анкета
 model ITProfile {
-    id              String    @id @default(uuid())
-    userId          String
-    itType          ITType
-    experience      String?   // Опыт работы
-    technologies    String?   // Технологии/языки
-    portfolioLink   String?   // Ссылка на GitHub/портфолио
-    description     String
-    files           Json      // Массив файлов в JSON
-    isActive        Boolean   @default(true)
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
+    id            String   @id @default(uuid())
+    userId        String
+    itType        ITType
+    experience    String? // Опыт работы
+    technologies  String? // Технологии/языки
+    portfolioLink String? // Ссылка на GitHub/портфолио
+    description   String
+    files         Json // Массив файлов в JSON
+    isActive      Boolean  @default(true)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
 
-    user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     // Лайки для IT-профилей
     likesGiven    ProfileLike[] @relation("ITProfileLikes")
     likesReceived ProfileLike[] @relation("ITProfileLiked")
-    
+
     @@unique([userId, itType]) // Один пользователь может иметь только один профиль каждого IT типа
 }
 
 // Анкета путешествий
 model TravelProfile {
-    id              String    @id @default(uuid())
-    userId          String    @unique
-    description     String
-    files           Json      // Массив файлов в JSON
-    isActive        Boolean   @default(true)
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
+    id          String   @id @default(uuid())
+    userId      String   @unique
+    description String
+    files       Json // Массив файлов в JSON
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
-    user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     // Лайки для профилей путешествий
     likesGiven    ProfileLike[] @relation("TravelProfileLikes")
     likesReceived ProfileLike[] @relation("TravelProfileLiked")
@@ -164,53 +161,34 @@ model TravelProfile {
 
 // Общая модель лайка для всех типов профилей
 model ProfileLike {
-    id                String    @id @default(uuid())
-    fromProfileType   ProfileType
-    fromProfileId     String
-    toProfileType     ProfileType
-    toProfileId       String
-    liked             Boolean   // true — лайк, false — дизлайк
-    message           String?   // Текстовое сообщение к лайку
-    privateNote       String?   // Личная заметка к лайку (видна только отправителю)
-    videoFileId       String?   // ID файла видео, если было отправлено
-    voiceFileId       String?
-    videoNoteFileId   String?
-    isMutual          Boolean   @default(false)
-    isMutualAt        DateTime?
-    createdAt         DateTime  @default(now())
+    id              String      @id @default(uuid())
+    fromProfileType ProfileType
+    fromProfileId   String
+    toProfileType   ProfileType
+    toProfileId     String
+    liked           Boolean // true — лайк, false — дизлайк
+    message         String? // Текстовое сообщение к лайку
+    privateNote     String? // Личная заметка к лайку (видна только отправителю)
+    videoFileId     String? // ID файла видео, если было отправлено
+    voiceFileId     String?
+    videoNoteFileId String?
+    isMutual        Boolean     @default(false)
+    isMutualAt      DateTime?
+    createdAt       DateTime    @default(now())
 
     // Динамические связи с разными типами профилей через поля fromProfileType и toProfileType
     relationshipFrom RelationshipProfile? @relation("RelationshipProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_relationshipFrom_fkey")
     relationshipTo   RelationshipProfile? @relation("RelationshipProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_relationshipTo_fkey")
-    sportFrom        SportProfile? @relation("SportProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_sportFrom_fkey")
-    sportTo          SportProfile? @relation("SportProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_sportTo_fkey")
-    gameFrom         GameProfile? @relation("GameProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_gameFrom_fkey")
-    gameTo           GameProfile? @relation("GameProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_gameTo_fkey")
-    hobbyFrom        HobbyProfile? @relation("HobbyProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_hobbyFrom_fkey")
-    hobbyTo          HobbyProfile? @relation("HobbyProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_hobbyTo_fkey")
-    itFrom           ITProfile? @relation("ITProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_itFrom_fkey")
-    itTo             ITProfile? @relation("ITProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_itTo_fkey")
-    travelFrom       TravelProfile? @relation("TravelProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_travelFrom_fkey")
-    travelTo         TravelProfile? @relation("TravelProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_travelTo_fkey")
-}
-
-// Сохраняем текущую модель UserLike для обратной совместимости
-model UserLike {
-    id          String   @id @default(uuid())
-    userId      String // Кто лайкнул
-    targetId    String // Кого лайкнули
-    liked       Boolean // true — лайк, false — дизлайк
-    message     String? // Текстовое сообщение к лайку
-    privateNote String? // Личная заметка к лайку (видна только отправителю)
-    videoFileId String? // ID файла видео, если было отправлено
-    voiceFileId    String?
-    videoNoteFileId String?
-    isMutual    Boolean  @default(false)
-    isMutualAt   DateTime?
-    createdAt   DateTime @default(now())
-
-    user   User @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
-    target User @relation("UserLiked", fields: [targetId], references: [id], onDelete: Cascade)
+    sportFrom        SportProfile?        @relation("SportProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_sportFrom_fkey")
+    sportTo          SportProfile?        @relation("SportProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_sportTo_fkey")
+    gameFrom         GameProfile?         @relation("GameProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_gameFrom_fkey")
+    gameTo           GameProfile?         @relation("GameProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_gameTo_fkey")
+    hobbyFrom        HobbyProfile?        @relation("HobbyProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_hobbyFrom_fkey")
+    hobbyTo          HobbyProfile?        @relation("HobbyProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_hobbyTo_fkey")
+    itFrom           ITProfile?           @relation("ITProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_itFrom_fkey")
+    itTo             ITProfile?           @relation("ITProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_itTo_fkey")
+    travelFrom       TravelProfile?       @relation("TravelProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_travelFrom_fkey")
+    travelTo         TravelProfile?       @relation("TravelProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_travelTo_fkey")
 }
 
 model Session {
@@ -315,66 +293,65 @@ enum ITType {
 }
 
 model RouletteUser {
-    id              String   @id
-    chatPartnerId   String?
-    searchingPartner Boolean @default(true)
-    createdAt       DateTime @default(now())
-    profileRevealed  Boolean @default(false)
-    usernameRevealed Boolean @default(false)
+    id               String   @id
+    chatPartnerId    String?
+    searchingPartner Boolean  @default(true)
+    createdAt        DateTime @default(now())
+    profileRevealed  Boolean  @default(false)
+    usernameRevealed Boolean  @default(false)
 
-    user            User     @relation(fields: [id], references: [id], onDelete: Cascade)
-    chatPartner     RouletteUser? @relation("ChatPartners", fields: [chatPartnerId], references: [id])
-    partners        RouletteUser[] @relation("ChatPartners")
-    
+    user        User           @relation(fields: [id], references: [id], onDelete: Cascade)
+    chatPartner RouletteUser?  @relation("ChatPartners", fields: [chatPartnerId], references: [id])
+    partners    RouletteUser[] @relation("ChatPartners")
+
     // Связи для реакций
     reactionsGiven    RouletteReaction[] @relation("ReactionGiver")
     reactionsReceived RouletteReaction[] @relation("ReactionReceiver")
 
     // Связи для чатов
-    chatsAsUser1    RouletteChat[] @relation("UserChats1")
-    chatsAsUser2    RouletteChat[] @relation("UserChats2")
+    chatsAsUser1 RouletteChat[] @relation("UserChats1")
+    chatsAsUser2 RouletteChat[] @relation("UserChats2")
 }
 
 model RouletteReaction {
-    id          String         @id @default(uuid())
-    fromUserId  String         // ID пользователя, который поставил реакцию
-    toUserId    String         // ID пользователя, которому поставили реакцию
-    type        ReactionType   // Тип реакции
-    createdAt   DateTime       @default(now())
-    
-    fromUser    RouletteUser   @relation("ReactionGiver", fields: [fromUserId], references: [id], onDelete: Cascade)
-    toUser      RouletteUser   @relation("ReactionReceiver", fields: [toUserId], references: [id], onDelete: Cascade)
+    id         String       @id @default(uuid())
+    fromUserId String // ID пользователя, который поставил реакцию
+    toUserId   String // ID пользователя, которому поставили реакцию
+    type       ReactionType // Тип реакции
+    createdAt  DateTime     @default(now())
+
+    fromUser RouletteUser @relation("ReactionGiver", fields: [fromUserId], references: [id], onDelete: Cascade)
+    toUser   RouletteUser @relation("ReactionReceiver", fields: [toUserId], references: [id], onDelete: Cascade)
 }
 
 enum ReactionType {
-    LIKE        // 👍
-    DISLIKE     // 👎
-    CLOWN       // 🤡
-    FUNNY       // 😂
-    BORING      // 😴
-    RUDE        // 😡
+    LIKE // 👍
+    DISLIKE // 👎
+    CLOWN // 🤡
+    FUNNY // 😂
+    BORING // 😴
+    RUDE // 😡
 }
 
 model RouletteChat {
-    id                String      @id @default(uuid())
-    user1Id          String      // ID первого пользователя
-    user2Id          String      // ID второго пользователя
-    startedAt        DateTime    @default(now())
-    endedAt          DateTime?   // Время окончания чата (null если чат активен)
-    isProfileRevealed Boolean    @default(false)  // Были ли раскрыты анкеты
-    isUsernameRevealed Boolean   @default(false)  // Были ли раскрыты Telegram-профили
-    
-    user1            RouletteUser @relation("UserChats1", fields: [user1Id], references: [id], onDelete: Cascade)
-    user2            RouletteUser @relation("UserChats2", fields: [user2Id], references: [id], onDelete: Cascade)
+    id                 String    @id @default(uuid())
+    user1Id            String // ID первого пользователя
+    user2Id            String // ID второго пользователя
+    startedAt          DateTime  @default(now())
+    endedAt            DateTime? // Время окончания чата (null если чат активен)
+    isProfileRevealed  Boolean   @default(false) // Были ли раскрыты анкеты
+    isUsernameRevealed Boolean   @default(false) // Были ли раскрыты Telegram-профили
+
+    user1 RouletteUser @relation("UserChats1", fields: [user1Id], references: [id], onDelete: Cascade)
+    user2 RouletteUser @relation("UserChats2", fields: [user2Id], references: [id], onDelete: Cascade)
 }
 
 model Blacklist {
     id        String   @id @default(uuid())
-    userId    String   // Кто добавил в ЧС
-    targetId  String   // Кого добавили в ЧС
+    userId    String // Кто добавил в ЧС
+    targetId  String // Кого добавили в ЧС
     createdAt DateTime @default(now())
 
     user   User @relation("UserBlacklist", fields: [userId], references: [id], onDelete: Cascade)
     target User @relation("BlacklistedBy", fields: [targetId], references: [id], onDelete: Cascade)
 }
-

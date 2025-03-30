@@ -19,13 +19,13 @@ function somebodysLikedYouStep(ctx) {
         if (message === '1 👍') {
             ctx.session.step = 'search_people_with_likes';
             ctx.session.additionalFormInfo.searchingLikes = true;
-            const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id));
-            ctx.session.currentCandidate = oneLike === null || oneLike === void 0 ? void 0 : oneLike.user;
+            const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
+            ctx.session.currentCandidateProfile = oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile;
             yield ctx.reply("✨🔍", {
                 reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
             });
-            if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.user) {
-                yield (0, sendForm_1.sendForm)(ctx, oneLike.user, { myForm: false, like: oneLike });
+            if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile) {
+                yield (0, sendForm_1.sendForm)(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
             }
         }
         else if (message === '2 💤') {

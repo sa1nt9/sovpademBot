@@ -15,7 +15,7 @@ function saveForm(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         try {
-            const userData = ctx.session.form;
+            const userData = ctx.session.activeProfile;
             const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
             const existingUser = yield postgres_1.prisma.user.findUnique({
                 where: { id: userId },
@@ -28,11 +28,8 @@ function saveForm(ctx) {
                         city: userData.city || "",
                         gender: userData.gender || "",
                         age: userData.age || 0,
-                        interestedIn: userData.interestedIn || "",
                         longitude: userData.location.longitude,
                         latitude: userData.location.latitude,
-                        text: userData.text || "",
-                        files: JSON.stringify(userData.files || []),
                         ownCoordinates: userData.ownCoordinates
                     },
                 });
@@ -50,12 +47,9 @@ function saveForm(ctx) {
                         city: userData.city || "",
                         gender: userData.gender || "",
                         age: userData.age || 0,
-                        interestedIn: userData.interestedIn || "",
                         longitude: userData.location.longitude,
                         referrerId: ctx.session.referrerId || "",
                         latitude: userData.location.latitude,
-                        text: userData.text || "",
-                        files: JSON.stringify(userData.files || []),
                         ownCoordinates: userData.ownCoordinates
                     },
                 });

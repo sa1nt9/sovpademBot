@@ -31,18 +31,18 @@ function complainTextStep(ctx) {
             return;
         }
         try {
-            if (ctx.session.additionalFormInfo.reportType && (ctx.session.currentCandidate || ctx.session.additionalFormInfo.reportedUserId)) {
+            if (ctx.session.additionalFormInfo.reportType && (ctx.session.currentCandidateProfile || ctx.session.additionalFormInfo.reportedUserId)) {
                 // Создаем запись о жалобе в базе данных
                 yield postgres_1.prisma.report.create({
                     data: {
                         reporterId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
-                        targetId: ((_b = ctx.session.currentCandidate) === null || _b === void 0 ? void 0 : _b.id) || ctx.session.additionalFormInfo.reportedUserId || "",
+                        targetId: ((_b = ctx.session.currentCandidateProfile) === null || _b === void 0 ? void 0 : _b.id) || ctx.session.additionalFormInfo.reportedUserId || "",
                         type: ctx.session.additionalFormInfo.reportType,
                         text: message === ctx.t('send_complain_without_comment') ? 'withour comment' : message
                     }
                 });
-                if (ctx.session.currentCandidate) {
-                    yield (0, saveLike_1.saveLike)(ctx, (_c = ctx.session.currentCandidate) === null || _c === void 0 ? void 0 : _c.id, false);
+                if (ctx.session.currentCandidateProfile) {
+                    yield (0, saveLike_1.saveLike)(ctx, (_c = ctx.session.currentCandidateProfile) === null || _c === void 0 ? void 0 : _c.id, false);
                 }
                 // Очищаем данные о жалобе в сессии
                 ctx.session.additionalFormInfo.reportType = undefined;

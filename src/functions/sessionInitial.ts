@@ -8,9 +8,12 @@ export function sessionInitial(): ISessionData {
             canGoBack: false
         },
         privacyAccepted: false,
-        form: {
+        activeProfile: {
+            id: '',
+            userId: '',
+            profileType: 'RELATIONSHIP',
             name: '',
-            previous_name: '',
+            description: '',
             city: '',
             location: {
                 longitude: 0,
@@ -19,11 +22,19 @@ export function sessionInitial(): ISessionData {
             gender: 'male',
             interestedIn: 'all',
             age: 0,
-            text: '',
             files: [],
-            temp_files: [],
+            tempFiles: [],
             ownCoordinates: false,
+            isActive: false,
             isFinished: false
-        }
+        },
+        roulette: {
+            chatPartnerId: null,
+            searchingPartner: false
+        },
+        availableProfiles: [],
+        currentCandidateProfile: null,
+        currentBlacklistedUser: null,
+        pendingMutualLike: false
     };
 }

@@ -34,6 +34,7 @@ const search_people_1 = require("../messages/search_people");
 const search_people_with_likes_1 = require("../messages/search_people_with_likes");
 const sleep_menu_1 = require("../messages/sleep_menu");
 const somebodys_liked_you_1 = require("../messages/somebodys_liked_you");
+const start_using_bot_1 = require("../messages/start_using_bot");
 const text_or_video_to_user_1 = require("../messages/text_or_video_to_user");
 const you_dont_have_form_1 = require("../messages/you_dont_have_form");
 const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -117,6 +118,9 @@ const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     }
     else if (ctx.session.step === 'go_main_menu') {
         yield (0, go_main_menu_1.goMainMenuStep)(ctx);
+    }
+    else if (ctx.session.step === 'start_using_bot') {
+        yield (0, start_using_bot_1.startUsingBotStep)(ctx);
     }
     else {
         yield ctx.reply(ctx.t('no_such_answer'));

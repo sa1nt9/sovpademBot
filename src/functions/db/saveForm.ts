@@ -4,7 +4,7 @@ import { MyContext } from "../../typescript/context";
 
 export async function saveForm(ctx: MyContext) {
     try {
-        const userData = ctx.session.form;
+        const userData = ctx.session.activeProfile;
         const userId = String(ctx.message?.from.id);
 
         const existingUser = await prisma.user.findUnique({
@@ -19,11 +19,8 @@ export async function saveForm(ctx: MyContext) {
                     city: userData.city || "",
                     gender: userData.gender || "",
                     age: userData.age || 0,
-                    interestedIn: userData.interestedIn || "",
                     longitude: userData.location.longitude,
                     latitude: userData.location.latitude,
-                    text: userData.text || "",
-                    files: JSON.stringify(userData.files || []),
                     ownCoordinates: userData.ownCoordinates
                 },
             });
@@ -40,12 +37,9 @@ export async function saveForm(ctx: MyContext) {
                     city: userData.city || "",
                     gender: userData.gender || "",
                     age: userData.age || 0,
-                    interestedIn: userData.interestedIn || "",
                     longitude: userData.location.longitude,
                     referrerId: ctx.session.referrerId || "",
                     latitude: userData.location.latitude,
-                    text: userData.text || "",
-                    files: JSON.stringify(userData.files || []),
                     ownCoordinates: userData.ownCoordinates
                 },
             });

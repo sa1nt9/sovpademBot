@@ -31,7 +31,7 @@ function optionsToUserStep(ctx) {
         else if (message === '3. 💤') {
             ctx.session.step = 'sleep_menu';
             yield ctx.reply(ctx.t('wait_somebody_to_see_your_form'));
-            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                 yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
                 return;
             }

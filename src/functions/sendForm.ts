@@ -1,11 +1,11 @@
-import { User, UserLike } from "@prisma/client";
+import { ProfileLike, User } from "@prisma/client";
 import { IFile } from "../typescript/interfaces/IFile";
 import { MyContext } from "../typescript/context";
 import { answerFormKeyboard } from "../constants/keyboards";
 import { prisma } from "../db/postgres";
 import { toggleUserActive } from "./db/toggleUserActive";
 import { TranslateFunction } from "@grammyjs/i18n";
-import { getLikesCount, getLikesInfo } from "./db/getLikesInfo";
+import { getLikesCount } from "./db/getLikesInfo";
 import { bot } from "../main";
 import { getMe } from "./db/getMe";
 import { haversine, formatDistance } from "./haversine";
@@ -13,7 +13,7 @@ import { haversine, formatDistance } from "./haversine";
 
 interface IOptions {
     myForm?: boolean
-    like?: UserLike | null
+    like?: ProfileLike | null
     sendTo?: string
     privateNote?: string | null
     isBlacklist?: boolean
@@ -32,14 +32,18 @@ const defaultOptions: IOptions = {
 }
 
 export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
-    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.form.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.form.location.latitude, ctx.session.form.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
+    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.activeProfile.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.activeProfile.location.latitude, ctx.session.activeProfile.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
 }
 
 
 export const buildTextForm = async (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
     let count: number = 0
     if (options.like) {
-        count = await getLikesCount(String(ctx.from?.id))
+        count = await getLikesCount(String(ctx.from?.id), options.like.fromProfileType)
+    }
+
+    const getDescription = () => {
+        return 'Описание профиля';
     }
 
     return (
@@ -51,7 +55,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
 ` : '')
         +
-        `${buildInfoText(ctx, form, options)}${form.text ? ` - ${form.text}` : ''}`
+        `${buildInfoText(ctx, form, options)}${getDescription() ? ` - ${getDescription()}` : ''}`
         +
         (options.like?.message ? `
             
@@ -80,9 +84,13 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
 
     const text = await buildTextForm(ctx, user, options);
 
-    if (user?.files) {
-        const files: IFile[] = JSON.parse(user.files as any);
+    const getProfileFiles = (user: User): IFile[] => {
+        return [];
+    }
 
+    const files = getProfileFiles(user);
+    
+    if (files && files.length > 0) {
         if (options.sendTo) {
             await ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => ({
                 ...i,
@@ -112,6 +120,12 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
                     reply_to_message_id: videoNote.message_id
                 });
             }
+        }
+    } else {
+        if (options.sendTo) {
+            await ctx.api.sendMessage(options.sendTo, text);
+        } else {
+            await ctx.reply(text);
         }
     }
 }

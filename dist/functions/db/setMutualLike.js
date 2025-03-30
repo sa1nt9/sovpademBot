@@ -14,10 +14,10 @@ const postgres_1 = require("../../db/postgres");
 function setMutualLike(userId, targetId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Обновляем оригинальный лайк
-        yield postgres_1.prisma.userLike.updateMany({
+        yield postgres_1.prisma.profileLike.updateMany({
             where: {
-                userId: userId,
-                targetId: targetId,
+                fromProfileId: userId,
+                toProfileId: targetId,
                 liked: true
             },
             data: {

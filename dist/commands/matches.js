@@ -14,6 +14,8 @@ const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
 const grammy_1 = require("grammy");
 const formatDate_1 = require("../functions/formatDate");
+const client_1 = require("@prisma/client");
+const profilesService_1 = require("../functions/db/profilesService");
 const matchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
@@ -22,15 +24,26 @@ const matchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     });
     if (existingUser) {
         ctx.session.step = 'sleep_menu';
-        // Получаем все взаимные симпатии пользователя
-        const mutualLikes = yield postgres_1.prisma.userLike.findMany({
+        // Определяем текущий тип профиля из сессии
+        const profileType = ctx.session.activeProfile.profileType || client_1.ProfileType.RELATIONSHIP;
+        // Получаем модель для типа профиля
+        const profileModel = (0, profilesService_1.getProfileModelName)(profileType);
+        // Получаем ID активного профиля на основе типа профиля
+        const profile = yield postgres_1.prisma[profileModel].findFirst({
+            where: { userId }
+        });
+        const activeProfileId = (profile === null || profile === void 0 ? void 0 : profile.id) || "";
+        if (!activeProfileId) {
+            yield ctx.reply(ctx.t('no_active_profile'));
+            return;
+        }
+        // Получаем все взаимные симпатии для активного профиля
+        const mutualLikes = yield postgres_1.prisma.profileLike.findMany({
             where: {
-                userId: userId,
+                fromProfileId: activeProfileId,
+                fromProfileType: profileType,
                 liked: true,
                 isMutual: true
-            },
-            include: {
-                target: true
             },
             orderBy: {
                 createdAt: 'desc'
@@ -50,13 +63,31 @@ const matchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         const buttonsPerRow = 5;
         for (let i = 0; i < mutualLikes.length; i++) {
             const like = mutualLikes[i];
-            const userInfo = yield ctx.api.getChat(like.target.id);
-            const username = `https://t.me/${userInfo.username}`;
-            message += `${i + 1}. [${like.target.name}](${username}) - ${(0, formatDate_1.formatDate)(like.isMutualAt || like.createdAt)}\n`;
-            if (i % buttonsPerRow === 0 && i !== 0) {
-                keyboard.row();
+            // Получаем модель для целевого профиля
+            const targetProfileModel = (0, profilesService_1.getProfileModelName)(like.toProfileType);
+            // Получаем данные пользователя на основе ID профиля
+            try {
+                // Находим профиль пользователя с включением данных о пользователе
+                const targetProfile = yield postgres_1.prisma[targetProfileModel].findUnique({
+                    where: { id: like.toProfileId },
+                    include: { user: true }
+                });
+                if (!targetProfile || !targetProfile.user)
+                    continue;
+                const targetUserId = targetProfile.user.id;
+                const targetName = targetProfile.user.name;
+                const userInfo = yield ctx.api.getChat(targetUserId);
+                const username = userInfo.username ? `https://t.me/${userInfo.username}` : "";
+                message += `${i + 1}. [${targetName}](${username}) - ${(0, formatDate_1.formatDate)(like.isMutualAt || like.createdAt)}\n`;
+                if (i % buttonsPerRow === 0 && i !== 0) {
+                    keyboard.row();
+                }
+                keyboard.text(`${i + 1}. ${targetName}`, `match:${targetUserId}`);
             }
-            keyboard.text(`${i + 1}. ${like.target.name}`, `match:${like.target.id}`);
+            catch (e) {
+                ctx.logger.error({ message: "Error retrieving profile or chat data:", error: e });
+                continue;
+            }
         }
         message += `\n${ctx.t('matches_message_choose')}`;
         yield ctx.reply(message, {

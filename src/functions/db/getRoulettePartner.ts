@@ -42,13 +42,8 @@ export async function getRoulettePartner(ctx: MyContext): Promise<string | null>
                     END as age_bonus,
                     -- Бонус за соответствие гендерных предпочтений
                     CASE 
-                        WHEN (${user.interestedIn} = 'all' OR u."gender"::text = ${user.interestedIn}) AND
-                             (u."interestedIn" = 'all' OR u."interestedIn"::text = ${user.gender})
-                        THEN 25
-                        WHEN ${user.interestedIn} = 'all' OR u."gender"::text = ${user.interestedIn}
-                        THEN 15
-                        WHEN u."interestedIn" = 'all' OR u."interestedIn"::text = ${user.gender}
-                        THEN 15
+                        WHEN u."gender"::text = ${user.gender}
+                        THEN 50
                         ELSE 0
                     END as gender_bonus,
                     -- Бонус за активность (приведенные пользователи)

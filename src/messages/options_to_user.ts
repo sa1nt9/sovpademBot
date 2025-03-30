@@ -22,7 +22,7 @@ export async function optionsToUserStep(ctx: MyContext) {
         ctx.session.step = 'sleep_menu'
         await ctx.reply(ctx.t('wait_somebody_to_see_your_form'))
 
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             await sendMutualSympathyAfterAnswer(ctx)
             return
         }

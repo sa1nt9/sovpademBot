@@ -7,7 +7,7 @@ import { getLikesInfo } from "./db/getLikesInfo";
 import { sendForm } from "./sendForm";
 
 export async function sendLikesNotification(ctx: MyContext, targetUserId: string, isAnswer?: boolean) {
-    const { count, gender } = await getLikesInfo(targetUserId);
+    const { count, gender } = await getLikesInfo(targetUserId, ctx.session.activeProfile.profileType);
 
     try {
         const currentSession = await prisma.session.findUnique({
@@ -34,7 +34,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
 
             if (isAnswer) {
                 ctx.logger.info({ currentValue, targetUserId, isAnswer })
-                if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && currentValue.currentCandidate?.id) {
+                if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && currentValue.currentCandidateProfile?.id) {
                     await ctx.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
 
                     await prisma.session.update({
@@ -45,15 +45,15 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                             value: JSON.stringify({
                                 ...currentValue,
                                 pendingMutualLike: true,
-                                pendingMutualLikeUserId: String(ctx.from?.id)
+                                pendingMutualLikeProfileId: String(ctx.from?.id)
                             })
                         }
                     });
                 } else {
-                    const userLike = await prisma.userLike.findFirst({
+                    const userLike = await prisma.profileLike.findFirst({
                         where: {
-                            userId: targetUserId,
-                            targetId: String(ctx.from?.id),
+                            toProfileId: targetUserId,
+                            fromProfileId: String(ctx.from?.id),
                             liked: true
                         },
                         orderBy: {
@@ -70,7 +70,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                         privateNote: userLike?.privateNote
                     });
 
-                    await ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.form.name}](https://t.me/${ctx.from?.username})`, {
+                    await ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${ctx.from?.username})`, {
                         reply_markup: complainToUserKeyboard(ctx.t, String(ctx.from?.id)),
                         link_preview_options: {
                             is_disabled: true

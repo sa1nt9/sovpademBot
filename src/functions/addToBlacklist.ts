@@ -8,12 +8,12 @@ import { candidatesEnded } from "./candidatesEnded";
 
 
 export const addToBlacklist = async (ctx: MyContext) => {
-    if (ctx.session.currentCandidate) {
+    if (ctx.session.currentCandidateProfile) {
         // Проверяем, не добавлен ли уже пользователь в черный список
         const existingBlacklist = await prisma.blacklist.findFirst({
             where: {
                 userId: String(ctx.from?.id),
-                targetId: ctx.session.currentCandidate.id
+                targetId: ctx.session.currentCandidateProfile.id
             }
         });
 
@@ -26,7 +26,7 @@ export const addToBlacklist = async (ctx: MyContext) => {
         await prisma.blacklist.create({
             data: {
                 userId: String(ctx.from?.id),
-                targetId: ctx.session.currentCandidate.id
+                targetId: ctx.session.currentCandidateProfile.id
             }
         });
 
@@ -35,7 +35,7 @@ export const addToBlacklist = async (ctx: MyContext) => {
 
         ctx.session.step = 'search_people';
 
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             await sendMutualSympathyAfterAnswer(ctx)
             return
         }

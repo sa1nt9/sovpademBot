@@ -24,18 +24,18 @@ export async function complainTextStep(ctx: MyContext) {
     }
 
     try {
-        if (ctx.session.additionalFormInfo.reportType && (ctx.session.currentCandidate || ctx.session.additionalFormInfo.reportedUserId)) {
+        if (ctx.session.additionalFormInfo.reportType && (ctx.session.currentCandidateProfile || ctx.session.additionalFormInfo.reportedUserId)) {
             // Создаем запись о жалобе в базе данных
             await prisma.report.create({
                 data: {
                     reporterId: String(ctx.from?.id),
-                    targetId: ctx.session.currentCandidate?.id || ctx.session.additionalFormInfo.reportedUserId || "",
+                    targetId: ctx.session.currentCandidateProfile?.id || ctx.session.additionalFormInfo.reportedUserId || "",
                     type: ctx.session.additionalFormInfo.reportType as any,
                     text: message === ctx.t('send_complain_without_comment') ? 'withour comment' : message
                 }
             });
-            if (ctx.session.currentCandidate) {
-                await saveLike(ctx, ctx.session.currentCandidate?.id, false);
+            if (ctx.session.currentCandidateProfile) {
+                await saveLike(ctx, ctx.session.currentCandidateProfile?.id, false);
             }
 
             // Очищаем данные о жалобе в сессии

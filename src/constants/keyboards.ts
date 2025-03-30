@@ -45,12 +45,12 @@ export const interestedInKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup 
 
 
 export const cityKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
-    keyboard: (session.form?.city ? [[`${session.form?.ownCoordinates ? "📍 " : ""}${session.form?.city}`], [{ text: t("send_location"), request_location: true }]] : [[{ text: t("send_location"), request_location: true }]]),
+    keyboard: (session.activeProfile?.city ? [[`${session.activeProfile?.ownCoordinates ? "📍 " : ""}${session.activeProfile?.city}`], [{ text: t("send_location"), request_location: true }]] : [[{ text: t("send_location"), request_location: true }]]),
     resize_keyboard: true,
 })
 
 export const textKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : session.form.text ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : session.activeProfile?.description ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
     resize_keyboard: true,
 })
 
@@ -104,10 +104,10 @@ export const subscribeChannelKeyboard = (t: TranslateFunction): ReplyKeyboardMar
 })
 
 export const ageKeyboard = (session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => {
-    if (session.form.age) {
+    if (session.activeProfile?.age) {
         return {
             keyboard: [
-                [String(session.form?.age)]
+                [String(session.activeProfile?.age)]
             ],
             resize_keyboard: true,
         }
@@ -119,9 +119,9 @@ export const ageKeyboard = (session: ISessionData): ReplyKeyboardMarkup | ReplyK
 }
 
 export const nameKeyboard = (session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => {
-    if (session.form.name) {
+    if (session.activeProfile?.name) {
         return {
-            keyboard: ((session.form.previous_name && session.form.previous_name !== session.form.name) ? [[String(session.form?.name)], [String(session.form?.previous_name)]] : [[String(session.form?.name)]]),
+            keyboard: ((session.activeProfile.previousName && session.activeProfile.previousName !== session.activeProfile.name) ? [[String(session.activeProfile.name)], [String(session.activeProfile.previousName)]] : [[String(session.activeProfile.name)]]),
             resize_keyboard: true,
         }
     } else {

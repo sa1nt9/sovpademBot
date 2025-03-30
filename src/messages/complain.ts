@@ -33,7 +33,7 @@ export async function complainStep(ctx: MyContext) {
         } else {
             ctx.session.step = 'search_people';
 
-            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                 await sendMutualSympathyAfterAnswer(ctx)
                 return
             }

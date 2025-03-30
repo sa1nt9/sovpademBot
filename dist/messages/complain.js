@@ -38,7 +38,7 @@ function complainStep(ctx) {
             }
             else {
                 ctx.session.step = 'search_people';
-                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                     yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
                     return;
                 }

@@ -15,9 +15,9 @@ const getOneLike_1 = require("./db/getOneLike");
 const sendForm_1 = require("./sendForm");
 const sendMutualSympathyAfterAnswer_1 = require("./sendMutualSympathyAfterAnswer");
 const continueSeeLikesForms = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id));
-    if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.user) {
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+    const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
+    if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile) {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx, { withoutSleepMenu: true });
             ctx.session.step = 'continue_see_likes_forms';
             return;
@@ -25,11 +25,11 @@ const continueSeeLikesForms = (ctx) => __awaiter(void 0, void 0, void 0, functio
         yield ctx.reply("✨🔍", {
             reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
         });
-        ctx.session.currentCandidate = oneLike.user;
-        yield (0, sendForm_1.sendForm)(ctx, oneLike.user, { myForm: false, like: oneLike });
+        ctx.session.currentCandidateProfile = oneLike.fromProfile;
+        yield (0, sendForm_1.sendForm)(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
     }
     else {
-        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx, { withoutSleepMenu: true });
         }
         ctx.session.step = 'continue_see_forms';

@@ -4,6 +4,9 @@ import { showRouletteStart } from "../messages/roulette_start";
 import { MyContext } from "../typescript/context";
 import { InlineKeyboard } from "grammy";
 import { formatDate } from "../functions/formatDate";
+import { ProfileType } from "@prisma/client";
+import { getProfileModelName } from "../functions/db/profilesService";
+
 
 export const matchesCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
@@ -15,15 +18,31 @@ export const matchesCommand = async (ctx: MyContext) => {
     if (existingUser) {
         ctx.session.step = 'sleep_menu';
 
-        // Получаем все взаимные симпатии пользователя
-        const mutualLikes = await prisma.userLike.findMany({
+        // Определяем текущий тип профиля из сессии
+        const profileType = ctx.session.activeProfile.profileType || ProfileType.RELATIONSHIP;
+        
+        // Получаем модель для типа профиля
+        const profileModel = getProfileModelName(profileType);
+        
+        // Получаем ID активного профиля на основе типа профиля
+        const profile = await (prisma as any)[profileModel].findFirst({
+            where: { userId }
+        });
+        
+        const activeProfileId = profile?.id || "";
+        
+        if (!activeProfileId) {
+            await ctx.reply(ctx.t('no_active_profile'));
+            return;
+        }
+
+        // Получаем все взаимные симпатии для активного профиля
+        const mutualLikes = await prisma.profileLike.findMany({
             where: {
-                userId: userId,
+                fromProfileId: activeProfileId,
+                fromProfileType: profileType,
                 liked: true,
                 isMutual: true
-            },
-            include: {
-                target: true
             },
             orderBy: {
                 createdAt: 'desc'
@@ -48,15 +67,36 @@ export const matchesCommand = async (ctx: MyContext) => {
 
         for (let i = 0; i < mutualLikes.length; i++) {
             const like = mutualLikes[i];
-            const userInfo = await ctx.api.getChat(like.target.id);
-            const username = `https://t.me/${userInfo.username}`;
+            
+            // Получаем модель для целевого профиля
+            const targetProfileModel = getProfileModelName(like.toProfileType);
+            
+            // Получаем данные пользователя на основе ID профиля
+            try {
+                // Находим профиль пользователя с включением данных о пользователе
+                const targetProfile = await (prisma as any)[targetProfileModel].findUnique({
+                    where: { id: like.toProfileId },
+                    include: { user: true }
+                });
+                
+                if (!targetProfile || !targetProfile.user) continue;
+                
+                const targetUserId = targetProfile.user.id;
+                const targetName = targetProfile.user.name;
+                
+                const userInfo = await ctx.api.getChat(targetUserId);
+                const username = userInfo.username ? `https://t.me/${userInfo.username}` : "";
 
-            message += `${i + 1}. [${like.target.name}](${username}) - ${formatDate(like.isMutualAt || like.createdAt)}\n`;
+                message += `${i + 1}. [${targetName}](${username}) - ${formatDate(like.isMutualAt || like.createdAt)}\n`;
 
-            if (i % buttonsPerRow === 0 && i !== 0) {
-                keyboard.row();
+                if (i % buttonsPerRow === 0 && i !== 0) {
+                    keyboard.row();
+                }
+                keyboard.text(`${i + 1}. ${targetName}`, `match:${targetUserId}`);
+            } catch (e) {
+                ctx.logger.error({ message: "Error retrieving profile or chat data:", error: e });
+                continue;
             }
-            keyboard.text(`${i + 1}. ${like.target.name}`, `match:${like.target.id}`);
         }
 
         message += `\n${ctx.t('matches_message_choose')}`;

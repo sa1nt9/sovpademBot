@@ -11,7 +11,7 @@ import { MyContext } from '../typescript/context';
 export async function textOrVideoToUserStep(ctx: MyContext) {
     const message = ctx.message!.text;
 
-    if (!ctx.session.currentCandidate || !ctx.session.additionalFormInfo.awaitingLikeContent) {
+    if (!ctx.session.currentCandidateProfile || !ctx.session.additionalFormInfo.awaitingLikeContent) {
         ctx.session.step = 'search_people';
         await ctx.reply(ctx.t('operation_cancelled'), {
             reply_markup: answerFormKeyboard()
@@ -31,11 +31,11 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
     let isPrivateNote = ctx.session.step === 'added_private_note';
 
     if (isPrivateNote && message === ctx.t('skip')) {
-        await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+        await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, {
             privateNote: ctx.session.privateNote
         });
 
-        await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
         
     } else {
 
@@ -77,31 +77,31 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 return;
             }
     
-            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, {
                 videoFileId: video.file_id,
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
         } else if (voice) {
             if (voice.duration && voice.duration > 60) {
                 await ctx.reply(ctx.t('voice_must_be_less_60'));
                 return;
             }
     
-            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, {
                 voiceFileId: voice.file_id,
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
         } else if (videoNote) {
-            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, {
                 videoNoteFileId: videoNote.file_id,
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
         } else if (message) {
             if (message.length > 400) {
                 await ctx.reply(ctx.t('long_message'));
@@ -111,12 +111,12 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 return;
             }
     
-            await saveLike(ctx, ctx.session.currentCandidate.id, true, {
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, {
                 message: message,
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
         } else {
             await ctx.reply(ctx.t('not_message_and_not_video'));
         }
@@ -132,7 +132,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
         }
     });
 
-    if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+    if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
         await sendMutualSympathyAfterAnswer(ctx)
         return
     }

@@ -45,7 +45,7 @@ function questionsStep(ctx) {
                 });
             }
             else {
-                ctx.session.form.age = n;
+                ctx.session.activeProfile.age = n;
                 ctx.session.question = "gender";
                 yield ctx.reply(ctx.t('gender_question'), {
                     reply_markup: (0, keyboards_1.genderKeyboard)(ctx.t)
@@ -55,7 +55,7 @@ function questionsStep(ctx) {
         else if (ctx.session.question === "gender") {
             if ((_a = (0, keyboards_1.genderKeyboard)(ctx.t)) === null || _a === void 0 ? void 0 : _a.keyboard[0].includes(message || "")) {
                 ctx.session.question = "interested_in";
-                ctx.session.form.gender = message === ctx.t('i_man') ? 'male' : 'female';
+                ctx.session.activeProfile.gender = message === ctx.t('i_man') ? 'male' : 'female';
                 yield ctx.reply(ctx.t('interested_in_question'), {
                     reply_markup: (0, keyboards_1.interestedInKeyboard)(ctx.t)
                 });
@@ -69,7 +69,7 @@ function questionsStep(ctx) {
         else if (ctx.session.question === "interested_in") {
             if ((_b = (0, keyboards_1.interestedInKeyboard)(ctx.t)) === null || _b === void 0 ? void 0 : _b.keyboard[0].includes(message || "")) {
                 ctx.session.question = "city";
-                ctx.session.form.interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
+                ctx.session.activeProfile.interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
                 yield ctx.reply(ctx.t('city_question'), {
                     reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t, ctx.session)
                 });
@@ -81,7 +81,7 @@ function questionsStep(ctx) {
             }
         }
         else if (ctx.session.question === "city") {
-            if (message === `${((_c = ctx.session.form) === null || _c === void 0 ? void 0 : _c.ownCoordinates) ? "📍 " : ""}${(_d = ctx.session.form) === null || _d === void 0 ? void 0 : _d.city}`) {
+            if (message === `${ctx.session.activeProfile.ownCoordinates ? "📍 " : ""}${ctx.session.activeProfile.city}`) {
                 ctx.session.question = "name";
                 yield ctx.reply(ctx.t('name_question'), {
                     reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
@@ -106,9 +106,9 @@ function questionsStep(ctx) {
                             distance: `${minDistance.toFixed(2)} км`,
                             msg: "Ближайший город"
                         });
-                        ctx.session.form.city = nearestCity.name;
-                        ctx.session.form.ownCoordinates = true;
-                        ctx.session.form.location = { longitude: nearestCity.longitude, latitude: nearestCity.latitude };
+                        ctx.session.activeProfile.city = nearestCity.name;
+                        ctx.session.activeProfile.ownCoordinates = true;
+                        ctx.session.activeProfile.location = { longitude: nearestCity.longitude, latitude: nearestCity.latitude };
                     }
                     ctx.session.question = "name";
                     yield ctx.reply(ctx.t("name_question"), {
@@ -129,9 +129,9 @@ function questionsStep(ctx) {
                         return cityNames.some(cityName => cityName.toLowerCase() === normalizedMessage);
                     });
                     if (foundCity) {
-                        ctx.session.form.city = message || "";
-                        ctx.session.form.ownCoordinates = false;
-                        ctx.session.form.location = { longitude: foundCity.longitude, latitude: foundCity.latitude };
+                        ctx.session.activeProfile.city = message || "";
+                        ctx.session.activeProfile.ownCoordinates = false;
+                        ctx.session.activeProfile.location = { longitude: foundCity.longitude, latitude: foundCity.latitude };
                         ctx.session.question = "name";
                         yield ctx.reply(ctx.t('name_question'), {
                             reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
@@ -162,10 +162,10 @@ function questionsStep(ctx) {
             }
             else {
                 ctx.session.question = "text";
-                if (ctx.session.form.name) {
-                    ctx.session.form.previous_name = ctx.session.form.name;
+                if (ctx.session.activeProfile.name) {
+                    ctx.session.activeProfile.previousName = ctx.session.activeProfile.name;
                 }
-                ctx.session.form.name = message;
+                ctx.session.activeProfile.name = message;
                 yield ctx.reply(ctx.t('text_question'), {
                     reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
                 });
@@ -192,7 +192,7 @@ function questionsStep(ctx) {
                 });
             }
             else {
-                ctx.session.form.text = (!message || message === ctx.t('skip')) ? "" : message;
+                ctx.session.activeProfile.description = (!message || message === ctx.t('skip')) ? "" : message;
                 if (ctx.session.additionalFormInfo.canGoBack) {
                     ctx.session.question = "years";
                     ctx.session.step = 'profile';
@@ -218,7 +218,7 @@ function questionsStep(ctx) {
         }
         else if (ctx.session.question === "file") {
             if (message === ctx.t("go_back") && ctx.session.additionalFormInfo.canGoBack) {
-                ctx.session.form.temp_files = [];
+                ctx.session.activeProfile.tempFiles = [];
                 ctx.session.question = "years";
                 ctx.session.step = 'profile';
                 ctx.session.additionalFormInfo.canGoBack = false;
@@ -244,16 +244,16 @@ function questionsStep(ctx) {
                     });
                 }
                 else {
-                    const isImage = (_e = ctx.message) === null || _e === void 0 ? void 0 : _e.photo;
-                    const isVideo = (_f = ctx.message) === null || _f === void 0 ? void 0 : _f.video;
-                    if (isVideo && ((_h = (_g = ctx.message) === null || _g === void 0 ? void 0 : _g.video) === null || _h === void 0 ? void 0 : _h.duration) && ((_k = (_j = ctx.message) === null || _j === void 0 ? void 0 : _j.video) === null || _k === void 0 ? void 0 : _k.duration) < 15) {
+                    const isImage = (_c = ctx.message) === null || _c === void 0 ? void 0 : _c.photo;
+                    const isVideo = (_d = ctx.message) === null || _d === void 0 ? void 0 : _d.video;
+                    if (isVideo && ((_f = (_e = ctx.message) === null || _e === void 0 ? void 0 : _e.video) === null || _f === void 0 ? void 0 : _f.duration) && ((_h = (_g = ctx.message) === null || _g === void 0 ? void 0 : _g.video) === null || _h === void 0 ? void 0 : _h.duration) < 15) {
                         yield ctx.reply(ctx.t('video_must_be_less_15'), {
                             reply_markup: (0, keyboards_1.fileKeyboard)(ctx.t, ctx.session, files.length > 0)
                         });
                     }
                     else if (isImage || isVideo) {
                         const file = ctx.message.photo ? ctx.message.photo[ctx.message.photo.length - 1] : ctx.message.video;
-                        ctx.session.form.temp_files = [{ type: isImage ? 'photo' : 'video', media: (file === null || file === void 0 ? void 0 : file.file_id) || '' }];
+                        ctx.session.activeProfile.tempFiles = [{ type: isImage ? 'photo' : 'video', media: (file === null || file === void 0 ? void 0 : file.file_id) || '' }];
                         ctx.session.question = "add_another_file";
                         yield ctx.reply(ctx.t(isImage ? 'photo_added' : "video_added", { uploaded: 1 }), {
                             reply_markup: (0, keyboards_1.someFilesAddedKeyboard)(ctx.t, ctx.session)
@@ -269,7 +269,7 @@ function questionsStep(ctx) {
         }
         else if (ctx.session.question === "add_another_file") {
             if (message === ctx.t("go_back") && ctx.session.additionalFormInfo.canGoBack) {
-                ctx.session.form.temp_files = [];
+                ctx.session.activeProfile.tempFiles = [];
                 ctx.session.question = "years";
                 ctx.session.step = 'profile';
                 ctx.session.additionalFormInfo.canGoBack = false;
@@ -281,8 +281,8 @@ function questionsStep(ctx) {
             else if (message === ctx.t("its_all_save_files")) {
                 if (ctx.session.additionalFormInfo.canGoBack) {
                     ctx.session.step = 'profile';
-                    ctx.session.form.files = ctx.session.form.temp_files;
-                    ctx.session.form.temp_files = [];
+                    ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
+                    ctx.session.activeProfile.tempFiles = [];
                     ctx.session.additionalFormInfo.canGoBack = false;
                     yield (0, saveForm_1.saveForm)(ctx);
                     yield (0, sendForm_1.sendForm)(ctx);
@@ -292,8 +292,8 @@ function questionsStep(ctx) {
                 }
                 else {
                     ctx.session.question = "all_right";
-                    ctx.session.form.files = ctx.session.form.temp_files;
-                    ctx.session.form.temp_files = [];
+                    ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
+                    ctx.session.activeProfile.tempFiles = [];
                     ctx.session.additionalFormInfo.canGoBack = false;
                     yield (0, saveForm_1.saveForm)(ctx);
                     yield (0, sendForm_1.sendForm)(ctx);
@@ -303,17 +303,17 @@ function questionsStep(ctx) {
                 }
             }
             else {
-                const isImage = (_l = ctx.message) === null || _l === void 0 ? void 0 : _l.photo;
-                const isVideo = (_m = ctx.message) === null || _m === void 0 ? void 0 : _m.video;
-                if (isVideo && ((_p = (_o = ctx.message) === null || _o === void 0 ? void 0 : _o.video) === null || _p === void 0 ? void 0 : _p.duration) && ((_r = (_q = ctx.message) === null || _q === void 0 ? void 0 : _q.video) === null || _r === void 0 ? void 0 : _r.duration) < 15) {
+                const isImage = (_j = ctx.message) === null || _j === void 0 ? void 0 : _j.photo;
+                const isVideo = (_k = ctx.message) === null || _k === void 0 ? void 0 : _k.video;
+                if (isVideo && ((_m = (_l = ctx.message) === null || _l === void 0 ? void 0 : _l.video) === null || _m === void 0 ? void 0 : _m.duration) && ((_p = (_o = ctx.message) === null || _o === void 0 ? void 0 : _o.video) === null || _p === void 0 ? void 0 : _p.duration) < 15) {
                     yield ctx.reply(ctx.t('video_must_be_less_15'), {
                         reply_markup: (0, keyboards_1.someFilesAddedKeyboard)(ctx.t, ctx.session)
                     });
                 }
                 else if (isImage || isVideo) {
                     const file = ctx.message.photo ? ctx.message.photo[ctx.message.photo.length - 1] : ctx.message.video;
-                    ctx.session.form.temp_files.push({ type: isImage ? 'photo' : 'video', media: (file === null || file === void 0 ? void 0 : file.file_id) || '' });
-                    if (ctx.session.form.temp_files.length === 2) {
+                    (_q = ctx.session.activeProfile.tempFiles) === null || _q === void 0 ? void 0 : _q.push({ type: isImage ? 'photo' : 'video', media: (file === null || file === void 0 ? void 0 : file.file_id) || '' });
+                    if (((_r = ctx.session.activeProfile.tempFiles) === null || _r === void 0 ? void 0 : _r.length) === 2) {
                         yield ctx.reply(ctx.t(isImage ? 'photo_added' : "video_added", { uploaded: 2 }), {
                             reply_markup: (0, keyboards_1.someFilesAddedKeyboard)(ctx.t, ctx.session)
                         });
@@ -321,8 +321,8 @@ function questionsStep(ctx) {
                     else {
                         if (ctx.session.additionalFormInfo.canGoBack) {
                             ctx.session.step = 'profile';
-                            ctx.session.form.files = ctx.session.form.temp_files;
-                            ctx.session.form.temp_files = [];
+                            ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
+                            ctx.session.activeProfile.tempFiles = [];
                             ctx.session.additionalFormInfo.canGoBack = false;
                             yield (0, saveForm_1.saveForm)(ctx);
                             yield (0, sendForm_1.sendForm)(ctx);
@@ -332,8 +332,8 @@ function questionsStep(ctx) {
                         }
                         else {
                             ctx.session.question = "all_right";
-                            ctx.session.form.files = ctx.session.form.temp_files;
-                            ctx.session.form.temp_files = [];
+                            ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
+                            ctx.session.activeProfile.tempFiles = [];
                             yield (0, saveForm_1.saveForm)(ctx);
                             yield (0, sendForm_1.sendForm)(ctx);
                             yield ctx.reply(ctx.t('all_right_question'), {

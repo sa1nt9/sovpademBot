@@ -42,15 +42,18 @@ exports.interestedInKeyboard = interestedInKeyboard;
 const cityKeyboard = (t, session) => {
     var _a, _b, _c;
     return ({
-        keyboard: (((_a = session.form) === null || _a === void 0 ? void 0 : _a.city) ? [[`${((_b = session.form) === null || _b === void 0 ? void 0 : _b.ownCoordinates) ? "📍 " : ""}${(_c = session.form) === null || _c === void 0 ? void 0 : _c.city}`], [{ text: t("send_location"), request_location: true }]] : [[{ text: t("send_location"), request_location: true }]]),
+        keyboard: (((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.city) ? [[`${((_b = session.activeProfile) === null || _b === void 0 ? void 0 : _b.ownCoordinates) ? "📍 " : ""}${(_c = session.activeProfile) === null || _c === void 0 ? void 0 : _c.city}`], [{ text: t("send_location"), request_location: true }]] : [[{ text: t("send_location"), request_location: true }]]),
         resize_keyboard: true,
     });
 };
 exports.cityKeyboard = cityKeyboard;
-const textKeyboard = (t, session) => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : session.form.text ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
-    resize_keyboard: true,
-});
+const textKeyboard = (t, session) => {
+    var _a;
+    return ({
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.description) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+        resize_keyboard: true,
+    });
+};
 exports.textKeyboard = textKeyboard;
 const fileKeyboard = (t, session, canLeaveCurrent) => {
     if (session.additionalFormInfo.canGoBack) {
@@ -103,11 +106,11 @@ const subscribeChannelKeyboard = (t) => ({
 });
 exports.subscribeChannelKeyboard = subscribeChannelKeyboard;
 const ageKeyboard = (session) => {
-    var _a;
-    if (session.form.age) {
+    var _a, _b;
+    if ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.age) {
         return {
             keyboard: [
-                [String((_a = session.form) === null || _a === void 0 ? void 0 : _a.age)]
+                [String((_b = session.activeProfile) === null || _b === void 0 ? void 0 : _b.age)]
             ],
             resize_keyboard: true,
         };
@@ -120,10 +123,10 @@ const ageKeyboard = (session) => {
 };
 exports.ageKeyboard = ageKeyboard;
 const nameKeyboard = (session) => {
-    var _a, _b, _c;
-    if (session.form.name) {
+    var _a;
+    if ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.name) {
         return {
-            keyboard: ((session.form.previous_name && session.form.previous_name !== session.form.name) ? [[String((_a = session.form) === null || _a === void 0 ? void 0 : _a.name)], [String((_b = session.form) === null || _b === void 0 ? void 0 : _b.previous_name)]] : [[String((_c = session.form) === null || _c === void 0 ? void 0 : _c.name)]]),
+            keyboard: ((session.activeProfile.previousName && session.activeProfile.previousName !== session.activeProfile.name) ? [[String(session.activeProfile.name)], [String(session.activeProfile.previousName)]] : [[String(session.activeProfile.name)]]),
             resize_keyboard: true,
         };
     }

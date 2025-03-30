@@ -12,20 +12,20 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
     const message = ctx.message!.text;
 
     if (message === '❤️') {
-        if (ctx.session.currentCandidate) {
-            ctx.logger.info(ctx.session.currentCandidate, 'Candidate to set mutual like')
+        if (ctx.session.currentCandidateProfile) {
+            ctx.logger.info(ctx.session.currentCandidateProfile, 'Candidate to set mutual like')
 
-            await setMutualLike(ctx.session.currentCandidate.id, String(ctx.from!.id));
-            await saveLike(ctx, ctx.session.currentCandidate.id, true, { isMutual: true });
+            await setMutualLike(ctx.session.currentCandidateProfile.id, String(ctx.from!.id));
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, { isMutual: true });
 
-            const userInfo = await ctx.api.getChat(ctx.session.currentCandidate.id);
+            const userInfo = await ctx.api.getChat(ctx.session.currentCandidateProfile.id);
 
-            await sendLikesNotification(ctx, ctx.session.currentCandidate.id, true)
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id, true)
 
             ctx.session.step = 'continue_see_likes_forms'
 
-            await ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidate.name}](https://t.me/${userInfo.username})`, {
-                reply_markup: complainToUserKeyboard(ctx.t, String(ctx.session.currentCandidate.id)),
+            await ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidateProfile.name}](https://t.me/${userInfo.username})`, {
+                reply_markup: complainToUserKeyboard(ctx.t, String(ctx.session.currentCandidateProfile.id)),
                 link_preview_options: {
                     is_disabled: true
                 },
@@ -34,19 +34,19 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
         }
 
     } else if (message === '👎') {
-        if (ctx.session.currentCandidate) {
-            await saveLike(ctx, ctx.session.currentCandidate.id, false);
+        if (ctx.session.currentCandidateProfile) {
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, false);
 
-            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                 await sendMutualSympathyAfterAnswer(ctx)
                 return
             }
 
-            const oneLike = await getOneLike(String(ctx.from!.id));
+            const oneLike = await getOneLike(String(ctx.from!.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
 
-            if (oneLike?.user) {
-                ctx.session.currentCandidate = oneLike.user
-                await sendForm(ctx, oneLike.user, { myForm: false, like: oneLike });
+            if (oneLike?.fromProfile) {
+                ctx.session.currentCandidateProfile = oneLike.fromProfile
+                await sendForm(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
             } else {
                 ctx.session.step = 'continue_see_forms'
                 ctx.session.additionalFormInfo.searchingLikes = false

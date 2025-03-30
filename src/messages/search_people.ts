@@ -10,12 +10,12 @@ export async function searchPeopleStep(ctx: MyContext) {
     const message = ctx.message!.text;
 
     if (message === '❤️') {
-        if (ctx.session.currentCandidate) {
-            await saveLike(ctx, ctx.session.currentCandidate.id, true);
-            await sendLikesNotification(ctx, ctx.session.currentCandidate.id);
+        if (ctx.session.currentCandidateProfile) {
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, true);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
 
             // Проверяем наличие отложенной взаимной симпатии
-            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                 await sendMutualSympathyAfterAnswer(ctx)
                 return
             }
@@ -39,10 +39,10 @@ export async function searchPeopleStep(ctx: MyContext) {
         })
 
     } else if (message === '👎') {
-        if (ctx.session.currentCandidate) {
-            await saveLike(ctx, ctx.session.currentCandidate.id, false);
+        if (ctx.session.currentCandidateProfile) {
+            await saveLike(ctx, ctx.session.currentCandidateProfile.id, false);
 
-            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeUserId) {
+            if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                 await sendMutualSympathyAfterAnswer(ctx)
                 return
             }

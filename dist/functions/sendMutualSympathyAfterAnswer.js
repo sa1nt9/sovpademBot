@@ -21,14 +21,14 @@ const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [c
     // Получаем данные пользователя, который поставил лайк
     const likedUser = yield postgres_1.prisma.user.findUnique({
         where: {
-            id: String(ctx.session.pendingMutualLikeUserId)
+            id: String(ctx.session.pendingMutualLikeProfileId)
         }
     });
     if (likedUser) {
-        const userLike = yield postgres_1.prisma.userLike.findFirst({
+        const userLike = yield postgres_1.prisma.profileLike.findFirst({
             where: {
-                userId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
-                targetId: likedUser.id,
+                fromProfileId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
+                toProfileId: likedUser.id,
                 liked: true
             },
             orderBy: {
@@ -56,7 +56,7 @@ const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [c
             });
         }
         ctx.session.pendingMutualLike = false;
-        ctx.session.pendingMutualLikeUserId = undefined;
+        ctx.session.pendingMutualLikeProfileId = undefined;
     }
 });
 exports.sendMutualSympathyAfterAnswer = sendMutualSympathyAfterAnswer;

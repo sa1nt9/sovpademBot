@@ -31,28 +31,28 @@ const statsCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             const createdAt = existingUser.createdAt;
             const daysInBot = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
             // 2. Получаем статистику по лайкам
-            const likesGiven = yield postgres_1.prisma.userLike.count({
+            const likesGiven = yield postgres_1.prisma.profileLike.count({
                 where: {
-                    userId: userId,
+                    fromProfileId: userId,
                     liked: true
                 }
             });
-            const likesReceived = yield postgres_1.prisma.userLike.count({
+            const likesReceived = yield postgres_1.prisma.profileLike.count({
                 where: {
-                    targetId: userId,
+                    toProfileId: userId,
                     liked: true
                 }
             });
-            const mutualLikes = yield postgres_1.prisma.userLike.count({
+            const mutualLikes = yield postgres_1.prisma.profileLike.count({
                 where: {
-                    userId: userId,
+                    fromProfileId: userId,
                     liked: true,
                     isMutual: true
                 }
             });
-            const dislikesGiven = yield postgres_1.prisma.userLike.count({
+            const dislikesGiven = yield postgres_1.prisma.profileLike.count({
                 where: {
-                    userId: userId,
+                    fromProfileId: userId,
                     liked: false
                 }
             });
