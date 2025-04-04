@@ -1,8 +1,10 @@
 import { fileKeyboard, profileKeyboard, someFilesAddedKeyboard, allRightKeyboard } from "../../constants/keyboards";
 import { MyContext } from "../../typescript/context";
-import { saveForm } from "../../functions/db/saveForm";
+import { saveUser } from "../../functions/db/saveUser";
 import { sendForm } from "../../functions/sendForm";
 import { prisma } from "../../db/postgres";
+import { getUserProfile } from "../../functions/db/profilesService";
+import { ProfileType } from "@prisma/client";
 
 export const fileQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
@@ -19,16 +21,12 @@ export const fileQuestion = async (ctx: MyContext) => {
             reply_markup: profileKeyboard()
         });
     } else {
-        const user = await prisma.user.findUnique({
-            where: { id: String(ctx.message!.from.id) },
-            // select: { files: true },
-        });
-        // const files = user?.files ? JSON.parse(user?.files as any) : []
-        const files = []
+        const profile = await getUserProfile(String(ctx.message!.from.id), ctx.session.activeProfile.profileType, (ctx.session.activeProfile as any).subType)
+        const files = profile?.files || []
 
-        if (message === ctx.t("leave_current_m") && (user as any)?.files && files.length > 0) {
+        if (message === ctx.t("leave_current_m") && profile?.files && files.length > 0) {
             ctx.logger.info('leave_current_m')
-            await saveForm(ctx)
+            await saveUser(ctx)
 
             await sendForm(ctx)
 

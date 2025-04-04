@@ -14,6 +14,8 @@ const toggleUserActive_1 = require("./db/toggleUserActive");
 const getLikesInfo_1 = require("./db/getLikesInfo");
 const getMe_1 = require("./db/getMe");
 const haversine_1 = require("./haversine");
+const gameLink_1 = require("./gameLink");
+const profilesService_1 = require("./db/profilesService");
 const defaultOptions = {
     myForm: true,
     like: null,
@@ -27,6 +29,27 @@ const buildInfoText = (ctx, form, options = defaultOptions) => {
     return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.activeProfile.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.activeProfile.location.latitude, ctx.session.activeProfile.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
 };
 exports.buildInfoText = buildInfoText;
+// Функция для построения текста спортивной анкеты
+const buildSportProfileText = (ctx, profile, options = defaultOptions) => {
+    return `, ${ctx.t(`sport_type_${profile.subType.toLowerCase()}`)} - ${profile.level}`;
+};
+// Функция для построения текста игровой анкеты
+const buildGameProfileText = (ctx, profile, options = defaultOptions) => {
+    const [link, platform] = profile.accountLink ? (0, gameLink_1.getGameProfileLink)(profile.subType, profile.accountLink) : [];
+    const accountLinkText = profile.accountLink ? `\n🔗 ${ctx.t('profile_link', { platform })}: [${(0, gameLink_1.getGameUsernameToShow)(profile.subType, profile.accountLink)}](${link})` : '';
+    return `\n\n${ctx.t(`game_type_${profile.subType.toLowerCase()}`)}${accountLinkText}`;
+};
+// Функция для построения текста хобби-анкеты
+const buildHobbyProfileText = (ctx, profile, options = defaultOptions) => {
+    return `, ${ctx.t(`hobby_type_${profile.subType.toLowerCase()}`)}`;
+};
+// Функция для построения текста IT-анкеты
+const buildITProfileText = (ctx, profile, options = defaultOptions) => {
+    const experienceText = ` - ${profile.experience}`;
+    const technologiesText = profile.technologies ? `\n🛠️ ${ctx.t('technologies')}: ${profile.technologies}` : '';
+    const githubText = profile.github ? `\n🔗 ${ctx.t('github')}: [${profile.github}](https://github.com/${profile.github})` : '';
+    return `\n\n${ctx.t(`it_type_${profile.subType.toLowerCase()}`)}${experienceText}${technologiesText}${githubText}`;
+};
 const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1, ...args_1], void 0, function* (ctx, form, options = defaultOptions) {
     var _a, _b;
     let count = 0;
@@ -34,8 +57,28 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
         count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), options.like.fromProfileType);
     }
     const getDescription = () => {
-        return 'Описание профиля';
+        return ctx.session.activeProfile.description;
     };
+    // Получаем тип профиля и соответствующую информацию
+    const profileType = ctx.session.activeProfile.profileType;
+    let profileSpecificText = '';
+    // Формируем текст в зависимости от типа профиля
+    switch (profileType) {
+        case 'SPORT':
+            profileSpecificText = buildSportProfileText(ctx, ctx.session.activeProfile, options);
+            break;
+        case 'GAME':
+            profileSpecificText = buildGameProfileText(ctx, ctx.session.activeProfile, options);
+            break;
+        case 'HOBBY':
+            profileSpecificText = buildHobbyProfileText(ctx, ctx.session.activeProfile, options);
+            break;
+        case 'IT':
+            profileSpecificText = buildITProfileText(ctx, ctx.session.activeProfile, options);
+            break;
+        default:
+            profileSpecificText = '';
+    }
     return ((options.like ? `${ctx.t('somebody_liked_you_text', { count: count - 1 })}
 
 ` : '')
@@ -44,7 +87,7 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
 
 ` : '')
         +
-            `${(0, exports.buildInfoText)(ctx, form, options)}${getDescription() ? ` - ${getDescription()}` : ''}`
+            `${(0, exports.buildInfoText)(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${getDescription() ? ` - ${getDescription()}` : ''}`
         +
             (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `
             
@@ -70,24 +113,42 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
         yield (0, toggleUserActive_1.toggleUserActive)(ctx, true);
     }
     const text = yield (0, exports.buildTextForm)(ctx, user, options);
-    const getProfileFiles = (user) => {
-        return [];
-    };
-    const files = getProfileFiles(user);
+    const getProfileFiles = (user) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            // Получаем тип профиля из сессии
+            const profileType = ctx.session.activeProfile.profileType;
+            // Получаем профиль пользователя
+            const profile = yield (0, profilesService_1.getUserProfile)(user.id, profileType, ctx.session.activeProfile.subType);
+            console.log('user', user, profileType, ctx.session.activeProfile.subType, profile);
+            if (!profile || !profile.files || profile.files.length === 0) {
+                return [];
+            }
+            // Преобразуем файлы в формат для отправки
+            return profile.files;
+        }
+        catch (error) {
+            ctx.logger.error({
+                msg: 'Ошибка при получении файлов профиля',
+                error: error
+            });
+            return [];
+        }
+    });
+    const files = yield getProfileFiles(user);
     if (files && files.length > 0) {
         if (options.sendTo) {
-            yield ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '' }))));
+            yield ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '', parse_mode: 'Markdown' }))));
         }
         else {
-            yield ctx.replyWithMediaGroup(files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '' }))));
+            yield ctx.replyWithMediaGroup(files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '', parse_mode: 'Markdown' }))));
             if ((_b = options.like) === null || _b === void 0 ? void 0 : _b.videoFileId) {
                 yield ctx.replyWithVideo(options.like.videoFileId, {
-                    caption: ctx.t('video_for_you')
+                    caption: ctx.t('video_for_you'),
                 });
             }
             if ((_c = options.like) === null || _c === void 0 ? void 0 : _c.voiceFileId) {
                 yield ctx.replyWithVoice(options.like.voiceFileId, {
-                    caption: ctx.t('voice_for_you')
+                    caption: ctx.t('voice_for_you'),
                 });
             }
             if ((_d = options.like) === null || _d === void 0 ? void 0 : _d.videoNoteFileId) {
@@ -100,10 +161,14 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
     }
     else {
         if (options.sendTo) {
-            yield ctx.api.sendMessage(options.sendTo, text);
+            yield ctx.api.sendMessage(options.sendTo, text, {
+                parse_mode: 'Markdown'
+            });
         }
         else {
-            yield ctx.reply(text);
+            yield ctx.reply(text, {
+                parse_mode: 'Markdown'
+            });
         }
     }
 });

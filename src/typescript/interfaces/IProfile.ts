@@ -24,60 +24,61 @@ export interface IBaseProfile {
     isFinished?: boolean;
 }
 
+export type TInterestedIn = 'male' | 'female' | 'all';
+
 // Интерфейс для профиля отношений
 export interface IRelationshipProfile extends IBaseProfile {
     profileType: 'RELATIONSHIP';
-    interestedIn: 'male' | 'female' | 'all';
+    interestedIn: TInterestedIn;
 }
 
 // Интерфейс для спортивного профиля
 export interface ISportProfile extends IBaseProfile {
     profileType: 'SPORT';
-    sportType: SportType;
+    subType: SportType;
     level?: string;
+    interestedIn: TInterestedIn;
 }
 
 // Интерфейс для игрового профиля
 export interface IGameProfile extends IBaseProfile {
     profileType: 'GAME';
-    gameType: GameType;
-    rank?: string;
+    subType: GameType;
     accountLink?: string;
+    interestedIn: TInterestedIn;
 }
 
 // Интерфейс для хобби-профиля
 export interface IHobbyProfile extends IBaseProfile {
     profileType: 'HOBBY';
-    hobbyType: HobbyType;
+    subType: HobbyType;
+    interestedIn: TInterestedIn;
 }
 
 // Интерфейс для IT-профиля
 export interface IITProfile extends IBaseProfile {
     profileType: 'IT';
-    itType: ITType;
-    experience?: string;
+    subType: ITType;
+    experience: string;
     technologies?: string;
-    portfolioLink?: string;
-}
-
-// Интерфейс для профиля путешествий
-export interface ITravelProfile extends IBaseProfile {
-    profileType: 'TRAVEL';
+    github?: string;
+    interestedIn: TInterestedIn;
 }
 
 // Объединенный тип для всех профилей
-export type IProfile = 
-    | IRelationshipProfile 
-    | ISportProfile 
-    | IGameProfile 
-    | IHobbyProfile 
-    | IITProfile 
-    | ITravelProfile;
+export type IProfile =
+    | IRelationshipProfile
+    | ISportProfile
+    | IGameProfile
+    | IHobbyProfile
+    | IITProfile;
+
+export type TProfileSubType = SportType | GameType | HobbyType | ITType;
 
 // Информация о профиле для выбора
 export interface IProfileInfo {
     profileType: ProfileType;
-    subType?: SportType | GameType | HobbyType | ITType;
+    subType?: TProfileSubType;
     name: string;
     description?: string;
     isActive: boolean;

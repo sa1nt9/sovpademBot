@@ -100,7 +100,7 @@ video_must_be_less_15 = Видео должно длиться менее 15 с�
 
 voice_must_be_less_60 = Голосовое сообщение должно длится менее 1 минуты
 
-this_is_your_form = Так выглядит твоя анкета:
+this_is_your_form = Так выглядит твоя текущая анкета:
 
 profile_menu = 1. Смотреть анкеты
     2. Заполнить анкету заново
@@ -497,14 +497,13 @@ this_is_user_profile = Это анкета данного пользовател
 start_using_bot  = 🚀 Создать анкету
 
 # Типы анкет
-profile_type_title = Выберите тип анкеты:
+profile_type_title = Выберите тип анкеты, которую хотите создать:
 
 profile_type_relationship = 💑 Отношения
 profile_type_sport = 🏃‍♂️ Спорт
 profile_type_game = 🎮 Игры
 profile_type_hobby = 🎨 Хобби
 profile_type_it = 💻 IT
-profile_type_travel = 🌍 Путешествия
 
 # Подвиды спорта
 sport_type_title = Выберите вид спорта:
@@ -541,7 +540,7 @@ game_type_genshin_impact = ⚡ Genshin Impact
 hobby_type_title = Выберите хобби:
 hobby_type_music = 🎵 Музыка
 hobby_type_drawing = 🎨 Рисование/живопись
-hobby_type_photography = 📷 Фотография
+hobby_type_photography = 📷 Фотографирование
 hobby_type_cooking = 🍳 Кулинария
 hobby_type_crafts = 🧶 Рукоделие
 hobby_type_dancing = 💃 Танцы
@@ -561,7 +560,7 @@ it_type_cybersecurity = 🔒 Cybersecurity
 it_type_ui_ux = 🎨 UI/UX
 
 # Поля для спорт-анкеты
-sport_level_question = Укажите ваш уровень подготовки:
+sport_level_question = Укажи твой уровень подготовки:
 sport_level_beginner = 🔰 Начинающий
 sport_level_intermediate = 🥈 Средний
 sport_level_advanced = 🥇 Продвинутый
@@ -569,16 +568,76 @@ sport_level_professional = 🏆 Профессиональный
 
 # Поля для игровой анкеты
 game_rank_question = Укажите ваш ранг/уровень:
-game_account_question = Укажите ссылку на ваш игровой аккаунт (необязательно):
+game_account_question_validate = Можно отправить только реальную ссылку на игровой профиль
+# CS:GO/CS2
+game_account_cs_go = Отправь ссылку на свой Steam или Faceit профиль:
+
+# Dota 2
+game_account_dota2 = Отправь ссылку на свой Steam профиль:
+
+# Valorant
+game_account_valorant = Отправь ссылку на свой Riot Games профиль:
+
+# Rust
+game_account_rust = Отправь ссылку на свой Steam профиль:
+
+# Minecraft
+game_account_minecraft = Отправь ссылку на свой Minecraft профиль:
+
+# League of Legends
+game_account_league_of_legends = Отправь ссылку на свой профиль в op.gg:
+
+# Fortnite
+game_account_fortnite = Отправь ссылку на свой Epic Games профиль:
+
+# PUBG
+game_account_pubg = Отправь ссылку на свой PUBG профиль:
+
+# GTA V/Online
+game_account_gta = Отправь ссылку на свой Rockstar Social Club профиль:
+
+# Apex Legends
+game_account_apex_legends = Отправь ссылку на свой EA профиль:
+
+# FIFA/EA FC
+game_account_fifa = Отправь ссылку на свой EA профиль:
+
+# Call of Duty
+game_account_call_of_duty = Отправь ссылку на свой Activision профиль:
+
+# World of Warcraft
+game_account_wow = Отправь ссылку на свой Battle.net профиль:
+
+# Genshin Impact
+game_account_genshin_impact = Отправь ссылку на свой HoYoverse профиль:
 
 # Поля для IT-анкеты
-it_experience_question = Укажите ваш опыт работы:
+it_experience_question = Укажи твой опыт работы:
 it_experience_student = 🎓 Студент/обучаюсь
 it_experience_junior = 🌱 Junior (до 1 года)
 it_experience_middle = 💪 Middle (1-3 года)
 it_experience_senior = 🧠 Senior (3+ лет)
-it_technologies_question = Укажите ваши основные технологии/языки:
-it_portfolio_question = Укажите ссылку на ваш GitHub/портфолио:
+it_experience_lead = 🧑‍💼 Lead
+it_technologies_question = Укажи ваши основные технологии/языки через пробел:
+it_technologies_long_one = Одна технология не может превышать 20 символов
+it_technologies_duplicates = Технологии повторяются, уберите дубликаты
+it_technologies_long_all = Максимальное количество технологий - 20
+it_github_question = Отправь ссылку на твой [GitHub](https://github.com/)
+it_github_question_validate = Можно отправить только реальную ссылку на [GitHub](https://github.com/)-аккаунт
+it_github_question_not_exists = Такого [GitHub](https://github.com/)-пользователя не существует
+
+profile_link = Игровой профиль { $platform }
+level = Уровень
+github = GitHub
+technologies = Технологии
+experience = Опыт
+
+
+switch_profile_message = Выбери анкету или создай новую
+create_new_profile = Создать новую анкету
+
+you_already_have_this_profile = У тебя уже есть такая анкета 
+switch_to_this_profile = 🔄 Переключиться на эту анкету
 
 # Общие поля для профилей
 profile_description_question = Напишите описание для вашей анкеты:
@@ -588,7 +647,6 @@ profile_select = Выбрать эту анкету
 switch_profile_title = Выберите анкету:
 current_profile = Текущая анкета: { $profileType }
 switch_profile = Сменить анкету
-create_new_profile = ➕ Создать новую анкету
 
 # Перенос медиа
 transfer_media_question = Хотите перенести медиафайлы из другой анкеты?

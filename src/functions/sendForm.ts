@@ -9,6 +9,10 @@ import { getLikesCount } from "./db/getLikesInfo";
 import { bot } from "../main";
 import { getMe } from "./db/getMe";
 import { haversine, formatDistance } from "./haversine";
+import { getGameProfileLink, getGameUsername, getGameUsernameToShow } from "./gameLink";
+import { IGameProfile, IHobbyProfile, IITProfile, IProfile, IRelationshipProfile, ISportProfile } from "../typescript/interfaces/IProfile";
+import { getUserProfile } from "./db/profilesService";
+import { ProfileType } from "@prisma/client";
 
 
 interface IOptions {
@@ -35,6 +39,34 @@ export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = de
     return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.activeProfile.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.activeProfile.location.latitude, ctx.session.activeProfile.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
 }
 
+// Функция для построения текста спортивной анкеты
+const buildSportProfileText = (ctx: MyContext, profile: ISportProfile, options: IOptions = defaultOptions) => {
+    return `, ${ctx.t(`sport_type_${profile.subType.toLowerCase()}`)} - ${profile.level}`;
+}
+
+// Функция для построения текста игровой анкеты
+const buildGameProfileText = (ctx: MyContext, profile: IGameProfile, options: IOptions = defaultOptions) => {
+    const [link, platform] = profile.accountLink ? getGameProfileLink(profile.subType, profile.accountLink) : [];
+    const accountLinkText = profile.accountLink ? `\n🔗 ${ctx.t('profile_link', { platform })}: [${getGameUsernameToShow(profile.subType, profile.accountLink)}](${link})` : '';
+
+    return `\n\n${ctx.t(`game_type_${profile.subType.toLowerCase()}`)}${accountLinkText}`;
+}
+
+// Функция для построения текста хобби-анкеты
+const buildHobbyProfileText = (ctx: MyContext, profile: IHobbyProfile, options: IOptions = defaultOptions) => {
+    return `, ${ctx.t(`hobby_type_${profile.subType.toLowerCase()}`)}`;
+}
+
+// Функция для построения текста IT-анкеты
+const buildITProfileText = (ctx: MyContext, profile: IITProfile, options: IOptions = defaultOptions) => {
+    const experienceText = ` - ${profile.experience}`
+    const technologiesText = profile.technologies ? `\n🛠️ ${ctx.t('technologies')}: ${profile.technologies}` : '';
+    const githubText = profile.github ? `\n🔗 ${ctx.t('github')}: [${profile.github}](https://github.com/${profile.github})` : '';
+
+    return `\n\n${ctx.t(`it_type_${profile.subType.toLowerCase()}`)}${experienceText}${technologiesText}${githubText}`;
+}
+
+
 
 export const buildTextForm = async (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
     let count: number = 0
@@ -43,7 +75,29 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
     }
 
     const getDescription = () => {
-        return 'Описание профиля';
+        return ctx.session.activeProfile.description;
+    }
+
+    // Получаем тип профиля и соответствующую информацию
+    const profileType = ctx.session.activeProfile.profileType;
+    let profileSpecificText = '';
+
+    // Формируем текст в зависимости от типа профиля
+    switch (profileType) {
+        case 'SPORT':
+            profileSpecificText = buildSportProfileText(ctx, ctx.session.activeProfile as ISportProfile, options);
+            break;
+        case 'GAME':
+            profileSpecificText = buildGameProfileText(ctx, ctx.session.activeProfile as IGameProfile, options);
+            break;
+        case 'HOBBY':
+            profileSpecificText = buildHobbyProfileText(ctx, ctx.session.activeProfile as IHobbyProfile, options);
+            break;
+        case 'IT':
+            profileSpecificText = buildITProfileText(ctx, ctx.session.activeProfile as IITProfile, options);
+            break;
+        default:
+            profileSpecificText = '';
     }
 
     return (
@@ -55,7 +109,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
 ` : '')
         +
-        `${buildInfoText(ctx, form, options)}${getDescription() ? ` - ${getDescription()}` : ''}`
+        `${buildInfoText(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${getDescription() ? ` - ${getDescription()}` : ''}`
         +
         (options.like?.message ? `
             
@@ -84,33 +138,55 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
 
     const text = await buildTextForm(ctx, user, options);
 
-    const getProfileFiles = (user: User): IFile[] => {
-        return [];
+    const getProfileFiles = async (user: User): Promise<IFile[]> => {
+        try {
+            // Получаем тип профиля из сессии
+            const profileType = ctx.session.activeProfile.profileType as ProfileType;
+
+            // Получаем профиль пользователя
+            const profile = await getUserProfile(user.id, profileType, (ctx.session.activeProfile as any).subType);
+
+            console.log('user', user, profileType, (ctx.session.activeProfile as any).subType, profile);
+            if (!profile || !profile.files || profile.files.length === 0) {
+                return [];
+            }
+
+            // Преобразуем файлы в формат для отправки
+            return profile.files
+        } catch (error) {
+            ctx.logger.error({
+                msg: 'Ошибка при получении файлов профиля',
+                error: error
+            });
+            return [];
+        }
     }
 
-    const files = getProfileFiles(user);
-    
+    const files = await getProfileFiles(user);
+
     if (files && files.length > 0) {
         if (options.sendTo) {
             await ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => ({
                 ...i,
-                caption: index === 0 ? text : ''
+                caption: index === 0 ? text : '',
+                parse_mode: 'Markdown'
             })));
         } else {
             await ctx.replyWithMediaGroup(files.map((i, index) => ({
                 ...i,
-                caption: index === 0 ? text : ''
+                caption: index === 0 ? text : '',
+                parse_mode: 'Markdown'
             })));
 
             if (options.like?.videoFileId) {
                 await ctx.replyWithVideo(options.like.videoFileId, {
-                    caption: ctx.t('video_for_you')
+                    caption: ctx.t('video_for_you'),
                 });
             }
 
             if (options.like?.voiceFileId) {
                 await ctx.replyWithVoice(options.like.voiceFileId, {
-                    caption: ctx.t('voice_for_you')
+                    caption: ctx.t('voice_for_you'),
                 });
             }
 
@@ -123,9 +199,13 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
         }
     } else {
         if (options.sendTo) {
-            await ctx.api.sendMessage(options.sendTo, text);
+            await ctx.api.sendMessage(options.sendTo, text, {
+                parse_mode: 'Markdown'
+            });
         } else {
-            await ctx.reply(text);
+            await ctx.reply(text, {
+                parse_mode: 'Markdown'
+            });
         }
     }
 }

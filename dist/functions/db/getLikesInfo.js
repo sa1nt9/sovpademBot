@@ -120,21 +120,12 @@ function getLikesInfo(targetProfileId, profileType) {
                             }
                         }
                     },
-                    travelFrom: {
-                        include: {
-                            user: {
-                                select: {
-                                    gender: true
-                                }
-                            }
-                        }
-                    }
                 }
             });
             const count = likers.length;
             // Получаем пол для каждого профиля, учитывая тип профиля
             const genders = new Set(likers.map(liker => {
-                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
                 let gender = 'male'; // По умолчанию
                 // Проверяем тип профиля и получаем соответствующий объект
                 switch (liker.fromProfileType) {
@@ -152,9 +143,6 @@ function getLikesInfo(targetProfileId, profileType) {
                         break;
                     case 'IT':
                         gender = ((_k = (_j = liker.itFrom) === null || _j === void 0 ? void 0 : _j.user) === null || _k === void 0 ? void 0 : _k.gender) || 'male';
-                        break;
-                    case 'TRAVEL':
-                        gender = ((_m = (_l = liker.travelFrom) === null || _l === void 0 ? void 0 : _l.user) === null || _m === void 0 ? void 0 : _m.gender) || 'male';
                         break;
                 }
                 return gender;

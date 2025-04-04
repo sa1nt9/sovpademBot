@@ -16,7 +16,7 @@ const interestedInQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function
     const message = ctx.message.text;
     if ((_a = (0, keyboards_1.interestedInKeyboard)(ctx.t)) === null || _a === void 0 ? void 0 : _a.keyboard[0].includes(message || "")) {
         ctx.session.question = "city";
-        // ctx.session.activeProfile.interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
+        ctx.session.activeProfile.interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
         yield ctx.reply(ctx.t('city_question'), {
             reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t, ctx.session)
         });

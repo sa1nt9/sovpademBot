@@ -53,7 +53,7 @@ const cityQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             });
         }
         catch (error) {
-            console.error("Ошибка чтения файла cities.json:", error);
+            ctx.logger.error(error, "Ошибка чтения файла cities.json:");
             yield ctx.reply("Ошибка обработки данных.");
         }
     }
@@ -81,7 +81,7 @@ const cityQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
         catch (error) {
-            console.error('Ошибка чтения файла cities.json:', error);
+            ctx.logger.error(error, 'Ошибка чтения файла cities.json:');
             yield ctx.reply("error");
         }
     }

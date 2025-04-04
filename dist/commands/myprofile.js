@@ -10,7 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.myprofileCommand = void 0;
-const keyboards_1 = require("../constants/keyboards");
+const keyboards_1 = require("./../constants/keyboards");
+const keyboards_2 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
 const sendForm_1 = require("../functions/sendForm");
 const myprofileCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -23,21 +24,20 @@ const myprofileCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
         ctx.session.step = "profile";
         yield (0, sendForm_1.sendForm)(ctx);
         yield ctx.reply(ctx.t('profile_menu'), {
-            reply_markup: (0, keyboards_1.profileKeyboard)()
+            reply_markup: (0, keyboards_2.profileKeyboard)()
         });
     }
     else {
         if (ctx.session.privacyAccepted) {
-            ctx.session.step = "questions";
-            ctx.session.question = 'years';
-            yield ctx.reply(ctx.t('years_question'), {
-                reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
+            ctx.session.step = "create_profile_type";
+            yield ctx.reply(ctx.t('profile_type_title'), {
+                reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
             });
         }
         else {
             ctx.session.step = "accept_privacy";
             yield ctx.reply(ctx.t('privacy_message'), {
-                reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),
+                reply_markup: (0, keyboards_2.acceptPrivacyKeyboard)(ctx.t),
             });
         }
     }

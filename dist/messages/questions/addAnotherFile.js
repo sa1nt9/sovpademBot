@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addAnotherFileQuestion = void 0;
 const keyboards_1 = require("../../constants/keyboards");
-const saveForm_1 = require("../../functions/db/saveForm");
+const saveUser_1 = require("../../functions/db/saveUser");
 const sendForm_1 = require("../../functions/sendForm");
-const postgres_1 = require("../../db/postgres");
+const profilesService_1 = require("../../functions/db/profilesService");
 const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h;
     const message = ctx.message.text;
@@ -33,7 +33,7 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
             ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
             ctx.session.activeProfile.tempFiles = [];
             ctx.session.additionalFormInfo.canGoBack = false;
-            yield (0, saveForm_1.saveForm)(ctx);
+            yield (0, saveUser_1.saveUser)(ctx);
             yield (0, sendForm_1.sendForm)(ctx);
             yield ctx.reply(ctx.t('profile_menu'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -44,7 +44,7 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
             ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
             ctx.session.activeProfile.tempFiles = [];
             ctx.session.additionalFormInfo.canGoBack = false;
-            yield (0, saveForm_1.saveForm)(ctx);
+            yield (0, saveUser_1.saveUser)(ctx);
             yield (0, sendForm_1.sendForm)(ctx);
             yield ctx.reply(ctx.t('all_right_question'), {
                 reply_markup: (0, keyboards_1.allRightKeyboard)(ctx.t)
@@ -73,7 +73,7 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
                     ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
                     ctx.session.activeProfile.tempFiles = [];
                     ctx.session.additionalFormInfo.canGoBack = false;
-                    yield (0, saveForm_1.saveForm)(ctx);
+                    yield (0, saveUser_1.saveUser)(ctx);
                     yield (0, sendForm_1.sendForm)(ctx);
                     yield ctx.reply(ctx.t('profile_menu'), {
                         reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -83,7 +83,7 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
                     ctx.session.question = "all_right";
                     ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
                     ctx.session.activeProfile.tempFiles = [];
-                    yield (0, saveForm_1.saveForm)(ctx);
+                    yield (0, saveUser_1.saveUser)(ctx);
                     yield (0, sendForm_1.sendForm)(ctx);
                     yield ctx.reply(ctx.t('all_right_question'), {
                         reply_markup: (0, keyboards_1.allRightKeyboard)(ctx.t)
@@ -92,15 +92,11 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
             }
         }
         else {
-            const user = yield postgres_1.prisma.user.findUnique({
-                where: { id: String(ctx.message.from.id) },
-                // select: { files: true },
+            const profile = yield (0, profilesService_1.getUserProfile)(String(ctx.message.from.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.subType);
+            const files = (profile === null || profile === void 0 ? void 0 : profile.files) || [];
+            yield ctx.reply(ctx.t('second_file_question'), {
+                reply_markup: (0, keyboards_1.fileKeyboard)(ctx.t, ctx.session, files.length > 0)
             });
-            // const files = user?.files ? JSON.parse(user?.files as any) : []
-            // 
-            // await ctx.reply(ctx.t('second_file_question'), {
-            //     reply_markup: fileKeyboard(ctx.t, ctx.session, files.length > 0)
-            // });
         }
     }
 });

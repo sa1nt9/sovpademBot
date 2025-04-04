@@ -14,10 +14,9 @@ const keyboards_1 = require("../constants/keyboards");
 function startUsingBotStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         if (ctx.session.privacyAccepted) {
-            ctx.session.step = "questions";
-            ctx.session.question = 'years';
-            yield ctx.reply(ctx.t('years_question'), {
-                reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
+            ctx.session.step = "create_profile_type";
+            yield ctx.reply(ctx.t('profile_type_title'), {
+                reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
             });
         }
         else {

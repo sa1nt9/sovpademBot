@@ -1,12 +1,14 @@
 import { someFilesAddedKeyboard, fileKeyboard, profileKeyboard, allRightKeyboard } from "../../constants/keyboards";
 import { MyContext } from "../../typescript/context";
-import { saveForm } from "../../functions/db/saveForm";
+import { saveUser } from "../../functions/db/saveUser";
 import { sendForm } from "../../functions/sendForm";
 import { prisma } from "../../db/postgres";
+import { getUserProfile } from "../../functions/db/profilesService";
+import { ProfileType } from "@prisma/client";
 
 export const addAnotherFileQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
-    
+
     if (message === ctx.t("go_back") && ctx.session.additionalFormInfo.canGoBack) {
         ctx.session.activeProfile.tempFiles = [];
         ctx.session.question = "years";
@@ -25,7 +27,7 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
             ctx.session.activeProfile.tempFiles = []
             ctx.session.additionalFormInfo.canGoBack = false
 
-            await saveForm(ctx)
+            await saveUser(ctx)
 
             await sendForm(ctx)
             await ctx.reply(ctx.t('profile_menu'), {
@@ -38,7 +40,7 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
             ctx.session.activeProfile.tempFiles = []
             ctx.session.additionalFormInfo.canGoBack = false
 
-            await saveForm(ctx)
+            await saveUser(ctx)
 
             await sendForm(ctx)
             await ctx.reply(ctx.t('all_right_question'), {
@@ -68,7 +70,7 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
                     ctx.session.activeProfile.tempFiles = []
                     ctx.session.additionalFormInfo.canGoBack = false
 
-                    await saveForm(ctx)
+                    await saveUser(ctx)
 
                     await sendForm(ctx)
                     await ctx.reply(ctx.t('profile_menu'), {
@@ -78,7 +80,7 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
                     ctx.session.question = "all_right";
                     ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || []
                     ctx.session.activeProfile.tempFiles = []
-                    await saveForm(ctx)
+                    await saveUser(ctx)
 
                     await sendForm(ctx)
 
@@ -89,15 +91,12 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
             }
 
         } else {
-            const user = await prisma.user.findUnique({
-                where: { id: String(ctx.message!.from.id) },
-                // select: { files: true },
+            const profile = await getUserProfile(String(ctx.message!.from.id), ctx.session.activeProfile.profileType,(ctx.session.activeProfile as any).subType)
+            const files = profile?.files || []
+            
+            await ctx.reply(ctx.t('second_file_question'), {
+                reply_markup: fileKeyboard(ctx.t, ctx.session, files.length > 0)
             });
-            // const files = user?.files ? JSON.parse(user?.files as any) : []
-// 
-            // await ctx.reply(ctx.t('second_file_question'), {
-            //     reply_markup: fileKeyboard(ctx.t, ctx.session, files.length > 0)
-            // });
         }
     }
 } 

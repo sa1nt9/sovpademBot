@@ -17,7 +17,6 @@ model User {
     gender         Gender
     ownCoordinates Boolean  @default(false) // Может быть null
     createdAt      DateTime @default(now()) // Дата создания
-    isActive       Boolean  @default(true) // Активна ли анкета
     referrerId     String? // ID пользователя, который пригласил
 
     // Типы анкет
@@ -26,7 +25,6 @@ model User {
     gameProfiles        GameProfile[]
     hobbyProfiles       HobbyProfile[]
     itProfiles          ITProfile[]
-    travelProfile       TravelProfile?
 
     reports    Report[] @relation("UserReports")
     reportedBy Report[] @relation("UserReported")
@@ -42,8 +40,9 @@ model User {
 model RelationshipProfile {
     id           String       @id @default(uuid())
     userId       String       @unique
+    profileType  String       @default("RELATIONSHIP")
     interestedIn InterestedIn
-    description  String
+    description  String?
     files        Json // Массив файлов в JSON
     isActive     Boolean      @default(true)
     createdAt    DateTime     @default(now())
@@ -58,15 +57,17 @@ model RelationshipProfile {
 
 // Спортивная анкета
 model SportProfile {
-    id          String    @id @default(uuid())
-    userId      String
-    sportType   SportType
-    level       String? // Уровень подготовки
-    description String
-    files       Json // Массив файлов в JSON 
-    isActive    Boolean   @default(true)
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+    id           String       @id @default(uuid())
+    userId       String
+    profileType  String       @default("SPORT")
+    interestedIn InterestedIn
+    subType      SportType
+    level        String? // Уровень подготовки
+    description  String?
+    files        Json // Массив файлов в JSON 
+    isActive     Boolean      @default(true)
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -74,21 +75,22 @@ model SportProfile {
     likesGiven    ProfileLike[] @relation("SportProfileLikes")
     likesReceived ProfileLike[] @relation("SportProfileLiked")
 
-    @@unique([userId, sportType]) // Один пользователь может иметь только один профиль каждого спортивного типа
+    @@unique([userId, subType]) // Один пользователь может иметь только один профиль каждого спортивного типа
 }
 
 // Игровая анкета
 model GameProfile {
-    id          String   @id @default(uuid())
-    userId      String
-    gameType    GameType
-    rank        String? // Ранг/уровень
-    accountLink String? // Ссылка на аккаунт
-    description String
-    files       Json // Массив файлов в JSON
-    isActive    Boolean  @default(true)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id           String       @id @default(uuid())
+    userId       String
+    profileType  String       @default("GAME")
+    interestedIn InterestedIn
+    subType      GameType
+    accountLink  String? // Ссылка на аккаунт
+    description  String?
+    files        Json // Массив файлов в JSON
+    isActive     Boolean      @default(true)
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -96,19 +98,21 @@ model GameProfile {
     likesGiven    ProfileLike[] @relation("GameProfileLikes")
     likesReceived ProfileLike[] @relation("GameProfileLiked")
 
-    @@unique([userId, gameType]) // Один пользователь может иметь только один профиль каждого типа игры
+    @@unique([userId, subType]) // Один пользователь может иметь только один профиль каждого типа игры
 }
 
 // Хобби анкета
 model HobbyProfile {
-    id          String    @id @default(uuid())
-    userId      String
-    hobbyType   HobbyType
-    description String
-    files       Json // Массив файлов в JSON
-    isActive    Boolean   @default(true)
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+    id           String       @id @default(uuid())
+    userId       String
+    profileType  String       @default("HOBBY")
+    interestedIn InterestedIn
+    subType      HobbyType
+    description  String?
+    files        Json // Массив файлов в JSON
+    isActive     Boolean      @default(true)
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -116,22 +120,24 @@ model HobbyProfile {
     likesGiven    ProfileLike[] @relation("HobbyProfileLikes")
     likesReceived ProfileLike[] @relation("HobbyProfileLiked")
 
-    @@unique([userId, hobbyType]) // Один пользователь может иметь только один профиль каждого типа хобби
+    @@unique([userId, subType]) // Один пользователь может иметь только один профиль каждого типа хобби
 }
 
 // IT анкета
 model ITProfile {
-    id            String   @id @default(uuid())
-    userId        String
-    itType        ITType
-    experience    String? // Опыт работы
-    technologies  String? // Технологии/языки
-    portfolioLink String? // Ссылка на GitHub/портфолио
-    description   String
-    files         Json // Массив файлов в JSON
-    isActive      Boolean  @default(true)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+    id           String       @id @default(uuid())
+    userId       String
+    profileType  String       @default("IT")
+    interestedIn InterestedIn
+    subType      ITType
+    experience   String // Опыт работы
+    technologies String? // Технологии/языки
+    github       String? // Ссылка на GitHub
+    description  String?
+    files        Json // Массив файлов в JSON
+    isActive     Boolean      @default(true)
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -139,24 +145,7 @@ model ITProfile {
     likesGiven    ProfileLike[] @relation("ITProfileLikes")
     likesReceived ProfileLike[] @relation("ITProfileLiked")
 
-    @@unique([userId, itType]) // Один пользователь может иметь только один профиль каждого IT типа
-}
-
-// Анкета путешествий
-model TravelProfile {
-    id          String   @id @default(uuid())
-    userId      String   @unique
-    description String
-    files       Json // Массив файлов в JSON
-    isActive    Boolean  @default(true)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    // Лайки для профилей путешествий
-    likesGiven    ProfileLike[] @relation("TravelProfileLikes")
-    likesReceived ProfileLike[] @relation("TravelProfileLiked")
+    @@unique([userId, subType]) // Один пользователь может иметь только один профиль каждого IT типа
 }
 
 // Общая модель лайка для всех типов профилей
@@ -187,8 +176,6 @@ model ProfileLike {
     hobbyTo          HobbyProfile?        @relation("HobbyProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_hobbyTo_fkey")
     itFrom           ITProfile?           @relation("ITProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_itFrom_fkey")
     itTo             ITProfile?           @relation("ITProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_itTo_fkey")
-    travelFrom       TravelProfile?       @relation("TravelProfileLikes", fields: [fromProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_travelFrom_fkey")
-    travelTo         TravelProfile?       @relation("TravelProfileLiked", fields: [toProfileId], references: [id], onDelete: Cascade, map: "ProfileLike_travelTo_fkey")
 }
 
 model Session {
@@ -235,7 +222,6 @@ enum ProfileType {
     GAME
     HOBBY
     IT
-    TRAVEL
 }
 
 enum SportType {

@@ -19,11 +19,48 @@ const text_1 = require("./text");
 const file_1 = require("./file");
 const addAnotherFile_1 = require("./addAnotherFile");
 const allRight_1 = require("./allRight");
+const sportLevel_1 = require("./sportLevel");
+const itExperience_1 = require("./itExperience");
+const itTechnologies_1 = require("./itTechnologies");
+const itGithub_1 = require("./itGithub");
+const gameAccount_1 = require("./gameAccount");
+// export const questionsWays = {
+//     [ProfileType.RELATIONSHIP]: [
+//         'years',
+//         'gender',
+//         'interested_in',
+//         'city',
+//         'name',
+//         ''
+//     ],
+//     [ProfileType.SPORT]: [
+//         'sport_type',
+//         'years',
+//         'gender',
+//         'interested_in',
+//         'city',
+//         'name'
+// }
 function questionsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         ctx.logger.info({ message, question: ctx.session.question });
         switch (ctx.session.question) {
+            case "sport_level":
+                yield (0, sportLevel_1.sportLevelQuestion)(ctx);
+                break;
+            case "it_experience":
+                yield (0, itExperience_1.itExperienceQuestion)(ctx);
+                break;
+            case "it_technologies":
+                yield (0, itTechnologies_1.itTechnologiesQuestion)(ctx);
+                break;
+            case "it_github":
+                yield (0, itGithub_1.itGithubQuestion)(ctx);
+                break;
+            case "game_account":
+                yield (0, gameAccount_1.gameAccountQuestion)(ctx);
+                break;
             case "years":
                 yield (0, years_1.yearsQuestion)(ctx);
                 break;

@@ -1,13 +1,15 @@
 import { fileKeyboard, profileKeyboard, textKeyboard } from "../../constants/keyboards";
 import { MyContext } from "../../typescript/context";
 import { hasLinks } from "../../functions/hasLinks";
-import { saveForm } from "../../functions/db/saveForm";
+import { saveUser } from "../../functions/db/saveUser";
 import { sendForm } from "../../functions/sendForm";
 import { prisma } from "../../db/postgres";
+import { ProfileType } from "@prisma/client";
+import { getProfileModelName, getUserProfile } from "../../functions/db/profilesService";
 
 export const textQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
-    
+
     if (message === ctx.t("go_back") && ctx.session.additionalFormInfo.canGoBack) {
         ctx.session.question = "years";
         ctx.session.step = 'profile'
@@ -28,13 +30,15 @@ export const textQuestion = async (ctx: MyContext) => {
             reply_markup: textKeyboard(ctx.t, ctx.session)
         });
     } else {
-        ctx.session.activeProfile.description = (!message || message === ctx.t('skip')) ? "" : message;
+        if (message !== ctx.t('leave_current')) {
+            ctx.session.activeProfile.description = (!message || message === ctx.t('skip')) ? "" : message;
+        }
         if (ctx.session.additionalFormInfo.canGoBack) {
             ctx.session.question = "years";
             ctx.session.step = 'profile'
             ctx.session.additionalFormInfo.canGoBack = false
 
-            await saveForm(ctx)
+            await saveUser(ctx)
 
             await sendForm(ctx)
             await ctx.reply(ctx.t('profile_menu'), {
@@ -42,15 +46,13 @@ export const textQuestion = async (ctx: MyContext) => {
             });
         } else {
             ctx.session.question = "file";
-            const user = await prisma.user.findUnique({
-                where: { id: String(ctx.message!.from.id) },
-                // select: { files: true },
+
+            const profile = await getUserProfile(String(ctx.message!.from.id), ctx.session.activeProfile.profileType, (ctx.session.activeProfile as any).subType)
+            const files = profile?.files || []
+
+            await ctx.reply(ctx.t('file_question'), {
+                reply_markup: fileKeyboard(ctx.t, ctx.session, files.length > 0)
             });
-            // const files = user?.files ? JSON.parse(user?.files as any) : []
-// 
-            // await ctx.reply(ctx.t('file_question'), {
-            //     reply_markup: fileKeyboard(ctx.t, ctx.session, files.length > 0)
-            // });
         }
     }
 } 

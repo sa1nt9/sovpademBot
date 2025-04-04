@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.findKeyByValue = exports.getSubtypeLocalizations = exports.getProfileTypeLocalizations = void 0;
 exports.getUserProfiles = getUserProfiles;
 exports.getUserProfile = getUserProfile;
 exports.saveProfile = saveProfile;
@@ -35,56 +36,46 @@ function getUserProfiles(userId, ctx) {
         const it = yield postgres_1.prisma.iTProfile.findMany({
             where: { userId }
         });
-        const travel = yield postgres_1.prisma.travelProfile.findUnique({
-            where: { userId }
-        });
         const profiles = [];
         if (relationship) {
             profiles.push({
                 profileType: client_1.ProfileType.RELATIONSHIP,
-                name: ctx ? ctx.t('profile_type_relationship') : "Relationship",
+                name: ctx.t('profile_type_relationship'),
                 isActive: relationship.isActive
             });
         }
         sports.forEach(sport => {
             profiles.push({
                 profileType: client_1.ProfileType.SPORT,
-                subType: sport.sportType,
-                name: ctx ? `${ctx.t('profile_type_sport')}: ${ctx.t(getSportTypeName(sport.sportType))}` : `Sport: ${getSportTypeName(sport.sportType)}`,
+                subType: sport.subType,
+                name: `${ctx.t('profile_type_sport')}: ${ctx.t(getSportTypeName(sport.subType))}`,
                 isActive: sport.isActive
             });
         });
         games.forEach(game => {
             profiles.push({
                 profileType: client_1.ProfileType.GAME,
-                subType: game.gameType,
-                name: ctx ? `${ctx.t('profile_type_game')}: ${ctx.t(getGameTypeName(game.gameType))}` : `Game: ${getGameTypeName(game.gameType)}`,
+                subType: game.subType,
+                name: `${ctx.t('profile_type_game')}: ${ctx.t(getGameTypeName(game.subType))}`,
                 isActive: game.isActive
             });
         });
         hobbies.forEach(hobby => {
             profiles.push({
                 profileType: client_1.ProfileType.HOBBY,
-                subType: hobby.hobbyType,
-                name: ctx ? `${ctx.t('profile_type_hobby')}: ${ctx.t(getHobbyTypeName(hobby.hobbyType))}` : `Hobby: ${getHobbyTypeName(hobby.hobbyType)}`,
+                subType: hobby.subType,
+                name: `${ctx.t('profile_type_hobby')}: ${ctx.t(getHobbyTypeName(hobby.subType))}`,
                 isActive: hobby.isActive
             });
         });
         it.forEach(itProfile => {
             profiles.push({
                 profileType: client_1.ProfileType.IT,
-                subType: itProfile.itType,
-                name: ctx ? `${ctx.t('profile_type_it')}: ${ctx.t(getITTypeName(itProfile.itType))}` : `IT: ${getITTypeName(itProfile.itType)}`,
+                subType: itProfile.subType,
+                name: `${ctx.t('profile_type_it')}: ${ctx.t(getITTypeName(itProfile.subType))}`,
                 isActive: itProfile.isActive
             });
         });
-        if (travel) {
-            profiles.push({
-                profileType: client_1.ProfileType.TRAVEL,
-                name: ctx ? ctx.t('profile_type_travel') : "Travel",
-                isActive: travel.isActive
-            });
-        }
         return profiles;
     });
 }
@@ -98,75 +89,67 @@ function getUserProfile(userId, profileType, subType) {
                 });
                 if (!profile)
                     return null;
-                return Object.assign(Object.assign({}, profile), { profileType: 'RELATIONSHIP', files: JSON.parse(profile.files) });
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) || [] });
             }
             case client_1.ProfileType.SPORT: {
                 if (!subType)
                     return null;
                 const profile = yield postgres_1.prisma.sportProfile.findUnique({
                     where: {
-                        userId_sportType: {
+                        userId_subType: {
                             userId,
-                            sportType: subType
+                            subType: subType
                         }
                     }
                 });
                 if (!profile)
                     return null;
-                return Object.assign(Object.assign({}, profile), { profileType: 'SPORT', files: JSON.parse(profile.files) });
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
             }
             case client_1.ProfileType.GAME: {
                 if (!subType)
                     return null;
                 const profile = yield postgres_1.prisma.gameProfile.findUnique({
                     where: {
-                        userId_gameType: {
+                        userId_subType: {
                             userId,
-                            gameType: subType
+                            subType: subType
                         }
                     }
                 });
                 if (!profile)
                     return null;
-                return Object.assign(Object.assign({}, profile), { profileType: 'GAME', files: JSON.parse(profile.files) });
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
             }
             case client_1.ProfileType.HOBBY: {
                 if (!subType)
                     return null;
                 const profile = yield postgres_1.prisma.hobbyProfile.findUnique({
                     where: {
-                        userId_hobbyType: {
+                        userId_subType: {
                             userId,
-                            hobbyType: subType
+                            subType: subType
                         }
                     }
                 });
                 if (!profile)
                     return null;
-                return Object.assign(Object.assign({}, profile), { profileType: 'HOBBY', files: JSON.parse(profile.files) });
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
             }
             case client_1.ProfileType.IT: {
                 if (!subType)
                     return null;
                 const profile = yield postgres_1.prisma.iTProfile.findUnique({
                     where: {
-                        userId_itType: {
+                        userId_subType: {
                             userId,
-                            itType: subType
+                            subType: subType
                         }
                     }
                 });
                 if (!profile)
                     return null;
-                return Object.assign(Object.assign({}, profile), { profileType: 'IT', files: JSON.parse(profile.files) });
-            }
-            case client_1.ProfileType.TRAVEL: {
-                const profile = yield postgres_1.prisma.travelProfile.findUnique({
-                    where: { userId }
-                });
-                if (!profile)
-                    return null;
-                return Object.assign(Object.assign({}, profile), { profileType: 'TRAVEL', files: JSON.parse(profile.files) });
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
             }
             default:
                 return null;
@@ -186,143 +169,121 @@ function saveProfile(profile) {
                         interestedIn: relationshipProfile.interestedIn,
                         description: relationshipProfile.description,
                         files: fileJson,
-                        isActive: profile.isActive
                     },
                     create: {
                         userId: profile.userId,
                         interestedIn: relationshipProfile.interestedIn,
                         description: relationshipProfile.description,
                         files: fileJson,
-                        isActive: profile.isActive
                     }
                 });
-                return Object.assign(Object.assign({}, saved), { profileType: 'RELATIONSHIP', files: profile.files });
+                return Object.assign(Object.assign({}, saved), { files: profile.files });
             }
             case 'SPORT': {
                 const sportProfile = profile;
                 const saved = yield postgres_1.prisma.sportProfile.upsert({
                     where: {
-                        userId_sportType: {
+                        userId_subType: {
                             userId: profile.userId,
-                            sportType: sportProfile.sportType
+                            subType: sportProfile.subType
                         }
                     },
                     update: {
                         level: sportProfile.level,
                         description: profile.description,
+                        interestedIn: sportProfile.interestedIn,
                         files: fileJson,
-                        isActive: profile.isActive
                     },
                     create: {
                         userId: profile.userId,
-                        sportType: sportProfile.sportType,
+                        subType: sportProfile.subType,
+                        interestedIn: sportProfile.interestedIn,
                         level: sportProfile.level,
                         description: profile.description,
                         files: fileJson,
-                        isActive: profile.isActive
                     }
                 });
-                return Object.assign(Object.assign({}, saved), { profileType: 'SPORT', files: profile.files });
+                return Object.assign(Object.assign({}, saved), { files: profile.files });
             }
             case 'GAME': {
                 const gameProfile = profile;
                 const saved = yield postgres_1.prisma.gameProfile.upsert({
                     where: {
-                        userId_gameType: {
+                        userId_subType: {
                             userId: profile.userId,
-                            gameType: gameProfile.gameType
+                            subType: gameProfile.subType
                         }
                     },
                     update: {
-                        rank: gameProfile.rank,
                         accountLink: gameProfile.accountLink,
                         description: profile.description,
+                        interestedIn: gameProfile.interestedIn,
                         files: fileJson,
-                        isActive: profile.isActive
                     },
                     create: {
                         userId: profile.userId,
-                        gameType: gameProfile.gameType,
-                        rank: gameProfile.rank,
+                        subType: gameProfile.subType,
                         accountLink: gameProfile.accountLink,
+                        interestedIn: gameProfile.interestedIn,
                         description: profile.description,
                         files: fileJson,
-                        isActive: profile.isActive
                     }
                 });
-                return Object.assign(Object.assign({}, saved), { profileType: 'GAME', files: profile.files });
+                return Object.assign(Object.assign({}, saved), { files: profile.files });
             }
             case 'HOBBY': {
                 const hobbyProfile = profile;
                 const saved = yield postgres_1.prisma.hobbyProfile.upsert({
                     where: {
-                        userId_hobbyType: {
+                        userId_subType: {
                             userId: profile.userId,
-                            hobbyType: hobbyProfile.hobbyType
+                            subType: hobbyProfile.subType
                         }
                     },
                     update: {
                         description: profile.description,
+                        interestedIn: hobbyProfile.interestedIn,
                         files: fileJson,
-                        isActive: profile.isActive
                     },
                     create: {
                         userId: profile.userId,
-                        hobbyType: hobbyProfile.hobbyType,
+                        subType: hobbyProfile.subType,
+                        interestedIn: hobbyProfile.interestedIn,
                         description: profile.description,
                         files: fileJson,
-                        isActive: profile.isActive
                     }
                 });
-                return Object.assign(Object.assign({}, saved), { profileType: 'HOBBY', files: profile.files });
+                return Object.assign(Object.assign({}, saved), { files: profile.files });
             }
             case 'IT': {
                 const itProfile = profile;
                 const saved = yield postgres_1.prisma.iTProfile.upsert({
                     where: {
-                        userId_itType: {
+                        userId_subType: {
                             userId: profile.userId,
-                            itType: itProfile.itType
+                            subType: itProfile.subType
                         }
                     },
                     update: {
+                        interestedIn: itProfile.interestedIn,
                         experience: itProfile.experience,
                         technologies: itProfile.technologies,
-                        portfolioLink: itProfile.portfolioLink,
+                        github: itProfile.github,
                         description: profile.description,
                         files: fileJson,
-                        isActive: profile.isActive
                     },
                     create: {
                         userId: profile.userId,
-                        itType: itProfile.itType,
+                        subType: itProfile.subType,
                         experience: itProfile.experience,
                         technologies: itProfile.technologies,
-                        portfolioLink: itProfile.portfolioLink,
+                        github: itProfile.github,
                         description: profile.description,
+                        interestedIn: itProfile.interestedIn,
                         files: fileJson,
-                        isActive: profile.isActive
                     }
                 });
-                return Object.assign(Object.assign({}, saved), { profileType: 'IT', files: profile.files });
-            }
-            case 'TRAVEL': {
-                const travelProfile = profile;
-                const saved = yield postgres_1.prisma.travelProfile.upsert({
-                    where: { userId: profile.userId },
-                    update: {
-                        description: profile.description,
-                        files: fileJson,
-                        isActive: profile.isActive
-                    },
-                    create: {
-                        userId: profile.userId,
-                        description: profile.description,
-                        files: fileJson,
-                        isActive: profile.isActive
-                    }
-                });
-                return Object.assign(Object.assign({}, saved), { profileType: 'TRAVEL', files: profile.files });
+                return Object.assign(Object.assign({}, saved), { files: profile.files });
             }
             default:
                 throw new Error(`Неизвестный тип профиля: ${profile.profileType}`);
@@ -345,9 +306,9 @@ function toggleProfileActive(userId, profileType, isActive, subType) {
                         return false;
                     yield postgres_1.prisma.sportProfile.update({
                         where: {
-                            userId_sportType: {
+                            userId_subType: {
                                 userId,
-                                sportType: subType
+                                subType: subType
                             }
                         },
                         data: { isActive }
@@ -358,9 +319,9 @@ function toggleProfileActive(userId, profileType, isActive, subType) {
                         return false;
                     yield postgres_1.prisma.gameProfile.update({
                         where: {
-                            userId_gameType: {
+                            userId_subType: {
                                 userId,
-                                gameType: subType
+                                subType: subType
                             }
                         },
                         data: { isActive }
@@ -371,9 +332,9 @@ function toggleProfileActive(userId, profileType, isActive, subType) {
                         return false;
                     yield postgres_1.prisma.hobbyProfile.update({
                         where: {
-                            userId_hobbyType: {
+                            userId_subType: {
                                 userId,
-                                hobbyType: subType
+                                subType: subType
                             }
                         },
                         data: { isActive }
@@ -384,17 +345,11 @@ function toggleProfileActive(userId, profileType, isActive, subType) {
                         return false;
                     yield postgres_1.prisma.iTProfile.update({
                         where: {
-                            userId_itType: {
+                            userId_subType: {
                                 userId,
-                                itType: subType
+                                subType: subType
                             }
                         },
-                        data: { isActive }
-                    });
-                    break;
-                case client_1.ProfileType.TRAVEL:
-                    yield postgres_1.prisma.travelProfile.update({
-                        where: { userId },
                         data: { isActive }
                     });
                     break;
@@ -481,6 +436,80 @@ function getITTypeName(type) {
     };
     return names[type] || "unknown";
 }
+const getProfileTypeLocalizations = (t) => ({
+    [t("profile_type_relationship")]: client_1.ProfileType.RELATIONSHIP,
+    [t("profile_type_sport")]: client_1.ProfileType.SPORT,
+    [t("profile_type_game")]: client_1.ProfileType.GAME,
+    [t("profile_type_hobby")]: client_1.ProfileType.HOBBY,
+    [t("profile_type_it")]: client_1.ProfileType.IT
+});
+exports.getProfileTypeLocalizations = getProfileTypeLocalizations;
+const getSubtypeLocalizations = (t) => ({
+    sport: {
+        [t("sport_type_gym")]: client_1.SportType.GYM,
+        [t("sport_type_running")]: client_1.SportType.RUNNING,
+        [t("sport_type_swimming")]: client_1.SportType.SWIMMING,
+        [t("sport_type_football")]: client_1.SportType.FOOTBALL,
+        [t("sport_type_basketball")]: client_1.SportType.BASKETBALL,
+        [t("sport_type_tennis")]: client_1.SportType.TENNIS,
+        [t("sport_type_martial_arts")]: client_1.SportType.MARTIAL_ARTS,
+        [t("sport_type_yoga")]: client_1.SportType.YOGA,
+        [t("sport_type_cycling")]: client_1.SportType.CYCLING,
+        [t("sport_type_climbing")]: client_1.SportType.CLIMBING,
+        [t("sport_type_ski_snowboard")]: client_1.SportType.SKI_SNOWBOARD,
+    },
+    // IT subtypes
+    it: {
+        [t("it_type_frontend")]: client_1.ITType.FRONTEND,
+        [t("it_type_backend")]: client_1.ITType.BACKEND,
+        [t("it_type_fullstack")]: client_1.ITType.FULLSTACK,
+        [t("it_type_mobile")]: client_1.ITType.MOBILE,
+        [t("it_type_devops")]: client_1.ITType.DEVOPS,
+        [t("it_type_qa")]: client_1.ITType.QA,
+        [t("it_type_data_science")]: client_1.ITType.DATA_SCIENCE,
+        [t("it_type_game_dev")]: client_1.ITType.GAME_DEV,
+        [t("it_type_cybersecurity")]: client_1.ITType.CYBERSECURITY,
+        [t("it_type_ui_ux")]: client_1.ITType.UI_UX,
+    },
+    // Game subtypes
+    game: {
+        [t("game_type_cs_go")]: client_1.GameType.CS_GO,
+        [t("game_type_dota2")]: client_1.GameType.DOTA2,
+        [t("game_type_valorant")]: client_1.GameType.VALORANT,
+        [t("game_type_rust")]: client_1.GameType.RUST,
+        [t("game_type_minecraft")]: client_1.GameType.MINECRAFT,
+        [t("game_type_league_of_legends")]: client_1.GameType.LEAGUE_OF_LEGENDS,
+        [t("game_type_fortnite")]: client_1.GameType.FORTNITE,
+        [t("game_type_pubg")]: client_1.GameType.PUBG,
+        [t("game_type_gta")]: client_1.GameType.GTA,
+        [t("game_type_apex_legends")]: client_1.GameType.APEX_LEGENDS,
+        [t("game_type_fifa")]: client_1.GameType.FIFA,
+        [t("game_type_call_of_duty")]: client_1.GameType.CALL_OF_DUTY,
+        [t("game_type_wow")]: client_1.GameType.WOW,
+        [t("game_type_genshin_impact")]: client_1.GameType.GENSHIN_IMPACT,
+    },
+    // Hobby subtypes
+    hobby: {
+        [t("hobby_type_music")]: client_1.HobbyType.MUSIC,
+        [t("hobby_type_drawing")]: client_1.HobbyType.DRAWING,
+        [t("hobby_type_photography")]: client_1.HobbyType.PHOTOGRAPHY,
+        [t("hobby_type_cooking")]: client_1.HobbyType.COOKING,
+        [t("hobby_type_crafts")]: client_1.HobbyType.CRAFTS,
+        [t("hobby_type_dancing")]: client_1.HobbyType.DANCING,
+        [t("hobby_type_reading")]: client_1.HobbyType.READING
+    }
+});
+exports.getSubtypeLocalizations = getSubtypeLocalizations;
+const findKeyByValue = (t, value, object) => {
+    // Ищем ключ по значению
+    for (const [key, val] of Object.entries(object)) {
+        if (val === value) {
+            return key;
+        }
+    }
+    return undefined;
+};
+exports.findKeyByValue = findKeyByValue;
 function getProfileModelName(profileType) {
     switch (profileType) {
         case client_1.ProfileType.RELATIONSHIP:
@@ -493,8 +522,6 @@ function getProfileModelName(profileType) {
             return 'hobbyProfile';
         case client_1.ProfileType.IT:
             return 'iTProfile';
-        case client_1.ProfileType.TRAVEL:
-            return 'travelProfile';
         default:
             return 'relationshipProfile';
     }

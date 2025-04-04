@@ -20,6 +20,8 @@ const complain_1 = require("../messages/complain");
 const complain_text_1 = require("../messages/complain_text");
 const continue_see_forms_1 = require("../messages/continue_see_forms");
 const continue_see_likes_forms_1 = require("../messages/continue_see_likes_forms");
+const create_profile_subtype_1 = require("../messages/create_profile_subtype");
+const create_profile_type_1 = require("../messages/create_profile_type");
 const disable_form_1 = require("../messages/disable_form");
 const form_disabled_1 = require("../messages/form_disabled");
 const friends_1 = require("../messages/friends");
@@ -27,7 +29,7 @@ const go_main_menu_1 = require("../messages/go_main_menu");
 const options_to_user_1 = require("../messages/options_to_user");
 const prepare_message_1 = require("../messages/prepare_message");
 const profile_1 = require("../messages/profile");
-const questions_1 = require("../messages/questions");
+const index_1 = require("../messages/questions/index");
 const roulette_searching_1 = require("../messages/roulette_searching");
 const roulette_start_1 = require("../messages/roulette_start");
 const search_people_1 = require("../messages/search_people");
@@ -35,7 +37,9 @@ const search_people_with_likes_1 = require("../messages/search_people_with_likes
 const sleep_menu_1 = require("../messages/sleep_menu");
 const somebodys_liked_you_1 = require("../messages/somebodys_liked_you");
 const start_using_bot_1 = require("../messages/start_using_bot");
+const switch_profile_1 = require("../messages/switch_profile");
 const text_or_video_to_user_1 = require("../messages/text_or_video_to_user");
+const you_already_have_this_profile_1 = require("../messages/you_already_have_this_profile");
 const you_dont_have_form_1 = require("../messages/you_dont_have_form");
 const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     if (ctx.session.step === "choose_language_start") {
@@ -51,7 +55,7 @@ const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, accept_privacy_1.acceptPrivacyStep)(ctx);
     }
     else if (ctx.session.step === "questions") {
-        yield (0, questions_1.questionsStep)(ctx);
+        yield (0, index_1.questionsStep)(ctx);
     }
     else if (ctx.session.step === 'profile') {
         yield (0, profile_1.profileStep)(ctx);
@@ -121,6 +125,18 @@ const messageEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     }
     else if (ctx.session.step === 'start_using_bot') {
         yield (0, start_using_bot_1.startUsingBotStep)(ctx);
+    }
+    else if (ctx.session.step === 'create_profile_type') {
+        yield (0, create_profile_type_1.createProfileTypeStep)(ctx);
+    }
+    else if (ctx.session.step === 'create_profile_subtype') {
+        yield (0, create_profile_subtype_1.createProfileSubtypeStep)(ctx);
+    }
+    else if (ctx.session.step === 'switch_profile') {
+        yield (0, switch_profile_1.switchProfileStep)(ctx);
+    }
+    else if (ctx.session.step === 'you_already_have_this_profile') {
+        yield (0, you_already_have_this_profile_1.youAlreadyHaveThisProfileStep)(ctx);
     }
     else {
         yield ctx.reply(ctx.t('no_such_answer'));

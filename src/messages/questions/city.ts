@@ -47,7 +47,7 @@ export const cityQuestion = async (ctx: MyContext) => {
                 reply_markup: nameKeyboard(ctx.session),
             });
         } catch (error) {
-            console.error("Ошибка чтения файла cities.json:", error);
+            ctx.logger.error(error, "Ошибка чтения файла cities.json:");
             await ctx.reply("Ошибка обработки данных.");
         }
     } else {
@@ -74,7 +74,7 @@ export const cityQuestion = async (ctx: MyContext) => {
                 });
             }
         } catch (error) {
-            console.error('Ошибка чтения файла cities.json:', error);
+            ctx.logger.error(error, 'Ошибка чтения файла cities.json:');
             await ctx.reply("error");
         }
     }

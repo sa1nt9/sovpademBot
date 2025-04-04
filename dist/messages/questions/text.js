@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.textQuestion = void 0;
 const keyboards_1 = require("../../constants/keyboards");
 const hasLinks_1 = require("../../functions/hasLinks");
-const saveForm_1 = require("../../functions/db/saveForm");
+const saveUser_1 = require("../../functions/db/saveUser");
 const sendForm_1 = require("../../functions/sendForm");
-const postgres_1 = require("../../db/postgres");
+const profilesService_1 = require("../../functions/db/profilesService");
 const textQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const message = ctx.message.text;
     if (message === ctx.t("go_back") && ctx.session.additionalFormInfo.canGoBack) {
@@ -37,12 +37,14 @@ const textQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     else {
-        ctx.session.activeProfile.description = (!message || message === ctx.t('skip')) ? "" : message;
+        if (message !== ctx.t('leave_current')) {
+            ctx.session.activeProfile.description = (!message || message === ctx.t('skip')) ? "" : message;
+        }
         if (ctx.session.additionalFormInfo.canGoBack) {
             ctx.session.question = "years";
             ctx.session.step = 'profile';
             ctx.session.additionalFormInfo.canGoBack = false;
-            yield (0, saveForm_1.saveForm)(ctx);
+            yield (0, saveUser_1.saveUser)(ctx);
             yield (0, sendForm_1.sendForm)(ctx);
             yield ctx.reply(ctx.t('profile_menu'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -50,15 +52,11 @@ const textQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         }
         else {
             ctx.session.question = "file";
-            const user = yield postgres_1.prisma.user.findUnique({
-                where: { id: String(ctx.message.from.id) },
-                // select: { files: true },
+            const profile = yield (0, profilesService_1.getUserProfile)(String(ctx.message.from.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.subType);
+            const files = (profile === null || profile === void 0 ? void 0 : profile.files) || [];
+            yield ctx.reply(ctx.t('file_question'), {
+                reply_markup: (0, keyboards_1.fileKeyboard)(ctx.t, ctx.session, files.length > 0)
             });
-            // const files = user?.files ? JSON.parse(user?.files as any) : []
-            // 
-            // await ctx.reply(ctx.t('file_question'), {
-            //     reply_markup: fileKeyboard(ctx.t, ctx.session, files.length > 0)
-            // });
         }
     }
 });

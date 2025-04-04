@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFormKeyboard = exports.mainMenuKeyboard = exports.blacklistKeyboard = exports.optionsToUserKeyboard = exports.skipKeyboard = exports.afterNoteYouWantToAddTextToUserKeyboard = exports.textOrVideoKeyboard = exports.complainReasonKeyboard = exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.youAlreadyHaveThisProfileKeyboard = exports.switchProfileKeyboard = exports.gameAccountKeyboard = exports.itGithubKeyboard = exports.itTechnologiesKeyboard = exports.selectItExperienceKeyboard = exports.selectSportLevelkeyboard = exports.createProfileSubtypeKeyboard = exports.createProfileTypeKeyboard = exports.createFormKeyboard = exports.mainMenuKeyboard = exports.blacklistKeyboard = exports.optionsToUserKeyboard = exports.skipKeyboard = exports.afterNoteYouWantToAddTextToUserKeyboard = exports.textOrVideoKeyboard = exports.complainReasonKeyboard = exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 const reaction_1 = require("./reaction");
+const client_1 = require("@prisma/client");
+const profilesService_1 = require("../functions/db/profilesService");
 exports.languageKeyboard = {
     keyboard: [
         ['🇷🇺 Русский', '🇬🇧 English', '🇺🇦 Українська'],
@@ -335,24 +337,9 @@ const rouletteReactionKeyboard = (t, partnerId = "", counts) => {
 exports.rouletteReactionKeyboard = rouletteReactionKeyboard;
 const complainReasonKeyboard = (t, targetUserId) => ({
     inline_keyboard: [
-        [
-            { text: t("complain_1"), callback_data: `complain_reason:1:${targetUserId}` }
-        ],
-        [
-            { text: t("complain_2"), callback_data: `complain_reason:2:${targetUserId}` }
-        ],
-        [
-            { text: t("complain_3"), callback_data: `complain_reason:3:${targetUserId}` }
-        ],
-        [
-            { text: t("complain_4"), callback_data: `complain_reason:4:${targetUserId}` }
-        ],
-        [
-            { text: t("complain_5"), callback_data: `complain_reason:5:${targetUserId}` }
-        ],
-        [
-            { text: t("complain_6"), callback_data: `complain_reason:6:${targetUserId}` }
-        ],
+        ...Array(6).fill('').map((_, i) => [
+            { text: t(`complain_${i + 1}`), callback_data: `complain_reason:${i + 1}:${targetUserId}` }
+        ]),
         [
             { text: `↩️ ${t("back")}`, callback_data: `complain_back:${targetUserId}` }
         ]
@@ -414,3 +401,121 @@ const createFormKeyboard = (t) => ({
     resize_keyboard: true,
 });
 exports.createFormKeyboard = createFormKeyboard;
+const createProfileTypeKeyboard = (t) => ({
+    keyboard: [
+        [t("profile_type_relationship")],
+        [t("profile_type_sport"), t("profile_type_game")],
+        [t("profile_type_hobby"), t("profile_type_it")],
+    ],
+    resize_keyboard: true,
+});
+exports.createProfileTypeKeyboard = createProfileTypeKeyboard;
+const createProfileSubtypeKeyboard = (t, type) => ({
+    keyboard: type === client_1.ProfileType.SPORT
+        ?
+            [
+                [t("sport_type_gym"), t("sport_type_running")],
+                [t("sport_type_swimming"), t("sport_type_football")],
+                [t("sport_type_basketball"), t("sport_type_tennis")],
+                [t("sport_type_martial_arts"), t("sport_type_yoga")],
+                [t("sport_type_cycling"), t("sport_type_climbing")],
+                [t("sport_type_ski_snowboard")]
+            ]
+        :
+            type === client_1.ProfileType.IT
+                ?
+                    [
+                        [t("it_type_frontend"), t("it_type_backend")],
+                        [t("it_type_fullstack"), t("it_type_mobile")],
+                        [t("it_type_devops"), t("it_type_qa")],
+                        [t("it_type_data_science"), t("it_type_game_dev")],
+                        [t("it_type_cybersecurity"), t("it_type_ui_ux")]
+                    ]
+                :
+                    type === client_1.ProfileType.GAME
+                        ?
+                            [
+                                [t("game_type_cs_go"), t("game_type_dota2")],
+                                [t("game_type_valorant"), t("game_type_rust")],
+                                [t("game_type_minecraft"), t("game_type_league_of_legends")],
+                                [t("game_type_fortnite"), t("game_type_pubg")],
+                                [t("game_type_gta"), t("game_type_apex_legends")],
+                                [t("game_type_fifa"), t("game_type_call_of_duty")],
+                                [t("game_type_wow"), t("game_type_genshin_impact")]
+                            ]
+                        :
+                            type === client_1.ProfileType.HOBBY
+                                ?
+                                    [
+                                        [t("hobby_type_music"), t("hobby_type_drawing")],
+                                        [t("hobby_type_photography"), t("hobby_type_cooking")],
+                                        [t("hobby_type_crafts"), t("hobby_type_dancing")],
+                                        [t("hobby_type_reading")]
+                                    ]
+                                :
+                                    [],
+    resize_keyboard: true,
+});
+exports.createProfileSubtypeKeyboard = createProfileSubtypeKeyboard;
+const selectSportLevelkeyboard = (t) => ({
+    keyboard: [
+        [t("sport_level_beginner"), t("sport_level_intermediate")],
+        [t("sport_level_advanced"), t("sport_level_professional")],
+    ],
+    resize_keyboard: true,
+});
+exports.selectSportLevelkeyboard = selectSportLevelkeyboard;
+const selectItExperienceKeyboard = (t) => ({
+    keyboard: [
+        [t("it_experience_student"), t("it_experience_junior")],
+        [t("it_experience_middle"), t("it_experience_senior")],
+        [t("it_experience_lead")],
+    ],
+    resize_keyboard: true,
+});
+exports.selectItExperienceKeyboard = selectItExperienceKeyboard;
+const itTechnologiesKeyboard = (t, session) => {
+    var _a;
+    return ({
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.technologies) ? [[t("leave_current_m")], [t("skip")]] : [[t("skip")]]),
+        resize_keyboard: true,
+    });
+};
+exports.itTechnologiesKeyboard = itTechnologiesKeyboard;
+const itGithubKeyboard = (t, session) => {
+    var _a;
+    return ({
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.github) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+        resize_keyboard: true,
+    });
+};
+exports.itGithubKeyboard = itGithubKeyboard;
+const gameAccountKeyboard = (t, session) => {
+    var _a;
+    return ({
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.accountLink) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+        resize_keyboard: true,
+    });
+};
+exports.gameAccountKeyboard = gameAccountKeyboard;
+const switchProfileKeyboard = (t, profiles) => {
+    const localizations = (0, profilesService_1.getProfileTypeLocalizations)(t);
+    const subtypeLocalizations = (0, profilesService_1.getSubtypeLocalizations)(t);
+    return {
+        keyboard: [
+            ...profiles.map(profile => [`${(0, profilesService_1.findKeyByValue)(t, profile.profileType, localizations)}${profile.subType ? `: ${(0, profilesService_1.findKeyByValue)(t, profile.subType, subtypeLocalizations[profile.profileType.toLowerCase()])}` : ''}`]),
+            [t("create_new_profile")],
+        ],
+        resize_keyboard: true,
+    };
+};
+exports.switchProfileKeyboard = switchProfileKeyboard;
+const youAlreadyHaveThisProfileKeyboard = (t) => ({
+    keyboard: [
+        [t("switch_to_this_profile")],
+        [t("create_new_profile")],
+        [t("main_menu")]
+    ],
+    resize_keyboard: true,
+});
+exports.youAlreadyHaveThisProfileKeyboard = youAlreadyHaveThisProfileKeyboard;

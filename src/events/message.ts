@@ -8,6 +8,8 @@ import { complainStep } from "../messages/complain"
 import { complainTextStep } from "../messages/complain_text"
 import { continueSeeFormsStep } from "../messages/continue_see_forms"
 import { continueSeeLikesFormsStep } from "../messages/continue_see_likes_forms"
+import { createProfileSubtypeStep } from "../messages/create_profile_subtype"
+import { createProfileTypeStep } from "../messages/create_profile_type"
 import { disableFormStep } from "../messages/disable_form"
 import { formDisabledStep } from "../messages/form_disabled"
 import { friendsStep } from "../messages/friends"
@@ -15,7 +17,7 @@ import { goMainMenuStep } from "../messages/go_main_menu"
 import { optionsToUserStep } from "../messages/options_to_user"
 import { prepareMessageStep } from "../messages/prepare_message"
 import { profileStep } from "../messages/profile"
-import { questionsStep } from "../messages/questions"
+import { questionsStep } from "../messages/questions/index"
 import { rouletteSearchingStep } from "../messages/roulette_searching"
 import { rouletteStartStep } from "../messages/roulette_start"
 import { searchPeopleStep } from "../messages/search_people"
@@ -23,7 +25,9 @@ import { searchPeopleWithLikesStep } from "../messages/search_people_with_likes"
 import { sleepMenuStep } from "../messages/sleep_menu"
 import { somebodysLikedYouStep } from "../messages/somebodys_liked_you"
 import { startUsingBotStep } from "../messages/start_using_bot"
+import { switchProfileStep } from "../messages/switch_profile"
 import { textOrVideoToUserStep } from "../messages/text_or_video_to_user"
+import { youAlreadyHaveThisProfileStep } from "../messages/you_already_have_this_profile"
 import { youDontHaveFormStep } from "../messages/you_dont_have_form"
 import { MyContext } from "../typescript/context"
 
@@ -84,6 +88,14 @@ export const messageEvent = async (ctx: MyContext) => {
         await goMainMenuStep(ctx)
     } else if (ctx.session.step === 'start_using_bot') {
         await startUsingBotStep(ctx)
+    } else if (ctx.session.step === 'create_profile_type') {
+        await createProfileTypeStep(ctx)
+    } else if (ctx.session.step === 'create_profile_subtype') {
+        await createProfileSubtypeStep(ctx)
+    } else if (ctx.session.step === 'switch_profile') {
+        await switchProfileStep(ctx)
+    } else if (ctx.session.step === 'you_already_have_this_profile') {
+        await youAlreadyHaveThisProfileStep(ctx)
     } else {
         await ctx.reply(ctx.t('no_such_answer'));
     }

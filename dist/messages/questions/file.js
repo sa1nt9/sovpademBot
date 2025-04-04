@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fileQuestion = void 0;
 const keyboards_1 = require("../../constants/keyboards");
-const saveForm_1 = require("../../functions/db/saveForm");
+const saveUser_1 = require("../../functions/db/saveUser");
 const sendForm_1 = require("../../functions/sendForm");
-const postgres_1 = require("../../db/postgres");
+const profilesService_1 = require("../../functions/db/profilesService");
 const fileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
     const message = ctx.message.text;
@@ -28,15 +28,11 @@ const fileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     else {
-        const user = yield postgres_1.prisma.user.findUnique({
-            where: { id: String(ctx.message.from.id) },
-            // select: { files: true },
-        });
-        // const files = user?.files ? JSON.parse(user?.files as any) : []
-        const files = [];
-        if (message === ctx.t("leave_current_m") && (user === null || user === void 0 ? void 0 : user.files) && files.length > 0) {
+        const profile = yield (0, profilesService_1.getUserProfile)(String(ctx.message.from.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.subType);
+        const files = (profile === null || profile === void 0 ? void 0 : profile.files) || [];
+        if (message === ctx.t("leave_current_m") && (profile === null || profile === void 0 ? void 0 : profile.files) && files.length > 0) {
             ctx.logger.info('leave_current_m');
-            yield (0, saveForm_1.saveForm)(ctx);
+            yield (0, saveUser_1.saveUser)(ctx);
             yield (0, sendForm_1.sendForm)(ctx);
             ctx.session.question = "all_right";
             ctx.logger.info({ question: ctx.session.question }, 'all_right');

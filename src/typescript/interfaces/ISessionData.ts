@@ -1,5 +1,5 @@
 import { User, ProfileType, SportType, GameType, HobbyType, ITType } from "@prisma/client";
-import { IProfile, IProfileInfo } from "./IProfile";
+import { IProfile, IProfileInfo, TProfileSubType } from "./IProfile";
 
 interface IAdditionalFormInfo {
     canGoBack: boolean;
@@ -9,8 +9,7 @@ interface IAdditionalFormInfo {
     searchingLikes?: boolean;
     reportedUserId?: string;
     selectedProfileType?: ProfileType;
-    selectedSubType?: SportType | GameType | HobbyType | ITType;
-    transferMediaFrom?: string; // ID профиля, из которого переносятся медиафайлы
+    selectedSubType?: TProfileSubType;
 }
 
 interface IRouletteData {
@@ -56,7 +55,10 @@ type TStep =
     "choose_profile_type" |
     "switch_profile" |
     "select_subtype" |
-    "transfer_media"
+    "transfer_media" |
+    "create_profile_type" |
+    "create_profile_subtype" |
+    "you_already_have_this_profile"
 
 type TQuestion =
     'years' |
@@ -73,8 +75,7 @@ type TQuestion =
     "game_account" |
     "it_experience" |
     "it_technologies" |
-    "it_portfolio" |
-    "profile_description";
+    "it_github";
 
 export interface ISessionData {
     step?: TStep;

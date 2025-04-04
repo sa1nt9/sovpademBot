@@ -23,6 +23,7 @@ import { blacklistCommand } from './commands/blacklist';
 import { addToBlacklistCommand } from './commands/add_to_blacklist';
 import { matchesCommand } from './commands/matches';
 import { inlineQueryEvent } from './events/inline_query';
+import { switchCommand } from './commands/switch';
 
 dotenv.config();
 
@@ -71,6 +72,8 @@ async function startBot() {
     bot.command("start", startCommand);
 
     bot.command("myprofile", myprofileCommand);
+    
+    bot.command("switch", switchCommand);
 
     bot.command("roulette", rouletteCommand);
 

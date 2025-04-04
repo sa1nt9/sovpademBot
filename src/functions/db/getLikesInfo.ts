@@ -111,15 +111,6 @@ export async function getLikesInfo(targetProfileId: string, profileType: Profile
                         }
                     }
                 },
-                travelFrom: {
-                    include: {
-                        user: {
-                            select: {
-                                gender: true
-                            }
-                        }
-                    }
-                }
             }
         });
 
@@ -145,9 +136,6 @@ export async function getLikesInfo(targetProfileId: string, profileType: Profile
                     break;
                 case 'IT':
                     gender = liker.itFrom?.user?.gender || 'male';
-                    break;
-                case 'TRAVEL':
-                    gender = liker.travelFrom?.user?.gender || 'male';
                     break;
             }
             
