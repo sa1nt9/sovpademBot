@@ -13,7 +13,8 @@ export const addToBlacklist = async (ctx: MyContext) => {
         const existingBlacklist = await prisma.blacklist.findFirst({
             where: {
                 userId: String(ctx.from?.id),
-                targetId: ctx.session.currentCandidateProfile.id
+                targetProfileId: ctx.session.currentCandidateProfile.id,
+                targetUserId: ctx.session.currentCandidateProfile.userId
             }
         });
 
@@ -26,7 +27,9 @@ export const addToBlacklist = async (ctx: MyContext) => {
         await prisma.blacklist.create({
             data: {
                 userId: String(ctx.from?.id),
-                targetId: ctx.session.currentCandidateProfile.id
+                targetProfileId: ctx.session.currentCandidateProfile.id,
+                profileType: ctx.session.currentCandidateProfile.profileType,
+                targetUserId: ctx.session.currentCandidateProfile.userId
             }
         });
 

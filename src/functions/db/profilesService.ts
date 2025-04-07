@@ -596,7 +596,7 @@ export function getProfileModelName(profileType: ProfileType): string {
         case ProfileType.HOBBY:
             return 'hobbyProfile';
         case ProfileType.IT:
-            return 'iTProfile';
+            return 'itProfile';
         default:
             return 'relationshipProfile';
     }

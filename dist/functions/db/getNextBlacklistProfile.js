@@ -9,9 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNextBlacklistUser = void 0;
+exports.getNextBlacklistProfile = void 0;
+const client_1 = require("@prisma/client");
 const postgres_1 = require("../../db/postgres");
-const getNextBlacklistUser = (ctx, currentTargetProfileId) => __awaiter(void 0, void 0, void 0, function* () {
+const profilesService_1 = require("./profilesService");
+const getNextBlacklistProfile = (ctx, currentTargetProfileId) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
     try {
@@ -27,7 +29,7 @@ const getNextBlacklistUser = (ctx, currentTargetProfileId) => __awaiter(void 0, 
         });
         if (!currentRecord) {
             return {
-                user: null,
+                profile: null,
                 remainingCount: 0
             };
         }
@@ -56,22 +58,26 @@ const getNextBlacklistUser = (ctx, currentTargetProfileId) => __awaiter(void 0, 
                 }
             })
         ]);
-        const user = yield postgres_1.prisma.user.findUnique({
-            where: {
-                id: nextUser === null || nextUser === void 0 ? void 0 : nextUser.targetUserId
-            }
-        });
+        let profile = null;
+        if (nextUser === null || nextUser === void 0 ? void 0 : nextUser.targetProfileId) {
+            profile = yield postgres_1.prisma[(0, profilesService_1.getProfileModelName)(nextUser.profileType || client_1.ProfileType.RELATIONSHIP)].findUnique({
+                where: { id: nextUser.targetProfileId },
+                include: {
+                    user: true
+                }
+            });
+        }
         return {
-            user: user || null,
+            profile: profile || null,
             remainingCount
         };
     }
     catch (error) {
         console.error('Error getting next blacklist user:', error);
         return {
-            user: null,
+            profile: null,
             remainingCount: 0
         };
     }
 });
-exports.getNextBlacklistUser = getNextBlacklistUser;
+exports.getNextBlacklistProfile = getNextBlacklistProfile;

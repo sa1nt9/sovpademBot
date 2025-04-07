@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.blacklistUserStep = blacklistUserStep;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
-const getNextBlacklistUser_1 = require("../functions/db/getNextBlacklistUser");
+const getNextBlacklistProfile_1 = require("../functions/db/getNextBlacklistProfile");
 const sendForm_1 = require("../functions/sendForm");
 function blacklistUserStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -26,45 +26,45 @@ function blacklistUserStep(ctx) {
             });
         }
         else if (message === ctx.t("see_next")) {
-            if (!ctx.session.currentBlacklistedUser) {
+            if (!ctx.session.currentBlacklistedProfile) {
                 yield ctx.reply(ctx.t("error_occurred"));
                 return;
             }
-            const nextUser = yield (0, getNextBlacklistUser_1.getNextBlacklistUser)(ctx, ctx.session.currentBlacklistedUser.id);
-            if (nextUser.user) {
-                ctx.session.currentBlacklistedUser = nextUser.user;
-                yield (0, sendForm_1.sendForm)(ctx, nextUser.user, {
+            const nextProfile = yield (0, getNextBlacklistProfile_1.getNextBlacklistProfile)(ctx, ctx.session.currentBlacklistedProfile.id);
+            if (nextProfile.profile) {
+                ctx.session.currentBlacklistedProfile = nextProfile.profile;
+                yield (0, sendForm_1.sendForm)(ctx, nextProfile.profile.user, {
                     myForm: false,
                     isBlacklist: true,
-                    blacklistCount: nextUser.remainingCount
+                    blacklistCount: nextProfile.remainingCount
                 });
             }
             else {
                 yield ctx.reply(ctx.t('blacklist_no_more_users'));
                 ctx.session.step = "sleep_menu";
-                ctx.session.currentBlacklistedUser = null;
+                ctx.session.currentBlacklistedProfile = null;
                 yield ctx.reply(ctx.t('sleep_menu'), {
                     reply_markup: (0, keyboards_1.profileKeyboard)()
                 });
             }
         }
         else if (message === ctx.t("blacklist_remove")) {
-            if (!ctx.session.currentBlacklistedUser) {
+            if (!ctx.session.currentBlacklistedProfile) {
                 yield ctx.reply(ctx.t("error_occurred"));
                 return;
             }
             try {
-                const result = yield (0, getNextBlacklistUser_1.getNextBlacklistUser)(ctx, ctx.session.currentBlacklistedUser.id);
+                const result = yield (0, getNextBlacklistProfile_1.getNextBlacklistProfile)(ctx, ctx.session.currentBlacklistedProfile.id);
                 yield postgres_1.prisma.blacklist.deleteMany({
                     where: {
                         userId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
-                        targetId: ctx.session.currentBlacklistedUser.id
+                        targetProfileId: ctx.session.currentBlacklistedProfile.id
                     }
                 });
                 yield ctx.reply(ctx.t("blacklist_remove_success"));
-                if (result.user) {
-                    ctx.session.currentBlacklistedUser = result.user;
-                    yield (0, sendForm_1.sendForm)(ctx, result.user, {
+                if (result.profile) {
+                    ctx.session.currentBlacklistedProfile = result.profile;
+                    yield (0, sendForm_1.sendForm)(ctx, result.profile.user, {
                         myForm: false,
                         isBlacklist: true,
                         blacklistCount: result.remainingCount - 1
@@ -73,7 +73,7 @@ function blacklistUserStep(ctx) {
                 else {
                     yield ctx.reply(ctx.t('blacklist_no_more_users'));
                     ctx.session.step = "sleep_menu";
-                    ctx.session.currentBlacklistedUser = null;
+                    ctx.session.currentBlacklistedProfile = null;
                     yield ctx.reply(ctx.t("sleep_menu"), {
                         reply_markup: (0, keyboards_1.profileKeyboard)()
                     });

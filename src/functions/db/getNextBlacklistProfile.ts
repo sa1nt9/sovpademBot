@@ -1,7 +1,10 @@
+import { ProfileType } from "@prisma/client";
 import { prisma } from "../../db/postgres";
 import { MyContext } from "../../typescript/context";
+import { IProfile } from "../../typescript/interfaces/IProfile";
+import { getProfileModelName } from "./profilesService";
 
-export const getNextBlacklistUser = async (ctx: MyContext, currentTargetId: string) => {
+export const getNextBlacklistProfile = async (ctx: MyContext, currentTargetProfileId: string) => {
     const userId = String(ctx.from?.id) 
 
     try {
@@ -9,7 +12,7 @@ export const getNextBlacklistUser = async (ctx: MyContext, currentTargetId: stri
         const currentRecord = await prisma.blacklist.findFirst({
             where: {
                 userId,
-                targetId: currentTargetId
+                targetProfileId: currentTargetProfileId
             },
             select: {
                 createdAt: true
@@ -18,7 +21,7 @@ export const getNextBlacklistUser = async (ctx: MyContext, currentTargetId: stri
 
         if (!currentRecord) {
             return {
-                user: null,
+                profile: null,
                 remainingCount: 0
             };
         }
@@ -28,15 +31,12 @@ export const getNextBlacklistUser = async (ctx: MyContext, currentTargetId: stri
             prisma.blacklist.findFirst({
                 where: {
                     userId,
-                    targetId: {
-                        not: currentTargetId
+                    targetProfileId: {
+                        not: currentTargetProfileId
                     },
                     createdAt: {
                         lt: currentRecord.createdAt
                     }
-                },
-                include: {
-                    target: true
                 },
                 orderBy: {
                     createdAt: 'desc'
@@ -52,14 +52,25 @@ export const getNextBlacklistUser = async (ctx: MyContext, currentTargetId: stri
             })
         ]);
 
+        let profile: IProfile | null = null;
+
+        if (nextUser?.targetProfileId) {
+            profile = await (prisma as any)[getProfileModelName(nextUser.profileType || ProfileType.RELATIONSHIP)].findUnique({
+                where: { id: nextUser.targetProfileId },
+                include: {
+                    user: true
+                }
+            }); 
+        }
+
         return {
-            user: nextUser?.target || null,
+            profile: profile || null,
             remainingCount
         };
     } catch (error) {
         console.error('Error getting next blacklist user:', error);
         return {
-            user: null,
+            profile: null,
             remainingCount: 0
         };
     }

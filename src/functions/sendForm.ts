@@ -5,7 +5,7 @@ import { getLikesCount } from "./db/getLikesInfo";
 import { getMe } from "./db/getMe";
 import { haversine, formatDistance } from "./haversine";
 import { getGameProfileLink, getGameUsername, getGameUsernameToShow } from "./gameLink";
-import { IGameProfile, IHobbyProfile, IItProfile, IProfile, IRelationshipProfile, ISportProfile } from "../typescript/interfaces/IProfile";
+import { IGameProfile, IHobbyProfile, IItProfile, IProfile, IRelationshipProfile, ISportProfile, TProfileSubType } from "../typescript/interfaces/IProfile";
 import { getUserProfile } from "./db/profilesService";
 import { ProfileType } from "@prisma/client";
 
@@ -19,6 +19,8 @@ interface IOptions {
     blacklistCount?: number
     isInline?: boolean
     description?: string
+    profileType?: ProfileType
+    subType?: TProfileSubType
 }
 
 const defaultOptions: IOptions = {
@@ -72,7 +74,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
     }
 
     // Получаем тип профиля и соответствующую информацию
-    const profileType = ctx.session.activeProfile.profileType;
+    const profileType = options.profileType || ctx.session.activeProfile.profileType;
     let profileSpecificText = '';
 
     // Формируем текст в зависимости от типа профиля
@@ -128,13 +130,13 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
     const getProfileFiles = async (user: User): Promise<{ files: IFile[], description: string }> => {
         try {
             // Получаем тип профиля из сессии
-            const profileType = ctx.session.activeProfile.profileType as ProfileType;
+            const profileType = options.profileType || ctx.session.activeProfile.profileType as ProfileType;
 
             // Получаем профиль пользователя
-            const profile = await getUserProfile(user.id, profileType, (ctx.session.activeProfile as any).subType);
+            const profile = await getUserProfile(user.id, profileType, options.subType || (ctx.session.activeProfile as any).subType);
 
             if (!profile || !profile.files || profile.files.length === 0) {
-                return { files: [], description: '' };
+                return { files: [], description: profile?.description || '' };
             }
 
             // Преобразуем файлы в формат для отправки

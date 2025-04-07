@@ -32,8 +32,7 @@ model User {
     rouletteUser RouletteUser?
 
     // Связи для черного списка
-    blacklist     Blacklist[] @relation("UserBlacklist")
-    blacklistedBy Blacklist[] @relation("BlacklistedBy")
+    blacklist Blacklist[] @relation("UserBlacklist")
 }
 
 // Основной тип анкеты (отношения)
@@ -301,11 +300,12 @@ model RouletteChat {
 }
 
 model Blacklist {
-    id        String   @id @default(uuid())
-    userId    String // Кто добавил в ЧС
-    targetId  String // Кого добавили в ЧС
-    createdAt DateTime @default(now())
+    id              String   @id @default(uuid())
+    userId          String // Кто добавил в ЧС
+    targetUserId    String // ID профиля, который добавили в ЧС
+    targetProfileId String
+    profileType     ProfileType
+    createdAt       DateTime @default(now())
 
-    user   User @relation("UserBlacklist", fields: [userId], references: [id], onDelete: Cascade)
-    target User @relation("BlacklistedBy", fields: [targetId], references: [id], onDelete: Cascade)
+    user User @relation("UserBlacklist", fields: [userId], references: [id], onDelete: Cascade)
 }

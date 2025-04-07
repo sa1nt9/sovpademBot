@@ -521,7 +521,7 @@ function getProfileModelName(profileType) {
         case client_1.ProfileType.HOBBY:
             return 'hobbyProfile';
         case client_1.ProfileType.IT:
-            return 'iTProfile';
+            return 'itProfile';
         default:
             return 'relationshipProfile';
     }

@@ -34,7 +34,7 @@ export function sessionInitial(): ISessionData {
         },
         availableProfiles: [],
         currentCandidateProfile: null,
-        currentBlacklistedUser: null,
+        currentBlacklistedProfile: null,
         pendingMutualLike: false
     };
 }

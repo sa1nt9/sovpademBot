@@ -57,7 +57,7 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
         count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), 'user');
     }
     // Получаем тип профиля и соответствующую информацию
-    const profileType = ctx.session.activeProfile.profileType;
+    const profileType = options.profileType || ctx.session.activeProfile.profileType;
     let profileSpecificText = '';
     // Формируем текст в зависимости от типа профиля
     switch (profileType) {
@@ -109,11 +109,11 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
     const getProfileFiles = (user) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Получаем тип профиля из сессии
-            const profileType = ctx.session.activeProfile.profileType;
+            const profileType = options.profileType || ctx.session.activeProfile.profileType;
             // Получаем профиль пользователя
-            const profile = yield (0, profilesService_1.getUserProfile)(user.id, profileType, ctx.session.activeProfile.subType);
+            const profile = yield (0, profilesService_1.getUserProfile)(user.id, profileType, options.subType || ctx.session.activeProfile.subType);
             if (!profile || !profile.files || profile.files.length === 0) {
-                return { files: [], description: '' };
+                return { files: [], description: (profile === null || profile === void 0 ? void 0 : profile.description) || '' };
             }
             // Преобразуем файлы в формат для отправки
             return { files: profile.files, description: profile.description };

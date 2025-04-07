@@ -35,7 +35,7 @@ function sessionInitial() {
         },
         availableProfiles: [],
         currentCandidateProfile: null,
-        currentBlacklistedUser: null,
+        currentBlacklistedProfile: null,
         pendingMutualLike: false
     };
 }

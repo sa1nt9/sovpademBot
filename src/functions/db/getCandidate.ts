@@ -1,8 +1,8 @@
-import { User, ProfileType } from "@prisma/client";
+import { User, ProfileType, SportType, GameType, HobbyType, ITType } from "@prisma/client";
 import { prisma } from "../../db/postgres";
 import { MyContext } from "../../typescript/context";
 import { IGameProfile, IHobbyProfile, IItProfile, IProfile, IRelationshipProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
-import { getUserProfile } from "./profilesService";
+import { getUserProfile, getProfileModelName } from "./profilesService";
 
 
 // Поиск кандидатов для анкеты отношений
@@ -43,10 +43,16 @@ async function getRelationshipCandidate(user: User, activeProfile: IRelationship
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "RelationshipProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -118,10 +124,16 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "SportProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -204,10 +216,16 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "GameProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -280,10 +298,16 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "HobbyProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -356,10 +380,16 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "ITProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (

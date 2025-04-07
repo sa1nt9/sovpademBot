@@ -87,7 +87,7 @@ export interface ISessionData {
     availableProfiles?: IProfileInfo[]; // Список доступных профилей пользователя
     isNeededSubscription?: boolean;
     currentCandidateProfile?: IProfile | null; // Профиль текущего кандидата
-    currentBlacklistedUser?: User | null;
+    currentBlacklistedProfile?: IProfile | null;
     pendingMutualLike?: boolean;
     pendingMutualLikeProfileId?: string; // ID профиля, с которым установлена взаимная симпатия
     pendingMutualLikeProfileType?: ProfileType; // Тип профиля, с которым установлена взаимная симпатия

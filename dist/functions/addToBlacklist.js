@@ -23,7 +23,8 @@ const addToBlacklist = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         const existingBlacklist = yield postgres_1.prisma.blacklist.findFirst({
             where: {
                 userId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
-                targetId: ctx.session.currentCandidateProfile.id
+                targetProfileId: ctx.session.currentCandidateProfile.id,
+                targetUserId: ctx.session.currentCandidateProfile.userId
             }
         });
         if (existingBlacklist) {
@@ -34,7 +35,9 @@ const addToBlacklist = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         yield postgres_1.prisma.blacklist.create({
             data: {
                 userId: String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id),
-                targetId: ctx.session.currentCandidateProfile.id
+                targetProfileId: ctx.session.currentCandidateProfile.id,
+                profileType: ctx.session.currentCandidateProfile.profileType,
+                targetUserId: ctx.session.currentCandidateProfile.userId
             }
         });
         yield ctx.reply(ctx.t('more_options_blacklist_success'));

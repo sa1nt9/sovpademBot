@@ -51,10 +51,16 @@ function getRelationshipCandidate(user, activeProfile, fifteenDaysAgo) {
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "RelationshipProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -126,10 +132,16 @@ function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "SportProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -212,10 +224,16 @@ function getGameCandidate(user, activeProfile, fifteenDaysAgo) {
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "GameProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -288,10 +306,16 @@ function getHobbyCandidate(user, activeProfile, fifteenDaysAgo) {
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "HobbyProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -364,10 +388,16 @@ function getITCandidate(user, activeProfile, fifteenDaysAgo) {
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
-                AND "id" NOT IN (
-                    SELECT "targetId"
-                    FROM "Blacklist"
-                    WHERE "userId" = ${user.id}
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "Blacklist" b
+                    WHERE b."userId" = ${user.id}
+                    AND b."targetProfileId" IN (
+                        SELECT "id"
+                        FROM "ITProfile"
+                        WHERE "userId" = u."id"
+                        AND "isActive" = true
+                    )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
