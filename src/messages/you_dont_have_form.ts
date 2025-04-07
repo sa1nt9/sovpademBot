@@ -1,4 +1,4 @@
-import { acceptPrivacyKeyboard, ageKeyboard, notHaveFormToDeactiveKeyboard } from '../constants/keyboards';
+import { acceptPrivacyKeyboard, ageKeyboard, createProfileTypeKeyboard, notHaveFormToDeactiveKeyboard } from '../constants/keyboards';
 import { MyContext } from '../typescript/context';
 
 export async function youDontHaveFormStep(ctx: MyContext) {
@@ -6,11 +6,10 @@ export async function youDontHaveFormStep(ctx: MyContext) {
     
     if (message === ctx.t('create_form')) {
         if (ctx.session.privacyAccepted) {
-            ctx.session.step = "questions";
-            ctx.session.question = 'years'
+            ctx.session.step = "create_profile_type"
 
-            await ctx.reply(ctx.t('years_question'), {
-                reply_markup: ageKeyboard(ctx.session)
+            await ctx.reply(ctx.t('profile_type_title'), {
+                reply_markup: createProfileTypeKeyboard(ctx.t)
             });
         } else {
             ctx.session.step = "accept_privacy";

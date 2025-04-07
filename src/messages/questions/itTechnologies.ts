@@ -3,7 +3,7 @@ import { saveUser } from "../../functions/db/saveUser";
 import { hasLinks } from "../../functions/hasLinks";
 import { sendForm } from "../../functions/sendForm";
 import { MyContext } from "../../typescript/context";
-import { IITProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
+import { IItProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
 
 export const itTechnologiesQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
@@ -18,7 +18,7 @@ export const itTechnologiesQuestion = async (ctx: MyContext) => {
             reply_markup: profileKeyboard()
         });
     } else if (!message || message === ctx.t('skip')) {
-        (ctx.session.activeProfile as IITProfile).technologies = "";
+        (ctx.session.activeProfile as IItProfile).technologies = "";
         if (ctx.session.additionalFormInfo.canGoBack) {
             ctx.session.step = 'profile'
             ctx.session.additionalFormInfo.canGoBack = false
@@ -71,7 +71,7 @@ export const itTechnologiesQuestion = async (ctx: MyContext) => {
             return;
         }
 
-        (ctx.session.activeProfile as IITProfile).technologies = technologies.join(" ");
+        (ctx.session.activeProfile as IItProfile).technologies = technologies.join(" ");
         
         if (ctx.session.additionalFormInfo.canGoBack) {
             ctx.session.step = 'profile'

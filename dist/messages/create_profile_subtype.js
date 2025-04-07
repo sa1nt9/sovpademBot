@@ -10,10 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProfileSubtypeStep = createProfileSubtypeStep;
-const client_1 = require("@prisma/client");
 const keyboards_1 = require("../constants/keyboards");
-const gameLink_1 = require("../functions/gameLink");
 const profilesService_1 = require("../functions/db/profilesService");
+const changeProfileFromStart_1 = require("../functions/changeProfileFromStart");
 function createProfileSubtypeStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
@@ -32,41 +31,7 @@ function createProfileSubtypeStep(ctx) {
                 });
                 return;
             }
-            ctx.session.step = "questions";
-            if (ctx.session.activeProfile.profileType === client_1.ProfileType.SPORT) {
-                ctx.session.activeProfile.subType = subtypeLocalizations.sport[message];
-                ctx.session.question = 'sport_level';
-                yield ctx.reply(ctx.t('sport_level_question'), {
-                    reply_markup: (0, keyboards_1.selectSportLevelkeyboard)(ctx.t)
-                });
-            }
-            else if (ctx.session.activeProfile.profileType === client_1.ProfileType.IT) {
-                ctx.session.activeProfile.subType = subtypeLocalizations.it[message];
-                ctx.session.question = 'it_experience';
-                yield ctx.reply(ctx.t('it_experience_question'), {
-                    reply_markup: (0, keyboards_1.selectItExperienceKeyboard)(ctx.t)
-                });
-            }
-            else if (ctx.session.activeProfile.profileType === client_1.ProfileType.GAME) {
-                ctx.session.activeProfile.subType = subtypeLocalizations.game[message];
-                ctx.session.question = 'game_account';
-                yield ctx.reply(ctx.t(gameLink_1.gameLocalizationKeys[ctx.session.activeProfile.subType]), {
-                    reply_markup: (0, keyboards_1.gameAccountKeyboard)(ctx.t, ctx.session)
-                });
-            }
-            else if (ctx.session.activeProfile.profileType === client_1.ProfileType.HOBBY) {
-                ctx.session.activeProfile.subType = subtypeLocalizations.hobby[message];
-                ctx.session.question = 'years';
-                yield ctx.reply(ctx.t('years_question'), {
-                    reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
-                });
-            }
-            else {
-                ctx.session.question = 'years';
-                yield ctx.reply(ctx.t('years_question'), {
-                    reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
-                });
-            }
+            yield (0, changeProfileFromStart_1.changeProfileFromStart)(ctx);
         }
         else {
             yield ctx.reply(ctx.t('no_such_answer'), {

@@ -1,16 +1,11 @@
 import { ProfileLike, User } from "@prisma/client";
 import { IFile } from "../typescript/interfaces/IFile";
 import { MyContext } from "../typescript/context";
-import { answerFormKeyboard } from "../constants/keyboards";
-import { prisma } from "../db/postgres";
-import { toggleUserActive } from "./db/toggleUserActive";
-import { TranslateFunction } from "@grammyjs/i18n";
 import { getLikesCount } from "./db/getLikesInfo";
-import { bot } from "../main";
 import { getMe } from "./db/getMe";
 import { haversine, formatDistance } from "./haversine";
 import { getGameProfileLink, getGameUsername, getGameUsernameToShow } from "./gameLink";
-import { IGameProfile, IHobbyProfile, IITProfile, IProfile, IRelationshipProfile, ISportProfile } from "../typescript/interfaces/IProfile";
+import { IGameProfile, IHobbyProfile, IItProfile, IProfile, IRelationshipProfile, ISportProfile } from "../typescript/interfaces/IProfile";
 import { getUserProfile } from "./db/profilesService";
 import { ProfileType } from "@prisma/client";
 
@@ -23,6 +18,7 @@ interface IOptions {
     isBlacklist?: boolean
     blacklistCount?: number
     isInline?: boolean
+    description?: string
 }
 
 const defaultOptions: IOptions = {
@@ -32,7 +28,8 @@ const defaultOptions: IOptions = {
     privateNote: '',
     isBlacklist: false,
     blacklistCount: 0,
-    isInline: false
+    isInline: false,
+    description: ''
 }
 
 export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
@@ -58,7 +55,7 @@ const buildHobbyProfileText = (ctx: MyContext, profile: IHobbyProfile, options: 
 }
 
 // Функция для построения текста IT-анкеты
-const buildITProfileText = (ctx: MyContext, profile: IITProfile, options: IOptions = defaultOptions) => {
+const buildITProfileText = (ctx: MyContext, profile: IItProfile, options: IOptions = defaultOptions) => {
     const experienceText = ` - ${profile.experience}`
     const technologiesText = profile.technologies ? `\n🛠️ ${ctx.t('technologies')}: ${profile.technologies}` : '';
     const githubText = profile.github ? `\n🔗 ${ctx.t('github')}: [${profile.github}](https://github.com/${profile.github})` : '';
@@ -71,11 +68,7 @@ const buildITProfileText = (ctx: MyContext, profile: IITProfile, options: IOptio
 export const buildTextForm = async (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
     let count: number = 0
     if (options.like) {
-        count = await getLikesCount(String(ctx.from?.id), options.like.fromProfileType)
-    }
-
-    const getDescription = () => {
-        return ctx.session.activeProfile.description;
+        count = await getLikesCount(String(ctx.from?.id), 'user')
     }
 
     // Получаем тип профиля и соответствующую информацию
@@ -94,7 +87,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
             profileSpecificText = buildHobbyProfileText(ctx, ctx.session.activeProfile as IHobbyProfile, options);
             break;
         case 'IT':
-            profileSpecificText = buildITProfileText(ctx, ctx.session.activeProfile as IITProfile, options);
+            profileSpecificText = buildITProfileText(ctx, ctx.session.activeProfile as IItProfile, options);
             break;
         default:
             profileSpecificText = '';
@@ -109,7 +102,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
 ` : '')
         +
-        `${buildInfoText(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${getDescription() ? ` - ${getDescription()}` : ''}`
+        `${ctx.t(`profile_type_${profileType.toLowerCase()}`)}, ${buildInfoText(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
         +
         (options.like?.message ? `
             
@@ -132,13 +125,7 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
     }
     if (!user) return;
 
-    if (!user.isActive && options?.myForm) {
-        await toggleUserActive(ctx, true)
-    }
-
-    const text = await buildTextForm(ctx, user, options);
-
-    const getProfileFiles = async (user: User): Promise<IFile[]> => {
+    const getProfileFiles = async (user: User): Promise<{ files: IFile[], description: string }> => {
         try {
             // Получаем тип профиля из сессии
             const profileType = ctx.session.activeProfile.profileType as ProfileType;
@@ -146,23 +133,24 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
             // Получаем профиль пользователя
             const profile = await getUserProfile(user.id, profileType, (ctx.session.activeProfile as any).subType);
 
-            console.log('user', user, profileType, (ctx.session.activeProfile as any).subType, profile);
             if (!profile || !profile.files || profile.files.length === 0) {
-                return [];
+                return { files: [], description: '' };
             }
 
             // Преобразуем файлы в формат для отправки
-            return profile.files
+            return { files: profile.files, description: profile.description };
         } catch (error) {
             ctx.logger.error({
                 msg: 'Ошибка при получении файлов профиля',
                 error: error
             });
-            return [];
+            return { files: [], description: '' };
         }
     }
 
-    const files = await getProfileFiles(user);
+    const { files, description } = await getProfileFiles(user);
+
+    const text = await buildTextForm(ctx, user, { ...options, description: description });
 
     if (files && files.length > 0) {
         if (options.sendTo) {

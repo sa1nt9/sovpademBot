@@ -40,7 +40,6 @@ export const matchesCommand = async (ctx: MyContext) => {
         const mutualLikes = await prisma.profileLike.findMany({
             where: {
                 fromProfileId: activeProfileId,
-                fromProfileType: profileType,
                 liked: true,
                 isMutual: true
             },
@@ -69,7 +68,7 @@ export const matchesCommand = async (ctx: MyContext) => {
             const like = mutualLikes[i];
             
             // Получаем модель для целевого профиля
-            const targetProfileModel = getProfileModelName(like.toProfileType);
+            const targetProfileModel = getProfileModelName(like.profileType);
             
             // Получаем данные пользователя на основе ID профиля
             try {

@@ -19,7 +19,9 @@ export const nameQuestion = async (ctx: MyContext) => {
         }
         ctx.session.activeProfile.name = message
 
-        await ctx.reply(ctx.t('text_question'), {
+        await ctx.reply(ctx.t('text_question', {
+            profileType: ctx.session.activeProfile.profileType
+        }), {
             reply_markup: textKeyboard(ctx.t, ctx.session)
         });
     }

@@ -11,13 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setMutualLike = setMutualLike;
 const postgres_1 = require("../../db/postgres");
-function setMutualLike(userId, targetId) {
+function setMutualLike(fromProfileId, toProfileId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Обновляем оригинальный лайк
         yield postgres_1.prisma.profileLike.updateMany({
             where: {
-                fromProfileId: userId,
-                toProfileId: targetId,
+                fromProfileId: fromProfileId,
+                toProfileId: toProfileId,
                 liked: true
             },
             data: {

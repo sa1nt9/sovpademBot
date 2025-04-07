@@ -12,24 +12,47 @@ interface SaveLikeOptions {
 
 export const saveLike = async (ctx: MyContext, targetId: string, liked: boolean, options?: SaveLikeOptions) => {
     try {
-        const userId = String(ctx.message?.from.id);
+        // Создаем данные для лайка
+        const likeData = {
+            fromProfileId: ctx.session.activeProfile.id,
+            toProfileId: targetId,
+            profileType: ctx.session.activeProfile.profileType,
+            liked,
+            message: options?.message,
+            videoFileId: options?.videoFileId,
+            voiceFileId: options?.voiceFileId,
+            videoNoteFileId: options?.videoNoteFileId,
+            isMutual: options?.isMutual,
+            isMutualAt: options?.isMutual ? new Date() : undefined,
+            privateNote: options?.privateNote
+        };
 
+        // Создаем лайк
         const like = await prisma.profileLike.create({
-            data: {
-                fromProfileId: userId,
-                toProfileId: targetId,
-                fromProfileType: 'RELATIONSHIP',
-                toProfileType: 'RELATIONSHIP',
-                liked,
-                message: options?.message,
-                videoFileId: options?.videoFileId,
-                voiceFileId: options?.voiceFileId,
-                videoNoteFileId: options?.videoNoteFileId,
-                isMutual: options?.isMutual,
-                isMutualAt: options?.isMutual ? new Date() : undefined,
-                privateNote: options?.privateNote
+            data: likeData
+        });
+
+        // Проверяем взаимный лайк
+        const mutualLike = await prisma.profileLike.findFirst({
+            where: {
+                toProfileId: ctx.session.activeProfile.id,
+                fromProfileId: targetId,
+                liked: true
             }
         });
+
+        if (mutualLike && liked) {
+            // Устанавливаем взаимный лайк
+            await prisma.profileLike.update({
+                where: { id: like.id },
+                data: { isMutual: true, isMutualAt: new Date() }
+            });
+
+            await prisma.profileLike.update({
+                where: { id: mutualLike.id },
+                data: { isMutual: true, isMutualAt: new Date() }
+            });
+        }
 
         return like;
     } catch (error) {

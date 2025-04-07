@@ -12,12 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.disableFormStep = disableFormStep;
 const keyboards_1 = require("./../constants/keyboards");
 const keyboards_2 = require("../constants/keyboards");
-const toggleUserActive_1 = require("../functions/db/toggleUserActive");
 function disableFormStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         if (message === '1') {
-            yield (0, toggleUserActive_1.toggleUserActive)(ctx, false);
+            //await toggleUserActive(ctx, false)
             ctx.session.step = 'form_disabled';
             yield ctx.reply(ctx.t('form_disabled_message'), {
                 reply_markup: (0, keyboards_2.formDisabledKeyboard)(ctx.t)

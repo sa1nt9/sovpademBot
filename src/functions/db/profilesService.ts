@@ -1,6 +1,6 @@
 import { prisma } from "../../db/postgres";
 import { ProfileType, SportType, GameType, HobbyType, ITType } from "@prisma/client";
-import { IProfile, IProfileInfo, IRelationshipProfile, ISportProfile, IGameProfile, IHobbyProfile, IITProfile, TProfileSubType } from "../../typescript/interfaces/IProfile";
+import { IProfile, IProfileInfo, IRelationshipProfile, ISportProfile, IGameProfile, IHobbyProfile, IItProfile, TProfileSubType } from "../../typescript/interfaces/IProfile";
 import { IFile } from "../../typescript/interfaces/IFile";
 import { logger } from "../../logger";
 import { MyContext } from "../../typescript/context";
@@ -23,7 +23,7 @@ export async function getUserProfiles(userId: string, ctx: MyContext): Promise<I
         where: { userId }
     });
 
-    const it = await prisma.iTProfile.findMany({
+    const it = await prisma.itProfile.findMany({
         where: { userId }
     });
 
@@ -161,7 +161,7 @@ export async function getUserProfile(
         case ProfileType.IT: {
             if (!subType) return null;
 
-            const profile = await prisma.iTProfile.findUnique({
+            const profile = await prisma.itProfile.findUnique({
                 where: {
                     userId_subType: {
                         userId,
@@ -175,7 +175,7 @@ export async function getUserProfile(
             return {
                 ...profile,
                 files: JSON.parse(profile.files as string) as IFile[]
-            } as IITProfile;
+            } as IItProfile;
         }
 
 
@@ -308,9 +308,9 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
         }
 
         case 'IT': {
-            const itProfile = profile as IITProfile;
+            const itProfile = profile as IItProfile;
 
-            const saved = await prisma.iTProfile.upsert({
+            const saved = await prisma.itProfile.upsert({
                 where: {
                     userId_subType: {
                         userId: profile.userId,
@@ -340,7 +340,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
             return {
                 ...saved,
                 files: profile.files
-            } as IITProfile;
+            } as IItProfile;
         }
 
         default:
@@ -405,7 +405,7 @@ export async function toggleProfileActive(
 
             case ProfileType.IT:
                 if (!subType) return false;
-                await prisma.iTProfile.update({
+                await prisma.itProfile.update({
                     where: {
                         userId_subType: {
                             userId,

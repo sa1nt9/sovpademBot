@@ -1,8 +1,6 @@
 import { createFormKeyboard, createProfileTypeKeyboard, languageKeyboard, mainMenuKeyboard, profileKeyboard, switchProfileKeyboard } from "../constants/keyboards";
 import { prisma } from "../db/postgres";
 import { getUserProfiles } from "../functions/db/profilesService";
-import { decodeId } from "../functions/encodeId";
-import { sendForm } from "../functions/sendForm";
 import { MyContext } from "../typescript/context";
 
 export const switchCommand = async (ctx: MyContext) => {

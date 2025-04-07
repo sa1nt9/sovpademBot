@@ -1,13 +1,12 @@
 import { complainToUserKeyboard, continueSeeFormsKeyboard, profileKeyboard, somebodysLikedYouKeyboard } from "../constants/keyboards";
 import { prisma } from "../db/postgres";
-import { bot } from "../main";
 import { MyContext } from "../typescript/context";
 import { ISessionData } from "../typescript/interfaces/ISessionData";
 import { getLikesInfo } from "./db/getLikesInfo";
 import { sendForm } from "./sendForm";
 
 export async function sendLikesNotification(ctx: MyContext, targetUserId: string, isAnswer?: boolean) {
-    const { count, gender } = await getLikesInfo(targetUserId, ctx.session.activeProfile.profileType);
+    const { count, gender } = await getLikesInfo(targetUserId, 'user');
 
     try {
         const currentSession = await prisma.session.findUnique({

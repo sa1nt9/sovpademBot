@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendForm = exports.buildTextForm = exports.buildInfoText = void 0;
-const toggleUserActive_1 = require("./db/toggleUserActive");
 const getLikesInfo_1 = require("./db/getLikesInfo");
 const getMe_1 = require("./db/getMe");
 const haversine_1 = require("./haversine");
@@ -23,7 +22,8 @@ const defaultOptions = {
     privateNote: '',
     isBlacklist: false,
     blacklistCount: 0,
-    isInline: false
+    isInline: false,
+    description: ''
 };
 const buildInfoText = (ctx, form, options = defaultOptions) => {
     return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.activeProfile.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${(0, haversine_1.formatDistance)((0, haversine_1.haversine)(ctx.session.activeProfile.location.latitude, ctx.session.activeProfile.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`;
@@ -54,11 +54,8 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
     var _a, _b;
     let count = 0;
     if (options.like) {
-        count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), options.like.fromProfileType);
+        count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), 'user');
     }
-    const getDescription = () => {
-        return ctx.session.activeProfile.description;
-    };
     // Получаем тип профиля и соответствующую информацию
     const profileType = ctx.session.activeProfile.profileType;
     let profileSpecificText = '';
@@ -87,7 +84,7 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
 
 ` : '')
         +
-            `${(0, exports.buildInfoText)(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${getDescription() ? ` - ${getDescription()}` : ''}`
+            `${ctx.t(`profile_type_${profileType.toLowerCase()}`)}, ${(0, exports.buildInfoText)(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
         +
             (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `
             
@@ -109,32 +106,28 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
     }
     if (!user)
         return;
-    if (!user.isActive && (options === null || options === void 0 ? void 0 : options.myForm)) {
-        yield (0, toggleUserActive_1.toggleUserActive)(ctx, true);
-    }
-    const text = yield (0, exports.buildTextForm)(ctx, user, options);
     const getProfileFiles = (user) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Получаем тип профиля из сессии
             const profileType = ctx.session.activeProfile.profileType;
             // Получаем профиль пользователя
             const profile = yield (0, profilesService_1.getUserProfile)(user.id, profileType, ctx.session.activeProfile.subType);
-            console.log('user', user, profileType, ctx.session.activeProfile.subType, profile);
             if (!profile || !profile.files || profile.files.length === 0) {
-                return [];
+                return { files: [], description: '' };
             }
             // Преобразуем файлы в формат для отправки
-            return profile.files;
+            return { files: profile.files, description: profile.description };
         }
         catch (error) {
             ctx.logger.error({
                 msg: 'Ошибка при получении файлов профиля',
                 error: error
             });
-            return [];
+            return { files: [], description: '' };
         }
     });
-    const files = yield getProfileFiles(user);
+    const { files, description } = yield getProfileFiles(user);
+    const text = yield (0, exports.buildTextForm)(ctx, user, Object.assign(Object.assign({}, options), { description: description }));
     if (files && files.length > 0) {
         if (options.sendTo) {
             yield ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '', parse_mode: 'Markdown' }))));

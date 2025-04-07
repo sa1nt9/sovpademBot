@@ -15,9 +15,12 @@ const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
 const roulette_start_1 = require("./roulette_start");
 const candidatesEnded_1 = require("../functions/candidatesEnded");
+const changeProfileFromStart_1 = require("../functions/changeProfileFromStart");
+const profilesService_1 = require("../functions/db/profilesService");
 function profileStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
+        const userId = String(ctx.message.from.id);
         if (message === '1 🚀') {
             ctx.session.step = 'search_people';
             yield ctx.reply("✨🔍", {
@@ -33,11 +36,7 @@ function profileStep(ctx) {
             }
         }
         else if (message === '2') {
-            ctx.session.step = 'questions';
-            ctx.session.question = 'years';
-            yield ctx.reply(ctx.t('years_question'), {
-                reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
-            });
+            yield (0, changeProfileFromStart_1.changeProfileFromStart)(ctx);
         }
         else if (message === '3') {
             ctx.session.step = 'questions';
@@ -51,11 +50,20 @@ function profileStep(ctx) {
             ctx.session.step = 'questions';
             ctx.session.question = "text";
             ctx.session.additionalFormInfo.canGoBack = true;
-            yield ctx.reply(ctx.t('text_question'), {
+            yield ctx.reply(ctx.t('text_question', {
+                profileType: ctx.session.activeProfile.profileType
+            }), {
                 reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
             });
         }
-        else if (message === '5 🎲') {
+        else if (message === '5') {
+            ctx.session.step = "switch_profile";
+            const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
+            yield ctx.reply(ctx.t('switch_profile_message'), {
+                reply_markup: (0, keyboards_1.switchProfileKeyboard)(ctx.t, profiles)
+            });
+        }
+        else if (message === '6 🎲') {
             ctx.session.step = 'roulette_start';
             yield (0, roulette_start_1.showRouletteStart)(ctx);
         }

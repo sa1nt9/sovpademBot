@@ -19,7 +19,6 @@ const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
         const user = yield postgres_1.prisma.user.findUnique({
             where: {
                 id: userId,
-                isActive: true
             }
         });
         if (!user) {

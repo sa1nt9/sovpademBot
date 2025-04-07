@@ -35,13 +35,12 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
             privateNote: ctx.session.privateNote
         });
 
-        await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
+        await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId);
         
     } else {
 
         if (message === ctx.t('go_back')) {
             ctx.session.step = 'search_people'
-            ctx.session.question = 'years'
             ctx.session.additionalFormInfo.awaitingLikeContent = false;
     
             await ctx.reply("✨🔍", {
@@ -82,7 +81,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId);
         } else if (voice) {
             if (voice.duration && voice.duration > 60) {
                 await ctx.reply(ctx.t('voice_must_be_less_60'));
@@ -94,14 +93,14 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId);
         } else if (videoNote) {
             await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, {
                 videoNoteFileId: videoNote.file_id,
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId);
         } else if (message) {
             if (message.length > 400) {
                 await ctx.reply(ctx.t('long_message'));
@@ -116,7 +115,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId);
         } else {
             await ctx.reply(ctx.t('not_message_and_not_video'));
         }

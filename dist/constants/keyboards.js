@@ -141,7 +141,8 @@ const nameKeyboard = (session) => {
 exports.nameKeyboard = nameKeyboard;
 const profileKeyboard = () => ({
     keyboard: [
-        ["1 🚀", "2", "3", "4", "5 🎲"]
+        ["1 🚀", "2", "3"],
+        ["4", "5", "6 🎲"]
     ],
     resize_keyboard: true,
     is_persistent: true,

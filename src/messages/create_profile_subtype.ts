@@ -6,7 +6,7 @@ import { SportType, GameType, HobbyType, ITType } from "@prisma/client";
 import { gameLocalizationKeys } from "../functions/gameLink";
 import { getSubtypeLocalizations, getUserProfile } from '../functions/db/profilesService';
 import { youAlreadyHaveThisProfileStep } from './you_already_have_this_profile';
-
+import { changeProfileFromStart } from '../functions/changeProfileFromStart';
 export async function createProfileSubtypeStep(ctx: MyContext) {
     const message = ctx.message!.text;
     const subtypeLocalizations = getSubtypeLocalizations(ctx.t)
@@ -28,43 +28,7 @@ export async function createProfileSubtypeStep(ctx: MyContext) {
             return;
         }
 
-        ctx.session.step = "questions";
-        if (ctx.session.activeProfile.profileType === ProfileType.SPORT) {
-            ctx.session.activeProfile.subType = subtypeLocalizations.sport[message] as SportType;
-            ctx.session.question = 'sport_level'
-
-            await ctx.reply(ctx.t('sport_level_question'), {
-                reply_markup: selectSportLevelkeyboard(ctx.t)
-            });
-        } else if (ctx.session.activeProfile.profileType === ProfileType.IT) {
-            ctx.session.activeProfile.subType = subtypeLocalizations.it[message] as ITType;
-            ctx.session.question = 'it_experience'
-
-            await ctx.reply(ctx.t('it_experience_question'), {
-                reply_markup: selectItExperienceKeyboard(ctx.t)
-            });
-        } else if (ctx.session.activeProfile.profileType === ProfileType.GAME) {
-            ctx.session.activeProfile.subType = subtypeLocalizations.game[message] as GameType;
-            ctx.session.question = 'game_account'
-
-            await ctx.reply(ctx.t(gameLocalizationKeys[ctx.session.activeProfile.subType]), {
-                reply_markup: gameAccountKeyboard(ctx.t, ctx.session)
-            });
-        } else if (ctx.session.activeProfile.profileType === ProfileType.HOBBY) {
-            ctx.session.activeProfile.subType = subtypeLocalizations.hobby[message] as HobbyType;
-            ctx.session.question = 'years'
-
-            await ctx.reply(ctx.t('years_question'), {
-                reply_markup: ageKeyboard(ctx.session)
-            });
-        } else {
-            ctx.session.question = 'years'
-
-            await ctx.reply(ctx.t('years_question'), {
-                reply_markup: ageKeyboard(ctx.session)
-            });
-        }
-
+        await changeProfileFromStart(ctx)
     } else {
         await ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: createProfileSubtypeKeyboard(ctx.t, ctx.session.activeProfile.profileType)

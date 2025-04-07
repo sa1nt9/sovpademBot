@@ -5,7 +5,7 @@ import { sendForm } from "./sendForm";
 import { sendMutualSympathyAfterAnswer } from "./sendMutualSympathyAfterAnswer";
 
 export const continueSeeLikesForms = async (ctx: MyContext) => {
-    const oneLike = await getOneLike(String(ctx.from!.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
+    const oneLike = await getOneLike(String(ctx.from!.id), 'user');
 
 
     if (oneLike?.fromProfile) {

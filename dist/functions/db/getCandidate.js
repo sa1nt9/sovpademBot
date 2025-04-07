@@ -12,8 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCandidate = getCandidate;
 const client_1 = require("@prisma/client");
 const postgres_1 = require("../../db/postgres");
+const profilesService_1 = require("./profilesService");
 // Поиск кандидатов для анкеты отношений
-function getRelationshipCandidate(user, activeProfile, fourteenDaysAgo) {
+function getRelationshipCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
@@ -29,9 +30,9 @@ function getRelationshipCandidate(user, activeProfile, fourteenDaysAgo) {
                         SELECT COUNT(*) 
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id" 
-                        AND refs."createdAt" >= ${fourteenDaysAgo}
+                        AND refs."createdAt" >= ${fifteenDaysAgo}
                     ) AS INTEGER
-                ) as comeIn14Days,
+                ) as comeIn15Days,
                 CAST(
                     (
                         SELECT COUNT(*) 
@@ -41,14 +42,14 @@ function getRelationshipCandidate(user, activeProfile, fourteenDaysAgo) {
                 ) as comeInAll
             FROM "User" u
             WHERE "id" <> ${user.id}
-                AND "isActive" = true
                 AND "id" NOT IN (
-                    SELECT "toProfileId" 
-                    FROM "ProfileLike" 
-                    WHERE "fromProfileId" IN (
+                    SELECT rp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "RelationshipProfile" rp ON rp."id" = pl."toProfileId"
+                    WHERE pl."fromProfileId" IN (
                         SELECT "id" FROM "RelationshipProfile" WHERE "userId" = ${user.id}
                     )
-                    AND "createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
                 AND "id" NOT IN (
                     SELECT "targetId"
@@ -74,7 +75,7 @@ function getRelationshipCandidate(user, activeProfile, fourteenDaysAgo) {
         )
         SELECT *,
             LEAST(
-                comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5,
+                comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5,
                 100
             ) as totalBonus
         FROM RankedUsers
@@ -88,7 +89,7 @@ function getRelationshipCandidate(user, activeProfile, fourteenDaysAgo) {
     });
 }
 // Поиск кандидатов для анкеты спорта
-function getSportCandidate(user, activeProfile, fourteenDaysAgo) {
+function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
@@ -104,9 +105,9 @@ function getSportCandidate(user, activeProfile, fourteenDaysAgo) {
                         SELECT COUNT(*) 
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id" 
-                        AND refs."createdAt" >= ${fourteenDaysAgo}
+                        AND refs."createdAt" >= ${fifteenDaysAgo}
                     ) AS INTEGER
-                ) as comeIn14Days,
+                ) as comeIn15Days,
                 CAST(
                     (
                         SELECT COUNT(*) 
@@ -116,14 +117,14 @@ function getSportCandidate(user, activeProfile, fourteenDaysAgo) {
                 ) as comeInAll
             FROM "User" u
             WHERE "id" <> ${user.id}
-                AND "isActive" = true
                 AND "id" NOT IN (
-                    SELECT "toProfileId" 
-                    FROM "ProfileLike" 
-                    WHERE "fromProfileId" IN (
+                    SELECT sp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "SportProfile" sp ON sp."id" = pl."toProfileId"
+                    WHERE pl."fromProfileId" IN (
                         SELECT "id" FROM "SportProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
                     )
-                    AND "createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
                 AND "id" NOT IN (
                     SELECT "targetId"
@@ -150,7 +151,7 @@ function getSportCandidate(user, activeProfile, fourteenDaysAgo) {
         )
         SELECT *,
             LEAST(
-                comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5,
+                comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5,
                 100
             ) + 
             CASE 
@@ -174,7 +175,7 @@ function getSportCandidate(user, activeProfile, fourteenDaysAgo) {
     });
 }
 // Поиск кандидатов для анкеты игры
-function getGameCandidate(user, activeProfile, fourteenDaysAgo) {
+function getGameCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
@@ -190,9 +191,9 @@ function getGameCandidate(user, activeProfile, fourteenDaysAgo) {
                         SELECT COUNT(*) 
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id" 
-                        AND refs."createdAt" >= ${fourteenDaysAgo}
+                        AND refs."createdAt" >= ${fifteenDaysAgo}
                     ) AS INTEGER
-                ) as comeIn14Days,
+                ) as comeIn15Days,
                 CAST(
                     (
                         SELECT COUNT(*) 
@@ -202,14 +203,14 @@ function getGameCandidate(user, activeProfile, fourteenDaysAgo) {
                 ) as comeInAll
             FROM "User" u
             WHERE "id" <> ${user.id}
-                AND "isActive" = true
                 AND "id" NOT IN (
-                    SELECT "toProfileId" 
-                    FROM "ProfileLike" 
-                    WHERE "fromProfileId" IN (
+                    SELECT gp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "GameProfile" gp ON gp."id" = pl."toProfileId"
+                    WHERE pl."fromProfileId" IN (
                         SELECT "id" FROM "GameProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
                     )
-                    AND "createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
                 AND "id" NOT IN (
                     SELECT "targetId"
@@ -236,7 +237,7 @@ function getGameCandidate(user, activeProfile, fourteenDaysAgo) {
         )
         SELECT *,
             LEAST(
-                comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5,
+                comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5,
                 100
             ) as totalBonus
         FROM RankedUsers
@@ -250,7 +251,7 @@ function getGameCandidate(user, activeProfile, fourteenDaysAgo) {
     });
 }
 // Поиск кандидатов для анкеты хобби
-function getHobbyCandidate(user, activeProfile, fourteenDaysAgo) {
+function getHobbyCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
@@ -266,9 +267,9 @@ function getHobbyCandidate(user, activeProfile, fourteenDaysAgo) {
                         SELECT COUNT(*) 
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id" 
-                        AND refs."createdAt" >= ${fourteenDaysAgo}
+                        AND refs."createdAt" >= ${fifteenDaysAgo}
                     ) AS INTEGER
-                ) as comeIn14Days,
+                ) as comeIn15Days,
                 CAST(
                     (
                         SELECT COUNT(*) 
@@ -278,14 +279,14 @@ function getHobbyCandidate(user, activeProfile, fourteenDaysAgo) {
                 ) as comeInAll
             FROM "User" u
             WHERE "id" <> ${user.id}
-                AND "isActive" = true
                 AND "id" NOT IN (
-                    SELECT "toProfileId" 
-                    FROM "ProfileLike" 
-                    WHERE "fromProfileId" IN (
+                    SELECT hp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "HobbyProfile" hp ON hp."id" = pl."toProfileId"
+                    WHERE pl."fromProfileId" IN (
                         SELECT "id" FROM "HobbyProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
                     )
-                    AND "createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
                 AND "id" NOT IN (
                     SELECT "targetId"
@@ -312,7 +313,7 @@ function getHobbyCandidate(user, activeProfile, fourteenDaysAgo) {
         )
         SELECT *,
             LEAST(
-                comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5,
+                comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5,
                 100
             ) as totalBonus
         FROM RankedUsers
@@ -326,7 +327,7 @@ function getHobbyCandidate(user, activeProfile, fourteenDaysAgo) {
     });
 }
 // Поиск кандидатов для анкеты IT
-function getITCandidate(user, activeProfile, fourteenDaysAgo) {
+function getITCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
@@ -342,9 +343,9 @@ function getITCandidate(user, activeProfile, fourteenDaysAgo) {
                         SELECT COUNT(*) 
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id" 
-                        AND refs."createdAt" >= ${fourteenDaysAgo}
+                        AND refs."createdAt" >= ${fifteenDaysAgo}
                     ) AS INTEGER
-                ) as comeIn14Days,
+                ) as comeIn15Days,
                 CAST(
                     (
                         SELECT COUNT(*) 
@@ -354,14 +355,14 @@ function getITCandidate(user, activeProfile, fourteenDaysAgo) {
                 ) as comeInAll
             FROM "User" u
             WHERE "id" <> ${user.id}
-                AND "isActive" = true
                 AND "id" NOT IN (
-                    SELECT "toProfileId" 
-                    FROM "ProfileLike" 
-                    WHERE "fromProfileId" IN (
+                    SELECT ip."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "ITProfile" ip ON ip."id" = pl."toProfileId"
+                    WHERE pl."fromProfileId" IN (
                         SELECT "id" FROM "ITProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
                     )
-                    AND "createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
                 AND "id" NOT IN (
                     SELECT "targetId"
@@ -388,7 +389,7 @@ function getITCandidate(user, activeProfile, fourteenDaysAgo) {
         )
         SELECT *,
             LEAST(
-                comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5,
+                comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5,
                 100
             ) + 
             CASE 
@@ -426,22 +427,35 @@ function getCandidate(ctx) {
             if (!activeProfile)
                 return null;
             const now = new Date();
-            const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-            // Выбираем функцию поиска кандидатов в зависимости от типа профиля
+            const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+            let candidate = null;
             switch (activeProfile.profileType) {
                 case client_1.ProfileType.RELATIONSHIP:
-                    return yield getRelationshipCandidate(user, activeProfile, fourteenDaysAgo);
+                    candidate = yield getRelationshipCandidate(user, activeProfile, fifteenDaysAgo);
+                    break;
                 case client_1.ProfileType.SPORT:
-                    return yield getSportCandidate(user, activeProfile, fourteenDaysAgo);
+                    candidate = yield getSportCandidate(user, activeProfile, fifteenDaysAgo);
+                    break;
                 case client_1.ProfileType.GAME:
-                    return yield getGameCandidate(user, activeProfile, fourteenDaysAgo);
+                    candidate = yield getGameCandidate(user, activeProfile, fifteenDaysAgo);
+                    break;
                 case client_1.ProfileType.HOBBY:
-                    return yield getHobbyCandidate(user, activeProfile, fourteenDaysAgo);
+                    candidate = yield getHobbyCandidate(user, activeProfile, fifteenDaysAgo);
+                    break;
                 case client_1.ProfileType.IT:
-                    return yield getITCandidate(user, activeProfile, fourteenDaysAgo);
+                    candidate = yield getITCandidate(user, activeProfile, fifteenDaysAgo);
+                    break;
                 default:
                     return null;
             }
+            if (candidate) {
+                // Получаем профиль кандидата того же типа, что и активный профиль
+                const candidateProfile = yield (0, profilesService_1.getUserProfile)(candidate.id, activeProfile.profileType, activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP ? activeProfile.subType : undefined);
+                if (candidateProfile) {
+                    ctx.session.currentCandidateProfile = candidateProfile;
+                }
+            }
+            return candidate;
         }
         catch (error) {
             ctx.logger.error(error, 'Error getting candidate');

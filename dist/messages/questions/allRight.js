@@ -17,9 +17,7 @@ const candidatesEnded_1 = require("../../functions/candidatesEnded");
 const allRightQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const message = ctx.message.text;
     if (message === ctx.t("yes")) {
-        ctx.logger.info('yes');
         ctx.session.step = 'search_people';
-        ctx.session.question = 'years';
         yield ctx.reply("✨🔍", {
             reply_markup: (0, keyboards_1.answerFormKeyboard)()
         });

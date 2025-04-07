@@ -17,7 +17,7 @@ const sendForm_1 = require("./sendForm");
 function sendLikesNotification(ctx, targetUserId, isAnswer) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e;
-        const { count, gender } = yield (0, getLikesInfo_1.getLikesInfo)(targetUserId, ctx.session.activeProfile.profileType);
+        const { count, gender } = yield (0, getLikesInfo_1.getLikesInfo)(targetUserId, 'user');
         try {
             const currentSession = yield postgres_1.prisma.session.findUnique({
                 where: {

@@ -1,11 +1,11 @@
 import { prisma } from "../../db/postgres";
 
-export async function setMutualLike(userId: string, targetId: string) {
+export async function setMutualLike(fromProfileId: string, toProfileId: string) {
     // Обновляем оригинальный лайк
     await prisma.profileLike.updateMany({
         where: {
-            fromProfileId: userId,
-            toProfileId: targetId,
+            fromProfileId: fromProfileId,
+            toProfileId: toProfileId,
             liked: true
         },
         data: {

@@ -14,10 +14,11 @@ export const complainReasonCallbackQuery = async (ctx: MyContext) => {
     const reasonToReportType: Record<string, ReportType> = {
         "1": "adult_content",
         "2": "sale",
-        "3": "advertising",
-        "4": "scam",
-        "5": "dislike",
-        "6": "other"
+        "3": "fake",
+        "4": "advertising",
+        "5": "scam",
+        "6": "dislike",
+        "7": "other"
     };
 
     const reportType = reasonToReportType[reasonId];

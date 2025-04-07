@@ -1,6 +1,6 @@
 import { MyContext } from '../typescript/context';
 import { languages } from "../constants/languages";
-import { prepareMessageKeyboard, languageKeyboard, profileKeyboard, ageKeyboard, acceptPrivacyKeyboard } from "../constants/keyboards";
+import { prepareMessageKeyboard, languageKeyboard, profileKeyboard, ageKeyboard, acceptPrivacyKeyboard, createProfileTypeKeyboard } from "../constants/keyboards";
 import { sendForm } from '../functions/sendForm';
 import { prisma } from '../db/postgres';
 
@@ -27,11 +27,10 @@ export async function chooseLanguageStep(ctx: MyContext) {
             });
         } else {
             if (ctx.session.privacyAccepted) {
-                ctx.session.step = "questions";
-                ctx.session.question = 'years'
+                ctx.session.step = "create_profile_type"
 
-                await ctx.reply(ctx.t('years_question'), {
-                    reply_markup: ageKeyboard(ctx.session)
+                await ctx.reply(ctx.t('profile_type_title'), {
+                    reply_markup: createProfileTypeKeyboard(ctx.t)
                 });
             } else {
                 ctx.session.step = "accept_privacy";

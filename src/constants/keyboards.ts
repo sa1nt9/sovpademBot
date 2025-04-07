@@ -4,7 +4,7 @@ import { ISessionData } from "../typescript/interfaces/ISessionData"
 import { InlineKeyboard } from "grammy"
 import { REACTIONS } from "./reaction"
 import { ProfileType } from "@prisma/client"
-import { IGameProfile, IITProfile, IProfileInfo } from "../typescript/interfaces/IProfile"
+import { IGameProfile, IItProfile, IProfileInfo } from "../typescript/interfaces/IProfile"
 import { findKeyByValue, getProfileTypeLocalizations, getSubtypeLocalizations } from "../functions/db/profilesService"
 
 
@@ -136,7 +136,8 @@ export const nameKeyboard = (session: ISessionData): ReplyKeyboardMarkup | Reply
 
 export const profileKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
-        ["1 🚀", "2", "3", "4", "5 🎲"]
+        ["1 🚀", "2", "3"],
+        ["4", "5", "6 🎲"]
     ],
     resize_keyboard: true,
     is_persistent: true,
@@ -483,12 +484,12 @@ export const selectItExperienceKeyboard = (t: TranslateFunction): ReplyKeyboardM
 })
 
 export const itTechnologiesKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile as IITProfile)?.technologies ? [[t("leave_current_m")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile as IItProfile)?.technologies ? [[t("leave_current_m")], [t("skip")]] : [[t("skip")]]),
     resize_keyboard: true,
 })
 
 export const itGithubKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile as IITProfile)?.github ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile as IItProfile)?.github ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
     resize_keyboard: true,
 })
 

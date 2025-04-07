@@ -3,7 +3,6 @@ import { prisma } from '../db/postgres';
 import { continueSeeLikesForms } from '../functions/continueSeeLikesForms';
 import { candidatesEnded } from '../functions/candidatesEnded';
 import { getCandidate } from '../functions/db/getCandidate';
-import { getOneLike } from '../functions/db/getOneLike';
 import { saveLike } from '../functions/db/saveLike';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';

@@ -1,5 +1,5 @@
 import { IFile } from "./IFile";
-import { ProfileType, SportType, GameType, HobbyType, ITType } from "@prisma/client";
+import { ProfileType, SportType, GameType, HobbyType, ITType, User } from "@prisma/client";
 
 // Базовый интерфейс для всех профилей
 export interface IBaseProfile {
@@ -22,6 +22,7 @@ export interface IBaseProfile {
     createdAt?: Date;
     updatedAt?: Date;
     isFinished?: boolean;
+    user?: User;
 }
 
 export type TInterestedIn = 'male' | 'female' | 'all';
@@ -56,7 +57,7 @@ export interface IHobbyProfile extends IBaseProfile {
 }
 
 // Интерфейс для IT-профиля
-export interface IITProfile extends IBaseProfile {
+export interface IItProfile extends IBaseProfile {
     profileType: 'IT';
     subType: ITType;
     experience: string;
@@ -71,7 +72,7 @@ export type IProfile =
     | ISportProfile
     | IGameProfile
     | IHobbyProfile
-    | IITProfile;
+    | IItProfile;
 
 export type TProfileSubType = SportType | GameType | HobbyType | ITType;
 

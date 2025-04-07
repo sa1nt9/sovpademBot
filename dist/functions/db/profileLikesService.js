@@ -19,79 +19,50 @@ exports.hasMutualLike = hasMutualLike;
 const postgres_1 = require("../../db/postgres");
 const logger_1 = require("../../logger");
 // Сохранить лайк между профилями
-function saveProfileLike(fromProfileType, fromProfileId, toProfileType, toProfileId, liked, message, privateNote, videoFileId, voiceFileId, videoNoteFileId) {
+function saveProfileLike(profileType, fromProfileId, toProfileId, liked, message, privateNote, videoFileId, voiceFileId, videoNoteFileId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // Проверяем, существует ли уже лайк
-            const existingLike = yield postgres_1.prisma.profileLike.findFirst({
-                where: {
-                    fromProfileType,
+            // Создаем новый лайк
+            const newLike = yield postgres_1.prisma.profileLike.create({
+                data: {
+                    profileType,
                     fromProfileId,
-                    toProfileType,
-                    toProfileId
+                    toProfileId,
+                    liked,
+                    message,
+                    privateNote,
+                    videoFileId,
+                    voiceFileId,
+                    videoNoteFileId
                 }
             });
-            if (existingLike) {
-                // Обновляем существующий лайк
-                return yield postgres_1.prisma.profileLike.update({
-                    where: { id: existingLike.id },
-                    data: {
-                        liked,
-                        message,
-                        privateNote,
-                        videoFileId,
-                        voiceFileId,
-                        videoNoteFileId
-                    }
-                });
-            }
-            else {
-                // Создаем новый лайк
-                const newLike = yield postgres_1.prisma.profileLike.create({
-                    data: {
-                        fromProfileType,
-                        fromProfileId,
-                        toProfileType,
-                        toProfileId,
-                        liked,
-                        message,
-                        privateNote,
-                        videoFileId,
-                        voiceFileId,
-                        videoNoteFileId
-                    }
-                });
-                // Проверяем взаимный лайк
-                const mutualLike = yield postgres_1.prisma.profileLike.findFirst({
-                    where: {
-                        fromProfileType: toProfileType,
-                        fromProfileId: toProfileId,
-                        toProfileType: fromProfileType,
-                        toProfileId: fromProfileId,
-                        liked: true
-                    }
-                });
-                if (mutualLike && liked) {
-                    // Устанавливаем взаимный лайк
-                    yield postgres_1.prisma.profileLike.update({
-                        where: { id: newLike.id },
-                        data: { isMutual: true, isMutualAt: new Date() }
-                    });
-                    yield postgres_1.prisma.profileLike.update({
-                        where: { id: mutualLike.id },
-                        data: { isMutual: true, isMutualAt: new Date() }
-                    });
+            // Проверяем взаимный лайк
+            const mutualLike = yield postgres_1.prisma.profileLike.findFirst({
+                where: {
+                    fromProfileId: toProfileId,
+                    toProfileId: fromProfileId,
+                    liked: true
                 }
-                return newLike;
+            });
+            if (mutualLike && liked) {
+                // Устанавливаем взаимный лайк
+                yield postgres_1.prisma.profileLike.update({
+                    where: { id: newLike.id },
+                    data: { isMutual: true, isMutualAt: new Date() }
+                });
+                yield postgres_1.prisma.profileLike.update({
+                    where: { id: mutualLike.id },
+                    data: { isMutual: true, isMutualAt: new Date() }
+                });
             }
+            return newLike;
         }
         catch (error) {
             logger_1.logger.error({
                 error,
                 action: 'Error saving profile like',
-                fromProfileType,
+                profileType,
                 fromProfileId,
-                toProfileType,
                 toProfileId
             });
             throw error;
@@ -104,8 +75,7 @@ function getMutualLikes(profileType_1, profileId_1) {
         try {
             return yield postgres_1.prisma.profileLike.findMany({
                 where: {
-                    fromProfileType: profileType,
-                    fromProfileId: profileId,
+                    profileType: profileType,
                     liked: true,
                     isMutual: true
                 },
@@ -130,12 +100,11 @@ function getMutualLikes(profileType_1, profileId_1) {
     });
 }
 // Получить количество взаимных лайков для профиля
-function getMutualLikesCount(profileType, profileId) {
+function getMutualLikesCount(profileId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             return yield postgres_1.prisma.profileLike.count({
                 where: {
-                    fromProfileType: profileType,
                     fromProfileId: profileId,
                     liked: true,
                     isMutual: true
@@ -146,7 +115,6 @@ function getMutualLikesCount(profileType, profileId) {
             logger_1.logger.error({
                 error,
                 action: 'Error getting mutual likes count',
-                profileType,
                 profileId
             });
             throw error;
@@ -154,14 +122,12 @@ function getMutualLikesCount(profileType, profileId) {
     });
 }
 // Получить лайк между профилями
-function getProfileLike(fromProfileType, fromProfileId, toProfileType, toProfileId) {
+function getProfileLike(fromProfileId, toProfileId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             return yield postgres_1.prisma.profileLike.findFirst({
                 where: {
-                    fromProfileType,
                     fromProfileId,
-                    toProfileType,
                     toProfileId
                 }
             });
@@ -170,9 +136,7 @@ function getProfileLike(fromProfileType, fromProfileId, toProfileType, toProfile
             logger_1.logger.error({
                 error,
                 action: 'Error getting profile like',
-                fromProfileType,
                 fromProfileId,
-                toProfileType,
                 toProfileId
             });
             throw error;
@@ -180,12 +144,11 @@ function getProfileLike(fromProfileType, fromProfileId, toProfileType, toProfile
     });
 }
 // Получить профили, которые лайкнули данный профиль
-function getProfileLikes(profileType_1, profileId_1) {
-    return __awaiter(this, arguments, void 0, function* (profileType, profileId, limit = 10, offset = 0) {
+function getProfileLikes(profileId_1) {
+    return __awaiter(this, arguments, void 0, function* (profileId, limit = 10, offset = 0) {
         try {
             return yield postgres_1.prisma.profileLike.findMany({
                 where: {
-                    toProfileType: profileType,
                     toProfileId: profileId,
                     liked: true
                 },
@@ -200,7 +163,6 @@ function getProfileLikes(profileType_1, profileId_1) {
             logger_1.logger.error({
                 error,
                 action: 'Error getting profile likes',
-                profileType,
                 profileId,
                 limit,
                 offset
@@ -215,7 +177,6 @@ function getProfileLikesCount(profileType, profileId) {
         try {
             return yield postgres_1.prisma.profileLike.count({
                 where: {
-                    toProfileType: profileType,
                     toProfileId: profileId,
                     liked: true
                 }
@@ -233,23 +194,19 @@ function getProfileLikesCount(profileType, profileId) {
     });
 }
 // Проверить, есть ли взаимный лайк между профилями
-function hasMutualLike(profileType1, profileId1, profileType2, profileId2) {
+function hasMutualLike(profileId1, profileId2) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const like1 = yield postgres_1.prisma.profileLike.findFirst({
                 where: {
-                    fromProfileType: profileType1,
                     fromProfileId: profileId1,
-                    toProfileType: profileType2,
                     toProfileId: profileId2,
                     liked: true
                 }
             });
             const like2 = yield postgres_1.prisma.profileLike.findFirst({
                 where: {
-                    fromProfileType: profileType2,
                     fromProfileId: profileId2,
-                    toProfileType: profileType1,
                     toProfileId: profileId1,
                     liked: true
                 }
@@ -260,9 +217,7 @@ function hasMutualLike(profileType1, profileId1, profileType2, profileId2) {
             logger_1.logger.error({
                 error,
                 action: 'Error checking mutual like',
-                profileType1,
                 profileId1,
-                profileType2,
                 profileId2
             });
             throw error;

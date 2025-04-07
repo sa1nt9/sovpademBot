@@ -1,6 +1,6 @@
 import { prisma } from "../db/postgres";
 import { sendForm } from "../functions/sendForm";
-import { formDisabledKeyboard, mainMenuKeyboard } from "../constants/keyboards";
+import { mainMenuKeyboard } from "../constants/keyboards";
 import { MyContext } from "../typescript/context";
 
 export const matchCallbackQuery = async (ctx: MyContext) => {
@@ -11,7 +11,6 @@ export const matchCallbackQuery = async (ctx: MyContext) => {
     const targetUser = await prisma.user.findUnique({
         where: {
             id: targetUserId,
-            isActive: true
         }
     });
 

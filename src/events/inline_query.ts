@@ -11,7 +11,6 @@ export const inlineQueryEvent = async (ctx: MyContext) => {
         const user = await prisma.user.findUnique({
             where: {
                 id: userId,
-                isActive: true
             }
         });
 

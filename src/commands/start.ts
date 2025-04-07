@@ -43,7 +43,7 @@ export const startCommand = async (ctx: MyContext) => {
                 const userId = decodeId(encodedId);
                 if (userId) {
                     const user = await prisma.user.findUnique({
-                        where: { id: userId, isActive: true },
+                        where: { id: userId },
                     });
                     if (user && user?.id !== existingUser?.id) {
                         if (existingUser?.id) {

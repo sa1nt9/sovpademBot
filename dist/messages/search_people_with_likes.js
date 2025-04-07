@@ -19,17 +19,18 @@ const sendLikesNotification_1 = require("../functions/sendLikesNotification");
 const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
 function searchPeopleWithLikesStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         const message = ctx.message.text;
         if (message === '❤️') {
             if (ctx.session.currentCandidateProfile) {
                 ctx.logger.info(ctx.session.currentCandidateProfile, 'Candidate to set mutual like');
-                yield (0, setMutualLike_1.setMutualLike)(ctx.session.currentCandidateProfile.id, String(ctx.from.id));
+                yield (0, setMutualLike_1.setMutualLike)(ctx.session.currentCandidateProfile.id, ctx.session.activeProfile.id);
                 yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidateProfile.id, true, { isMutual: true });
-                const userInfo = yield ctx.api.getChat(ctx.session.currentCandidateProfile.id);
-                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.id, true);
+                const userInfo = yield ctx.api.getChat(ctx.session.currentCandidateProfile.userId);
+                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId, true);
                 ctx.session.step = 'continue_see_likes_forms';
-                yield ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidateProfile.name}](https://t.me/${userInfo.username})`, {
-                    reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String(ctx.session.currentCandidateProfile.id)),
+                yield ctx.reply(`${ctx.t('good_mutual_sympathy')} [${(_a = ctx.session.currentCandidateProfile.user) === null || _a === void 0 ? void 0 : _a.name}](https://t.me/${userInfo.username})`, {
+                    reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String(ctx.session.currentCandidateProfile.userId)),
                     link_preview_options: {
                         is_disabled: true
                     },
@@ -44,7 +45,7 @@ function searchPeopleWithLikesStep(ctx) {
                     yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
                     return;
                 }
-                const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
+                const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id), 'user');
                 if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile) {
                     ctx.session.currentCandidateProfile = oneLike.fromProfile;
                     yield (0, sendForm_1.sendForm)(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });

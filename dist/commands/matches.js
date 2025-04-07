@@ -41,7 +41,6 @@ const matchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         const mutualLikes = yield postgres_1.prisma.profileLike.findMany({
             where: {
                 fromProfileId: activeProfileId,
-                fromProfileType: profileType,
                 liked: true,
                 isMutual: true
             },
@@ -64,7 +63,7 @@ const matchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         for (let i = 0; i < mutualLikes.length; i++) {
             const like = mutualLikes[i];
             // Получаем модель для целевого профиля
-            const targetProfileModel = (0, profilesService_1.getProfileModelName)(like.toProfileType);
+            const targetProfileModel = (0, profilesService_1.getProfileModelName)(like.profileType);
             // Получаем данные пользователя на основе ID профиля
             try {
                 // Находим профиль пользователя с включением данных о пользователе

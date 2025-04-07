@@ -33,7 +33,7 @@ function getUserProfiles(userId, ctx) {
         const hobbies = yield postgres_1.prisma.hobbyProfile.findMany({
             where: { userId }
         });
-        const it = yield postgres_1.prisma.iTProfile.findMany({
+        const it = yield postgres_1.prisma.itProfile.findMany({
             where: { userId }
         });
         const profiles = [];
@@ -139,7 +139,7 @@ function getUserProfile(userId, profileType, subType) {
             case client_1.ProfileType.IT: {
                 if (!subType)
                     return null;
-                const profile = yield postgres_1.prisma.iTProfile.findUnique({
+                const profile = yield postgres_1.prisma.itProfile.findUnique({
                     where: {
                         userId_subType: {
                             userId,
@@ -257,7 +257,7 @@ function saveProfile(profile) {
             }
             case 'IT': {
                 const itProfile = profile;
-                const saved = yield postgres_1.prisma.iTProfile.upsert({
+                const saved = yield postgres_1.prisma.itProfile.upsert({
                     where: {
                         userId_subType: {
                             userId: profile.userId,
@@ -343,7 +343,7 @@ function toggleProfileActive(userId, profileType, isActive, subType) {
                 case client_1.ProfileType.IT:
                     if (!subType)
                         return false;
-                    yield postgres_1.prisma.iTProfile.update({
+                    yield postgres_1.prisma.itProfile.update({
                         where: {
                             userId_subType: {
                                 userId,

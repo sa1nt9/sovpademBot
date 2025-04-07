@@ -51,7 +51,7 @@ const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 const userId = (0, encodeId_1.decodeId)(encodedId);
                 if (userId) {
                     const user = yield postgres_1.prisma.user.findUnique({
-                        where: { id: userId, isActive: true },
+                        where: { id: userId },
                     });
                     if (user && (user === null || user === void 0 ? void 0 : user.id) !== (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id)) {
                         if (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id) {

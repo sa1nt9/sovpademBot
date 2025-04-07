@@ -1,13 +1,12 @@
 import { disableFormKeyboard } from './../constants/keyboards';
 import { formDisabledKeyboard, profileKeyboard } from '../constants/keyboards';
-import { toggleUserActive } from '../functions/db/toggleUserActive';
 import { MyContext } from '../typescript/context';
 
 export async function disableFormStep(ctx: MyContext) {
     const message = ctx.message!.text;
     
     if (message === '1') {
-        await toggleUserActive(ctx, false)
+        //await toggleUserActive(ctx, false)
 
         ctx.session.step = 'form_disabled'
 

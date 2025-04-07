@@ -16,10 +16,9 @@ function youDontHaveFormStep(ctx) {
         const message = ctx.message.text;
         if (message === ctx.t('create_form')) {
             if (ctx.session.privacyAccepted) {
-                ctx.session.step = "questions";
-                ctx.session.question = 'years';
-                yield ctx.reply(ctx.t('years_question'), {
-                    reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
+                ctx.session.step = "create_profile_type";
+                yield ctx.reply(ctx.t('profile_type_title'), {
+                    reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
                 });
             }
             else {

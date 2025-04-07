@@ -42,12 +42,11 @@ function textOrVideoToUserStep(ctx) {
             yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidateProfile.id, true, {
                 privateNote: ctx.session.privateNote
             });
-            yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.id);
+            yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId);
         }
         else {
             if (message === ctx.t('go_back')) {
                 ctx.session.step = 'search_people';
-                ctx.session.question = 'years';
                 ctx.session.additionalFormInfo.awaitingLikeContent = false;
                 yield ctx.reply("✨🔍", {
                     reply_markup: (0, keyboards_1.answerFormKeyboard)()
@@ -81,7 +80,7 @@ function textOrVideoToUserStep(ctx) {
                     videoFileId: video.file_id,
                     privateNote: isPrivateNote ? ctx.session.privateNote : undefined
                 });
-                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.id);
+                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId);
             }
             else if (voice) {
                 if (voice.duration && voice.duration > 60) {
@@ -92,14 +91,14 @@ function textOrVideoToUserStep(ctx) {
                     voiceFileId: voice.file_id,
                     privateNote: isPrivateNote ? ctx.session.privateNote : undefined
                 });
-                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.id);
+                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId);
             }
             else if (videoNote) {
                 yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidateProfile.id, true, {
                     videoNoteFileId: videoNote.file_id,
                     privateNote: isPrivateNote ? ctx.session.privateNote : undefined
                 });
-                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.id);
+                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId);
             }
             else if (message) {
                 if (message.length > 400) {
@@ -114,7 +113,7 @@ function textOrVideoToUserStep(ctx) {
                     message: message,
                     privateNote: isPrivateNote ? ctx.session.privateNote : undefined
                 });
-                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.id);
+                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId);
             }
             else {
                 yield ctx.reply(ctx.t('not_message_and_not_video'));

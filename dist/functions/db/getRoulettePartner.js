@@ -25,7 +25,7 @@ function getRoulettePartner(ctx) {
             }
             // Расчет периода для бонусных очков
             const now = new Date();
-            const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+            const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
             // Находим подходящего партнера, используя сложную сортировку
             const partners = yield postgres_1.prisma.$queryRaw `
             WITH RankedPartners AS (
@@ -50,8 +50,8 @@ function getRoulettePartner(ctx) {
                     -- Бонус за соответствие гендерных предпочтений
                     CASE 
                         WHEN u."gender"::text = ${user.gender}
-                        THEN 50
-                        ELSE 0
+                        THEN 0
+                        ELSE 50
                     END as gender_bonus,
                     -- Бонус за активность (приведенные пользователи)
                     (
@@ -60,13 +60,13 @@ function getRoulettePartner(ctx) {
                                 SELECT COUNT(*) 
                                 FROM "User" as refs 
                                 WHERE refs."referrerId" = u."id" 
-                                AND refs."createdAt" >= ${fourteenDaysAgo}
+                                AND refs."createdAt" >= ${fifteenDaysAgo}
                             ) * 10 + 
                             (
                                 SELECT COUNT(*) 
                                 FROM "User" as refs 
                                 WHERE refs."referrerId" = u."id" 
-                                AND refs."createdAt" < ${fourteenDaysAgo}
+                                AND refs."createdAt" < ${fifteenDaysAgo}
                             ) * 5
                         AS INTEGER)
                     ) as referral_bonus

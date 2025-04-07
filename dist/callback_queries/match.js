@@ -20,7 +20,6 @@ const matchCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* 
     const targetUser = yield postgres_1.prisma.user.findUnique({
         where: {
             id: targetUserId,
-            isActive: true
         }
     });
     if (!targetUser) {

@@ -13,34 +13,77 @@ exports.getLikesCount = getLikesCount;
 exports.getLikesInfo = getLikesInfo;
 const postgres_1 = require("../../db/postgres");
 const logger_1 = require("../../logger");
-function getLikesCount(targetProfileId, profileType) {
+function getLikesCount(targetId, type) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // Получаем все ID профилей, которым текущий профиль уже поставил лайк или дизлайк
-            const alreadyRespondedToIds = yield postgres_1.prisma.profileLike.findMany({
-                where: {
-                    fromProfileId: targetProfileId,
-                    fromProfileType: profileType,
-                },
-                select: {
-                    toProfileId: true
-                }
-            });
-            // Формируем массив ID, которым уже был дан ответ
-            const respondedIds = alreadyRespondedToIds.map((item) => item.toProfileId);
-            // Подсчитываем количество лайков, полученных профилем
-            const count = yield postgres_1.prisma.profileLike.count({
-                where: {
-                    toProfileId: targetProfileId,
-                    toProfileType: profileType,
-                    liked: true,
-                    // Исключаем профили, которым уже был дан ответ
-                    fromProfileId: {
-                        notIn: respondedIds
+            if (type === 'user') {
+                // Получаем все профили пользователя
+                const userProfiles = yield postgres_1.prisma.$queryRaw `
+                SELECT id, "profileType" FROM (
+                    SELECT id, 'RELATIONSHIP'::text as "profileType" FROM "RelationshipProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'SPORT'::text as "profileType" FROM "SportProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'GAME'::text as "profileType" FROM "GameProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'HOBBY'::text as "profileType" FROM "HobbyProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'IT'::text as "profileType" FROM "ItProfile" WHERE "userId" = ${targetId}
+                ) as profiles
+            `;
+                // Получаем все ID профилей, на которые пользователь уже ответил
+                const alreadyRespondedToIds = yield postgres_1.prisma.profileLike.findMany({
+                    where: {
+                        fromProfileId: {
+                            in: userProfiles.map((p) => p.id)
+                        }
+                    },
+                    select: {
+                        toProfileId: true
                     }
-                }
-            });
-            return count;
+                });
+                // Формируем массив ID, на которые уже был дан ответ
+                const respondedIds = alreadyRespondedToIds.map((item) => item.toProfileId);
+                // Подсчитываем количество лайков для всех профилей пользователя
+                const count = yield postgres_1.prisma.profileLike.count({
+                    where: {
+                        toProfileId: {
+                            in: userProfiles.map((p) => p.id)
+                        },
+                        liked: true,
+                        // Исключаем профили, которым уже был дан ответ
+                        fromProfileId: {
+                            notIn: respondedIds
+                        }
+                    }
+                });
+                return count;
+            }
+            else {
+                // Получаем все ID профилей, которым текущий профиль уже поставил лайк или дизлайк
+                const alreadyRespondedToIds = yield postgres_1.prisma.profileLike.findMany({
+                    where: {
+                        fromProfileId: targetId,
+                    },
+                    select: {
+                        toProfileId: true
+                    }
+                });
+                // Формируем массив ID, которым уже был дан ответ
+                const respondedIds = alreadyRespondedToIds.map((item) => item.toProfileId);
+                // Подсчитываем количество лайков, полученных профилем
+                const count = yield postgres_1.prisma.profileLike.count({
+                    where: {
+                        toProfileId: targetId,
+                        liked: true,
+                        // Исключаем профили, которым уже был дан ответ
+                        fromProfileId: {
+                            notIn: respondedIds
+                        }
+                    }
+                });
+                return count;
+            }
         }
         catch (error) {
             console.error("Error in getLikesCount:", error);
@@ -48,113 +91,202 @@ function getLikesCount(targetProfileId, profileType) {
         }
     });
 }
-function getLikesInfo(targetProfileId, profileType) {
+function getLikesInfo(targetId, type) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // Получаем все ID профилей, которым текущий профиль уже поставил лайк или дизлайк
-            const alreadyRespondedToIds = yield postgres_1.prisma.profileLike.findMany({
-                where: {
-                    fromProfileId: targetProfileId,
-                    fromProfileType: profileType,
-                },
-                select: {
-                    toProfileId: true
-                }
-            });
-            // Формируем массив ID, которым уже был дан ответ
-            const respondedIds = alreadyRespondedToIds.map((item) => item.toProfileId);
-            // Получаем информацию о профилях, которые поставили лайк
-            const likers = yield postgres_1.prisma.profileLike.findMany({
-                where: {
-                    toProfileId: targetProfileId,
-                    toProfileType: profileType,
-                    liked: true,
-                    // Исключаем профили, которым уже был дан ответ
-                    fromProfileId: {
-                        notIn: respondedIds
+            if (type === 'user') {
+                // Получаем все профили пользователя
+                const userProfiles = yield postgres_1.prisma.$queryRaw `
+                SELECT id, "profileType" FROM (
+                    SELECT id, 'RELATIONSHIP'::text as "profileType" FROM "RelationshipProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'SPORT'::text as "profileType" FROM "SportProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'GAME'::text as "profileType" FROM "GameProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'HOBBY'::text as "profileType" FROM "HobbyProfile" WHERE "userId" = ${targetId}
+                    UNION ALL
+                    SELECT id, 'IT'::text as "profileType" FROM "ItProfile" WHERE "userId" = ${targetId}
+                ) as profiles
+            `;
+                // Получаем все ID профилей, на которые пользователь уже ответил
+                const alreadyRespondedToIds = yield postgres_1.prisma.profileLike.findMany({
+                    where: {
+                        fromProfileId: {
+                            in: userProfiles.map((p) => p.id)
+                        }
+                    },
+                    select: {
+                        toProfileId: true
                     }
-                },
-                include: {
-                    relationshipFrom: {
-                        include: {
-                            user: {
-                                select: {
-                                    gender: true
-                                }
-                            }
+                });
+                // Формируем массив ID, на которые уже был дан ответ
+                const respondedIds = alreadyRespondedToIds.map((item) => item.toProfileId);
+                // Получаем все лайки для всех профилей пользователя
+                const likers = yield postgres_1.prisma.profileLike.findMany({
+                    where: {
+                        toProfileId: {
+                            in: userProfiles.map((p) => p.id)
+                        },
+                        liked: true,
+                        // Исключаем профили, которым уже был дан ответ
+                        fromProfileId: {
+                            notIn: respondedIds
                         }
-                    },
-                    sportFrom: {
-                        include: {
-                            user: {
-                                select: {
-                                    gender: true
-                                }
-                            }
+                    }
+                });
+                const count = likers.length;
+                // Группируем лайки по типу профиля
+                const likersByType = likers.reduce((acc, liker) => {
+                    if (!acc[liker.profileType]) {
+                        acc[liker.profileType] = [];
+                    }
+                    acc[liker.profileType].push(liker.fromProfileId);
+                    return acc;
+                }, {});
+                const genders = new Set();
+                // Для каждого типа профиля получаем информацию о пользователях
+                for (const [profileType, profileIds] of Object.entries(likersByType)) {
+                    let users;
+                    switch (profileType) {
+                        case 'RELATIONSHIP': {
+                            users = yield postgres_1.prisma.relationshipProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
                         }
-                    },
-                    gameFrom: {
-                        include: {
-                            user: {
-                                select: {
-                                    gender: true
-                                }
-                            }
+                        case 'SPORT': {
+                            users = yield postgres_1.prisma.sportProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
                         }
-                    },
-                    hobbyFrom: {
-                        include: {
-                            user: {
-                                select: {
-                                    gender: true
-                                }
-                            }
+                        case 'GAME': {
+                            users = yield postgres_1.prisma.gameProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
                         }
-                    },
-                    itFrom: {
-                        include: {
-                            user: {
-                                select: {
-                                    gender: true
-                                }
-                            }
+                        case 'HOBBY': {
+                            users = yield postgres_1.prisma.hobbyProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
                         }
-                    },
+                        case 'IT': {
+                            users = yield postgres_1.prisma.itProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
+                        }
+                    }
+                    // Добавляем пол каждого пользователя в множество
+                    users === null || users === void 0 ? void 0 : users.forEach(user => {
+                        genders.add(user.user.gender || 'male');
+                    });
                 }
-            });
-            const count = likers.length;
-            // Получаем пол для каждого профиля, учитывая тип профиля
-            const genders = new Set(likers.map(liker => {
-                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-                let gender = 'male'; // По умолчанию
-                // Проверяем тип профиля и получаем соответствующий объект
-                switch (liker.fromProfileType) {
-                    case 'RELATIONSHIP':
-                        gender = ((_b = (_a = liker.relationshipFrom) === null || _a === void 0 ? void 0 : _a.user) === null || _b === void 0 ? void 0 : _b.gender) || 'male';
-                        break;
-                    case 'SPORT':
-                        gender = ((_d = (_c = liker.sportFrom) === null || _c === void 0 ? void 0 : _c.user) === null || _d === void 0 ? void 0 : _d.gender) || 'male';
-                        break;
-                    case 'GAME':
-                        gender = ((_f = (_e = liker.gameFrom) === null || _e === void 0 ? void 0 : _e.user) === null || _f === void 0 ? void 0 : _f.gender) || 'male';
-                        break;
-                    case 'HOBBY':
-                        gender = ((_h = (_g = liker.hobbyFrom) === null || _g === void 0 ? void 0 : _g.user) === null || _h === void 0 ? void 0 : _h.gender) || 'male';
-                        break;
-                    case 'IT':
-                        gender = ((_k = (_j = liker.itFrom) === null || _j === void 0 ? void 0 : _j.user) === null || _k === void 0 ? void 0 : _k.gender) || 'male';
-                        break;
+                console.log('likesInfo', likers, respondedIds, likersByType);
+                let gender;
+                if (genders.size === 1) {
+                    gender = genders.has('female') ? 'female' : 'male';
                 }
-                return gender;
-            }));
-            let gender;
-            if (genders.size === 1) {
-                gender = genders.has('female') ? 'female' : 'male';
+                else {
+                    gender = 'all';
+                }
+                return { count, gender };
             }
             else {
-                gender = 'all';
+                // Получаем все ID профилей, которым текущий профиль уже поставил лайк или дизлайк
+                const alreadyRespondedToIds = yield postgres_1.prisma.profileLike.findMany({
+                    where: {
+                        fromProfileId: targetId,
+                    },
+                    select: {
+                        toProfileId: true
+                    }
+                });
+                // Формируем массив ID, которым уже был дан ответ
+                const respondedIds = alreadyRespondedToIds.map((item) => item.toProfileId);
+                // Получаем все лайки, которые получил профиль
+                const likers = yield postgres_1.prisma.profileLike.findMany({
+                    where: {
+                        toProfileId: targetId,
+                        liked: true,
+                        // Исключаем профили, которым уже был дан ответ
+                        fromProfileId: {
+                            notIn: respondedIds
+                        }
+                    }
+                });
+                const count = likers.length;
+                // Группируем лайки по типу профиля
+                const likersByType = likers.reduce((acc, liker) => {
+                    if (!acc[liker.profileType]) {
+                        acc[liker.profileType] = [];
+                    }
+                    acc[liker.profileType].push(liker.fromProfileId);
+                    return acc;
+                }, {});
+                const genders = new Set();
+                // Для каждого типа профиля получаем информацию о пользователях
+                for (const [profileType, profileIds] of Object.entries(likersByType)) {
+                    let users;
+                    switch (profileType) {
+                        case 'RELATIONSHIP': {
+                            users = yield postgres_1.prisma.relationshipProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
+                        }
+                        case 'SPORT': {
+                            users = yield postgres_1.prisma.sportProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
+                        }
+                        case 'GAME': {
+                            users = yield postgres_1.prisma.gameProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
+                        }
+                        case 'HOBBY': {
+                            users = yield postgres_1.prisma.hobbyProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
+                        }
+                        case 'IT': {
+                            users = yield postgres_1.prisma.itProfile.findMany({
+                                where: { id: { in: profileIds } },
+                                include: { user: { select: { gender: true } } }
+                            });
+                            break;
+                        }
+                    }
+                    // Добавляем пол каждого пользователя в множество
+                    users === null || users === void 0 ? void 0 : users.forEach(user => {
+                        genders.add(user.user.gender || 'male');
+                    });
+                }
+                let gender;
+                if (genders.size === 1) {
+                    gender = genders.has('female') ? 'female' : 'male';
+                }
+                else {
+                    gender = 'all';
+                }
+                return { count, gender };
             }
-            return { count, gender };
         }
         catch (error) {
             logger_1.logger.error(error, "Error in getLikesInfo:");

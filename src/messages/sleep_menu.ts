@@ -1,4 +1,4 @@
-import { answerFormKeyboard, disableFormKeyboard, goBackKeyboard, inviteFriendsKeyboard, profileKeyboard, rouletteStartKeyboard } from '../constants/keyboards';
+import { answerFormKeyboard, disableFormKeyboard, goBackKeyboard, inviteFriendsKeyboard, profileKeyboard, rouletteStartKeyboard, switchProfileKeyboard } from '../constants/keyboards';
 import { prisma } from '../db/postgres';
 import { getCandidate } from '../functions/db/getCandidate';
 import { encodeId } from '../functions/encodeId';
@@ -6,12 +6,13 @@ import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
 import { showRouletteStart } from './roulette_start';
 import { candidatesEnded } from '../functions/candidatesEnded';
+import { getUserProfiles } from '../functions/db/profilesService';
 export async function sleepMenuStep(ctx: MyContext) {
     const message = ctx.message!.text;
+    const userId = String(ctx.message!.from.id);
 
     if (message === '1 🚀') {
         ctx.session.step = 'search_people'
-        ctx.session.question = 'years'
 
         await ctx.reply("✨🔍", {
             reply_markup: answerFormKeyboard()
@@ -42,6 +43,14 @@ export async function sleepMenuStep(ctx: MyContext) {
         })
 
     } else if (message === '4') {
+        ctx.session.step = "switch_profile";
+
+        const profiles = await getUserProfiles(userId, ctx);
+
+        await ctx.reply(ctx.t('switch_profile_message'), {
+            reply_markup: switchProfileKeyboard(ctx.t, profiles)
+        });
+    } else if (message === '5') {
         ctx.session.step = 'friends'
 
         const encodedId = encodeId(String(ctx.message!.from.id));
@@ -49,13 +58,13 @@ export async function sleepMenuStep(ctx: MyContext) {
         const text = `${ctx.t('invite_link_message', { botname: process.env.CHANNEL_NAME || "" })}`
 
         const now = new Date();
-        const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+        const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
 
-        const comeIn14Days = await prisma.user.count({
+        const comeIn15Days = await prisma.user.count({
             where: {
                 referrerId: String(ctx.message!.from.id),
                 createdAt: {
-                    gte: fourteenDaysAgo
+                    gte: fifteenDaysAgo
                 }
             }
         })
@@ -64,9 +73,9 @@ export async function sleepMenuStep(ctx: MyContext) {
                 referrerId: String(ctx.message!.from.id)
             }
         })
-        const bonus = Math.min(comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5, 100)
+        const bonus = Math.min(comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5, 100)
 
-        await ctx.reply(ctx.t('invite_friends_message', { bonus, comeIn14Days, comeInAll }), {
+        await ctx.reply(ctx.t('invite_friends_message', { bonus, comeIn15Days, comeInAll }), {
             reply_markup: goBackKeyboard(ctx.t),
         });
 
@@ -76,7 +85,7 @@ export async function sleepMenuStep(ctx: MyContext) {
         await ctx.reply(inviteLinkText, {
             reply_markup: inviteFriendsKeyboard(ctx.t, url, text),
         });
-    } else if (message === '5 🎲') {
+    } else if (message === '6 🎲') {
         ctx.session.step = 'roulette_start';
         
         await showRouletteStart(ctx);

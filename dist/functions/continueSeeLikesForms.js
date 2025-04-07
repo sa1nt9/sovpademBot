@@ -15,7 +15,7 @@ const getOneLike_1 = require("./db/getOneLike");
 const sendForm_1 = require("./sendForm");
 const sendMutualSympathyAfterAnswer_1 = require("./sendMutualSympathyAfterAnswer");
 const continueSeeLikesForms = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
+    const oneLike = yield (0, getOneLike_1.getOneLike)(String(ctx.from.id), 'user');
     if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile) {
         if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx, { withoutSleepMenu: true });

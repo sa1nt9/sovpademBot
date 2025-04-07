@@ -8,9 +8,7 @@ export const allRightQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
     
     if (message === ctx.t("yes")) {
-        ctx.logger.info('yes')
         ctx.session.step = 'search_people'
-        ctx.session.question = 'years'
 
         await ctx.reply("✨🔍", {
             reply_markup: answerFormKeyboard()

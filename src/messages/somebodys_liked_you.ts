@@ -5,12 +5,14 @@ import { MyContext } from '../typescript/context';
 
 export async function somebodysLikedYouStep(ctx: MyContext) {
     const message = ctx.message!.text;
+    const userId = String(ctx.from!.id);
     
     if (message === '1 👍') {
         ctx.session.step = 'search_people_with_likes'
         ctx.session.additionalFormInfo.searchingLikes = true
 
-        const oneLike = await getOneLike(String(ctx.from!.id), ctx.session.activeProfile.profileType, ctx.session.activeProfile.id);
+        const oneLike = await getOneLike(userId, 'user');
+        console.log("oneLike", oneLike);
 
         ctx.session.currentCandidateProfile = oneLike?.fromProfile
 
@@ -19,7 +21,7 @@ export async function somebodysLikedYouStep(ctx: MyContext) {
         });
 
         if (oneLike?.fromProfile) {
-            await sendForm(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
+            await sendForm(ctx, oneLike.fromProfile.user, { myForm: false, like: oneLike });
         }
 
     } else if (message === '2 💤') {

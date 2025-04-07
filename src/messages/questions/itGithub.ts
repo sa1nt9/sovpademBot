@@ -3,7 +3,7 @@ import { saveUser } from "../../functions/db/saveUser";
 import { hasLinks } from "../../functions/hasLinks";
 import { sendForm } from "../../functions/sendForm";
 import { MyContext } from "../../typescript/context";
-import { IITProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
+import { IItProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
 import { githubLinkRegex } from "../../constants/regex/githubLinkRegex";
 import { checkGithubUserExists, getGithubUsername } from "../../functions/githubLink";
 
@@ -43,7 +43,7 @@ export const itGithubQuestion = async (ctx: MyContext) => {
                     return;
                 }
             }
-            (ctx.session.activeProfile as IITProfile).github = (!message || message === ctx.t('skip')) ? "" : (getGithubUsername(message) || "")    
+            (ctx.session.activeProfile as IItProfile).github = (!message || message === ctx.t('skip')) ? "" : (getGithubUsername(message) || "")    
         }
         if (ctx.session.additionalFormInfo.canGoBack) {
             ctx.session.step = 'profile'

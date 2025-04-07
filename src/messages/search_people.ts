@@ -6,13 +6,16 @@ import { sendLikesNotification } from '../functions/sendLikesNotification';
 import { MyContext } from '../typescript/context';
 import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
 import { candidatesEnded } from '../functions/candidatesEnded';
+
+
 export async function searchPeopleStep(ctx: MyContext) {
     const message = ctx.message!.text;
 
     if (message === '❤️') {
         if (ctx.session.currentCandidateProfile) {
+            ctx.logger.info(ctx.session.currentCandidateProfile, '❤️')
             await saveLike(ctx, ctx.session.currentCandidateProfile.id, true);
-            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.id);
+            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId);
 
             // Проверяем наличие отложенной взаимной симпатии
             if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {

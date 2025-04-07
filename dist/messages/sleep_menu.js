@@ -17,12 +17,13 @@ const encodeId_1 = require("../functions/encodeId");
 const sendForm_1 = require("../functions/sendForm");
 const roulette_start_1 = require("./roulette_start");
 const candidatesEnded_1 = require("../functions/candidatesEnded");
+const profilesService_1 = require("../functions/db/profilesService");
 function sleepMenuStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
+        const userId = String(ctx.message.from.id);
         if (message === '1 🚀') {
             ctx.session.step = 'search_people';
-            ctx.session.question = 'years';
             yield ctx.reply("✨🔍", {
                 reply_markup: (0, keyboards_1.answerFormKeyboard)()
             });
@@ -49,17 +50,24 @@ function sleepMenuStep(ctx) {
             });
         }
         else if (message === '4') {
+            ctx.session.step = "switch_profile";
+            const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
+            yield ctx.reply(ctx.t('switch_profile_message'), {
+                reply_markup: (0, keyboards_1.switchProfileKeyboard)(ctx.t, profiles)
+            });
+        }
+        else if (message === '5') {
             ctx.session.step = 'friends';
             const encodedId = (0, encodeId_1.encodeId)(String(ctx.message.from.id));
             const url = `https://t.me/${process.env.BOT_USERNAME}?start=i_${encodedId}`;
             const text = `${ctx.t('invite_link_message', { botname: process.env.CHANNEL_NAME || "" })}`;
             const now = new Date();
-            const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-            const comeIn14Days = yield postgres_1.prisma.user.count({
+            const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+            const comeIn15Days = yield postgres_1.prisma.user.count({
                 where: {
                     referrerId: String(ctx.message.from.id),
                     createdAt: {
-                        gte: fourteenDaysAgo
+                        gte: fifteenDaysAgo
                     }
                 }
             });
@@ -68,8 +76,8 @@ function sleepMenuStep(ctx) {
                     referrerId: String(ctx.message.from.id)
                 }
             });
-            const bonus = Math.min(comeIn14Days * 10 + (comeInAll - comeIn14Days) * 5, 100);
-            yield ctx.reply(ctx.t('invite_friends_message', { bonus, comeIn14Days, comeInAll }), {
+            const bonus = Math.min(comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5, 100);
+            yield ctx.reply(ctx.t('invite_friends_message', { bonus, comeIn15Days, comeInAll }), {
                 reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t),
             });
             const inviteLinkText = `${ctx.t('invite_link_message', { botname: process.env.CHANNEL_NAME || "" })}
@@ -78,7 +86,7 @@ function sleepMenuStep(ctx) {
                 reply_markup: (0, keyboards_1.inviteFriendsKeyboard)(ctx.t, url, text),
             });
         }
-        else if (message === '5 🎲') {
+        else if (message === '6 🎲') {
             ctx.session.step = 'roulette_start';
             yield (0, roulette_start_1.showRouletteStart)(ctx);
         }
