@@ -10,17 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.continueSeeFormsStep = continueSeeFormsStep;
-const keyboards_1 = require("../constants/keyboards");
 const candidatesEnded_1 = require("../functions/candidatesEnded");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function continueSeeFormsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        ctx.session.step = 'search_people';
-        ctx.session.question = 'years';
-        yield ctx.reply("✨🔍", {
-            reply_markup: (0, keyboards_1.answerFormKeyboard)()
-        });
+        yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
         const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
         ctx.logger.info(candidate, 'This is new candidate');
         if (candidate) {

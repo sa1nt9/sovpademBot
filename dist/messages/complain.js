@@ -17,6 +17,7 @@ const candidatesEnded_1 = require("../functions/candidatesEnded");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
 const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function complainStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text || '';
@@ -37,14 +38,11 @@ function complainStep(ctx) {
                 yield (0, continueSeeLikesForms_1.continueSeeLikesForms)(ctx);
             }
             else {
-                ctx.session.step = 'search_people';
                 if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                     yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
                     return;
                 }
-                yield ctx.reply("✨🔍", {
-                    reply_markup: (0, keyboards_1.answerFormKeyboard)()
-                });
+                yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
                 const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
                 if (candidate) {
                     yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });

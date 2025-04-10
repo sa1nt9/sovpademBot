@@ -6,6 +6,7 @@ import { answerFormKeyboard, complainKeyboard, optionsToUserKeyboard, profileKey
 import { sendMutualSympathyAfterAnswer } from "../functions/sendMutualSympathyAfterAnswer";
 import { prisma } from "../db/postgres";
 import { addToBlacklist } from "../functions/addToBlacklist";
+import { startSearchingPeople } from "../functions/startSearchingPeople";
 
 export async function optionsToUserStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -31,11 +32,7 @@ export async function optionsToUserStep(ctx: MyContext) {
             reply_markup: profileKeyboard()
         })
     } else if (message === ctx.t("go_back")) {
-        ctx.session.step = 'search_people';
-
-        await ctx.reply("✨🔍", {
-            reply_markup: answerFormKeyboard()
-        });
+        await startSearchingPeople(ctx)
 
         const candidate = await getCandidate(ctx)
         ctx.logger.info(candidate, 'This is new candidate')

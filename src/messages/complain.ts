@@ -6,6 +6,7 @@ import { getCandidate } from '../functions/db/getCandidate';
 import { sendForm } from '../functions/sendForm';
 import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
 import { MyContext } from '../typescript/context';
+import { startSearchingPeople } from '../functions/startSearchingPeople';
 
 
 export async function complainStep(ctx: MyContext) {
@@ -15,13 +16,13 @@ export async function complainStep(ctx: MyContext) {
     if (message && message in complainTypes) {
         ctx.session.additionalFormInfo.reportType = complainTypes[message];
         ctx.session.step = 'complain_text';
-        
+
         await ctx.reply(ctx.t('write_complain_comment'), {
             reply_markup: sendComplainWithoutCommentKeyboard(ctx.t)
         });
         return;
     }
-    
+
     // Обработка отмены жалобы
     if (message === '✖️') {
         ctx.session.additionalFormInfo.reportedUserId = ''
@@ -29,18 +30,14 @@ export async function complainStep(ctx: MyContext) {
             ctx.session.step = 'search_people_with_likes'
 
             await continueSeeLikesForms(ctx)
-            
-        } else {
-            ctx.session.step = 'search_people';
 
+        } else {
             if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                 await sendMutualSympathyAfterAnswer(ctx)
                 return
             }
 
-            await ctx.reply("✨🔍", {
-                reply_markup: answerFormKeyboard()
-            });
+            await startSearchingPeople(ctx, { setActive: true })
 
             const candidate = await getCandidate(ctx);
 

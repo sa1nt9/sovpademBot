@@ -198,12 +198,14 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     interestedIn: relationshipProfile.interestedIn,
                     description: relationshipProfile.description,
                     files: fileJson,
+                    isActive: true
                 },
                 create: {
                     userId: profile.userId,
                     interestedIn: relationshipProfile.interestedIn,
                     description: relationshipProfile.description,
                     files: fileJson,
+                    isActive: true
                 }
             });
 
@@ -228,6 +230,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     description: profile.description,
                     interestedIn: sportProfile.interestedIn,
                     files: fileJson,
+                    isActive: true
                 },
                 create: {
                     userId: profile.userId,
@@ -236,6 +239,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     level: sportProfile.level,
                     description: profile.description,
                     files: fileJson,
+                    isActive: true
                 }
             });
 
@@ -260,6 +264,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     description: profile.description,
                     interestedIn: gameProfile.interestedIn,
                     files: fileJson,
+                    isActive: true
                 },
                 create: {
                     userId: profile.userId,
@@ -268,6 +273,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     interestedIn: gameProfile.interestedIn,
                     description: profile.description,
                     files: fileJson,
+                    isActive: true
                 }
             });
 
@@ -291,6 +297,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     description: profile.description,
                     interestedIn: hobbyProfile.interestedIn,
                     files: fileJson,
+                    isActive: true
                 },
                 create: {
                     userId: profile.userId,
@@ -298,6 +305,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     interestedIn: hobbyProfile.interestedIn,
                     description: profile.description,
                     files: fileJson,
+                    isActive: true
                 }
             });
 
@@ -324,6 +332,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     github: itProfile.github,
                     description: profile.description,
                     files: fileJson,
+                    isActive: true
                 },
                 create: {
                     userId: profile.userId,
@@ -334,6 +343,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     description: profile.description,
                     interestedIn: itProfile.interestedIn,
                     files: fileJson,
+                    isActive: true
                 }
             });
 

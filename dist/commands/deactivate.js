@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivateCommand = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
+const profilesService_1 = require("../functions/db/profilesService");
 const deactivateCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
@@ -20,8 +21,9 @@ const deactivateCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* (
     });
     if (existingUser) {
         ctx.session.step = 'disable_form';
+        const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
         yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
-            reply_markup: (0, keyboards_1.disableFormKeyboard)()
+            reply_markup: (0, keyboards_1.deactivateProfileKeyboard)(ctx.t, profiles)
         });
     }
     else {

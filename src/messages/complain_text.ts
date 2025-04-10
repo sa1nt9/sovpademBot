@@ -6,6 +6,7 @@ import { getCandidate } from '../functions/db/getCandidate';
 import { saveLike } from '../functions/db/saveLike';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
+import { startSearchingPeople } from '../functions/startSearchingPeople';
 
 export async function complainTextStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -50,11 +51,7 @@ export async function complainTextStep(ctx: MyContext) {
 
             await continueSeeLikesForms(ctx)
         } else {
-            ctx.session.step = 'search_people';
-
-            await ctx.reply("✨🔍", {
-                reply_markup: answerFormKeyboard()
-            });
+            await startSearchingPeople(ctx, { setActive: true }) 
 
             const candidate = await getCandidate(ctx);
 
@@ -68,11 +65,7 @@ export async function complainTextStep(ctx: MyContext) {
         ctx.logger.error(error, 'Error saving report');
 
         // В случае ошибки возвращаемся к просмотру анкет
-        ctx.session.step = 'search_people';
-
-        await ctx.reply("✨🔍", {
-            reply_markup: answerFormKeyboard()
-        });
+        await startSearchingPeople(ctx, { setActive: true })
 
         const candidate = await getCandidate(ctx);
         

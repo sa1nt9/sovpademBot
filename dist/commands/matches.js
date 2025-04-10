@@ -77,11 +77,11 @@ const matchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 const targetName = targetProfile.user.name;
                 const userInfo = yield ctx.api.getChat(targetUserId);
                 const username = userInfo.username ? `https://t.me/${userInfo.username}` : "";
-                message += `${i + 1}. [${targetName}](${username}) - ${(0, formatDate_1.formatDate)(like.isMutualAt || like.createdAt)}\n`;
+                message += `${i + 1}. [${targetName}](${username}) - ${(0, formatDate_1.formatDate)(like.isMutualAt || like.createdAt)}, ${ctx.t(`profile_type_${like.profileType.toLowerCase()}`)}\n`;
                 if (i % buttonsPerRow === 0 && i !== 0) {
                     keyboard.row();
                 }
-                keyboard.text(`${i + 1}. ${targetName}`, `match:${targetUserId}`);
+                keyboard.text(`${i + 1}. ${targetName}, ${ctx.t(`profile_type_${like.profileType.toLowerCase()}`)}`, `match:${targetUserId}`);
             }
             catch (e) {
                 ctx.logger.error({ message: "Error retrieving profile or chat data:", error: e });

@@ -11,29 +11,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formDisabledStep = formDisabledStep;
 const keyboards_1 = require("../constants/keyboards");
-const candidatesEnded_1 = require("../functions/candidatesEnded");
-const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
 function formDisabledStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
-        if (message === ctx.t("search_people")) {
-            ctx.session.step = 'search_people';
-            yield ctx.reply("✨🔍", {
-                reply_markup: (0, keyboards_1.answerFormKeyboard)()
+        if (message === ctx.t("create_new_profile")) {
+            ctx.session.step = "create_profile_type";
+            yield ctx.reply(ctx.t('profile_type_title'), {
+                reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
             });
-            const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-            ctx.logger.info(candidate, 'This is new candidate');
-            if (candidate) {
-                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
-            }
-            else {
-                yield (0, candidatesEnded_1.candidatesEnded)(ctx);
-            }
+        }
+        else if (message === ctx.t("main_menu")) {
+            ctx.session.step = "profile";
+            yield (0, sendForm_1.sendForm)(ctx);
+            yield ctx.reply(ctx.t('profile_menu'), {
+                reply_markup: (0, keyboards_1.profileKeyboard)()
+            });
         }
         else {
             yield ctx.reply(ctx.t('no_such_answer'), {
-                reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                reply_markup: (0, keyboards_1.formDisabledKeyboard)(ctx.t)
             });
         }
     });

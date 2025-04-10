@@ -1,4 +1,4 @@
-import { disableFormKeyboard, notHaveFormToDeactiveKeyboard, rouletteStartKeyboard } from "../constants/keyboards";
+import { notHaveFormToDeactiveKeyboard, rouletteStartKeyboard } from "../constants/keyboards";
 import { prisma } from "../db/postgres";
 import { showRouletteStart } from "../messages/roulette_start";
 import { MyContext } from "../typescript/context";

@@ -170,17 +170,18 @@ export const complainToUserKeyboard = (t: TranslateFunction, userId: string): In
     ]
 })
 
-export const disableFormKeyboard = (): ReplyKeyboardMarkup => ({
-    keyboard: [
-        ["1", "2"]
-    ],
-    resize_keyboard: true,
-    is_persistent: true,
-})
+// export const disableFormKeyboard = (): ReplyKeyboardMarkup => ({
+//     keyboard: [
+//         ["1", "2"]
+//     ],
+//     resize_keyboard: true,
+//     is_persistent: true,
+// })
 
 export const formDisabledKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
     keyboard: [
-        [t("search_people")]
+        [t("main_menu")],
+        [t("create_new_profile")]
     ],
     is_persistent: true,
     resize_keyboard: true,
@@ -519,5 +520,19 @@ export const youAlreadyHaveThisProfileKeyboard = (t: TranslateFunction): ReplyKe
     ],
     resize_keyboard: true,
 })
+
+export const deactivateProfileKeyboard = (t: TranslateFunction, profiles: IProfileInfo[]): ReplyKeyboardMarkup => {
+    const localizations = getProfileTypeLocalizations(t)
+    const subtypeLocalizations = getSubtypeLocalizations(t)
+
+    return {
+        keyboard: [
+            [t("go_back")],
+            ...profiles.map(profile => [`${findKeyByValue(t, profile.profileType, localizations)}${profile.subType ? `: ${findKeyByValue(t, profile.subType, subtypeLocalizations[profile.profileType.toLowerCase() as keyof typeof subtypeLocalizations])}` : ''}`]),
+            [t("disable_all_profiles")]
+        ],
+        resize_keyboard: true,
+    }
+}
 
 

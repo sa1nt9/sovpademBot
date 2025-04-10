@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.youAlreadyHaveThisProfileKeyboard = exports.switchProfileKeyboard = exports.gameAccountKeyboard = exports.itGithubKeyboard = exports.itTechnologiesKeyboard = exports.selectItExperienceKeyboard = exports.selectSportLevelkeyboard = exports.createProfileSubtypeKeyboard = exports.createProfileTypeKeyboard = exports.createFormKeyboard = exports.mainMenuKeyboard = exports.blacklistKeyboard = exports.optionsToUserKeyboard = exports.skipKeyboard = exports.afterNoteYouWantToAddTextToUserKeyboard = exports.textOrVideoKeyboard = exports.complainReasonKeyboard = exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.disableFormKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
+exports.deactivateProfileKeyboard = exports.youAlreadyHaveThisProfileKeyboard = exports.switchProfileKeyboard = exports.gameAccountKeyboard = exports.itGithubKeyboard = exports.itTechnologiesKeyboard = exports.selectItExperienceKeyboard = exports.selectSportLevelkeyboard = exports.createProfileSubtypeKeyboard = exports.createProfileTypeKeyboard = exports.createFormKeyboard = exports.mainMenuKeyboard = exports.blacklistKeyboard = exports.optionsToUserKeyboard = exports.skipKeyboard = exports.afterNoteYouWantToAddTextToUserKeyboard = exports.textOrVideoKeyboard = exports.complainReasonKeyboard = exports.rouletteReactionKeyboard = exports.confirmRevealKeyboard = exports.rouletteStopKeyboard = exports.rouletteStartKeyboard = exports.rouletteKeyboard = exports.complainKeyboard = exports.continueKeyboard = exports.continueSeeFormsKeyboard = exports.somebodysLikedYouKeyboard = exports.inviteFriendsKeyboard = exports.sendComplainWithoutCommentKeyboard = exports.goBackKeyboard = exports.notHaveFormToDeactiveKeyboard = exports.formDisabledKeyboard = exports.complainToUserKeyboard = exports.answerLikesFormKeyboard = exports.answerFormKeyboard = exports.profileKeyboard = exports.nameKeyboard = exports.ageKeyboard = exports.subscribeChannelKeyboard = exports.allRightKeyboard = exports.someFilesAddedKeyboard = exports.fileKeyboard = exports.textKeyboard = exports.cityKeyboard = exports.interestedInKeyboard = exports.genderKeyboard = exports.acceptPrivacyKeyboard = exports.prepareMessageKeyboard = exports.languageKeyboard = void 0;
 const reaction_1 = require("./reaction");
 const client_1 = require("@prisma/client");
 const profilesService_1 = require("../functions/db/profilesService");
@@ -175,17 +175,17 @@ const complainToUserKeyboard = (t, userId) => ({
     ]
 });
 exports.complainToUserKeyboard = complainToUserKeyboard;
-const disableFormKeyboard = () => ({
-    keyboard: [
-        ["1", "2"]
-    ],
-    resize_keyboard: true,
-    is_persistent: true,
-});
-exports.disableFormKeyboard = disableFormKeyboard;
+// export const disableFormKeyboard = (): ReplyKeyboardMarkup => ({
+//     keyboard: [
+//         ["1", "2"]
+//     ],
+//     resize_keyboard: true,
+//     is_persistent: true,
+// })
 const formDisabledKeyboard = (t) => ({
     keyboard: [
-        [t("search_people")]
+        [t("main_menu")],
+        [t("create_new_profile")]
     ],
     is_persistent: true,
     resize_keyboard: true,
@@ -520,3 +520,16 @@ const youAlreadyHaveThisProfileKeyboard = (t) => ({
     resize_keyboard: true,
 });
 exports.youAlreadyHaveThisProfileKeyboard = youAlreadyHaveThisProfileKeyboard;
+const deactivateProfileKeyboard = (t, profiles) => {
+    const localizations = (0, profilesService_1.getProfileTypeLocalizations)(t);
+    const subtypeLocalizations = (0, profilesService_1.getSubtypeLocalizations)(t);
+    return {
+        keyboard: [
+            [t("go_back")],
+            ...profiles.map(profile => [`${(0, profilesService_1.findKeyByValue)(t, profile.profileType, localizations)}${profile.subType ? `: ${(0, profilesService_1.findKeyByValue)(t, profile.subType, subtypeLocalizations[profile.profileType.toLowerCase()])}` : ''}`]),
+            [t("disable_all_profiles")]
+        ],
+        resize_keyboard: true,
+    };
+};
+exports.deactivateProfileKeyboard = deactivateProfileKeyboard;

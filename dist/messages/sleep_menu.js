@@ -18,15 +18,13 @@ const sendForm_1 = require("../functions/sendForm");
 const roulette_start_1 = require("./roulette_start");
 const candidatesEnded_1 = require("../functions/candidatesEnded");
 const profilesService_1 = require("../functions/db/profilesService");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function sleepMenuStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         const userId = String(ctx.message.from.id);
         if (message === '1 🚀') {
-            ctx.session.step = 'search_people';
-            yield ctx.reply("✨🔍", {
-                reply_markup: (0, keyboards_1.answerFormKeyboard)()
-            });
+            yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             ctx.logger.info(candidate, 'This is new candidate');
             if (candidate) {
@@ -45,8 +43,9 @@ function sleepMenuStep(ctx) {
         }
         else if (message === '3') {
             ctx.session.step = 'disable_form';
+            const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
             yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
-                reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                reply_markup: (0, keyboards_1.deactivateProfileKeyboard)(ctx.t, profiles)
             });
         }
         else if (message === '4') {

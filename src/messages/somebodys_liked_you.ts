@@ -1,5 +1,6 @@
-import { answerLikesFormKeyboard, disableFormKeyboard, somebodysLikedYouKeyboard } from '../constants/keyboards';
+import { answerLikesFormKeyboard, deactivateProfileKeyboard, somebodysLikedYouKeyboard } from '../constants/keyboards';
 import { getOneLike } from '../functions/db/getOneLike';
+import { getUserProfiles } from '../functions/db/profilesService';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
 
@@ -27,8 +28,10 @@ export async function somebodysLikedYouStep(ctx: MyContext) {
     } else if (message === '2 💤') {
         ctx.session.step = 'disable_form'
 
+        const profiles = await getUserProfiles(userId, ctx);
+
         await ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
-            reply_markup: disableFormKeyboard()
+            reply_markup: deactivateProfileKeyboard(ctx.t, profiles)
         })
     } else {
         await ctx.reply(ctx.t('no_such_answer'), {

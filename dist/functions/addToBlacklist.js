@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addToBlacklist = void 0;
-const keyboards_1 = require("../constants/keyboards");
 const getCandidate_1 = require("./db/getCandidate");
 const postgres_1 = require("../db/postgres");
 const sendMutualSympathyAfterAnswer_1 = require("./sendMutualSympathyAfterAnswer");
 const sendForm_1 = require("./sendForm");
 const candidatesEnded_1 = require("./candidatesEnded");
+const startSearchingPeople_1 = require("./startSearchingPeople");
 const addToBlacklist = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     if (ctx.session.currentCandidateProfile) {
@@ -41,14 +41,11 @@ const addToBlacklist = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             }
         });
         yield ctx.reply(ctx.t('more_options_blacklist_success'));
-        ctx.session.step = 'search_people';
         if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
             return;
         }
-        yield ctx.reply("✨🔍", {
-            reply_markup: (0, keyboards_1.answerFormKeyboard)()
-        });
+        yield (0, startSearchingPeople_1.startSearchingPeople)(ctx);
         const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
         ctx.logger.info(candidate, 'This is new candidate');
         if (candidate) {

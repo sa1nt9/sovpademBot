@@ -1,4 +1,4 @@
-import { answerFormKeyboard, disableFormKeyboard, goBackKeyboard, inviteFriendsKeyboard, profileKeyboard, rouletteStartKeyboard, switchProfileKeyboard } from '../constants/keyboards';
+import { answerFormKeyboard, deactivateProfileKeyboard, goBackKeyboard, inviteFriendsKeyboard, profileKeyboard, rouletteStartKeyboard, switchProfileKeyboard } from '../constants/keyboards';
 import { prisma } from '../db/postgres';
 import { getCandidate } from '../functions/db/getCandidate';
 import { encodeId } from '../functions/encodeId';
@@ -7,16 +7,15 @@ import { MyContext } from '../typescript/context';
 import { showRouletteStart } from './roulette_start';
 import { candidatesEnded } from '../functions/candidatesEnded';
 import { getUserProfiles } from '../functions/db/profilesService';
+import { startSearchingPeople } from '../functions/startSearchingPeople';
+
+
 export async function sleepMenuStep(ctx: MyContext) {
     const message = ctx.message!.text;
     const userId = String(ctx.message!.from.id);
 
     if (message === '1 🚀') {
-        ctx.session.step = 'search_people'
-
-        await ctx.reply("✨🔍", {
-            reply_markup: answerFormKeyboard()
-        });
+        await startSearchingPeople(ctx, { setActive: true }) 
 
         const candidate = await getCandidate(ctx)
         ctx.logger.info(candidate, 'This is new candidate')
@@ -38,8 +37,10 @@ export async function sleepMenuStep(ctx: MyContext) {
     } else if (message === '3') {
         ctx.session.step = 'disable_form'
 
+        const profiles = await getUserProfiles(userId, ctx);
+
         await ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
-            reply_markup: disableFormKeyboard()
+            reply_markup: deactivateProfileKeyboard(ctx.t, profiles)
         })
 
     } else if (message === '4') {

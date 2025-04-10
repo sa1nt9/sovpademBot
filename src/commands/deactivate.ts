@@ -1,5 +1,6 @@
-import { disableFormKeyboard, notHaveFormToDeactiveKeyboard } from "../constants/keyboards";
+import { deactivateProfileKeyboard, notHaveFormToDeactiveKeyboard } from "../constants/keyboards";
 import { prisma } from "../db/postgres";
+import { getUserProfiles } from "../functions/db/profilesService";
 import { MyContext } from "../typescript/context";
 
 export const deactivateCommand = async (ctx: MyContext) => {
@@ -11,8 +12,10 @@ export const deactivateCommand = async (ctx: MyContext) => {
     if (existingUser) {
         ctx.session.step = 'disable_form'
 
+        const profiles = await getUserProfiles(userId, ctx);
+
         await ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
-            reply_markup: disableFormKeyboard()
+            reply_markup: deactivateProfileKeyboard(ctx.t, profiles)
         })
     } else {
         ctx.session.step = "you_dont_have_form";

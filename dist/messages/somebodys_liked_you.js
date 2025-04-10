@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.somebodysLikedYouStep = somebodysLikedYouStep;
 const keyboards_1 = require("../constants/keyboards");
 const getOneLike_1 = require("../functions/db/getOneLike");
+const profilesService_1 = require("../functions/db/profilesService");
 const sendForm_1 = require("../functions/sendForm");
 function somebodysLikedYouStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -32,8 +33,9 @@ function somebodysLikedYouStep(ctx) {
         }
         else if (message === '2 💤') {
             ctx.session.step = 'disable_form';
+            const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
             yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
-                reply_markup: (0, keyboards_1.disableFormKeyboard)()
+                reply_markup: (0, keyboards_1.deactivateProfileKeyboard)(ctx.t, profiles)
             });
         }
         else {

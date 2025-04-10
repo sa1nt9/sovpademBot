@@ -3,16 +3,13 @@ import { MyContext } from "../../typescript/context";
 import { getCandidate } from "../../functions/db/getCandidate";
 import { sendForm } from "../../functions/sendForm";
 import { candidatesEnded } from "../../functions/candidatesEnded";
+import { startSearchingPeople } from "../../functions/startSearchingPeople";
 
 export const allRightQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
     
     if (message === ctx.t("yes")) {
-        ctx.session.step = 'search_people'
-
-        await ctx.reply("✨🔍", {
-            reply_markup: answerFormKeyboard()
-        });
+        await startSearchingPeople(ctx, { setActive: true })
 
         const candidate = await getCandidate(ctx)
         ctx.logger.info(candidate, 'This is new candidate')

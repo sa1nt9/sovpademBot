@@ -5,7 +5,7 @@ import { prisma } from "../db/postgres";
 import { sendMutualSympathyAfterAnswer } from "./sendMutualSympathyAfterAnswer";
 import { sendForm } from "./sendForm";
 import { candidatesEnded } from "./candidatesEnded";
-
+import { startSearchingPeople } from "./startSearchingPeople";
 
 export const addToBlacklist = async (ctx: MyContext) => {
     if (ctx.session.currentCandidateProfile) {
@@ -34,18 +34,13 @@ export const addToBlacklist = async (ctx: MyContext) => {
         });
 
         await ctx.reply(ctx.t('more_options_blacklist_success'));
-
-
-        ctx.session.step = 'search_people';
-
+        
         if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             await sendMutualSympathyAfterAnswer(ctx)
             return
         }
-
-        await ctx.reply("✨🔍", {
-            reply_markup: answerFormKeyboard()
-        });
+        
+        await startSearchingPeople(ctx)
 
         const candidate = await getCandidate(ctx);
         ctx.logger.info(candidate, 'This is new candidate');

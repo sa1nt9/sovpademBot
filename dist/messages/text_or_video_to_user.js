@@ -18,6 +18,7 @@ const hasLinks_1 = require("../functions/hasLinks");
 const sendForm_1 = require("../functions/sendForm");
 const sendLikesNotification_1 = require("../functions/sendLikesNotification");
 const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function textOrVideoToUserStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
@@ -46,11 +47,8 @@ function textOrVideoToUserStep(ctx) {
         }
         else {
             if (message === ctx.t('go_back')) {
-                ctx.session.step = 'search_people';
                 ctx.session.additionalFormInfo.awaitingLikeContent = false;
-                yield ctx.reply("✨🔍", {
-                    reply_markup: (0, keyboards_1.answerFormKeyboard)()
-                });
+                yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
                 const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
                 ctx.logger.info(candidate, 'This is new candidate');
                 if (candidate) {

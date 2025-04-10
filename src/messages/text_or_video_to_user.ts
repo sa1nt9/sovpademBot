@@ -6,6 +6,7 @@ import { hasLinks } from '../functions/hasLinks';
 import { sendForm } from '../functions/sendForm';
 import { sendLikesNotification } from '../functions/sendLikesNotification';
 import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
+import { startSearchingPeople } from '../functions/startSearchingPeople';
 import { MyContext } from '../typescript/context';
 
 export async function textOrVideoToUserStep(ctx: MyContext) {
@@ -40,12 +41,8 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
     } else {
 
         if (message === ctx.t('go_back')) {
-            ctx.session.step = 'search_people'
             ctx.session.additionalFormInfo.awaitingLikeContent = false;
-    
-            await ctx.reply("✨🔍", {
-                reply_markup: answerFormKeyboard()
-            });
+            await startSearchingPeople(ctx, { setActive: true }) 
     
             const candidate = await getCandidate(ctx)
             ctx.logger.info(candidate, 'This is new candidate')

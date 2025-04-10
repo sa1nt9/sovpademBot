@@ -14,13 +14,11 @@ const keyboards_1 = require("../../constants/keyboards");
 const getCandidate_1 = require("../../functions/db/getCandidate");
 const sendForm_1 = require("../../functions/sendForm");
 const candidatesEnded_1 = require("../../functions/candidatesEnded");
+const startSearchingPeople_1 = require("../../functions/startSearchingPeople");
 const allRightQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const message = ctx.message.text;
     if (message === ctx.t("yes")) {
-        ctx.session.step = 'search_people';
-        yield ctx.reply("✨🔍", {
-            reply_markup: (0, keyboards_1.answerFormKeyboard)()
-        });
+        yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
         const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
         ctx.logger.info(candidate, 'This is new candidate');
         if (candidate) {

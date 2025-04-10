@@ -169,12 +169,14 @@ function saveProfile(profile) {
                         interestedIn: relationshipProfile.interestedIn,
                         description: relationshipProfile.description,
                         files: fileJson,
+                        isActive: true
                     },
                     create: {
                         userId: profile.userId,
                         interestedIn: relationshipProfile.interestedIn,
                         description: relationshipProfile.description,
                         files: fileJson,
+                        isActive: true
                     }
                 });
                 return Object.assign(Object.assign({}, saved), { files: profile.files });
@@ -193,6 +195,7 @@ function saveProfile(profile) {
                         description: profile.description,
                         interestedIn: sportProfile.interestedIn,
                         files: fileJson,
+                        isActive: true
                     },
                     create: {
                         userId: profile.userId,
@@ -201,6 +204,7 @@ function saveProfile(profile) {
                         level: sportProfile.level,
                         description: profile.description,
                         files: fileJson,
+                        isActive: true
                     }
                 });
                 return Object.assign(Object.assign({}, saved), { files: profile.files });
@@ -219,6 +223,7 @@ function saveProfile(profile) {
                         description: profile.description,
                         interestedIn: gameProfile.interestedIn,
                         files: fileJson,
+                        isActive: true
                     },
                     create: {
                         userId: profile.userId,
@@ -227,6 +232,7 @@ function saveProfile(profile) {
                         interestedIn: gameProfile.interestedIn,
                         description: profile.description,
                         files: fileJson,
+                        isActive: true
                     }
                 });
                 return Object.assign(Object.assign({}, saved), { files: profile.files });
@@ -244,6 +250,7 @@ function saveProfile(profile) {
                         description: profile.description,
                         interestedIn: hobbyProfile.interestedIn,
                         files: fileJson,
+                        isActive: true
                     },
                     create: {
                         userId: profile.userId,
@@ -251,6 +258,7 @@ function saveProfile(profile) {
                         interestedIn: hobbyProfile.interestedIn,
                         description: profile.description,
                         files: fileJson,
+                        isActive: true
                     }
                 });
                 return Object.assign(Object.assign({}, saved), { files: profile.files });
@@ -271,6 +279,7 @@ function saveProfile(profile) {
                         github: itProfile.github,
                         description: profile.description,
                         files: fileJson,
+                        isActive: true
                     },
                     create: {
                         userId: profile.userId,
@@ -281,6 +290,7 @@ function saveProfile(profile) {
                         description: profile.description,
                         interestedIn: itProfile.interestedIn,
                         files: fileJson,
+                        isActive: true
                     }
                 });
                 return Object.assign(Object.assign({}, saved), { files: profile.files });

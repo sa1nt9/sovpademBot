@@ -15,16 +15,14 @@ const postgres_1 = require("../db/postgres");
 const candidatesEnded_1 = require("../functions/candidatesEnded");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const sendForm_1 = require("../functions/sendForm");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function cannotSendComplainStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const existingUser = yield postgres_1.prisma.user.findUnique({
             where: { id: String(ctx.message.from.id) },
         });
         if (existingUser) {
-            ctx.session.step = 'search_people';
-            yield ctx.reply("✨🔍", {
-                reply_markup: (0, keyboards_1.answerFormKeyboard)()
-            });
+            yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             ctx.logger.info(candidate, 'This is new candidate');
             if (candidate) {

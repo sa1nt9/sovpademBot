@@ -16,6 +16,7 @@ const sendForm_1 = require("../functions/sendForm");
 const keyboards_1 = require("../constants/keyboards");
 const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathyAfterAnswer");
 const addToBlacklist_1 = require("../functions/addToBlacklist");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function optionsToUserStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
@@ -40,10 +41,7 @@ function optionsToUserStep(ctx) {
             });
         }
         else if (message === ctx.t("go_back")) {
-            ctx.session.step = 'search_people';
-            yield ctx.reply("✨🔍", {
-                reply_markup: (0, keyboards_1.answerFormKeyboard)()
-            });
+            yield (0, startSearchingPeople_1.startSearchingPeople)(ctx);
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             ctx.logger.info(candidate, 'This is new candidate');
             if (candidate) {

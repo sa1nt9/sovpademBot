@@ -17,6 +17,7 @@ const candidatesEnded_1 = require("../functions/candidatesEnded");
 const getCandidate_1 = require("../functions/db/getCandidate");
 const saveLike_1 = require("../functions/db/saveLike");
 const sendForm_1 = require("../functions/sendForm");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function complainTextStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
@@ -55,10 +56,7 @@ function complainTextStep(ctx) {
                 yield (0, continueSeeLikesForms_1.continueSeeLikesForms)(ctx);
             }
             else {
-                ctx.session.step = 'search_people';
-                yield ctx.reply("✨🔍", {
-                    reply_markup: (0, keyboards_1.answerFormKeyboard)()
-                });
+                yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
                 const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
                 if (candidate) {
                     yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
@@ -71,10 +69,7 @@ function complainTextStep(ctx) {
         catch (error) {
             ctx.logger.error(error, 'Error saving report');
             // В случае ошибки возвращаемся к просмотру анкет
-            ctx.session.step = 'search_people';
-            yield ctx.reply("✨🔍", {
-                reply_markup: (0, keyboards_1.answerFormKeyboard)()
-            });
+            yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
             if (candidate) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
