@@ -473,6 +473,22 @@ export async function getCandidate(ctx: MyContext) {
         }
 
         if (candidate) {
+            // Проверяем, не забанен ли кандидат
+            const candidateBan = await prisma.userBan.findFirst({
+                where: {
+                    userId: candidate.id,
+                    isActive: true,
+                    bannedUntil: {
+                        gt: now
+                    }
+                }
+            });
+
+            if (candidateBan) {
+                ctx.logger.info(`Candidate ${candidate.id} is banned, skipping`);
+                return null;
+            }
+
             // Получаем профиль кандидата того же типа, что и активный профиль
             const candidateProfile = await getUserProfile(
                 candidate.id,

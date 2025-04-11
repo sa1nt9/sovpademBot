@@ -2,8 +2,7 @@ import { User, ProfileType, SportType, GameType, HobbyType, ITType } from "@pris
 import { IProfile, IProfileInfo, TProfileSubType } from "./IProfile";
 
 interface IAdditionalFormInfo {
-    canGoBack: boolean;
-    awaitingLikeContent?: boolean;
+    canGoBack?: boolean;
     showLikes?: boolean;
     reportType?: string;
     searchingLikes?: boolean;
@@ -84,7 +83,6 @@ export interface ISessionData {
     privacyAccepted: boolean;
     referrerId?: string;
     activeProfile: IProfile; // Текущий активный профиль пользователя
-    availableProfiles?: IProfileInfo[]; // Список доступных профилей пользователя
     isNeededSubscription?: boolean;
     currentCandidateProfile?: IProfile | null; // Профиль текущего кандидата
     currentBlacklistedProfile?: IProfile | null;
@@ -94,4 +92,5 @@ export interface ISessionData {
     roulette?: IRouletteData;
     originalReactionMessage?: IOriginalReactionMessage;
     privateNote?: string;
+    isEditingProfile?: boolean; // Флаг, указывающий, что пользователь находится в процессе редактирования анкеты
 }

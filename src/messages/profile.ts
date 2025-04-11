@@ -30,6 +30,7 @@ export async function profileStep(ctx: MyContext) {
 
     } else if (message === '3') {
         ctx.session.step = 'questions'
+        ctx.session.isEditingProfile = true;
         ctx.session.question = 'file'
 
         ctx.session.additionalFormInfo.canGoBack = true
@@ -40,7 +41,9 @@ export async function profileStep(ctx: MyContext) {
 
     } else if (message === '4') {
         ctx.session.step = 'questions'
+        ctx.session.isEditingProfile = true;
         ctx.session.question = "text";
+        
         ctx.session.additionalFormInfo.canGoBack = true
 
         await ctx.reply(ctx.t('text_question', {

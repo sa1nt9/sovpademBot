@@ -38,6 +38,7 @@ function profileStep(ctx) {
         }
         else if (message === '3') {
             ctx.session.step = 'questions';
+            ctx.session.isEditingProfile = true;
             ctx.session.question = 'file';
             ctx.session.additionalFormInfo.canGoBack = true;
             yield ctx.reply(ctx.t('file_question'), {
@@ -46,6 +47,7 @@ function profileStep(ctx) {
         }
         else if (message === '4') {
             ctx.session.step = 'questions';
+            ctx.session.isEditingProfile = true;
             ctx.session.question = "text";
             ctx.session.additionalFormInfo.canGoBack = true;
             yield ctx.reply(ctx.t('text_question', {

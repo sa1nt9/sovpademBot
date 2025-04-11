@@ -16,16 +16,23 @@ const profilesService_1 = require("../functions/db/profilesService");
 const sendForm_1 = require("../functions/sendForm");
 const keyboards_2 = require("../constants/keyboards");
 const switchProfileStep = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a;
     const message = ctx.message.text;
-    if (message === ctx.t('create_new_profile')) {
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    if (message === ctx.t('go_back')) {
+        ctx.session.step = 'sleep_menu';
+        yield ctx.reply(ctx.t('sleep_menu'), {
+            reply_markup: (0, keyboards_2.profileKeyboard)()
+        });
+    }
+    else if (message === ctx.t('create_new_profile')) {
         ctx.session.step = "create_profile_type";
         yield ctx.reply(ctx.t('profile_type_title'), {
             reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
         });
     }
     else {
-        const profiles = yield (0, profilesService_1.getUserProfiles)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), ctx);
+        const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
         if ((0, checkIsKeyboardOption_1.checkIsKeyboardOption)((0, keyboards_1.switchProfileKeyboard)(ctx.t, profiles), message)) {
             const selectedProfile = profiles.find(profile => {
                 const profileTypeLocalizations = (0, profilesService_1.getProfileTypeLocalizations)(ctx.t);
@@ -39,7 +46,7 @@ const switchProfileStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
                 return profileString === message;
             });
             if (selectedProfile) {
-                const fullProfile = yield (0, profilesService_1.getUserProfile)(String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id), selectedProfile.profileType, selectedProfile.subType);
+                const fullProfile = yield (0, profilesService_1.getUserProfile)(userId, selectedProfile.profileType, selectedProfile.subType);
                 if (fullProfile) {
                     ctx.session.activeProfile = Object.assign(Object.assign({}, ctx.session.activeProfile), fullProfile);
                     ctx.session.step = "profile";

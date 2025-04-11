@@ -505,6 +505,7 @@ export const switchProfileKeyboard = (t: TranslateFunction, profiles: IProfileIn
 
     return {
         keyboard: [
+            [t("go_back")],
             ...profiles.map(profile => [`${findKeyByValue(t, profile.profileType, localizations)}${profile.subType ? `: ${findKeyByValue(t, profile.subType, subtypeLocalizations[profile.profileType.toLowerCase() as keyof typeof subtypeLocalizations])}` : ''}`]),
             [t("create_new_profile")],
         ],

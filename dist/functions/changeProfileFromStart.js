@@ -22,6 +22,7 @@ function changeProfileFromStart(ctx) {
         const message = ctx.message.text;
         const subtypeLocalizations = (0, profilesService_1.getSubtypeLocalizations)(ctx.t);
         ctx.session.step = "questions";
+        ctx.session.isEditingProfile = true;
         if (ctx.session.activeProfile.profileType === client_1.ProfileType.SPORT) {
             ctx.session.activeProfile.subType = subtypeLocalizations.sport[message];
             ctx.session.question = 'sport_level';

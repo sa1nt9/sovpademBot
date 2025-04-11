@@ -16,6 +16,7 @@ export async function changeProfileFromStart(ctx: MyContext) {
 
 
     ctx.session.step = "questions";
+    ctx.session.isEditingProfile = true;
     if (ctx.session.activeProfile.profileType === ProfileType.SPORT) {
         ctx.session.activeProfile.subType = subtypeLocalizations.sport[message as keyof typeof subtypeLocalizations.sport] as SportType;
         ctx.session.question = 'sport_level'

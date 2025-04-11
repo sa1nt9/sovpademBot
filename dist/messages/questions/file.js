@@ -21,6 +21,7 @@ const fileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         ctx.session.activeProfile.tempFiles = [];
         ctx.session.question = "years";
         ctx.session.step = 'profile';
+        ctx.session.isEditingProfile = false;
         ctx.session.additionalFormInfo.canGoBack = false;
         yield (0, sendForm_1.sendForm)(ctx);
         yield ctx.reply(ctx.t('profile_menu'), {
@@ -32,8 +33,9 @@ const fileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         const files = (profile === null || profile === void 0 ? void 0 : profile.files) || [];
         if (message === ctx.t("leave_current_m") && (profile === null || profile === void 0 ? void 0 : profile.files) && files.length > 0) {
             ctx.logger.info('leave_current_m');
-            yield (0, saveUser_1.saveUser)(ctx);
+            yield (0, saveUser_1.saveUser)(ctx, { onlyProfile: ctx.session.additionalFormInfo.canGoBack });
             yield (0, sendForm_1.sendForm)(ctx);
+            ctx.session.additionalFormInfo.canGoBack = false;
             ctx.session.question = "all_right";
             ctx.logger.info({ question: ctx.session.question }, 'all_right');
             yield ctx.reply(ctx.t('all_right_question'), {

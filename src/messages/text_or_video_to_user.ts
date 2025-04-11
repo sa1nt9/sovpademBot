@@ -12,7 +12,7 @@ import { MyContext } from '../typescript/context';
 export async function textOrVideoToUserStep(ctx: MyContext) {
     const message = ctx.message!.text;
 
-    if (!ctx.session.currentCandidateProfile || !ctx.session.additionalFormInfo.awaitingLikeContent) {
+    if (!ctx.session.currentCandidateProfile) {
         ctx.session.step = 'search_people';
         await ctx.reply(ctx.t('operation_cancelled'), {
             reply_markup: answerFormKeyboard()
@@ -41,7 +41,6 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
     } else {
 
         if (message === ctx.t('go_back')) {
-            ctx.session.additionalFormInfo.awaitingLikeContent = false;
             await startSearchingPeople(ctx, { setActive: true }) 
     
             const candidate = await getCandidate(ctx)
@@ -120,7 +119,6 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
 
 
     ctx.session.step = 'search_people';
-    ctx.session.additionalFormInfo.awaitingLikeContent = false;
 
     await ctx.reply(ctx.t('like_sended_wait_for_answer'), {
         reply_markup: {

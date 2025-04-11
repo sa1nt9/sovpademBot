@@ -407,6 +407,12 @@ error_occurred = ⚠️ Произошла ошибка
 
 error_occurred_description = Произошла ошибка. Попробуйте позже.
 
+user_banned_until = ⛔️ Ваш аккаунт заблокирован до {$date}
+
+user_banned_permanent = ⛔️ Ваш аккаунт заблокирован навсегда
+
+user_banned_reason = Причина: {$reason}
+
 reaction_time_expired = ⏰ Время на оценку пользователя вышло. 
     Оценить или пожаловаться на пользователя можно в течении 1 часа
 

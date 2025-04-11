@@ -8,6 +8,8 @@ import { getGameProfileLink, getGameUsername, getGameUsernameToShow } from "./ga
 import { IGameProfile, IHobbyProfile, IItProfile, IProfile, IRelationshipProfile, ISportProfile, TProfileSubType } from "../typescript/interfaces/IProfile";
 import { getUserProfile } from "./db/profilesService";
 import { ProfileType } from "@prisma/client";
+import { prisma } from "../db/postgres";
+import { ISessionData } from "../typescript/interfaces/ISessionData";
 
 
 interface IOptions {
@@ -73,6 +75,19 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
         count = await getLikesCount(String(ctx.from?.id), 'user')
     }
 
+    if (options.isInline) {
+        const currentSession = await prisma.session.findUnique({
+            where: {
+                key: form.id
+            }
+        });
+
+        if (currentSession) {
+            const currentValue = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+
+            ctx.session = currentValue
+        }
+    }
     // Получаем тип профиля и соответствующую информацию
     const profileType = options.profileType || ctx.session.activeProfile.profileType;
     let profileSpecificText = '';

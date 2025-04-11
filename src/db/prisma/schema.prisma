@@ -33,6 +33,9 @@ model User {
 
     // Связи для черного списка
     blacklist Blacklist[] @relation("UserBlacklist")
+    
+    // Связи для банов
+    bans UserBan[] @relation("UserBanned")
 }
 
 // Основной тип анкеты (отношения)
@@ -308,4 +311,16 @@ model Blacklist {
     createdAt       DateTime @default(now())
 
     user User @relation("UserBlacklist", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Модель для банов пользователей
+model UserBan {
+    id          String   @id @default(uuid())
+    userId      String   // ID пользователя, которого забанили
+    reason      String?  // Причина бана (опционально)
+    bannedUntil DateTime // Дата окончания бана
+    createdAt   DateTime @default(now())
+    isActive    Boolean  @default(true) // Активен ли бан
+
+    user User @relation("UserBanned", fields: [userId], references: [id], onDelete: Cascade)
 }

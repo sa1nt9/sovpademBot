@@ -12,54 +12,60 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.saveUser = saveUser;
 const postgres_1 = require("../../db/postgres");
 const profilesService_1 = require("./profilesService");
-function saveUser(ctx) {
-    return __awaiter(this, void 0, void 0, function* () {
+const defaultOptions = {
+    onlyProfile: false
+};
+function saveUser(ctx_1) {
+    return __awaiter(this, arguments, void 0, function* (ctx, options = defaultOptions) {
         var _a;
         try {
             const userData = ctx.session.activeProfile;
             const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-            // Сохраняем основные данные пользователя
-            const existingUser = yield postgres_1.prisma.user.findUnique({
-                where: { id: userId },
-            });
-            if (existingUser) {
-                // Обновляем существующего пользователя
-                yield postgres_1.prisma.user.update({
+            ctx.session.isEditingProfile = false;
+            if (!options.onlyProfile) {
+                // Сохраняем основные данные пользователя
+                const existingUser = yield postgres_1.prisma.user.findUnique({
                     where: { id: userId },
-                    data: {
-                        name: userData.name || "",
-                        city: userData.city || "",
-                        gender: userData.gender || "",
-                        age: userData.age || 0,
-                        longitude: userData.location.longitude,
-                        latitude: userData.location.latitude,
-                        ownCoordinates: userData.ownCoordinates
-                    },
                 });
-                ctx.logger.info({
-                    msg: 'Основные данные пользователя обновлены',
-                    userId
-                });
-            }
-            else {
-                // Создаем нового пользователя
-                yield postgres_1.prisma.user.create({
-                    data: {
-                        id: userId,
-                        name: userData.name || "",
-                        city: userData.city || "",
-                        gender: userData.gender || "",
-                        age: userData.age || 0,
-                        longitude: userData.location.longitude,
-                        referrerId: ctx.session.referrerId || "",
-                        latitude: userData.location.latitude,
-                        ownCoordinates: userData.ownCoordinates
-                    },
-                });
-                ctx.logger.info({
-                    msg: 'Новый пользователь создан',
-                    userId
-                });
+                if (existingUser) {
+                    // Обновляем существующего пользователя
+                    yield postgres_1.prisma.user.update({
+                        where: { id: userId },
+                        data: {
+                            name: userData.name || "",
+                            city: userData.city || "",
+                            gender: userData.gender || "",
+                            age: userData.age || 0,
+                            longitude: userData.location.longitude,
+                            latitude: userData.location.latitude,
+                            ownCoordinates: userData.ownCoordinates
+                        },
+                    });
+                    ctx.logger.info({
+                        msg: 'Основные данные пользователя обновлены',
+                        userId
+                    });
+                }
+                else {
+                    // Создаем нового пользователя
+                    yield postgres_1.prisma.user.create({
+                        data: {
+                            id: userId,
+                            name: userData.name || "",
+                            city: userData.city || "",
+                            gender: userData.gender || "",
+                            age: userData.age || 0,
+                            longitude: userData.location.longitude,
+                            referrerId: ctx.session.referrerId || "",
+                            latitude: userData.location.latitude,
+                            ownCoordinates: userData.ownCoordinates
+                        },
+                    });
+                    ctx.logger.info({
+                        msg: 'Новый пользователь создан',
+                        userId
+                    });
+                }
             }
             // Сохраняем профиль пользователя с помощью функции из profilesService
             if (userData.profileType) {

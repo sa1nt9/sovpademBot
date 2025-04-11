@@ -479,6 +479,20 @@ function getCandidate(ctx) {
                     return null;
             }
             if (candidate) {
+                // Проверяем, не забанен ли кандидат
+                const candidateBan = yield postgres_1.prisma.userBan.findFirst({
+                    where: {
+                        userId: candidate.id,
+                        isActive: true,
+                        bannedUntil: {
+                            gt: now
+                        }
+                    }
+                });
+                if (candidateBan) {
+                    ctx.logger.info(`Candidate ${candidate.id} is banned, skipping`);
+                    return null;
+                }
                 // Получаем профиль кандидата того же типа, что и активный профиль
                 const candidateProfile = yield (0, profilesService_1.getUserProfile)(candidate.id, activeProfile.profileType, activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP ? activeProfile.subType : undefined);
                 if (candidateProfile) {

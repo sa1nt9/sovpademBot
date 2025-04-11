@@ -15,6 +15,7 @@ const getMe_1 = require("./db/getMe");
 const haversine_1 = require("./haversine");
 const gameLink_1 = require("./gameLink");
 const profilesService_1 = require("./db/profilesService");
+const postgres_1 = require("../db/postgres");
 const defaultOptions = {
     myForm: true,
     like: null,
@@ -55,6 +56,17 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
     let count = 0;
     if (options.like) {
         count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), 'user');
+    }
+    if (options.isInline) {
+        const currentSession = yield postgres_1.prisma.session.findUnique({
+            where: {
+                key: form.id
+            }
+        });
+        if (currentSession) {
+            const currentValue = currentSession ? JSON.parse(currentSession.value) : {};
+            ctx.session = currentValue;
+        }
     }
     // Получаем тип профиля и соответствующую информацию
     const profileType = options.profileType || ctx.session.activeProfile.profileType;

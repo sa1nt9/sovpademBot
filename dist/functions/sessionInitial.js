@@ -33,7 +33,6 @@ function sessionInitial() {
             chatPartnerId: null,
             searchingPartner: false
         },
-        availableProfiles: [],
         currentCandidateProfile: null,
         currentBlacklistedProfile: null,
         pendingMutualLike: false

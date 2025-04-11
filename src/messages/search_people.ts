@@ -35,7 +35,6 @@ export async function searchPeopleStep(ctx: MyContext) {
 
     } else if (message === '💌/📹') {
         ctx.session.step = 'text_or_video_to_user'
-        ctx.session.additionalFormInfo.awaitingLikeContent = true;
 
         await ctx.reply(ctx.t('text_or_video_to_user'), {
             reply_markup: textOrVideoKeyboard(ctx.t)

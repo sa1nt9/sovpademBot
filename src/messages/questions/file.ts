@@ -13,6 +13,7 @@ export const fileQuestion = async (ctx: MyContext) => {
         ctx.session.activeProfile.tempFiles = [];
         ctx.session.question = "years";
         ctx.session.step = 'profile'
+        ctx.session.isEditingProfile = false;
         ctx.session.additionalFormInfo.canGoBack = false
 
 
@@ -26,10 +27,11 @@ export const fileQuestion = async (ctx: MyContext) => {
 
         if (message === ctx.t("leave_current_m") && profile?.files && files.length > 0) {
             ctx.logger.info('leave_current_m')
-            await saveUser(ctx)
-
+            await saveUser(ctx, { onlyProfile: ctx.session.additionalFormInfo.canGoBack })
+            
             await sendForm(ctx)
-
+            
+            ctx.session.additionalFormInfo.canGoBack = false
             ctx.session.question = "all_right";
             ctx.logger.info({ question: ctx.session.question }, 'all_right')
 

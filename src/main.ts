@@ -24,6 +24,7 @@ import { addToBlacklistCommand } from './commands/add_to_blacklist';
 import { matchesCommand } from './commands/matches';
 import { inlineQueryEvent } from './events/inline_query';
 import { switchCommand } from './commands/switch';
+import { changeSessionFieldsMiddleware } from './middlewares/changeSessionFieldsMiddleware';
 
 dotenv.config();
 
@@ -67,6 +68,8 @@ async function startBot() {
     bot.use(checkSubscriptionMiddleware)
 
     bot.use(rouletteMiddleware)
+
+    bot.use(changeSessionFieldsMiddleware)
 
 
     bot.command("start", startCommand);

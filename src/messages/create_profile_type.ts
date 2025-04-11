@@ -31,6 +31,7 @@ export async function createProfileTypeStep(ctx: MyContext) {
 
         if (profileType === ProfileType.RELATIONSHIP) {
             ctx.session.step = "questions";
+            ctx.session.isEditingProfile = true;
             ctx.session.question = 'years'
 
             await ctx.reply(ctx.t('years_question'), {

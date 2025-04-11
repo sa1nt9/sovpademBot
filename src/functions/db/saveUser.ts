@@ -1,56 +1,69 @@
 import { prisma } from "../../db/postgres";
 import { MyContext } from "../../typescript/context";
+import { IProfile } from "../../typescript/interfaces/IProfile";
 import { saveProfile } from "./profilesService";
 
-export async function saveUser(ctx: MyContext) {
+interface SaveUserOptions {
+    onlyProfile?: boolean;
+}
+
+const defaultOptions: SaveUserOptions = {
+    onlyProfile: false
+}
+
+export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaultOptions) {
     try {
         const userData = ctx.session.activeProfile;
         const userId = String(ctx.message?.from.id);
 
-        // Сохраняем основные данные пользователя
-        const existingUser = await prisma.user.findUnique({
-            where: { id: userId },
-        });
+        ctx.session.isEditingProfile = false;
 
-        if (existingUser) {
-            // Обновляем существующего пользователя
-            await prisma.user.update({
+        if (!options.onlyProfile) {
+            // Сохраняем основные данные пользователя
+            const existingUser = await prisma.user.findUnique({
                 where: { id: userId },
-                data: {
-                    name: userData.name || "",
-                    city: userData.city || "",
-                    gender: userData.gender || "",
-                    age: userData.age || 0,
-                    longitude: userData.location.longitude,
-                    latitude: userData.location.latitude,
-                    ownCoordinates: userData.ownCoordinates
-                },
             });
 
-            ctx.logger.info({
-                msg: 'Основные данные пользователя обновлены',
-                userId
-            });
-        } else {
-            // Создаем нового пользователя
-            await prisma.user.create({
-                data: {
-                    id: userId,
-                    name: userData.name || "",
-                    city: userData.city || "",
-                    gender: userData.gender || "",
-                    age: userData.age || 0,
-                    longitude: userData.location.longitude,
-                    referrerId: ctx.session.referrerId || "",
-                    latitude: userData.location.latitude,
-                    ownCoordinates: userData.ownCoordinates
-                },
-            });
+            if (existingUser) {
+                // Обновляем существующего пользователя
+                await prisma.user.update({
+                    where: { id: userId },
+                    data: {
+                        name: userData.name || "",
+                        city: userData.city || "",
+                        gender: userData.gender || "",
+                        age: userData.age || 0,
+                        longitude: userData.location.longitude,
+                        latitude: userData.location.latitude,
+                        ownCoordinates: userData.ownCoordinates
+                    },
+                });
 
-            ctx.logger.info({
-                msg: 'Новый пользователь создан',
-                userId
-            });
+                ctx.logger.info({
+                    msg: 'Основные данные пользователя обновлены',
+                    userId
+                });
+            } else {
+                // Создаем нового пользователя
+                await prisma.user.create({
+                    data: {
+                        id: userId,
+                        name: userData.name || "",
+                        city: userData.city || "",
+                        gender: userData.gender || "",
+                        age: userData.age || 0,
+                        longitude: userData.location.longitude,
+                        referrerId: ctx.session.referrerId || "",
+                        latitude: userData.location.latitude,
+                        ownCoordinates: userData.ownCoordinates
+                    },
+                });
+
+                ctx.logger.info({
+                    msg: 'Новый пользователь создан',
+                    userId
+                });
+            }
         }
 
         // Сохраняем профиль пользователя с помощью функции из profilesService

@@ -23,7 +23,7 @@ function textOrVideoToUserStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
         const message = ctx.message.text;
-        if (!ctx.session.currentCandidateProfile || !ctx.session.additionalFormInfo.awaitingLikeContent) {
+        if (!ctx.session.currentCandidateProfile) {
             ctx.session.step = 'search_people';
             yield ctx.reply(ctx.t('operation_cancelled'), {
                 reply_markup: (0, keyboards_1.answerFormKeyboard)()
@@ -47,7 +47,6 @@ function textOrVideoToUserStep(ctx) {
         }
         else {
             if (message === ctx.t('go_back')) {
-                ctx.session.additionalFormInfo.awaitingLikeContent = false;
                 yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
                 const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
                 ctx.logger.info(candidate, 'This is new candidate');
@@ -118,7 +117,6 @@ function textOrVideoToUserStep(ctx) {
             }
         }
         ctx.session.step = 'search_people';
-        ctx.session.additionalFormInfo.awaitingLikeContent = false;
         yield ctx.reply(ctx.t('like_sended_wait_for_answer'), {
             reply_markup: {
                 remove_keyboard: true

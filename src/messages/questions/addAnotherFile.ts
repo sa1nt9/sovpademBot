@@ -11,8 +11,8 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
 
     if (message === ctx.t("go_back") && ctx.session.additionalFormInfo.canGoBack) {
         ctx.session.activeProfile.tempFiles = [];
-        ctx.session.question = "years";
         ctx.session.step = 'profile'
+        ctx.session.isEditingProfile = false;
         ctx.session.additionalFormInfo.canGoBack = false
 
 
@@ -26,8 +26,8 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
             ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || []
             ctx.session.activeProfile.tempFiles = []
             ctx.session.additionalFormInfo.canGoBack = false
-
-            await saveUser(ctx)
+            
+            await saveUser(ctx, { onlyProfile: true })
 
             await sendForm(ctx)
             await ctx.reply(ctx.t('profile_menu'), {
@@ -70,7 +70,7 @@ export const addAnotherFileQuestion = async (ctx: MyContext) => {
                     ctx.session.activeProfile.tempFiles = []
                     ctx.session.additionalFormInfo.canGoBack = false
 
-                    await saveUser(ctx)
+                    await saveUser(ctx, { onlyProfile: true })
 
                     await sendForm(ctx)
                     await ctx.reply(ctx.t('profile_menu'), {

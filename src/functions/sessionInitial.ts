@@ -32,7 +32,6 @@ export function sessionInitial(): ISessionData {
             chatPartnerId: null,
             searchingPartner: false
         },
-        availableProfiles: [],
         currentCandidateProfile: null,
         currentBlacklistedProfile: null,
         pendingMutualLike: false

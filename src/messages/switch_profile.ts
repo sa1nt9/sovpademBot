@@ -7,15 +7,22 @@ import { profileKeyboard } from "../constants/keyboards";
 
 export const switchProfileStep = async (ctx: MyContext) => {
     const message = ctx.message!.text;
+    const userId = String(ctx.from?.id);
 
-    if (message === ctx.t('create_new_profile')) {
+    if (message === ctx.t('go_back')) {
+        ctx.session.step = 'sleep_menu'
+
+        await ctx.reply(ctx.t('sleep_menu'), {
+            reply_markup: profileKeyboard()
+        });
+    } else if (message === ctx.t('create_new_profile')) {
         ctx.session.step = "create_profile_type"
 
         await ctx.reply(ctx.t('profile_type_title'), {
             reply_markup: createProfileTypeKeyboard(ctx.t)
         });
     } else {
-        const profiles = await getUserProfiles(String(ctx.from?.id), ctx);
+        const profiles = await getUserProfiles(userId, ctx);
 
         if (checkIsKeyboardOption(switchProfileKeyboard(ctx.t, profiles), message)) {
             const selectedProfile = profiles.find(profile => {
@@ -39,7 +46,7 @@ export const switchProfileStep = async (ctx: MyContext) => {
 
             if (selectedProfile) {
                 const fullProfile = await getUserProfile(
-                    String(ctx.from?.id),
+                    userId,
                     selectedProfile.profileType,
                     selectedProfile.subType
                 );

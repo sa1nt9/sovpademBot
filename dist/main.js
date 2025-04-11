@@ -68,6 +68,7 @@ const add_to_blacklist_1 = require("./commands/add_to_blacklist");
 const matches_1 = require("./commands/matches");
 const inline_query_1 = require("./events/inline_query");
 const switch_1 = require("./commands/switch");
+const changeSessionFieldsMiddleware_1 = require("./middlewares/changeSessionFieldsMiddleware");
 dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
@@ -96,6 +97,7 @@ function startBot() {
         }));
         exports.bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
         exports.bot.use(rouletteMiddleware_1.rouletteMiddleware);
+        exports.bot.use(changeSessionFieldsMiddleware_1.changeSessionFieldsMiddleware);
         exports.bot.command("start", start_1.startCommand);
         exports.bot.command("myprofile", myprofile_1.myprofileCommand);
         exports.bot.command("switch", switch_1.switchCommand);

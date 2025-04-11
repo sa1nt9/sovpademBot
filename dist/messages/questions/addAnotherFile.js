@@ -19,8 +19,8 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
     const message = ctx.message.text;
     if (message === ctx.t("go_back") && ctx.session.additionalFormInfo.canGoBack) {
         ctx.session.activeProfile.tempFiles = [];
-        ctx.session.question = "years";
         ctx.session.step = 'profile';
+        ctx.session.isEditingProfile = false;
         ctx.session.additionalFormInfo.canGoBack = false;
         yield (0, sendForm_1.sendForm)(ctx);
         yield ctx.reply(ctx.t('profile_menu'), {
@@ -33,7 +33,7 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
             ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
             ctx.session.activeProfile.tempFiles = [];
             ctx.session.additionalFormInfo.canGoBack = false;
-            yield (0, saveUser_1.saveUser)(ctx);
+            yield (0, saveUser_1.saveUser)(ctx, { onlyProfile: true });
             yield (0, sendForm_1.sendForm)(ctx);
             yield ctx.reply(ctx.t('profile_menu'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -73,7 +73,7 @@ const addAnotherFileQuestion = (ctx) => __awaiter(void 0, void 0, void 0, functi
                     ctx.session.activeProfile.files = ctx.session.activeProfile.tempFiles || [];
                     ctx.session.activeProfile.tempFiles = [];
                     ctx.session.additionalFormInfo.canGoBack = false;
-                    yield (0, saveUser_1.saveUser)(ctx);
+                    yield (0, saveUser_1.saveUser)(ctx, { onlyProfile: true });
                     yield (0, sendForm_1.sendForm)(ctx);
                     yield ctx.reply(ctx.t('profile_menu'), {
                         reply_markup: (0, keyboards_1.profileKeyboard)()

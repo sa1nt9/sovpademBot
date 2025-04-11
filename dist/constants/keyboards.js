@@ -504,6 +504,7 @@ const switchProfileKeyboard = (t, profiles) => {
     const subtypeLocalizations = (0, profilesService_1.getSubtypeLocalizations)(t);
     return {
         keyboard: [
+            [t("go_back")],
             ...profiles.map(profile => [`${(0, profilesService_1.findKeyByValue)(t, profile.profileType, localizations)}${profile.subType ? `: ${(0, profilesService_1.findKeyByValue)(t, profile.subType, subtypeLocalizations[profile.profileType.toLowerCase()])}` : ''}`]),
             [t("create_new_profile")],
         ],

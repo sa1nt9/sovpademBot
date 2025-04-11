@@ -42,7 +42,6 @@ function searchPeopleStep(ctx) {
         }
         else if (message === '💌/📹') {
             ctx.session.step = 'text_or_video_to_user';
-            ctx.session.additionalFormInfo.awaitingLikeContent = true;
             yield ctx.reply(ctx.t('text_or_video_to_user'), {
                 reply_markup: (0, keyboards_1.textOrVideoKeyboard)(ctx.t)
             });
