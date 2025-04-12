@@ -13,19 +13,32 @@ exports.getRoulettePartner = getRoulettePartner;
 const postgres_1 = require("../../db/postgres");
 function getRoulettePartner(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
+        var _a;
+        const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        ctx.logger.info({ userId }, 'Starting to search for roulette partner');
         try {
-            const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
             // Получаем информацию о текущем пользователе
             const user = yield postgres_1.prisma.user.findUnique({
                 where: { id: userId },
             });
             if (!user) {
+                ctx.logger.warn({ userId }, 'User not found while searching for roulette partner');
                 return null;
             }
+            ctx.logger.info({
+                userId,
+                hasLocation: user.ownCoordinates,
+                hasAge: !!user.age,
+                gender: user.gender
+            }, 'Found user data for roulette partner search');
             // Расчет периода для бонусных очков
             const now = new Date();
             const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+            ctx.logger.info({
+                userId,
+                periodStart: fifteenDaysAgo,
+                periodEnd: now
+            }, 'Calculating bonus points period');
             // Находим подходящего партнера, используя сложную сортировку
             const partners = yield postgres_1.prisma.$queryRaw `
             WITH RankedPartners AS (
@@ -106,22 +119,22 @@ function getRoulettePartner(ctx) {
             if (partners && partners.length > 0) {
                 const partner = partners[0];
                 ctx.logger.info({
-                    action: 'Found roulette partner',
                     userId,
                     partnerId: partner.id,
-                    distance: partner.distance,
+                    distance: Math.round(partner.distance * 10) / 10,
                     score: partner.score
-                });
+                }, 'Found suitable roulette partner');
                 return partner.id;
             }
+            ctx.logger.info({ userId }, 'No suitable roulette partner found');
             return null;
         }
         catch (error) {
             ctx.logger.error({
-                error,
-                action: 'Error finding roulette partner',
-                userId: String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id)
-            });
+                userId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error finding roulette partner');
             return null;
         }
     });

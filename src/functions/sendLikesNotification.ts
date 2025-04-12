@@ -7,6 +7,14 @@ import { getLikesInfo } from "./db/getLikesInfo";
 import { sendForm } from "./sendForm";
 
 export async function sendLikesNotification(ctx: MyContext, targetUserId: string, isAnswer?: boolean) {
+    const fromUserId = String(ctx.from?.id);
+    
+    ctx.logger.info({ 
+        fromUserId,
+        targetUserId,
+        isAnswer
+    }, 'Starting likes notification');
+
     const { count, gender } = await getLikesInfo(targetUserId, 'user');
 
     try {
@@ -33,7 +41,13 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
             const userGender = targetUser?.gender === 'female' ? 'female' : 'male';
 
             if (isAnswer) {
-                ctx.logger.info({ currentValue, targetUserId, isAnswer })
+                ctx.logger.info({ 
+                    fromUserId,
+                    targetUserId,
+                    step: currentValue.step,
+                    hasCurrentCandidate: !!currentValue.currentCandidateProfile?.id
+                }, 'Processing mutual like notification');
+
                 if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && currentValue.currentCandidateProfile?.id) {
                     await ctx.api.sendMessage(targetUserId, i18n(false).t(currentValue.__language_code || "ru", 'somebody_liked_you_end_with_it'));
 
@@ -49,6 +63,12 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                             })
                         }
                     });
+
+                    ctx.logger.info({ 
+                        fromUserId,
+                        targetUserId,
+                        step: currentValue.step
+                    }, 'Updated session with pending mutual like');
                 } else {
                     const userLike = await prisma.profileLike.findFirst({
                         where: {
@@ -93,8 +113,21 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                     await ctx.api.sendMessage(targetUserId, i18n(false).t(currentValue.__language_code || "ru", 'sleep_menu'), {
                         reply_markup: profileKeyboard()
                     });
+
+                    ctx.logger.info({ 
+                        fromUserId,
+                        targetUserId
+                    }, 'Sent mutual sympathy notification and updated session');
                 }
             } else {
+                ctx.logger.info({ 
+                    fromUserId,
+                    targetUserId,
+                    count,
+                    gender,
+                    userGender
+                }, 'Sending new likes notification');
+
                 await prisma.session.update({
                     where: {
                         key: targetUserId
@@ -115,12 +148,25 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                     reply_markup: somebodysLikedYouKeyboard(),
                     parse_mode: 'HTML'
                 });
+
+                ctx.logger.info({ 
+                    fromUserId,
+                    targetUserId
+                }, 'Sent new likes notification and updated session');
             }
         } else {
-            ctx.logger.error('Error updating session somebodys_liked_you, session not found')
+            ctx.logger.error({ 
+                fromUserId,
+                targetUserId
+            }, 'Error updating session somebodys_liked_you, session not found');
         }
 
     } catch (error) {
-        ctx.logger.error(error, 'Error updating session somebodys_liked_you')
+        ctx.logger.error({ 
+            fromUserId,
+            targetUserId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error updating session somebodys_liked_you');
     }
 }

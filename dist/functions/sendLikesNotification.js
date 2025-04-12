@@ -17,7 +17,13 @@ const getLikesInfo_1 = require("./db/getLikesInfo");
 const sendForm_1 = require("./sendForm");
 function sendLikesNotification(ctx, targetUserId, isAnswer) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f, _g;
+        const fromUserId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        ctx.logger.info({
+            fromUserId,
+            targetUserId,
+            isAnswer
+        }, 'Starting likes notification');
         const { count, gender } = yield (0, getLikesInfo_1.getLikesInfo)(targetUserId, 'user');
         try {
             const currentSession = yield postgres_1.prisma.session.findUnique({
@@ -39,23 +45,33 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                 // Пол пользователя для правильного склонения
                 const userGender = (targetUser === null || targetUser === void 0 ? void 0 : targetUser.gender) === 'female' ? 'female' : 'male';
                 if (isAnswer) {
-                    ctx.logger.info({ currentValue, targetUserId, isAnswer });
-                    if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && ((_a = currentValue.currentCandidateProfile) === null || _a === void 0 ? void 0 : _a.id)) {
+                    ctx.logger.info({
+                        fromUserId,
+                        targetUserId,
+                        step: currentValue.step,
+                        hasCurrentCandidate: !!((_b = currentValue.currentCandidateProfile) === null || _b === void 0 ? void 0 : _b.id)
+                    }, 'Processing mutual like notification');
+                    if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && ((_c = currentValue.currentCandidateProfile) === null || _c === void 0 ? void 0 : _c.id)) {
                         yield ctx.api.sendMessage(targetUserId, (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'somebody_liked_you_end_with_it'));
                         yield postgres_1.prisma.session.update({
                             where: {
                                 key: targetUserId
                             },
                             data: {
-                                value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { pendingMutualLike: true, pendingMutualLikeProfileId: String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id) }))
+                                value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { pendingMutualLike: true, pendingMutualLikeProfileId: String((_d = ctx.from) === null || _d === void 0 ? void 0 : _d.id) }))
                             }
                         });
+                        ctx.logger.info({
+                            fromUserId,
+                            targetUserId,
+                            step: currentValue.step
+                        }, 'Updated session with pending mutual like');
                     }
                     else {
                         const userLike = yield postgres_1.prisma.profileLike.findFirst({
                             where: {
                                 toProfileId: targetUserId,
-                                fromProfileId: String((_c = ctx.from) === null || _c === void 0 ? void 0 : _c.id),
+                                fromProfileId: String((_e = ctx.from) === null || _e === void 0 ? void 0 : _e.id),
                                 liked: true
                             },
                             orderBy: {
@@ -70,8 +86,8 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                             sendTo: targetUserId,
                             privateNote: userLike === null || userLike === void 0 ? void 0 : userLike.privateNote
                         });
-                        yield ctx.api.sendMessage(targetUserId, `${(0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${(_d = ctx.from) === null || _d === void 0 ? void 0 : _d.username})`, {
-                            reply_markup: (0, keyboards_1.complainToUserKeyboard)((...args) => (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", ...args), String((_e = ctx.from) === null || _e === void 0 ? void 0 : _e.id)),
+                        yield ctx.api.sendMessage(targetUserId, `${(0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${(_f = ctx.from) === null || _f === void 0 ? void 0 : _f.username})`, {
+                            reply_markup: (0, keyboards_1.complainToUserKeyboard)((...args) => (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", ...args), String((_g = ctx.from) === null || _g === void 0 ? void 0 : _g.id)),
                             link_preview_options: {
                                 is_disabled: true
                             },
@@ -88,9 +104,20 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                         yield ctx.api.sendMessage(targetUserId, (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'sleep_menu'), {
                             reply_markup: (0, keyboards_1.profileKeyboard)()
                         });
+                        ctx.logger.info({
+                            fromUserId,
+                            targetUserId
+                        }, 'Sent mutual sympathy notification and updated session');
                     }
                 }
                 else {
+                    ctx.logger.info({
+                        fromUserId,
+                        targetUserId,
+                        count,
+                        gender,
+                        userGender
+                    }, 'Sending new likes notification');
                     yield postgres_1.prisma.session.update({
                         where: {
                             key: targetUserId
@@ -107,14 +134,26 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                         reply_markup: (0, keyboards_1.somebodysLikedYouKeyboard)(),
                         parse_mode: 'HTML'
                     });
+                    ctx.logger.info({
+                        fromUserId,
+                        targetUserId
+                    }, 'Sent new likes notification and updated session');
                 }
             }
             else {
-                ctx.logger.error('Error updating session somebodys_liked_you, session not found');
+                ctx.logger.error({
+                    fromUserId,
+                    targetUserId
+                }, 'Error updating session somebodys_liked_you, session not found');
             }
         }
         catch (error) {
-            ctx.logger.error(error, 'Error updating session somebodys_liked_you');
+            ctx.logger.error({
+                fromUserId,
+                targetUserId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error updating session somebodys_liked_you');
         }
     });
 }

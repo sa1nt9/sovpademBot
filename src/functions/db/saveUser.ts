@@ -13,13 +13,31 @@ const defaultOptions: SaveUserOptions = {
 }
 
 export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaultOptions) {
+    const userId = String(ctx.message?.from.id);
+    
+    ctx.logger.info({ 
+        userId,
+        onlyProfile: options.onlyProfile
+    }, 'Starting user save process');
+
     try {
-        ctx.session.activeProfile.profileType = ctx.session.additionalFormInfo.selectedProfileType
+        ctx.session.activeProfile.profileType = ctx.session.additionalFormInfo.selectedProfileType;
         if (ctx.session.activeProfile.profileType !== ProfileType.RELATIONSHIP && ctx.session.additionalFormInfo.selectedSubType) {
-            ctx.session.activeProfile.subType = ctx.session.additionalFormInfo.selectedSubType as TProfileSubType
+            ctx.session.activeProfile.subType = ctx.session.additionalFormInfo.selectedSubType as TProfileSubType;
         }
         const userData = ctx.session.activeProfile;
-        const userId = String(ctx.message?.from.id);
+
+        ctx.logger.info({ 
+            userId,
+            profileType: userData.profileType,
+            subType: (userData as any)?.subType,
+            hasName: !!userData.name,
+            hasCity: !!userData.city,
+            hasGender: !!userData.gender,
+            hasAge: !!userData.age,
+            hasLocation: !!userData.location,
+            ownCoordinates: userData.ownCoordinates
+        }, 'Prepared user data for saving');
 
         ctx.session.isEditingProfile = false;
         ctx.session.isCreatingProfile = false;
@@ -31,6 +49,14 @@ export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaul
             });
 
             if (existingUser) {
+                ctx.logger.info({ 
+                    userId,
+                    existingName: existingUser.name,
+                    existingCity: existingUser.city,
+                    existingGender: existingUser.gender,
+                    existingAge: existingUser.age
+                }, 'Found existing user, updating data');
+
                 // Обновляем существующего пользователя
                 await prisma.user.update({
                     where: { id: userId },
@@ -46,10 +72,15 @@ export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaul
                 });
 
                 ctx.logger.info({
-                    msg: 'Основные данные пользователя обновлены',
-                    userId
-                });
+                    userId,
+                    newName: userData.name,
+                    newCity: userData.city,
+                    newGender: userData.gender,
+                    newAge: userData.age
+                }, 'User data updated successfully');
             } else {
+                ctx.logger.info({ userId }, 'Creating new user');
+
                 // Создаем нового пользователя
                 await prisma.user.create({
                     data: {
@@ -66,45 +97,55 @@ export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaul
                 });
 
                 ctx.logger.info({
-                    msg: 'Новый пользователь создан',
-                    userId
-                });
+                    userId,
+                    name: userData.name,
+                    city: userData.city,
+                    hasReferrer: !!ctx.session.referrerId
+                }, 'New user created successfully');
             }
         }
 
         // Сохраняем профиль пользователя с помощью функции из profilesService
         if (userData.profileType) {
             try {
+                ctx.logger.info({ 
+                    userId,
+                    profileType: userData.profileType,
+                    subType: (userData as any)?.subType
+                }, 'Starting profile save');
+
                 const savedProfile = await saveProfile({ ...userData, userId });
 
                 ctx.logger.info({
-                    msg: 'Профиль пользователя сохранен',
-                    userData,
+                    userId,
                     profileType: userData.profileType,
-                    subType: (userData as any).subType
-                });
+                    subType: (userData as any)?.subType,
+                    profileId: savedProfile?.id
+                }, 'Profile saved successfully');
 
                 return savedProfile;
             } catch (profileError) {
                 ctx.logger.error({
-                    msg: 'Ошибка при сохранении профиля',
-                    error: profileError,
-                    userData,
+                    userId,
                     profileType: userData.profileType,
-                    subType: (userData as any).subType
-                });
+                    subType: (userData as any)?.subType,
+                    error: profileError instanceof Error ? profileError.message : 'Unknown error',
+                    stack: profileError instanceof Error ? profileError.stack : undefined
+                }, 'Error saving profile');
 
-                // Возвращаем null, но не прерываем выполнение функции
                 return null;
             }
+        } else {
+            ctx.logger.warn({ userId }, 'No profile type specified, skipping profile save');
         }
 
         return null;
     } catch (error) {
         ctx.logger.error({
-            msg: 'Ошибка при сохранении пользователя и профиля',
-            error: error
-        });
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error in user save process');
         return null;
     }
 }

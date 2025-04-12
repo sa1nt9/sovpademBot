@@ -17,29 +17,37 @@ const sendForm_1 = require("./sendForm");
 const candidatesEnded_1 = require("./candidatesEnded");
 const startSearchingPeople_1 = require("./startSearchingPeople");
 const addToBlacklist = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
     if (ctx.session.currentCandidateProfile) {
+        ctx.logger.info({
+            userId,
+            targetProfileId: ctx.session.currentCandidateProfile.id,
+            targetUserId: ctx.session.currentCandidateProfile.userId
+        }, 'Adding profile to blacklist');
         // Проверяем, не добавлен ли уже пользователь в черный список
         const existingBlacklist = yield postgres_1.prisma.blacklist.findFirst({
             where: {
-                userId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
+                userId: userId,
                 targetProfileId: ctx.session.currentCandidateProfile.id,
                 targetUserId: ctx.session.currentCandidateProfile.userId
             }
         });
         if (existingBlacklist) {
+            ctx.logger.info({ userId, targetProfileId: ctx.session.currentCandidateProfile.id }, 'Profile already in blacklist');
             yield ctx.reply(ctx.t('more_options_blacklist_already'));
             return;
         }
         // Добавляем пользователя в черный список
         yield postgres_1.prisma.blacklist.create({
             data: {
-                userId: String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id),
+                userId: userId,
                 targetProfileId: ctx.session.currentCandidateProfile.id,
                 profileType: ctx.session.currentCandidateProfile.profileType,
                 targetUserId: ctx.session.currentCandidateProfile.userId
             }
         });
+        ctx.logger.info({ userId, targetProfileId: ctx.session.currentCandidateProfile.id }, 'Profile added to blacklist');
         yield ctx.reply(ctx.t('more_options_blacklist_success'));
         if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
@@ -47,13 +55,15 @@ const addToBlacklist = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         }
         yield (0, startSearchingPeople_1.startSearchingPeople)(ctx);
         const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-        ctx.logger.info(candidate, 'This is new candidate');
         if (candidate) {
             yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
         }
         else {
             yield (0, candidatesEnded_1.candidatesEnded)(ctx);
         }
+    }
+    else {
+        ctx.logger.warn({ userId }, 'No current candidate profile for blacklist');
     }
 });
 exports.addToBlacklist = addToBlacklist;

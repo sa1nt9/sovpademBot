@@ -14,19 +14,31 @@ const client_1 = require("@prisma/client");
 const postgres_1 = require("../db/postgres");
 // Функция для восстановления значений профиля из базы данных
 const restoreProfileValues = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
-        if (!userId)
+        if (!userId) {
+            ctx.logger.warn('No user ID found for profile restoration');
             return;
+        }
+        ctx.logger.info({ userId }, 'Starting profile values restoration');
         // Получаем активный профиль пользователя
         const activeProfile = ctx.session.activeProfile;
-        if (!activeProfile)
+        if (!activeProfile) {
+            ctx.logger.warn({ userId }, 'No active profile found for restoration');
             return;
+        }
         // Получаем актуальные данные профиля из базы данных
         const profileModelName = `${activeProfile.profileType.toLowerCase()}Profile`;
-        if (!profileModelName)
+        if (!profileModelName) {
+            ctx.logger.warn({ userId, profileType: activeProfile.profileType }, 'Invalid profile model name');
             return;
+        }
+        ctx.logger.info({
+            userId,
+            profileType: activeProfile.profileType,
+            profileModelName
+        }, 'Restoring profile values');
         // Используем динамический доступ к моделям Prisma
         let profile = null;
         switch (profileModelName) {
@@ -67,11 +79,18 @@ const restoreProfileValues = (ctx) => __awaiter(void 0, void 0, void 0, function
                 break;
         }
         if (profile) {
+            ctx.logger.info({
+                userId,
+                profileType: activeProfile.profileType,
+                hasProfile: true
+            }, 'Found profile in database');
             const user = yield postgres_1.prisma.user.findUnique({
                 where: { id: userId }
             });
-            if (!user)
+            if (!user) {
+                ctx.logger.warn({ userId }, 'User not found in database');
                 return;
+            }
             ctx.session.activeProfile = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, ctx.session.activeProfile), { name: user.name || "", age: user.age || 0, gender: user.gender || "", city: user.city || "", location: {
                     longitude: user.longitude || 0,
                     latitude: user.latitude || 0
@@ -86,10 +105,24 @@ const restoreProfileValues = (ctx) => __awaiter(void 0, void 0, void 0, function
                 : {})), (activeProfile.profileType === client_1.ProfileType.IT
                 ? { github: profile.github || "" }
                 : {}));
+            ctx.logger.info({
+                userId,
+                profileType: activeProfile.profileType
+            }, 'Successfully restored profile values');
+        }
+        else {
+            ctx.logger.warn({
+                userId,
+                profileType: activeProfile.profileType
+            }, 'Profile not found in database');
         }
     }
     catch (error) {
-        ctx.logger.error(error, 'Error restoring profile values');
+        ctx.logger.error({
+            userId: (_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error restoring profile values');
     }
 });
 exports.restoreProfileValues = restoreProfileValues;

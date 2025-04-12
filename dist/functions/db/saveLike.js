@@ -12,10 +12,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.saveLike = void 0;
 const postgres_1 = require("../../db/postgres");
 const saveLike = (ctx, targetId, liked, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const profileId = ctx.session.activeProfile.id;
+    ctx.logger.info({
+        profileId,
+        targetId,
+        liked,
+        hasMessage: !!(options === null || options === void 0 ? void 0 : options.message),
+        hasVideo: !!(options === null || options === void 0 ? void 0 : options.videoFileId),
+        hasVoice: !!(options === null || options === void 0 ? void 0 : options.voiceFileId),
+        hasVideoNote: !!(options === null || options === void 0 ? void 0 : options.videoNoteFileId),
+        isMutual: options === null || options === void 0 ? void 0 : options.isMutual
+    }, 'Starting to save like');
     try {
         // Создаем данные для лайка
         const likeData = {
-            fromProfileId: ctx.session.activeProfile.id,
+            fromProfileId: profileId,
             toProfileId: targetId,
             profileType: ctx.session.activeProfile.profileType,
             liked,
@@ -31,15 +42,26 @@ const saveLike = (ctx, targetId, liked, options) => __awaiter(void 0, void 0, vo
         const like = yield postgres_1.prisma.profileLike.create({
             data: likeData
         });
+        ctx.logger.info({
+            profileId,
+            targetId,
+            likeId: like.id
+        }, 'Like created successfully');
         // Проверяем взаимный лайк
         const mutualLike = yield postgres_1.prisma.profileLike.findFirst({
             where: {
-                toProfileId: ctx.session.activeProfile.id,
+                toProfileId: profileId,
                 fromProfileId: targetId,
                 liked: true
             }
         });
         if (mutualLike && liked) {
+            ctx.logger.info({
+                profileId,
+                targetId,
+                likeId: like.id,
+                mutualLikeId: mutualLike.id
+            }, 'Found mutual like, updating both likes');
             // Устанавливаем взаимный лайк
             yield postgres_1.prisma.profileLike.update({
                 where: { id: like.id },
@@ -49,11 +71,28 @@ const saveLike = (ctx, targetId, liked, options) => __awaiter(void 0, void 0, vo
                 where: { id: mutualLike.id },
                 data: { isMutual: true, isMutualAt: new Date() }
             });
+            ctx.logger.info({
+                profileId,
+                targetId,
+                likeId: like.id,
+                mutualLikeId: mutualLike.id
+            }, 'Both likes updated as mutual');
+        }
+        else if (liked) {
+            ctx.logger.info({
+                profileId,
+                targetId
+            }, 'No mutual like found');
         }
         return like;
     }
     catch (error) {
-        ctx.logger.error(error, 'Error saving like');
+        ctx.logger.error({
+            profileId,
+            targetId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error saving like');
         return null;
     }
 });

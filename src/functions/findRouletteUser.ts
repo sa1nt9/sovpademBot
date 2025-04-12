@@ -9,6 +9,8 @@ import { i18n } from "../i18n";
 export const findRouletteUser = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
+    ctx.logger.info({ userId }, 'Starting roulette user search');
+
     await prisma.rouletteUser.upsert({
         where: { id: userId },
         create: {
@@ -21,10 +23,14 @@ export const findRouletteUser = async (ctx: MyContext) => {
         }
     });
 
+    ctx.logger.info({ userId }, 'User marked as searching partner');
+
     // Используем getRoulettePartner для поиска подходящего партнера с учетом сортировки
     const partnerId = await getRoulettePartner(ctx);
 
     if (partnerId) {
+        ctx.logger.info({ userId, partnerId }, 'Found roulette partner');
+
         // Создаем новый чат в рулетке
         await prisma.rouletteChat.create({
             data: {
@@ -35,6 +41,8 @@ export const findRouletteUser = async (ctx: MyContext) => {
                 isUsernameRevealed: false
             }
         });
+
+        ctx.logger.info({ userId, partnerId }, 'Created roulette chat');
 
         // Связываем пользователей
         await prisma.rouletteUser.update({
@@ -56,6 +64,8 @@ export const findRouletteUser = async (ctx: MyContext) => {
                 profileRevealed: false
             }
         });
+
+        ctx.logger.info({ userId, partnerId }, 'Updated both users roulette status');
 
         // Получаем данные пользователей для отображения информации
         const currentUser = await prisma.user.findUnique({ where: { id: userId } });
@@ -121,7 +131,10 @@ export const findRouletteUser = async (ctx: MyContext) => {
         await ctx.api.sendMessage(partnerId, fullMessageYou, {
             reply_markup: rouletteKeyboard(ctx.t)
         });
+
+        ctx.logger.info({ userId, partnerId }, 'Sent roulette messages to both users');
     } else {
+        ctx.logger.info({ userId }, 'No partner found, continuing search');
         await ctx.reply(ctx.t('roulette_searching'), {
             reply_markup: rouletteStopKeyboard(ctx.t)
         });

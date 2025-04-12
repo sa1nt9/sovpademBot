@@ -1,6 +1,9 @@
 import { ISessionData } from "../typescript/interfaces/ISessionData";
+import { logger } from "../logger";
 
 export function sessionInitial(): ISessionData {
+    logger.info('Initializing new session');
+    
     return {
         step: "choose_language_start",
         question: 'years',

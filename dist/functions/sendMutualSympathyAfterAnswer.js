@@ -18,16 +18,23 @@ const defaultOptions = {
 };
 const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [ctx_1, ...args_1], void 0, function* (ctx, options = defaultOptions) {
     var _a;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    const targetUserId = String(ctx.session.pendingMutualLikeProfileId);
+    ctx.logger.info({
+        userId,
+        targetUserId,
+        withoutSleepMenu: options.withoutSleepMenu
+    }, 'Sending mutual sympathy after answer');
     // Получаем данные пользователя, который поставил лайк
     const likedUser = yield postgres_1.prisma.user.findUnique({
         where: {
-            id: String(ctx.session.pendingMutualLikeProfileId)
+            id: targetUserId
         }
     });
     if (likedUser) {
         const userLike = yield postgres_1.prisma.profileLike.findFirst({
             where: {
-                fromProfileId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
+                fromProfileId: userId,
                 toProfileId: likedUser.id,
                 liked: true
             },
@@ -57,6 +64,10 @@ const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [c
         }
         ctx.session.pendingMutualLike = false;
         ctx.session.pendingMutualLikeProfileId = undefined;
+        ctx.logger.info({ userId, targetUserId }, 'Mutual sympathy sent successfully');
+    }
+    else {
+        ctx.logger.warn({ userId, targetUserId }, 'Liked user not found');
     }
 });
 exports.sendMutualSympathyAfterAnswer = sendMutualSympathyAfterAnswer;

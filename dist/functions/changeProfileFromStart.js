@@ -19,12 +19,24 @@ const keyboards_4 = require("../constants/keyboards");
 const gameLink_1 = require("./gameLink");
 function changeProfileFromStart(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
         const message = ctx.message.text;
         const subtypeLocalizations = (0, profilesService_1.getSubtypeLocalizations)(ctx.t);
+        ctx.logger.info({
+            userId,
+            message,
+            profileType: ctx.session.additionalFormInfo.selectedProfileType,
+            isEditing: ctx.session.isEditingProfile
+        }, 'Starting profile change from start');
         ctx.session.step = "questions";
         if (ctx.session.additionalFormInfo.selectedProfileType === client_1.ProfileType.SPORT) {
             if (!ctx.session.isEditingProfile) {
                 ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.sport[message];
+                ctx.logger.info({
+                    userId,
+                    subType: ctx.session.additionalFormInfo.selectedSubType
+                }, 'Selected sport subtype');
             }
             ctx.session.question = 'sport_level';
             yield ctx.reply(ctx.t('sport_level_question'), {
@@ -34,6 +46,10 @@ function changeProfileFromStart(ctx) {
         else if (ctx.session.additionalFormInfo.selectedProfileType === client_1.ProfileType.IT) {
             if (!ctx.session.isEditingProfile) {
                 ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.it[message];
+                ctx.logger.info({
+                    userId,
+                    subType: ctx.session.additionalFormInfo.selectedSubType
+                }, 'Selected IT subtype');
             }
             ctx.session.question = 'it_experience';
             yield ctx.reply(ctx.t('it_experience_question'), {
@@ -43,6 +59,10 @@ function changeProfileFromStart(ctx) {
         else if (ctx.session.additionalFormInfo.selectedProfileType === client_1.ProfileType.GAME) {
             if (!ctx.session.isEditingProfile) {
                 ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.game[message];
+                ctx.logger.info({
+                    userId,
+                    subType: ctx.session.additionalFormInfo.selectedSubType
+                }, 'Selected game subtype');
             }
             ctx.session.question = 'game_account';
             if (ctx.session.additionalFormInfo.selectedSubType) {
@@ -53,6 +73,10 @@ function changeProfileFromStart(ctx) {
         }
         else if (ctx.session.additionalFormInfo.selectedProfileType === client_1.ProfileType.HOBBY) {
             ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.hobby[message];
+            ctx.logger.info({
+                userId,
+                subType: ctx.session.additionalFormInfo.selectedSubType
+            }, 'Selected hobby subtype');
             ctx.session.question = 'years';
             yield ctx.reply(ctx.t('years_question'), {
                 reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
@@ -60,9 +84,17 @@ function changeProfileFromStart(ctx) {
         }
         else {
             ctx.session.question = 'years';
+            ctx.logger.info({
+                userId,
+                profileType: ctx.session.additionalFormInfo.selectedProfileType
+            }, 'Using default years question');
             yield ctx.reply(ctx.t('years_question'), {
                 reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
             });
         }
+        ctx.logger.info({
+            userId,
+            question: ctx.session.question
+        }, 'Profile change from start completed');
     });
 }

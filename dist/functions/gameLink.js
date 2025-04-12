@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getGameUsernameToShow = exports.getGameProfileLink = exports.getGameUsername = exports.gameLocalizationKeys = void 0;
 const client_1 = require("@prisma/client");
 const gamesRegex_1 = require("../constants/regex/gamesRegex");
+const logger_1 = require("../logger");
 exports.gameLocalizationKeys = {
     [client_1.GameType.CS_GO]: 'game_account_cs_go',
     [client_1.GameType.DOTA2]: 'game_account_dota2',
@@ -21,15 +22,24 @@ exports.gameLocalizationKeys = {
 };
 const getGameUsername = (gameType, link) => {
     try {
+        logger_1.logger.info({
+            gameType,
+            link
+        }, 'Getting game username');
         switch (gameType) {
             case client_1.GameType.CS_GO:
                 // Проверяем оба формата для CS:GO
                 const steamMatch = link.match(gamesRegex_1.steamProfileRegex);
-                if (steamMatch)
+                if (steamMatch) {
+                    logger_1.logger.info({ gameType, platform: 'steam' }, 'Found Steam username');
                     return `${steamMatch[1]}:steam`;
+                }
                 const faceitMatch = link.match(gamesRegex_1.faceitProfileRegex);
-                if (faceitMatch)
+                if (faceitMatch) {
+                    logger_1.logger.info({ gameType, platform: 'faceit' }, 'Found Faceit username');
                     return `${faceitMatch[1]}:faceit`;
+                }
+                logger_1.logger.warn({ gameType, link }, 'No valid username found for CS:GO');
                 return false;
             case client_1.GameType.DOTA2:
             case client_1.GameType.RUST:
@@ -67,21 +77,34 @@ const getGameUsername = (gameType, link) => {
                 const hoyoverseUsername = link.match(gamesRegex_1.hoyoverseProfileRegex);
                 return hoyoverseUsername ? hoyoverseUsername[1] : false;
             default:
+                logger_1.logger.warn({ gameType }, 'Unknown game type');
                 return false;
         }
     }
     catch (error) {
+        logger_1.logger.error({
+            gameType,
+            link,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error getting game username');
         return false;
     }
 };
 exports.getGameUsername = getGameUsername;
 const getGameProfileLink = (gameType, username) => {
+    logger_1.logger.info({
+        gameType,
+        username
+    }, 'Getting game profile link');
     switch (gameType) {
         case client_1.GameType.CS_GO: {
             const [name, platform] = username.split(':');
             if (platform === 'faceit') {
+                logger_1.logger.info({ gameType, platform: 'faceit' }, 'Generated Faceit profile link');
                 return [`https://www.faceit.com/players/${name}`, platform];
             }
+            logger_1.logger.info({ gameType, platform: 'steam' }, 'Generated Steam profile link');
             return [`https://steamcommunity.com/profiles/${name}`, platform];
         }
         case client_1.GameType.DOTA2:
@@ -110,15 +133,23 @@ const getGameProfileLink = (gameType, username) => {
         case client_1.GameType.GENSHIN_IMPACT:
             return [`https://hoyolab.com/accountCenter/userProfile/${username}`];
         default:
+            logger_1.logger.warn({ gameType }, 'Unknown game type for profile link');
             return [];
     }
 };
 exports.getGameProfileLink = getGameProfileLink;
 const getGameUsernameToShow = (gameType, username) => {
+    logger_1.logger.info({
+        gameType,
+        username
+    }, 'Getting game username to show');
     switch (gameType) {
         case client_1.GameType.CS_GO:
-            return username.split(':')[0];
+            const displayName = username.split(':')[0];
+            logger_1.logger.info({ gameType, displayName }, 'Extracted CS:GO display name');
+            return displayName;
         default:
+            logger_1.logger.info({ gameType, username }, 'Using original username');
             return username;
     }
 };

@@ -6,15 +6,32 @@ import { MyContext } from "../typescript/context";
 export const restoreProfileValues = async (ctx: MyContext) => {
     try {
         const userId = String(ctx.from?.id);
-        if (!userId) return;
+        if (!userId) {
+            ctx.logger.warn('No user ID found for profile restoration');
+            return;
+        }
+
+        ctx.logger.info({ userId }, 'Starting profile values restoration');
 
         // Получаем активный профиль пользователя
         const activeProfile = ctx.session.activeProfile;
-        if (!activeProfile) return;
+        if (!activeProfile) {
+            ctx.logger.warn({ userId }, 'No active profile found for restoration');
+            return;
+        }
 
         // Получаем актуальные данные профиля из базы данных
         const profileModelName = `${activeProfile.profileType.toLowerCase()}Profile`;
-        if (!profileModelName) return;
+        if (!profileModelName) {
+            ctx.logger.warn({ userId, profileType: activeProfile.profileType }, 'Invalid profile model name');
+            return;
+        }
+
+        ctx.logger.info({ 
+            userId,
+            profileType: activeProfile.profileType,
+            profileModelName
+        }, 'Restoring profile values');
 
         // Используем динамический доступ к моделям Prisma
         let profile: any = null;
@@ -69,14 +86,21 @@ export const restoreProfileValues = async (ctx: MyContext) => {
                 break;
         }
 
-
         if (profile) {
+            ctx.logger.info({ 
+                userId,
+                profileType: activeProfile.profileType,
+                hasProfile: true
+            }, 'Found profile in database');
+
             const user = await prisma.user.findUnique({
                 where: { id: userId }
             });
 
-            if (!user) return;
-
+            if (!user) {
+                ctx.logger.warn({ userId }, 'User not found in database');
+                return;
+            }
 
             ctx.session.activeProfile = {
                 ...ctx.session.activeProfile,
@@ -108,8 +132,22 @@ export const restoreProfileValues = async (ctx: MyContext) => {
                     ? { github: profile.github || "" }
                     : {})
             };
+
+            ctx.logger.info({ 
+                userId,
+                profileType: activeProfile.profileType
+            }, 'Successfully restored profile values');
+        } else {
+            ctx.logger.warn({ 
+                userId,
+                profileType: activeProfile.profileType
+            }, 'Profile not found in database');
         }
     } catch (error) {
-        ctx.logger.error(error, 'Error restoring profile values');
+        ctx.logger.error({ 
+            userId: ctx.from?.id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error restoring profile values');
     }
 }

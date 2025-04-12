@@ -69,8 +69,6 @@ const buildITProfileText = (ctx: MyContext, profile: IItProfile, options: IOptio
     return `\n\n${ctx.t(`it_type_${profile.subType.toLowerCase()}`)}${experienceText}${technologiesText}${githubText}`;
 }
 
-
-
 export const buildTextForm = async (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
     let count: number = 0
     if (options.like) {
@@ -136,6 +134,19 @@ ${ctx.t('your_text_note')} ${options.privateNote}` : '')
 }
 
 export const sendForm = async (ctx: MyContext, form?: User | null, options: IOptions = defaultOptions) => {
+    const userId = String(ctx.from?.id);
+    ctx.logger.info({ 
+        userId,
+        formId: form?.id,
+        options: {
+            myForm: options.myForm,
+            isBlacklist: options.isBlacklist,
+            isInline: options.isInline,
+            profileType: options.profileType,
+            subType: options.subType
+        }
+    }, 'Starting sendForm function');
+
     let user: User | null | undefined = form
 
     if (options?.myForm) {
@@ -144,28 +155,43 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
         }
         user = await getMe(String(ctx.from?.id))
     }
-    if (!user) return;
+    if (!user) {
+        ctx.logger.warn({ userId }, 'User not found for form sending');
+        return;
+    }
 
     const getProfileFiles = async (user: User): Promise<{ files: IFile[], description: string }> => {
         try {
             // Получаем тип профиля из сессии
             const profileType = options.profileType || ctx.session.activeProfile.profileType as ProfileType;
 
+            ctx.logger.info({ 
+                userId: user.id,
+                profileType,
+                subType: options.subType || (ctx.session.activeProfile as any).subType
+            }, 'Getting profile files');
+
             // Получаем профиль пользователя
             const profile = await getUserProfile(user.id, profileType, options.subType || (ctx.session.activeProfile as any).subType);
 
             if (!profile || !profile.files || profile.files.length === 0) {
+                ctx.logger.info({ userId: user.id }, 'No files found for profile');
                 return { files: [], description: profile?.description || '' };
             }
             
+            ctx.logger.info({ 
+                userId: user.id,
+                filesCount: profile.files.length
+            }, 'Profile files retrieved successfully');
 
             // Преобразуем файлы в формат для отправки
             return { files: profile.files, description: profile.description };
         } catch (error) {
             ctx.logger.error({
-                msg: 'Ошибка при получении файлов профиля',
-                error: error
-            });
+                userId: user.id,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error getting profile files');
             return { files: [], description: '' };
         }
     }
@@ -186,6 +212,12 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
     } else {
         text = await buildTextForm(ctx, user, { ...options, description: description });
     }
+
+    ctx.logger.info({ 
+        userId: user.id,
+        hasFiles: files.length > 0,
+        sendTo: options.sendTo
+    }, 'Sending form');
 
     if (files && files.length > 0) {
         if (options.sendTo) {
@@ -231,4 +263,6 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
             });
         }
     }
+
+    ctx.logger.info({ userId: user.id }, 'Form sent successfully');
 }

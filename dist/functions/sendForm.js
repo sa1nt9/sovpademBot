@@ -110,33 +110,58 @@ ${ctx.t('your_text_note')} ${options.privateNote}` : '');
 });
 exports.buildTextForm = buildTextForm;
 const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1, ...args_1], void 0, function* (ctx, form, options = defaultOptions) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    ctx.logger.info({
+        userId,
+        formId: form === null || form === void 0 ? void 0 : form.id,
+        options: {
+            myForm: options.myForm,
+            isBlacklist: options.isBlacklist,
+            isInline: options.isInline,
+            profileType: options.profileType,
+            subType: options.subType
+        }
+    }, 'Starting sendForm function');
     let user = form;
     if (options === null || options === void 0 ? void 0 : options.myForm) {
         if (!options.sendTo) {
             yield ctx.reply(ctx.t('this_is_your_form'));
         }
-        user = yield (0, getMe_1.getMe)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id));
+        user = yield (0, getMe_1.getMe)(String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id));
     }
-    if (!user)
+    if (!user) {
+        ctx.logger.warn({ userId }, 'User not found for form sending');
         return;
+    }
     const getProfileFiles = (user) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // Получаем тип профиля из сессии
             const profileType = options.profileType || ctx.session.activeProfile.profileType;
+            ctx.logger.info({
+                userId: user.id,
+                profileType,
+                subType: options.subType || ctx.session.activeProfile.subType
+            }, 'Getting profile files');
             // Получаем профиль пользователя
             const profile = yield (0, profilesService_1.getUserProfile)(user.id, profileType, options.subType || ctx.session.activeProfile.subType);
             if (!profile || !profile.files || profile.files.length === 0) {
+                ctx.logger.info({ userId: user.id }, 'No files found for profile');
                 return { files: [], description: (profile === null || profile === void 0 ? void 0 : profile.description) || '' };
             }
+            ctx.logger.info({
+                userId: user.id,
+                filesCount: profile.files.length
+            }, 'Profile files retrieved successfully');
             // Преобразуем файлы в формат для отправки
             return { files: profile.files, description: profile.description };
         }
         catch (error) {
             ctx.logger.error({
-                msg: 'Ошибка при получении файлов профиля',
-                error: error
-            });
+                userId: user.id,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error getting profile files');
             return { files: [], description: '' };
         }
     });
@@ -154,23 +179,28 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
     else {
         text = yield (0, exports.buildTextForm)(ctx, user, Object.assign(Object.assign({}, options), { description: description }));
     }
+    ctx.logger.info({
+        userId: user.id,
+        hasFiles: files.length > 0,
+        sendTo: options.sendTo
+    }, 'Sending form');
     if (files && files.length > 0) {
         if (options.sendTo) {
             yield ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '', parse_mode: 'Markdown' }))));
         }
         else {
             yield ctx.replyWithMediaGroup(files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '', parse_mode: 'Markdown' }))));
-            if ((_b = options.like) === null || _b === void 0 ? void 0 : _b.videoFileId) {
+            if ((_c = options.like) === null || _c === void 0 ? void 0 : _c.videoFileId) {
                 yield ctx.replyWithVideo(options.like.videoFileId, {
                     caption: ctx.t('video_for_you'),
                 });
             }
-            if ((_c = options.like) === null || _c === void 0 ? void 0 : _c.voiceFileId) {
+            if ((_d = options.like) === null || _d === void 0 ? void 0 : _d.voiceFileId) {
                 yield ctx.replyWithVoice(options.like.voiceFileId, {
                     caption: ctx.t('voice_for_you'),
                 });
             }
-            if ((_d = options.like) === null || _d === void 0 ? void 0 : _d.videoNoteFileId) {
+            if ((_e = options.like) === null || _e === void 0 ? void 0 : _e.videoNoteFileId) {
                 const videoNote = yield ctx.replyWithVideoNote(options.like.videoNoteFileId);
                 yield ctx.reply(ctx.t('video_note_for_you'), {
                     reply_to_message_id: videoNote.message_id
@@ -190,5 +220,6 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
             });
         }
     }
+    ctx.logger.info({ userId: user.id }, 'Form sent successfully');
 });
 exports.sendForm = sendForm;

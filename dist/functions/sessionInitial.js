@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sessionInitial = sessionInitial;
+const logger_1 = require("../logger");
 function sessionInitial() {
+    logger_1.logger.info('Initializing new session');
     return {
         step: "choose_language_start",
         question: 'years',

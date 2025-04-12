@@ -19,6 +19,7 @@ const i18n_1 = require("../i18n");
 const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting roulette user search');
     yield postgres_1.prisma.rouletteUser.upsert({
         where: { id: userId },
         create: {
@@ -30,9 +31,11 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
             chatPartnerId: null
         }
     });
+    ctx.logger.info({ userId }, 'User marked as searching partner');
     // Используем getRoulettePartner для поиска подходящего партнера с учетом сортировки
     const partnerId = yield (0, getRoulettePartner_1.getRoulettePartner)(ctx);
     if (partnerId) {
+        ctx.logger.info({ userId, partnerId }, 'Found roulette partner');
         // Создаем новый чат в рулетке
         yield postgres_1.prisma.rouletteChat.create({
             data: {
@@ -43,6 +46,7 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
                 isUsernameRevealed: false
             }
         });
+        ctx.logger.info({ userId, partnerId }, 'Created roulette chat');
         // Связываем пользователей
         yield postgres_1.prisma.rouletteUser.update({
             where: { id: userId },
@@ -62,6 +66,7 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
                 profileRevealed: false
             }
         });
+        ctx.logger.info({ userId, partnerId }, 'Updated both users roulette status');
         // Получаем данные пользователей для отображения информации
         const currentUser = yield postgres_1.prisma.user.findUnique({ where: { id: userId } });
         const partnerUser = yield postgres_1.prisma.user.findUnique({ where: { id: partnerId } });
@@ -120,8 +125,10 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
         yield ctx.api.sendMessage(partnerId, fullMessageYou, {
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t)
         });
+        ctx.logger.info({ userId, partnerId }, 'Sent roulette messages to both users');
     }
     else {
+        ctx.logger.info({ userId }, 'No partner found, continuing search');
         yield ctx.reply(ctx.t('roulette_searching'), {
             reply_markup: (0, keyboards_1.rouletteStopKeyboard)(ctx.t)
         });

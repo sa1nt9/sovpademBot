@@ -9,6 +9,8 @@ interface UserProfile {
 
 export async function getLikesCount(targetId: string, type?: 'user' | 'profile') {
     try {
+        logger.info({ targetId, type }, 'Getting likes count');
+        
         if (type === 'user') {
             // Получаем все профили пользователя
             const userProfiles = await prisma.$queryRaw<UserProfile[]>`
@@ -84,13 +86,15 @@ export async function getLikesCount(targetId: string, type?: 'user' | 'profile')
             return count;
         }
     } catch (error) {
-        console.error("Error in getLikesCount:", error);
+        logger.error({ error, targetId, type }, 'Error in getLikesCount');
         return 0;
     }
 }
 
 export async function getLikesInfo(targetId: string, type?: 'user' | 'profile') {
     try {
+        logger.info({ targetId, type }, 'Getting likes info');
+        
         if (type === 'user') {
             // Получаем все профили пользователя
             const userProfiles = await prisma.$queryRaw<UserProfile[]>`
@@ -302,7 +306,7 @@ export async function getLikesInfo(targetId: string, type?: 'user' | 'profile') 
             return { count, gender };
         }
     } catch (error) {
-        logger.error(error, "Error in getLikesInfo:");
+        logger.error({ error, targetId, type }, 'Error in getLikesInfo');
         return { count: 0, gender: 'all' };
     }
 }

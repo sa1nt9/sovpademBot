@@ -2,6 +2,7 @@ import { prisma } from "../../db/postgres";
 import { ProfileType } from "@prisma/client";
 import { IFile } from "../../typescript/interfaces/IFile";
 import { logger } from "../../logger";
+import { getProfileModelName } from "./profilesService";
 
 // Сохранить лайк между профилями
 export async function saveProfileLike(
@@ -16,6 +17,8 @@ export async function saveProfileLike(
     videoNoteFileId?: string
 ) {
     try {
+        logger.info({ profileType, fromProfileId, toProfileId, liked }, 'Starting to save profile like');
+        
         // Создаем новый лайк
         const newLike = await prisma.profileLike.create({
             data: {
@@ -30,8 +33,11 @@ export async function saveProfileLike(
                 videoNoteFileId
             }
         });
+        
+        logger.info({ likeId: newLike.id }, 'New like created successfully');
 
         // Проверяем взаимный лайк
+        logger.info({ fromProfileId: toProfileId, toProfileId: fromProfileId }, 'Checking for mutual like');
         const mutualLike = await prisma.profileLike.findFirst({
             where: {
                 fromProfileId: toProfileId,
@@ -41,6 +47,7 @@ export async function saveProfileLike(
         });
 
         if (mutualLike && liked) {
+            logger.info({ mutualLikeId: mutualLike.id }, 'Mutual like found, updating both likes');
             // Устанавливаем взаимный лайк
             await prisma.profileLike.update({
                 where: { id: newLike.id },
@@ -51,6 +58,7 @@ export async function saveProfileLike(
                 where: { id: mutualLike.id },
                 data: { isMutual: true, isMutualAt: new Date() }
             });
+            logger.info('Mutual likes updated successfully');
         }
 
         return newLike;
@@ -74,7 +82,8 @@ export async function getMutualLikes(
     offset: number = 0
 ) {
     try {
-        return await prisma.profileLike.findMany({
+        logger.info({ profileType, profileId, limit, offset }, 'Getting mutual likes');
+        const likes = await prisma.profileLike.findMany({
             where: {
                 profileType: profileType,
                 liked: true,
@@ -86,6 +95,8 @@ export async function getMutualLikes(
             skip: offset,
             take: limit
         });
+        logger.info({ count: likes.length }, 'Mutual likes retrieved successfully');
+        return likes;
     } catch (error) {
         logger.error({
             error,
@@ -104,13 +115,16 @@ export async function getMutualLikesCount(
     profileId: string
 ) {
     try {
-        return await prisma.profileLike.count({
+        logger.info({ profileId }, 'Getting mutual likes count');
+        const count = await prisma.profileLike.count({
             where: {
                 fromProfileId: profileId,
                 liked: true,
                 isMutual: true
             }
         });
+        logger.info({ profileId, count }, 'Mutual likes count retrieved');
+        return count;
     } catch (error) {
         logger.error({
             error,
@@ -127,12 +141,15 @@ export async function getProfileLike(
     toProfileId: string
 ) {
     try {
-        return await prisma.profileLike.findFirst({
+        logger.info({ fromProfileId, toProfileId }, 'Getting profile like');
+        const like = await prisma.profileLike.findFirst({
             where: {
                 fromProfileId,
                 toProfileId
             }
         });
+        logger.info({ found: !!like }, 'Profile like search completed');
+        return like;
     } catch (error) {
         logger.error({
             error,
@@ -151,7 +168,8 @@ export async function getProfileLikes(
     offset: number = 0
 ) {
     try {
-        return await prisma.profileLike.findMany({
+        logger.info({ profileId, limit, offset }, 'Getting profile likes');
+        const likes = await prisma.profileLike.findMany({
             where: {
                 toProfileId: profileId,
                 liked: true
@@ -162,6 +180,8 @@ export async function getProfileLikes(
             skip: offset,
             take: limit
         });
+        logger.info({ profileId, count: likes.length }, 'Profile likes retrieved successfully');
+        return likes;
     } catch (error) {
         logger.error({
             error,
@@ -180,12 +200,15 @@ export async function getProfileLikesCount(
     profileId: string
 ) {
     try {
-        return await prisma.profileLike.count({
+        logger.info({ profileType, profileId }, 'Getting profile likes count');
+        const count = await prisma.profileLike.count({
             where: {
                 toProfileId: profileId,
                 liked: true
             }
         });
+        logger.info({ profileId, count }, 'Profile likes count retrieved');
+        return count;
     } catch (error) {
         logger.error({
             error,
@@ -203,6 +226,7 @@ export async function hasMutualLike(
     profileId2: string
 ) {
     try {
+        logger.info({ profileId1, profileId2 }, 'Checking for mutual like');
         const like1 = await prisma.profileLike.findFirst({
             where: {
                 fromProfileId: profileId1,
@@ -210,6 +234,7 @@ export async function hasMutualLike(
                 liked: true
             }
         });
+        logger.info({ found: !!like1 }, 'First like check completed');
 
         const like2 = await prisma.profileLike.findFirst({
             where: {
@@ -218,8 +243,11 @@ export async function hasMutualLike(
                 liked: true
             }
         });
+        logger.info({ found: !!like2 }, 'Second like check completed');
 
-        return like1 !== null && like2 !== null;
+        const hasMutual = like1 !== null && like2 !== null;
+        logger.info({ hasMutual }, 'Mutual like check completed');
+        return hasMutual;
     } catch (error) {
         logger.error({
             error,

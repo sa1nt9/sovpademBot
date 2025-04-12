@@ -22,6 +22,7 @@ const logger_1 = require("../../logger");
 function saveProfileLike(profileType, fromProfileId, toProfileId, liked, message, privateNote, videoFileId, voiceFileId, videoNoteFileId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            logger_1.logger.info({ profileType, fromProfileId, toProfileId, liked }, 'Starting to save profile like');
             // Создаем новый лайк
             const newLike = yield postgres_1.prisma.profileLike.create({
                 data: {
@@ -36,7 +37,9 @@ function saveProfileLike(profileType, fromProfileId, toProfileId, liked, message
                     videoNoteFileId
                 }
             });
+            logger_1.logger.info({ likeId: newLike.id }, 'New like created successfully');
             // Проверяем взаимный лайк
+            logger_1.logger.info({ fromProfileId: toProfileId, toProfileId: fromProfileId }, 'Checking for mutual like');
             const mutualLike = yield postgres_1.prisma.profileLike.findFirst({
                 where: {
                     fromProfileId: toProfileId,
@@ -45,6 +48,7 @@ function saveProfileLike(profileType, fromProfileId, toProfileId, liked, message
                 }
             });
             if (mutualLike && liked) {
+                logger_1.logger.info({ mutualLikeId: mutualLike.id }, 'Mutual like found, updating both likes');
                 // Устанавливаем взаимный лайк
                 yield postgres_1.prisma.profileLike.update({
                     where: { id: newLike.id },
@@ -54,6 +58,7 @@ function saveProfileLike(profileType, fromProfileId, toProfileId, liked, message
                     where: { id: mutualLike.id },
                     data: { isMutual: true, isMutualAt: new Date() }
                 });
+                logger_1.logger.info('Mutual likes updated successfully');
             }
             return newLike;
         }
@@ -73,7 +78,8 @@ function saveProfileLike(profileType, fromProfileId, toProfileId, liked, message
 function getMutualLikes(profileType_1, profileId_1) {
     return __awaiter(this, arguments, void 0, function* (profileType, profileId, limit = 100, offset = 0) {
         try {
-            return yield postgres_1.prisma.profileLike.findMany({
+            logger_1.logger.info({ profileType, profileId, limit, offset }, 'Getting mutual likes');
+            const likes = yield postgres_1.prisma.profileLike.findMany({
                 where: {
                     profileType: profileType,
                     liked: true,
@@ -85,6 +91,8 @@ function getMutualLikes(profileType_1, profileId_1) {
                 skip: offset,
                 take: limit
             });
+            logger_1.logger.info({ count: likes.length }, 'Mutual likes retrieved successfully');
+            return likes;
         }
         catch (error) {
             logger_1.logger.error({
@@ -103,13 +111,16 @@ function getMutualLikes(profileType_1, profileId_1) {
 function getMutualLikesCount(profileId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            return yield postgres_1.prisma.profileLike.count({
+            logger_1.logger.info({ profileId }, 'Getting mutual likes count');
+            const count = yield postgres_1.prisma.profileLike.count({
                 where: {
                     fromProfileId: profileId,
                     liked: true,
                     isMutual: true
                 }
             });
+            logger_1.logger.info({ profileId, count }, 'Mutual likes count retrieved');
+            return count;
         }
         catch (error) {
             logger_1.logger.error({
@@ -125,12 +136,15 @@ function getMutualLikesCount(profileId) {
 function getProfileLike(fromProfileId, toProfileId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            return yield postgres_1.prisma.profileLike.findFirst({
+            logger_1.logger.info({ fromProfileId, toProfileId }, 'Getting profile like');
+            const like = yield postgres_1.prisma.profileLike.findFirst({
                 where: {
                     fromProfileId,
                     toProfileId
                 }
             });
+            logger_1.logger.info({ found: !!like }, 'Profile like search completed');
+            return like;
         }
         catch (error) {
             logger_1.logger.error({
@@ -147,7 +161,8 @@ function getProfileLike(fromProfileId, toProfileId) {
 function getProfileLikes(profileId_1) {
     return __awaiter(this, arguments, void 0, function* (profileId, limit = 10, offset = 0) {
         try {
-            return yield postgres_1.prisma.profileLike.findMany({
+            logger_1.logger.info({ profileId, limit, offset }, 'Getting profile likes');
+            const likes = yield postgres_1.prisma.profileLike.findMany({
                 where: {
                     toProfileId: profileId,
                     liked: true
@@ -158,6 +173,8 @@ function getProfileLikes(profileId_1) {
                 skip: offset,
                 take: limit
             });
+            logger_1.logger.info({ profileId, count: likes.length }, 'Profile likes retrieved successfully');
+            return likes;
         }
         catch (error) {
             logger_1.logger.error({
@@ -175,12 +192,15 @@ function getProfileLikes(profileId_1) {
 function getProfileLikesCount(profileType, profileId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            return yield postgres_1.prisma.profileLike.count({
+            logger_1.logger.info({ profileType, profileId }, 'Getting profile likes count');
+            const count = yield postgres_1.prisma.profileLike.count({
                 where: {
                     toProfileId: profileId,
                     liked: true
                 }
             });
+            logger_1.logger.info({ profileId, count }, 'Profile likes count retrieved');
+            return count;
         }
         catch (error) {
             logger_1.logger.error({
@@ -197,6 +217,7 @@ function getProfileLikesCount(profileType, profileId) {
 function hasMutualLike(profileId1, profileId2) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            logger_1.logger.info({ profileId1, profileId2 }, 'Checking for mutual like');
             const like1 = yield postgres_1.prisma.profileLike.findFirst({
                 where: {
                     fromProfileId: profileId1,
@@ -204,6 +225,7 @@ function hasMutualLike(profileId1, profileId2) {
                     liked: true
                 }
             });
+            logger_1.logger.info({ found: !!like1 }, 'First like check completed');
             const like2 = yield postgres_1.prisma.profileLike.findFirst({
                 where: {
                     fromProfileId: profileId2,
@@ -211,7 +233,10 @@ function hasMutualLike(profileId1, profileId2) {
                     liked: true
                 }
             });
-            return like1 !== null && like2 !== null;
+            logger_1.logger.info({ found: !!like2 }, 'Second like check completed');
+            const hasMutual = like1 !== null && like2 !== null;
+            logger_1.logger.info({ hasMutual }, 'Mutual like check completed');
+            return hasMutual;
         }
         catch (error) {
             logger_1.logger.error({

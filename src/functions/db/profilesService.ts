@@ -7,6 +7,8 @@ import { MyContext } from "../../typescript/context";
 import { TranslateFunction } from "@grammyjs/i18n";
 // Получить все профили пользователя
 export async function getUserProfiles(userId: string, ctx: MyContext): Promise<IProfileInfo[]> {
+    logger.info({ userId }, 'Getting all user profiles');
+    
     const relationship = await prisma.relationshipProfile.findUnique({
         where: { userId }
     });
@@ -75,6 +77,7 @@ export async function getUserProfiles(userId: string, ctx: MyContext): Promise<I
     });
 
 
+    logger.info({ userId, profilesCount: profiles.length }, 'User profiles retrieved');
     return profiles;
 }
 
@@ -84,6 +87,8 @@ export async function getUserProfile(
     profileType: ProfileType,
     subType?: TProfileSubType
 ): Promise<IProfile | null> {
+    logger.info({ userId, profileType, subType }, 'Getting specific user profile');
+
     switch (profileType) {
         case ProfileType.RELATIONSHIP: {
             const profile = await prisma.relationshipProfile.findUnique({
@@ -186,185 +191,191 @@ export async function getUserProfile(
 
 // Сохранить профиль пользователя
 export async function saveProfile(profile: IProfile): Promise<IProfile> {
+    logger.info({ userId: profile.userId, profileType: profile.profileType }, 'Saving user profile');
     const fileJson = JSON.stringify(profile.files);
 
-    switch (profile.profileType) {
-        case 'RELATIONSHIP': {
-            const relationshipProfile = profile as IRelationshipProfile;
+    try {
+        switch (profile.profileType) {
+            case 'RELATIONSHIP': {
+                const relationshipProfile = profile as IRelationshipProfile;
 
-            const saved = await prisma.relationshipProfile.upsert({
-                where: { userId: profile.userId },
-                update: {
-                    id: profile.id,
-                    interestedIn: relationshipProfile.interestedIn,
-                    description: relationshipProfile.description,
-                    files: fileJson,
-                    isActive: true
-                },
-                create: {
-                    id: profile.id,
-                    userId: profile.userId,
-                    interestedIn: relationshipProfile.interestedIn,
-                    description: relationshipProfile.description,
-                    files: fileJson,
-                    isActive: true
-                }
-            });
-
-            return {
-                ...saved,
-                files: profile.files
-            } as IRelationshipProfile;
-        }
-
-        case 'SPORT': {
-            const sportProfile = profile as ISportProfile;
-
-            const saved = await prisma.sportProfile.upsert({
-                where: {
-                    userId_subType: {
+                const saved = await prisma.relationshipProfile.upsert({
+                    where: { userId: profile.userId },
+                    update: {
+                        id: profile.id,
+                        interestedIn: relationshipProfile.interestedIn,
+                        description: relationshipProfile.description,
+                        files: fileJson,
+                        isActive: true
+                    },
+                    create: {
+                        id: profile.id,
                         userId: profile.userId,
-                        subType: sportProfile.subType
+                        interestedIn: relationshipProfile.interestedIn,
+                        description: relationshipProfile.description,
+                        files: fileJson,
+                        isActive: true
                     }
-                },
-                update: {
-                    id: profile.id,
-                    level: sportProfile.level,
-                    description: profile.description,
-                    interestedIn: sportProfile.interestedIn,
-                    files: fileJson,
-                    isActive: true
-                },
-                create: {
-                    id: profile.id,
-                    userId: profile.userId,
-                    subType: sportProfile.subType,
-                    interestedIn: sportProfile.interestedIn,
-                    level: sportProfile.level,
-                    description: profile.description,
-                    files: fileJson,
-                    isActive: true
-                }
-            });
+                });
 
-            return {
-                ...saved,
-                files: profile.files
-            } as ISportProfile;
-        }
+                return {
+                    ...saved,
+                    files: profile.files
+                } as IRelationshipProfile;
+            }
 
-        case 'GAME': {
-            const gameProfile = profile as IGameProfile;
+            case 'SPORT': {
+                const sportProfile = profile as ISportProfile;
 
-            const saved = await prisma.gameProfile.upsert({
-                where: {
-                    userId_subType: {
+                const saved = await prisma.sportProfile.upsert({
+                    where: {
+                        userId_subType: {
+                            userId: profile.userId,
+                            subType: sportProfile.subType
+                        }
+                    },
+                    update: {
+                        id: profile.id,
+                        level: sportProfile.level,
+                        description: profile.description,
+                        interestedIn: sportProfile.interestedIn,
+                        files: fileJson,
+                        isActive: true
+                    },
+                    create: {
+                        id: profile.id,
                         userId: profile.userId,
-                        subType: gameProfile.subType
+                        subType: sportProfile.subType,
+                        interestedIn: sportProfile.interestedIn,
+                        level: sportProfile.level,
+                        description: profile.description,
+                        files: fileJson,
+                        isActive: true
                     }
-                },
-                update: {
-                    id: profile.id,
-                    accountLink: gameProfile.accountLink,
-                    description: profile.description,
-                    interestedIn: gameProfile.interestedIn,
-                    files: fileJson,
-                    isActive: true
-                },
-                create: {
-                    id: profile.id,
-                    userId: profile.userId,
-                    subType: gameProfile.subType,
-                    accountLink: gameProfile.accountLink,
-                    interestedIn: gameProfile.interestedIn,
-                    description: profile.description,
-                    files: fileJson,
-                    isActive: true
-                }
-            });
+                });
 
-            return {
-                ...saved,
-                files: profile.files
-            } as IGameProfile;
-        }
+                return {
+                    ...saved,
+                    files: profile.files
+                } as ISportProfile;
+            }
 
-        case 'HOBBY': {
-            const hobbyProfile = profile as IHobbyProfile;
+            case 'GAME': {
+                const gameProfile = profile as IGameProfile;
 
-            const saved = await prisma.hobbyProfile.upsert({
-                where: {
-                    userId_subType: {
+                const saved = await prisma.gameProfile.upsert({
+                    where: {
+                        userId_subType: {
+                            userId: profile.userId,
+                            subType: gameProfile.subType
+                        }
+                    },
+                    update: {
+                        id: profile.id,
+                        accountLink: gameProfile.accountLink,
+                        description: profile.description,
+                        interestedIn: gameProfile.interestedIn,
+                        files: fileJson,
+                        isActive: true
+                    },
+                    create: {
+                        id: profile.id,
                         userId: profile.userId,
-                        subType: hobbyProfile.subType
+                        subType: gameProfile.subType,
+                        accountLink: gameProfile.accountLink,
+                        interestedIn: gameProfile.interestedIn,
+                        description: profile.description,
+                        files: fileJson,
+                        isActive: true
                     }
-                },
-                update: {
-                    id: profile.id,
-                    description: profile.description,
-                    interestedIn: hobbyProfile.interestedIn,
-                    files: fileJson,
-                    isActive: true
-                },
-                create: {
-                    id: profile.id,
-                    userId: profile.userId,
-                    subType: hobbyProfile.subType,
-                    interestedIn: hobbyProfile.interestedIn,
-                    description: profile.description,
-                    files: fileJson,
-                    isActive: true
-                }
-            });
+                });
 
-            return {
-                ...saved,
-                files: profile.files
-            } as IHobbyProfile;
-        }
+                return {
+                    ...saved,
+                    files: profile.files
+                } as IGameProfile;
+            }
 
-        case 'IT': {
-            const itProfile = profile as IItProfile;
+            case 'HOBBY': {
+                const hobbyProfile = profile as IHobbyProfile;
 
-            const saved = await prisma.itProfile.upsert({
-                where: {
-                    userId_subType: {
+                const saved = await prisma.hobbyProfile.upsert({
+                    where: {
+                        userId_subType: {
+                            userId: profile.userId,
+                            subType: hobbyProfile.subType
+                        }
+                    },
+                    update: {
+                        id: profile.id,
+                        description: profile.description,
+                        interestedIn: hobbyProfile.interestedIn,
+                        files: fileJson,
+                        isActive: true
+                    },
+                    create: {
+                        id: profile.id,
                         userId: profile.userId,
-                        subType: itProfile.subType
+                        subType: hobbyProfile.subType,
+                        interestedIn: hobbyProfile.interestedIn,
+                        description: profile.description,
+                        files: fileJson,
+                        isActive: true
                     }
-                },
-                update: {
-                    id: profile.id,
-                    interestedIn: itProfile.interestedIn,
-                    experience: itProfile.experience,
-                    technologies: itProfile.technologies,
-                    github: itProfile.github,
-                    description: profile.description,
-                    files: fileJson,
-                    isActive: true
-                },
-                create: {
-                    id: profile.id,
-                    userId: profile.userId,
-                    subType: itProfile.subType,
-                    experience: itProfile.experience,
-                    technologies: itProfile.technologies,
-                    github: itProfile.github,
-                    description: profile.description,
-                    interestedIn: itProfile.interestedIn,
-                    files: fileJson,
-                    isActive: true
-                }
-            });
+                });
 
-            return {
-                ...saved,
-                files: profile.files
-            } as IItProfile;
+                return {
+                    ...saved,
+                    files: profile.files
+                } as IHobbyProfile;
+            }
+
+            case 'IT': {
+                const itProfile = profile as IItProfile;
+
+                const saved = await prisma.itProfile.upsert({
+                    where: {
+                        userId_subType: {
+                            userId: profile.userId,
+                            subType: itProfile.subType
+                        }
+                    },
+                    update: {
+                        id: profile.id,
+                        interestedIn: itProfile.interestedIn,
+                        experience: itProfile.experience,
+                        technologies: itProfile.technologies,
+                        github: itProfile.github,
+                        description: profile.description,
+                        files: fileJson,
+                        isActive: true
+                    },
+                    create: {
+                        id: profile.id,
+                        userId: profile.userId,
+                        subType: itProfile.subType,
+                        experience: itProfile.experience,
+                        technologies: itProfile.technologies,
+                        github: itProfile.github,
+                        description: profile.description,
+                        interestedIn: itProfile.interestedIn,
+                        files: fileJson,
+                        isActive: true
+                    }
+                });
+
+                return {
+                    ...saved,
+                    files: profile.files
+                } as IItProfile;
+            }
+
+            default:
+                throw new Error(`Неизвестный тип профиля: ${(profile as any).profileType}`);
         }
-
-        default:
-            throw new Error(`Неизвестный тип профиля: ${(profile as any).profileType}`);
+    } catch (error) {
+        logger.error({ error, userId: profile.userId, profileType: profile.profileType }, 'Error saving profile');
+        throw error;
     }
 }
 
@@ -375,6 +386,8 @@ export async function toggleProfileActive(
     isActive: boolean,
     subType?: SportType | GameType | HobbyType | ITType
 ): Promise<boolean> {
+    logger.info({ userId, profileType, isActive, subType }, 'Toggling profile active status');
+    
     try {
         switch (profileType) {
             case ProfileType.RELATIONSHIP:

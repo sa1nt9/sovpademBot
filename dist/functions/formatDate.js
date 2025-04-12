@@ -2,17 +2,25 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatDate = formatDate;
 exports.formatDuration = formatDuration;
+const logger_1 = require("../logger");
 function formatDate(date) {
     try {
-        return date.toLocaleString('ru-RU', {
+        const formattedDate = date.toLocaleString('ru-RU', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
         });
+        logger_1.logger.info({ date: date.toISOString(), formattedDate }, 'Formatted date');
+        return formattedDate;
     }
     catch (error) {
+        logger_1.logger.error({
+            date: date.toISOString(),
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error formatting date');
         return 'Unknown date';
     }
 }
@@ -21,17 +29,25 @@ function formatDuration(durationMs, t) {
         const hours = Math.floor(durationMs / (1000 * 60 * 60));
         const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+        let formattedDuration = '';
         if (hours > 0) {
-            return `${hours} ${t('time_hour')} ${minutes} ${t('time_minute')} ${seconds} ${t('time_second')}`;
+            formattedDuration = `${hours} ${t('time_hour')} ${minutes} ${t('time_minute')} ${seconds} ${t('time_second')}`;
         }
         else if (minutes > 0) {
-            return `${minutes} ${t('time_minute')} ${seconds} ${t('time_second')}`;
+            formattedDuration = `${minutes} ${t('time_minute')} ${seconds} ${t('time_second')}`;
         }
         else {
-            return `${seconds} ${t('time_second')}`;
+            formattedDuration = `${seconds} ${t('time_second')}`;
         }
+        logger_1.logger.info({ durationMs, formattedDuration }, 'Formatted duration');
+        return formattedDuration;
     }
     catch (error) {
+        logger_1.logger.error({
+            durationMs,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error formatting duration');
         return 'Unknown duration';
     }
 }

@@ -14,6 +14,11 @@ const postgres_1 = require("../db/postgres");
 const reaction_1 = require("../constants/reaction");
 function getUserReactions(ctx_1, userId_1) {
     return __awaiter(this, arguments, void 0, function* (ctx, userId, options = {}) {
+        ctx.logger.info({
+            userId,
+            me: options.me,
+            showTitle: options.showTitle
+        }, 'Getting user reactions');
         // Получаем все реакции пользователя
         const reactions = yield postgres_1.prisma.rouletteReaction.findMany({
             where: {
@@ -21,8 +26,10 @@ function getUserReactions(ctx_1, userId_1) {
             }
         });
         if (reactions.length === 0) {
+            ctx.logger.info({ userId }, 'No reactions found for user');
             return ""; // Возвращаем пустую строку вместо сообщения об отсутствии реакций
         }
+        ctx.logger.info({ userId, reactionsCount: reactions.length }, 'Found user reactions');
         // Считаем количество реакций каждого типа
         const reactionCounts = {};
         // Инициализируем счетчики для всех типов реакций
@@ -54,8 +61,10 @@ function getUserReactions(ctx_1, userId_1) {
         }
         // Если нет ни одной реакции, возвращаем пустую строку
         if (!hasReactions) {
+            ctx.logger.info({ userId }, 'No reactions to display');
             return "";
         }
+        ctx.logger.info({ userId, messageLength: message.length }, 'Generated reactions message');
         return message;
     });
 }

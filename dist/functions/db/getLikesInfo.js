@@ -16,6 +16,7 @@ const logger_1 = require("../../logger");
 function getLikesCount(targetId, type) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            logger_1.logger.info({ targetId, type }, 'Getting likes count');
             if (type === 'user') {
                 // Получаем все профили пользователя
                 const userProfiles = yield postgres_1.prisma.$queryRaw `
@@ -86,7 +87,7 @@ function getLikesCount(targetId, type) {
             }
         }
         catch (error) {
-            console.error("Error in getLikesCount:", error);
+            logger_1.logger.error({ error, targetId, type }, 'Error in getLikesCount');
             return 0;
         }
     });
@@ -94,6 +95,7 @@ function getLikesCount(targetId, type) {
 function getLikesInfo(targetId, type) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            logger_1.logger.info({ targetId, type }, 'Getting likes info');
             if (type === 'user') {
                 // Получаем все профили пользователя
                 const userProfiles = yield postgres_1.prisma.$queryRaw `
@@ -288,7 +290,7 @@ function getLikesInfo(targetId, type) {
             }
         }
         catch (error) {
-            logger_1.logger.error(error, "Error in getLikesInfo:");
+            logger_1.logger.error({ error, targetId, type }, 'Error in getLikesInfo');
             return { count: 0, gender: 'all' };
         }
     });

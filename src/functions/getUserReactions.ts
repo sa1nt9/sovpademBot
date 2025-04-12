@@ -13,6 +13,12 @@ export async function getUserReactions(
     userId: string, 
     options: GetUserReactionsOptions = {}
 ): Promise<string> {
+    ctx.logger.info({ 
+        userId, 
+        me: options.me, 
+        showTitle: options.showTitle 
+    }, 'Getting user reactions');
+    
     // Получаем все реакции пользователя
     const reactions = await prisma.rouletteReaction.findMany({
         where: {
@@ -21,9 +27,12 @@ export async function getUserReactions(
     });
 
     if (reactions.length === 0) {
+        ctx.logger.info({ userId }, 'No reactions found for user');
         return ""; // Возвращаем пустую строку вместо сообщения об отсутствии реакций
     }
 
+    ctx.logger.info({ userId, reactionsCount: reactions.length }, 'Found user reactions');
+    
     // Считаем количество реакций каждого типа
     const reactionCounts = {} as Record<ReactionType, number>;
     
@@ -64,8 +73,10 @@ export async function getUserReactions(
 
     // Если нет ни одной реакции, возвращаем пустую строку
     if (!hasReactions) {
+        ctx.logger.info({ userId }, 'No reactions to display');
         return "";
     }
 
+    ctx.logger.info({ userId, messageLength: message.length }, 'Generated reactions message');
     return message;
 } 

@@ -11,19 +11,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setMutualLike = setMutualLike;
 const postgres_1 = require("../../db/postgres");
+const logger_1 = require("../../logger");
 function setMutualLike(fromProfileId, toProfileId) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Обновляем оригинальный лайк
-        yield postgres_1.prisma.profileLike.updateMany({
-            where: {
-                fromProfileId: fromProfileId,
-                toProfileId: toProfileId,
-                liked: true
-            },
-            data: {
-                isMutual: true,
-                isMutualAt: new Date()
-            }
-        });
+        logger_1.logger.info({ fromProfileId, toProfileId }, 'Setting mutual like');
+        try {
+            // Обновляем оригинальный лайк
+            const result = yield postgres_1.prisma.profileLike.updateMany({
+                where: {
+                    fromProfileId: fromProfileId,
+                    toProfileId: toProfileId,
+                    liked: true
+                },
+                data: {
+                    isMutual: true,
+                    isMutualAt: new Date()
+                }
+            });
+            logger_1.logger.info({
+                fromProfileId,
+                toProfileId,
+                updatedCount: result.count
+            }, 'Mutual like set successfully');
+            return result;
+        }
+        catch (error) {
+            logger_1.logger.error({
+                fromProfileId,
+                toProfileId,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            }, 'Error setting mutual like');
+            throw error;
+        }
     });
 }

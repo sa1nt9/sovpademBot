@@ -14,17 +14,26 @@ const defaultOptions: SendMutualSympathyAfterAnswerOptions = {
 }
 
 export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: SendMutualSympathyAfterAnswerOptions = defaultOptions) => {
+    const userId = String(ctx.from?.id);
+    const targetUserId = String(ctx.session.pendingMutualLikeProfileId);
+    
+    ctx.logger.info({ 
+        userId, 
+        targetUserId,
+        withoutSleepMenu: options.withoutSleepMenu
+    }, 'Sending mutual sympathy after answer');
+    
     // Получаем данные пользователя, который поставил лайк
     const likedUser = await prisma.user.findUnique({
         where: {
-            id: String(ctx.session.pendingMutualLikeProfileId)
+            id: targetUserId
         }
     });
 
     if (likedUser) {
         const userLike = await prisma.profileLike.findFirst({
             where: {
-                fromProfileId: String(ctx.from?.id),
+                fromProfileId: userId,
                 toProfileId: likedUser.id,
                 liked: true
             },
@@ -60,5 +69,9 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
 
         ctx.session.pendingMutualLike = false;
         ctx.session.pendingMutualLikeProfileId = undefined;
+        
+        ctx.logger.info({ userId, targetUserId }, 'Mutual sympathy sent successfully');
+    } else {
+        ctx.logger.warn({ userId, targetUserId }, 'Liked user not found');
     }
 }

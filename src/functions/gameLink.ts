@@ -1,5 +1,6 @@
 import { GameType } from "@prisma/client";
 import { battlenetProfileRegex, hoyoverseProfileRegex, activisionProfileRegex, eaProfileRegex, faceitProfileRegex, fortniteProfileRegex, lolProfileRegex, minecraftProfileRegex, pubgProfileRegex, rockstarProfileRegex, riotProfileRegex, steamProfileRegex } from "../constants/regex/gamesRegex";
+import { logger } from "../logger";
 
 export const gameLocalizationKeys: Record<GameType, string> = {
     [GameType.CS_GO]: 'game_account_cs_go',
@@ -20,14 +21,26 @@ export const gameLocalizationKeys: Record<GameType, string> = {
 
 export const getGameUsername = (gameType: GameType, link: string): string | false => {
     try {
+        logger.info({ 
+            gameType,
+            link
+        }, 'Getting game username');
+
         switch (gameType) {
             case GameType.CS_GO:
                 // Проверяем оба формата для CS:GO
                 const steamMatch = link.match(steamProfileRegex);
-                if (steamMatch) return `${steamMatch[1]}:steam`;
+                if (steamMatch) {
+                    logger.info({ gameType, platform: 'steam' }, 'Found Steam username');
+                    return `${steamMatch[1]}:steam`;
+                }
                 
                 const faceitMatch = link.match(faceitProfileRegex);
-                if (faceitMatch) return `${faceitMatch[1]}:faceit`;
+                if (faceitMatch) {
+                    logger.info({ gameType, platform: 'faceit' }, 'Found Faceit username');
+                    return `${faceitMatch[1]}:faceit`;
+                }
+                logger.warn({ gameType, link }, 'No valid username found for CS:GO');
                 return false;
 
             case GameType.DOTA2:
@@ -77,20 +90,34 @@ export const getGameUsername = (gameType: GameType, link: string): string | fals
                 return hoyoverseUsername ? hoyoverseUsername[1] : false;
 
             default:
+                logger.warn({ gameType }, 'Unknown game type');
                 return false;
         }
     } catch (error) {
+        logger.error({ 
+            gameType,
+            link,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error getting game username');
         return false;
     }
 };
 
 export const getGameProfileLink = (gameType: GameType, username: string): string[] => {
+    logger.info({ 
+        gameType,
+        username
+    }, 'Getting game profile link');
+
     switch (gameType) {
         case GameType.CS_GO: {
             const [name, platform] = username.split(':');
             if (platform === 'faceit') {
+                logger.info({ gameType, platform: 'faceit' }, 'Generated Faceit profile link');
                 return [`https://www.faceit.com/players/${name}`, platform];
             }
+            logger.info({ gameType, platform: 'steam' }, 'Generated Steam profile link');
             return [`https://steamcommunity.com/profiles/${name}`, platform];
         }
 
@@ -132,15 +159,24 @@ export const getGameProfileLink = (gameType: GameType, username: string): string
             return [`https://hoyolab.com/accountCenter/userProfile/${username}`];
 
         default:
+            logger.warn({ gameType }, 'Unknown game type for profile link');
             return [];
     }
 };
 
 export const getGameUsernameToShow = (gameType: GameType, username: string): string => {
+    logger.info({ 
+        gameType,
+        username
+    }, 'Getting game username to show');
+
     switch (gameType) {
         case GameType.CS_GO:
-            return username.split(':')[0];
+            const displayName = username.split(':')[0];
+            logger.info({ gameType, displayName }, 'Extracted CS:GO display name');
+            return displayName;
         default:
+            logger.info({ gameType, username }, 'Using original username');
             return username;
     }
 }

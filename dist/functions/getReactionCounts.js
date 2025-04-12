@@ -11,13 +11,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getReactionCounts = getReactionCounts;
 const postgres_1 = require("../db/postgres");
+const logger_1 = require("../logger");
 function getReactionCounts(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Если userId пустой, возвращаем пустой объект
         if (!userId) {
+            logger_1.logger.warn('Empty userId provided for reaction counts');
             return {};
         }
         try {
+            logger_1.logger.info({ userId }, 'Getting reaction counts');
             // Получаем все реакции для пользователя
             const reactions = yield postgres_1.prisma.rouletteReaction.findMany({
                 where: {
@@ -30,10 +33,15 @@ function getReactionCounts(userId) {
                 const type = reaction.type;
                 counts[type] = (counts[type] || 0) + 1;
             });
+            logger_1.logger.info({ userId, reactionTypes: Object.keys(counts).length }, 'Retrieved reaction counts');
             return counts;
         }
         catch (error) {
-            console.error('Error getting reaction counts:', error);
+            logger_1.logger.error({
+                userId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error getting reaction counts');
             return {};
         }
     });

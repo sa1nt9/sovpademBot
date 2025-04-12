@@ -62,6 +62,13 @@ function getRelationshipCandidate(user, activeProfile, fifteenDaysAgo) {
                         AND "isActive" = true
                     )
                 )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "UserBan" ub
+                    WHERE ub."userId" = u."id"
+                    AND ub."isActive" = true
+                    AND ub."bannedUntil" > ${new Date()}
+                )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
                     SELECT 1 FROM "RelationshipProfile" rp
@@ -143,6 +150,13 @@ function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
                         WHERE "userId" = u."id"
                         AND "isActive" = true
                     )
+                )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "UserBan" ub
+                    WHERE ub."userId" = u."id"
+                    AND ub."isActive" = true
+                    AND ub."bannedUntil" > ${new Date()}
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -237,6 +251,13 @@ function getGameCandidate(user, activeProfile, fifteenDaysAgo) {
                         AND "isActive" = true
                     )
                 )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "UserBan" ub
+                    WHERE ub."userId" = u."id"
+                    AND ub."isActive" = true
+                    AND ub."bannedUntil" > ${new Date()}
+                )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
                     SELECT 1 FROM "GameProfile" gp
@@ -319,6 +340,13 @@ function getHobbyCandidate(user, activeProfile, fifteenDaysAgo) {
                         WHERE "userId" = u."id"
                         AND "isActive" = true
                     )
+                )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "UserBan" ub
+                    WHERE ub."userId" = u."id"
+                    AND ub."isActive" = true
+                    AND ub."bannedUntil" > ${new Date()}
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
@@ -403,6 +431,13 @@ function getITCandidate(user, activeProfile, fifteenDaysAgo) {
                         AND "isActive" = true
                     )
                 )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM "UserBan" ub
+                    WHERE ub."userId" = u."id"
+                    AND ub."isActive" = true
+                    AND ub."bannedUntil" > ${new Date()}
+                )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
                     SELECT 1 FROM "ItProfile" ip
@@ -448,21 +483,32 @@ function getITCandidate(user, activeProfile, fifteenDaysAgo) {
 }
 function getCandidate(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
+        var _a, _b, _c, _d;
         try {
-            const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+            const userId = String((_b = (_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from) === null || _b === void 0 ? void 0 : _b.id);
+            if (!userId) {
+                ctx.logger.warn('No user ID found in context');
+                return null;
+            }
             const user = yield postgres_1.prisma.user.findUnique({
                 where: { id: userId },
             });
-            if (!user)
+            if (!user) {
+                ctx.logger.warn({ userId }, 'User not found');
                 return null;
-            // Получаем активный профиль пользователя
+            }
             const activeProfile = ctx.session.activeProfile;
-            if (!activeProfile)
+            if (!activeProfile) {
+                ctx.logger.warn({ userId }, 'No active profile found in session');
                 return null;
-            const now = new Date();
-            const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+            }
+            const fifteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
             let candidate = null;
+            ctx.logger.info({
+                userId,
+                profileType: activeProfile.profileType,
+                profileId: activeProfile.id
+            }, 'Starting candidate search');
             switch (activeProfile.profileType) {
                 case client_1.ProfileType.RELATIONSHIP:
                     candidate = yield getRelationshipCandidate(user, activeProfile, fifteenDaysAgo);
@@ -483,30 +529,45 @@ function getCandidate(ctx) {
                     return null;
             }
             if (candidate) {
-                // Проверяем, не забанен ли кандидат
-                const candidateBan = yield postgres_1.prisma.userBan.findFirst({
-                    where: {
-                        userId: candidate.id,
-                        isActive: true,
-                        bannedUntil: {
-                            gt: now
-                        }
-                    }
-                });
-                if (candidateBan) {
-                    ctx.logger.info(`Candidate ${candidate.id} is banned, skipping`);
-                    return null;
-                }
                 // Получаем профиль кандидата того же типа, что и активный профиль
                 const candidateProfile = yield (0, profilesService_1.getUserProfile)(candidate.id, activeProfile.profileType, activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP ? activeProfile.subType : undefined);
                 if (candidateProfile) {
                     ctx.session.currentCandidateProfile = candidateProfile;
+                    ctx.logger.info({
+                        userId,
+                        candidateId: candidate.id,
+                        profileType: activeProfile.profileType,
+                        candidateProfileId: candidateProfile.id
+                    }, 'Found candidate and set current candidate profile');
+                }
+                else {
+                    ctx.logger.warn({
+                        userId,
+                        candidateId: candidate.id,
+                        profileType: activeProfile.profileType
+                    }, 'Candidate found but profile not found');
                 }
             }
+            else {
+                ctx.logger.info({
+                    userId,
+                    profileType: activeProfile.profileType
+                }, 'No candidate found for user');
+            }
+            ctx.logger.info({
+                userId,
+                candidateFound: !!candidate,
+                candidateId: candidate === null || candidate === void 0 ? void 0 : candidate.id,
+                profileType: activeProfile.profileType
+            }, 'Candidate search completed');
             return candidate;
         }
         catch (error) {
-            ctx.logger.error(error, 'Error getting candidate');
+            ctx.logger.error({
+                userId: (_d = (_c = ctx.message) === null || _c === void 0 ? void 0 : _c.from) === null || _d === void 0 ? void 0 : _d.id,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error getting candidate');
             return null;
         }
     });

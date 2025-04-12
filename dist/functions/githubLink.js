@@ -15,16 +15,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkGithubUserExists = exports.getGithubUsername = void 0;
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const githubLinkRegex_1 = require("../constants/regex/githubLinkRegex");
+const logger_1 = require("../logger");
 const getGithubUsername = (link) => {
     const match = link.match(githubLinkRegex_1.githubShortLinkRegex);
-    return match ? match[1] : null;
+    const username = match ? match[1] : null;
+    if (username) {
+        logger_1.logger.info({ link, username }, 'Extracted GitHub username');
+    }
+    else {
+        logger_1.logger.warn({ link }, 'Failed to extract GitHub username');
+    }
+    return username;
 };
 exports.getGithubUsername = getGithubUsername;
 const checkGithubUserExists = (input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const username = (input.startsWith('http') || input.startsWith('www')) ? (0, exports.getGithubUsername)(input) : input;
-        if (!username)
+        if (!username) {
+            logger_1.logger.warn({ input }, 'No valid GitHub username found');
             return false;
+        }
+        logger_1.logger.info({ username }, 'Checking GitHub user existence');
         const response = yield (0, node_fetch_1.default)(`https://api.github.com/users/${username}`, {
             method: 'GET',
             headers: {
@@ -32,10 +43,16 @@ const checkGithubUserExists = (input) => __awaiter(void 0, void 0, void 0, funct
                 'User-Agent': 'SovpademBot'
             }
         });
-        return response.status === 200;
+        const exists = response.status === 200;
+        logger_1.logger.info({ username, exists }, 'GitHub user check completed');
+        return exists;
     }
     catch (error) {
-        console.error('Error checking GitHub user:', error);
+        logger_1.logger.error({
+            input,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error checking GitHub user');
         return false;
     }
 });

@@ -5,16 +5,24 @@ import { sendForm } from "./sendForm";
 import { sendMutualSympathyAfterAnswer } from "./sendMutualSympathyAfterAnswer";
 
 export const continueSeeLikesForms = async (ctx: MyContext) => {
-    const oneLike = await getOneLike(String(ctx.from!.id), 'user');
-
+    const userId = String(ctx.from!.id);
+    ctx.logger.info({ userId }, 'Continuing to see likes forms');
+    
+    const oneLike = await getOneLike(userId, 'user');
 
     if (oneLike?.fromProfile) {
         if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+            ctx.logger.info({ userId }, 'Processing pending mutual like');
             await sendMutualSympathyAfterAnswer(ctx, { withoutSleepMenu: true })
             ctx.session.step = 'continue_see_likes_forms'
             return
         }
 
+        ctx.logger.info({ 
+            userId, 
+            fromProfileId: oneLike.fromProfile.id 
+        }, 'Showing like form');
+        
         await ctx.reply("✨🔍", {
             reply_markup: answerLikesFormKeyboard()
         });
@@ -23,9 +31,11 @@ export const continueSeeLikesForms = async (ctx: MyContext) => {
         await sendForm(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
     } else {
         if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+            ctx.logger.info({ userId }, 'Processing pending mutual like');
             await sendMutualSympathyAfterAnswer(ctx, { withoutSleepMenu: true })
         }
 
+        ctx.logger.info({ userId }, 'No more likes to show');
         ctx.session.step = 'continue_see_forms'
         ctx.session.additionalFormInfo.searchingLikes = false
 

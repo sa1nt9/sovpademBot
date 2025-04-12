@@ -7,6 +7,9 @@ interface StartSearchingPeopleOptions {
 }
 
 export async function startSearchingPeople(ctx: MyContext, options: StartSearchingPeopleOptions = {}) {
+    const userId = String(ctx.from?.id);
+    ctx.logger.info({ userId, setActive: options.setActive }, 'Starting people search');
+    
     ctx.session.step = 'search_people';
 
     await ctx.reply("✨🔍", {
@@ -14,6 +17,7 @@ export async function startSearchingPeople(ctx: MyContext, options: StartSearchi
     });
 
     if (options.setActive) {
-        await toggleProfileActive(String(ctx.from?.id), ctx.session.activeProfile.profileType, true, ctx.session.activeProfile.profileType !== "RELATIONSHIP" ? ctx.session.activeProfile.subType : undefined);
+        await toggleProfileActive(userId, ctx.session.activeProfile.profileType, true, ctx.session.activeProfile.profileType !== "RELATIONSHIP" ? ctx.session.activeProfile.subType : undefined);
+        ctx.logger.info({ userId }, 'Profile activated for search');
     }
 }

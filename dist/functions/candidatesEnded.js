@@ -12,6 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.candidatesEnded = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const candidatesEnded = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    ctx.logger.info({ userId }, 'Candidates ended, returning to sleep menu');
     yield ctx.reply(ctx.t('candidates_ended'));
     ctx.session.step = 'sleep_menu';
     yield ctx.reply(ctx.t('sleep_menu'), {
