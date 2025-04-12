@@ -17,10 +17,7 @@ const getUserReactions_1 = require("../functions/getUserReactions");
 const statsCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-    ctx.logger.info({
-        action: 'stats_command',
-        userId
-    });
+    ctx.logger.info({ userId }, 'Starting stats command');
     const existingUser = yield postgres_1.prisma.user.findUnique({
         where: { id: userId },
     });
@@ -77,6 +74,18 @@ const statsCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             const likeDislikeRatio = totalFormsViewed > 0
                 ? Math.round((likesGiven / totalFormsViewed) * 100)
                 : 0;
+            ctx.logger.info({
+                userId,
+                daysInBot,
+                likesGiven,
+                likesReceived,
+                mutualLikes,
+                mutualPercentage,
+                totalFormsViewed,
+                likeDislikeRatio,
+                blacklistCount,
+                hasRouletteStats: !!rouletteUser
+            }, 'User stats calculated');
             // 6. Форматируем статистику и отправляем пользователю
             let statsMessage = ctx.t('stats_title') + '\n\n';
             // Базовая информация
@@ -115,6 +124,13 @@ const statsCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                     }, 0);
                     avgDuration = totalDuration / completedChats.length;
                 }
+                ctx.logger.info({
+                    userId,
+                    totalChats,
+                    revealedProfiles,
+                    revealedUsernames,
+                    avgDuration
+                }, 'Roulette stats calculated');
                 statsMessage += ctx.t('stats_roulette_chats_count', { count: totalChats }) + '\n';
                 if (avgDuration > 0) {
                     statsMessage += ctx.t('stats_roulette_avg_duration', {
@@ -142,15 +158,16 @@ const statsCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         }
         catch (error) {
             ctx.logger.error({
-                error,
-                action: 'Error getting user stats',
-                userId
-            });
+                userId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error getting user stats');
             yield ctx.reply(ctx.t('error_occurred'));
         }
     }
     else {
         ctx.session.step = "you_dont_have_form";
+        ctx.logger.warn({ userId }, 'User tried to view stats without profile');
         yield ctx.reply(ctx.t('you_dont_have_form'), {
             reply_markup: (0, keyboards_1.notHaveFormToDeactiveKeyboard)(ctx.t)
         });

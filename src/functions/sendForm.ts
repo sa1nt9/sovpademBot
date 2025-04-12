@@ -10,7 +10,8 @@ import { getUserProfile } from "./db/profilesService";
 import { ProfileType } from "@prisma/client";
 import { prisma } from "../db/postgres";
 import { ISessionData } from "../typescript/interfaces/ISessionData";
-
+import { TranslateFunction } from "@grammyjs/i18n";
+import { i18n } from "../i18n";
 
 interface IOptions {
     myForm?: boolean
@@ -23,6 +24,7 @@ interface IOptions {
     description?: string
     profileType?: ProfileType
     subType?: TProfileSubType
+    translate?: TranslateFunction
 }
 
 const defaultOptions: IOptions = {
@@ -74,6 +76,8 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
     if (options.like) {
         count = await getLikesCount(String(ctx.from?.id), 'user')
     }
+
+    ctx.t = options.translate || ctx.t;
 
     if (options.isInline) {
         const currentSession = await prisma.session.findUnique({
@@ -168,7 +172,20 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
 
     const { files, description } = await getProfileFiles(user);
 
-    const text = await buildTextForm(ctx, user, { ...options, description: description });
+    let text = '';
+
+    if (options.sendTo) {
+        const currentSession = await prisma.session.findUnique({
+            where: {
+                key: options.sendTo
+            }
+        });
+    
+        const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+        text = await buildTextForm(ctx, user, { ...options, description: description, translate: (...args) => i18n(false).t(__language_code || "ru", ...args) });
+    } else {
+        text = await buildTextForm(ctx, user, { ...options, description: description });
+    }
 
     if (files && files.length > 0) {
         if (options.sendTo) {

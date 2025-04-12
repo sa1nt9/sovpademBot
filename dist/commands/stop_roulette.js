@@ -13,13 +13,11 @@ exports.stopRouletteCommand = void 0;
 const postgres_1 = require("../db/postgres");
 const keyboards_1 = require("../constants/keyboards");
 const getReactionCounts_1 = require("../functions/getReactionCounts");
+const i18n_1 = require("../i18n");
 const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
-    ctx.logger.info({
-        action: 'Command stop_roulette',
-        userId
-    });
+    ctx.logger.info({ userId }, 'Starting stop roulette command');
     try {
         // Получаем информацию о пользователе и его статусе в рулетке
         const existingUser = yield postgres_1.prisma.user.findUnique({
@@ -32,6 +30,7 @@ const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function*
         });
         // Если пользователь не найден или нет записи в rouletteUser
         if (!existingUser || !existingUser.rouletteUser) {
+            ctx.logger.warn({ userId }, 'User not found or no roulette record');
             yield ctx.reply(ctx.t('roulette_not_in_chat'), {
                 reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)
             });
@@ -40,6 +39,7 @@ const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function*
         // Если пользователь в чате с партнером
         if (existingUser.rouletteUser.chatPartnerId) {
             const partnerUserId = existingUser.rouletteUser.chatPartnerId;
+            ctx.logger.info({ userId, partnerUserId }, 'Stopping active chat');
             // Обновляем статус партнера
             yield postgres_1.prisma.rouletteUser.update({
                 where: { id: partnerUserId },
@@ -63,14 +63,18 @@ const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function*
                     isUsernameRevealed: existingUser.rouletteUser.usernameRevealed
                 }
             });
-            // Уведомляем партнеру о завершении чата
-            yield ctx.api.sendMessage(partnerUserId, ctx.t('roulette_partner_left'), {
+            const currentSession = yield postgres_1.prisma.session.findUnique({
+                where: {
+                    key: userId
+                }
+            });
+            const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+            yield ctx.api.sendMessage(partnerUserId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_partner_left'), {
                 reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)
             });
             // Получаем количество реакций для пользователя
             const userReactionCounts = yield (0, getReactionCounts_1.getReactionCounts)(userId);
-            // Предлагаем партнеру оценить пользователя
-            yield ctx.api.sendMessage(partnerUserId, ctx.t('roulette_put_reaction_on_your_partner'), {
+            yield ctx.api.sendMessage(partnerUserId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_put_reaction_on_your_partner'), {
                 reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(ctx.t, userId, userReactionCounts)
             });
             // Обновляем статус самого пользователя
@@ -92,9 +96,11 @@ const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function*
             yield ctx.reply(ctx.t('roulette_put_reaction_on_your_partner'), {
                 reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(ctx.t, partnerUserId, partnerReactionCounts)
             });
+            ctx.logger.info({ userId, partnerUserId }, 'Chat ended successfully');
         }
         // Если пользователь в поиске партнера
         else if (existingUser.rouletteUser.searchingPartner) {
+            ctx.logger.info({ userId }, 'Stopping partner search');
             // Обновляем статус пользователя
             yield postgres_1.prisma.rouletteUser.update({
                 where: { id: userId },
@@ -108,9 +114,11 @@ const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function*
             });
             // Обновляем шаг сессии
             ctx.session.step = "roulette_start";
+            ctx.logger.info({ userId }, 'Partner search stopped successfully');
         }
         // Если пользователь не в чате и не в поиске
         else {
+            ctx.logger.warn({ userId }, 'User not in chat or search');
             yield ctx.reply(ctx.t('roulette_not_in_chat'), {
                 reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)
             });
@@ -118,10 +126,10 @@ const stopRouletteCommand = (ctx) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (error) {
         ctx.logger.error({
-            error,
-            action: 'Error executing stop_roulette command',
-            userId
-        });
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error executing stop roulette command');
         yield ctx.reply(ctx.t('error_occurred'));
     }
 });

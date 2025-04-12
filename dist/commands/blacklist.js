@@ -17,6 +17,7 @@ const profilesService_1 = require("../functions/db/profilesService");
 const blacklistCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting blacklist command');
     try {
         // Получаем первую запись и общее количество
         const [blacklistedProfile, totalCount] = yield Promise.all([
@@ -31,7 +32,7 @@ const blacklistCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
             })
         ]);
         if (!blacklistedProfile) {
-            // Если черный список пуст
+            ctx.logger.info({ userId }, 'Blacklist is empty');
             yield ctx.reply(ctx.t('blacklist_empty'));
             yield ctx.reply(ctx.t('sleep_menu'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -51,6 +52,7 @@ const blacklistCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
             where: { id: profile.userId }
         });
         if (!user) {
+            ctx.logger.warn({ userId, profileId: profile.id }, 'Profile not found in blacklist');
             yield ctx.reply(ctx.t('profile_not_found'));
             return;
         }
@@ -66,7 +68,10 @@ const blacklistCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
         ctx.session.currentBlacklistedProfile = profile;
     }
     catch (error) {
-        ctx.logger.error(error, 'Error in blacklist command');
+        ctx.logger.error({
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        }, 'Error in blacklist command');
         yield ctx.reply(ctx.t('error_occurred'));
     }
 });

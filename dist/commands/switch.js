@@ -16,14 +16,12 @@ const profilesService_1 = require("../functions/db/profilesService");
 const switchCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting switch command');
     const existingUser = yield postgres_1.prisma.user.findUnique({
         where: { id: userId },
     });
-    ctx.logger.info({
-        msg: 'switch',
-        existingUser: existingUser
-    });
     if (existingUser) {
+        ctx.logger.info({ userId }, 'Getting user profiles for switching');
         ctx.session.step = "switch_profile";
         const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
         yield ctx.reply(ctx.t('switch_profile_message'), {
@@ -31,6 +29,7 @@ const switchCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     else {
+        ctx.logger.info({ userId }, 'No existing user, showing profile type selection');
         ctx.session.step = "create_profile_type";
         ctx.session.isCreatingProfile = true;
         yield ctx.reply(ctx.t('profile_type_title'), {

@@ -16,14 +16,25 @@ const addToBlacklist_1 = require("../functions/addToBlacklist");
 const addToBlacklistCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting add to blacklist command');
     const existingUser = yield postgres_1.prisma.user.findUnique({
         where: { id: userId },
     });
     if (existingUser && ctx.session.currentCandidateProfile && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes" || ctx.session.step === "options_to_user")) {
+        ctx.logger.info({
+            userId,
+            candidateProfileId: ctx.session.currentCandidateProfile.id,
+            step: ctx.session.step
+        }, 'Adding profile to blacklist');
         yield (0, addToBlacklist_1.addToBlacklist)(ctx);
     }
     else {
         ctx.session.step = "cannot_send_complain";
+        ctx.logger.warn({
+            userId,
+            step: ctx.session.step,
+            hasCandidateProfile: !!ctx.session.currentCandidateProfile
+        }, 'Cannot add to blacklist - wrong context');
         yield ctx.reply(ctx.t('can_add_to_blacklist_only_while_searching'), {
             reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t, true)
         });

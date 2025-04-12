@@ -94,4 +94,5 @@ export interface ISessionData {
     privateNote?: string;
     isEditingProfile?: boolean; // Флаг, указывающий, что пользователь находится в процессе редактирования анкеты
     isCreatingProfile?: boolean;
+    __language_code?: string;
 }

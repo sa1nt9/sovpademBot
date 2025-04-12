@@ -10,6 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.revealUsernameRejectCallbackQuery = void 0;
+const postgres_1 = require("../db/postgres");
+const i18n_1 = require("../i18n");
 const revealUsernameRejectCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
@@ -23,6 +25,12 @@ const revealUsernameRejectCallbackQuery = (ctx) => __awaiter(void 0, void 0, voi
         yield ctx.api.editMessageText(callbackQuery.message.chat.id, callbackQuery.message.message_id, ctx.t('roulette_reveal_username_rejected'), { reply_markup: { inline_keyboard: [] } });
     }
     // Уведомляем запросившего пользователя об отказе
-    yield ctx.api.sendMessage(userId, ctx.t('roulette_reveal_rejected_message'));
+    const currentSession = yield postgres_1.prisma.session.findUnique({
+        where: {
+            key: userId
+        }
+    });
+    const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+    yield ctx.api.sendMessage(userId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_reveal_rejected_message'));
 });
 exports.revealUsernameRejectCallbackQuery = revealUsernameRejectCallbackQuery;

@@ -6,16 +6,14 @@ import { MyContext } from "../typescript/context";
 export const switchCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
+    ctx.logger.info({ userId }, 'Starting switch command');
+
     const existingUser = await prisma.user.findUnique({
         where: { id: userId },
     });
 
-    ctx.logger.info({
-        msg: 'switch',
-        existingUser: existingUser
-    })
-
     if (existingUser) {
+        ctx.logger.info({ userId }, 'Getting user profiles for switching');
         ctx.session.step = "switch_profile";
 
         const profiles = await getUserProfiles(userId, ctx);
@@ -24,6 +22,7 @@ export const switchCommand = async (ctx: MyContext) => {
             reply_markup: switchProfileKeyboard(ctx.t, profiles)
         });
     } else {
+        ctx.logger.info({ userId }, 'No existing user, showing profile type selection');
         ctx.session.step = "create_profile_type"
         ctx.session.isCreatingProfile = true;
 

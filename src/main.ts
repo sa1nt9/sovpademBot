@@ -31,87 +31,73 @@ dotenv.config();
 
 export const bot = new Bot<MyContext>(String(process.env.BOT_TOKEN));
 
-
 async function startBot() {
+    try {
+        logger.info('Connecting to database...');
+        await connectPostgres();
+        logger.info('Database connection established');
 
-    await connectPostgres()
+        bot.catch(errorHandler);
 
+        // Middleware для добавления логгера в контекст
+        bot.use(async (ctx, next) => {
+            ctx.logger = logger;
+            await next();
+        });
 
-    bot.catch(errorHandler);
+        const sessionMiddleware = session({
+            initial: sessionInitial,
+            storage: new PrismaAdapter(prisma.session),
+        } as any);
 
+        bot.use(async (ctx, next) => {
+            if (ctx.inlineQuery) {
+                return next();
+            }
+            return sessionMiddleware(ctx, next);
+        });
 
-    bot.use(async (ctx, next) => {
-        ctx.logger = logger
+        bot.use(async (ctx, next) => {
+            if (ctx.inlineQuery) {
+                return i18n(true).middleware()(ctx, next);
+            }
+            return i18n(false).middleware()(ctx, next);
+        });
 
-        await next()
-    })
+        bot.use(checkSubscriptionMiddleware);
+        bot.use(rouletteMiddleware);
+        bot.use(changeSessionFieldsMiddleware);
 
-    const sessionMiddleware = session({
-        initial: sessionInitial,
-        storage: new PrismaAdapter(prisma.session),
-    } as any);
+        // Регистрация команд
+        bot.command("start", startCommand);
+        bot.command("myprofile", myprofileCommand);
+        bot.command("switch", switchCommand);
+        bot.command("roulette", rouletteCommand);
+        bot.command("blacklist", blacklistCommand);
+        bot.command("matches", matchesCommand);
+        bot.command("add_to_blacklist", addToBlacklistCommand);
+        bot.command("new_likes", newLikesCommand);
+        bot.command("complain", complainCommand);
+        bot.command("stats", statsCommand);
+        bot.command("stop_roulette", stopRouletteCommand);
+        bot.command("language", languageCommand);
+        bot.command("deactivate", deactivateCommand);
 
+        // Регистрация обработчиков событий
+        bot.on("message", messageEvent);
+        bot.on("callback_query", callbackQueryEvent);
+        bot.on("inline_query", inlineQueryEvent);
 
-    bot.use(async (ctx, next) => {
-        if (ctx.inlineQuery) {
-            return next();
-        }
-        return sessionMiddleware(ctx, next);
-    });
-
-    bot.use(async (ctx, next) => {
-        if (ctx.inlineQuery) {
-            return i18n(true).middleware()(ctx, next);
-        }
-        return i18n(false).middleware()(ctx, next);
-    });
-
-    bot.use(checkSubscriptionMiddleware)
-
-    bot.use(rouletteMiddleware)
-
-    bot.use(changeSessionFieldsMiddleware)
-
-
-    bot.command("start", startCommand);
-
-    bot.command("myprofile", myprofileCommand);
-    
-    bot.command("switch", switchCommand);
-
-    bot.command("roulette", rouletteCommand);
-
-    bot.command("blacklist", blacklistCommand);
-
-    bot.command("matches", matchesCommand);
-
-    bot.command("add_to_blacklist", addToBlacklistCommand);
-
-    bot.command("new_likes", newLikesCommand);
-
-    bot.command("complain", complainCommand);
-
-    bot.command("stats", statsCommand);
-
-    bot.command("stop_roulette", stopRouletteCommand);
-
-    bot.command("language", languageCommand);
-
-    bot.command("deactivate", deactivateCommand);
-
-
-    bot.on("message", messageEvent);
-
-    bot.on("callback_query", callbackQueryEvent);
-
-    bot.on("inline_query", inlineQueryEvent);
-
-
-    bot.start();
+        logger.info('Starting bot...');
+        bot.start();
+        logger.info('Bot started successfully');
+    } catch (error) {
+        logger.error({ error }, 'Failed to start bot');
+        throw error;
+    }
 }
 
-
-
-startBot().then(() => {
-    console.log('Bot started');
-})
+startBot().catch((error) => {
+    logger.error({ error }, 'Fatal error during bot startup');
+    process.exit(1);
+});

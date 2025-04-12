@@ -15,17 +15,24 @@ const postgres_1 = require("../db/postgres");
 const complainCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({
+        userId,
+        currentStep: ctx.session.step,
+        hasCandidateProfile: !!ctx.session.currentCandidateProfile
+    }, 'Starting complain command');
     const existingUser = yield postgres_1.prisma.user.findUnique({
         where: { id: userId },
     });
     if (existingUser && ctx.session.currentCandidateProfile && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes" || ctx.session.step === "options_to_user")) {
         ctx.session.step = "complain";
+        ctx.logger.info({ userId }, 'Showing complain options');
         yield ctx.reply(ctx.t('complain_text'), {
             reply_markup: (0, keyboards_1.complainKeyboard)()
         });
     }
     else {
         ctx.session.step = "cannot_send_complain";
+        ctx.logger.warn({ userId }, 'Cannot send complain - wrong context');
         yield ctx.reply(ctx.t('complain_can_be_sended_only_while_searching'), {
             reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t, true)
         });

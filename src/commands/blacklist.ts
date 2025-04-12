@@ -9,6 +9,8 @@ import { getProfileModelName } from "../functions/db/profilesService";
 export const blacklistCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
+    ctx.logger.info({ userId }, 'Starting blacklist command');
+
     try {
         // Получаем первую запись и общее количество
         const [blacklistedProfile, totalCount] = await Promise.all([
@@ -24,7 +26,7 @@ export const blacklistCommand = async (ctx: MyContext) => {
         ]);
 
         if (!blacklistedProfile) {
-            // Если черный список пуст
+            ctx.logger.info({ userId }, 'Blacklist is empty');
             await ctx.reply(ctx.t('blacklist_empty'));
 
             await ctx.reply(ctx.t('sleep_menu'), {
@@ -51,6 +53,7 @@ export const blacklistCommand = async (ctx: MyContext) => {
         });
         
         if (!user) {
+            ctx.logger.warn({ userId, profileId: profile.id }, 'Profile not found in blacklist');
             await ctx.reply(ctx.t('profile_not_found'));
             return;
         }
@@ -68,7 +71,10 @@ export const blacklistCommand = async (ctx: MyContext) => {
         ctx.session.currentBlacklistedProfile = profile;
 
     } catch (error) {
-        ctx.logger.error(error, 'Error in blacklist command');
+        ctx.logger.error({ 
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        }, 'Error in blacklist command');
         await ctx.reply(ctx.t('error_occurred'));
     }
 };

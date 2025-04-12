@@ -15,6 +15,7 @@ const postgres_1 = require("../db/postgres");
 const sendForm_1 = require("../functions/sendForm");
 const findRouletteUser_1 = require("../functions/findRouletteUser");
 const getReactionCounts_1 = require("../functions/getReactionCounts");
+const i18n_1 = require("../i18n");
 function rouletteSearchingStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
@@ -58,13 +59,20 @@ function rouletteSearchingStep(ctx) {
                             profileRevealed: false
                         }
                     });
+                    const currentSession = yield postgres_1.prisma.session.findUnique({
+                        where: {
+                            key: prevPartnerId
+                        }
+                    });
+                    const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+                    const translate = (key, ...args) => (0, i18n_1.i18n)(false).t(__language_code || "ru", key, ...args);
                     // Уведомляем предыдущего собеседника
-                    yield ctx.api.sendMessage(prevPartnerId, ctx.t('roulette_partner_left'), {
-                        reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)
+                    yield ctx.api.sendMessage(prevPartnerId, translate('roulette_partner_left'), {
+                        reply_markup: (0, keyboards_1.rouletteStartKeyboard)(translate)
                     });
                     const userReactionCounts = yield (0, getReactionCounts_1.getReactionCounts)(userId);
-                    yield ctx.api.sendMessage(prevPartnerId, ctx.t('roulette_put_reaction_on_your_partner'), {
-                        reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(ctx.t, userId, userReactionCounts)
+                    yield ctx.api.sendMessage(prevPartnerId, translate('roulette_put_reaction_on_your_partner'), {
+                        reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(translate, userId, userReactionCounts)
                     });
                     yield ctx.reply(ctx.t('roulette_chat_ended'), {
                         reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)
@@ -118,15 +126,22 @@ function rouletteSearchingStep(ctx) {
                             profileRevealed: false
                         }
                     });
+                    const currentSession = yield postgres_1.prisma.session.findUnique({
+                        where: {
+                            key: partnerUserId
+                        }
+                    });
+                    const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+                    const translate = (key, ...args) => (0, i18n_1.i18n)(false).t(__language_code || "ru", key, ...args);
                     // Уведомляем собеседника
-                    yield ctx.api.sendMessage(partnerUserId, ctx.t('roulette_partner_left'), {
-                        reply_markup: (0, keyboards_1.rouletteStartKeyboard)(ctx.t)
+                    yield ctx.api.sendMessage(partnerUserId, translate('roulette_partner_left'), {
+                        reply_markup: (0, keyboards_1.rouletteStartKeyboard)(translate)
                     });
                     // Получаем количество реакций для пользователя
                     const userReactionCounts = yield (0, getReactionCounts_1.getReactionCounts)(userId);
                     // Предлагаем собеседнику оценить пользователя
-                    yield ctx.api.sendMessage(partnerUserId, ctx.t('roulette_put_reaction_on_your_partner'), {
-                        reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(ctx.t, userId, userReactionCounts)
+                    yield ctx.api.sendMessage(partnerUserId, translate('roulette_put_reaction_on_your_partner'), {
+                        reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(translate, userId, userReactionCounts)
                     });
                 }
                 if (existingUser.rouletteUser) {
@@ -160,9 +175,16 @@ function rouletteSearchingStep(ctx) {
                         yield ctx.reply(ctx.t('roulette_profile_already_revealed'));
                         return;
                     }
+                    const currentSession = yield postgres_1.prisma.session.findUnique({
+                        where: {
+                            key: existingUser.rouletteUser.chatPartnerId
+                        }
+                    });
+                    const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+                    const translate = (key, ...args) => (0, i18n_1.i18n)(false).t(__language_code || "ru", key, ...args);
                     // Создаем клавиатуру для ответа на запрос о раскрытии
-                    yield ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, ctx.t('roulette_reveal_request'), {
-                        reply_markup: (0, keyboards_1.confirmRevealKeyboard)(ctx.t, userId)
+                    yield ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, translate('roulette_reveal_request'), {
+                        reply_markup: (0, keyboards_1.confirmRevealKeyboard)(translate, userId)
                     });
                     // Уведомляем пользователя о том, что запрос был отправлен
                     yield ctx.reply(ctx.t('roulette_reveal_request_sent'));
@@ -176,9 +198,16 @@ function rouletteSearchingStep(ctx) {
                         yield ctx.reply(ctx.t('roulette_username_already_revealed'));
                         return;
                     }
+                    const currentSession = yield postgres_1.prisma.session.findUnique({
+                        where: {
+                            key: existingUser.rouletteUser.chatPartnerId
+                        }
+                    });
+                    const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+                    const translate = (key, ...args) => (0, i18n_1.i18n)(false).t(__language_code || "ru", key, ...args);
                     // Создаем клавиатуру для ответа на запрос о раскрытии
-                    yield ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, ctx.t('roulette_reveal_username_request'), {
-                        reply_markup: (0, keyboards_1.confirmRevealKeyboard)(ctx.t, userId, true)
+                    yield ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, translate('roulette_reveal_username_request'), {
+                        reply_markup: (0, keyboards_1.confirmRevealKeyboard)(translate, userId, true)
                     });
                     yield ctx.reply(ctx.t('roulette_reveal_username_request_sent'));
                 }

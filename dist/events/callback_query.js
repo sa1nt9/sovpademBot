@@ -20,8 +20,15 @@ const reveal_username_accept_1 = require("../callback_queries/reveal_username_ac
 const reveal_username_reject_1 = require("../callback_queries/reveal_username_reject");
 const match_1 = require("../callback_queries/match");
 const callbackQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
+    ctx.logger.info({
+        userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id,
+        username: (_b = ctx.from) === null || _b === void 0 ? void 0 : _b.username,
+        callbackData: callbackData,
+        messageId: (_c = callbackQuery.message) === null || _c === void 0 ? void 0 : _c.message_id
+    }, 'Processing callback query');
     if (callbackData) {
         if (callbackData.startsWith("complain:")) {
             yield (0, complain_1.complainCallbackQuery)(ctx);
@@ -49,6 +56,12 @@ const callbackQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* 
         }
         else if (callbackData.startsWith("match:")) {
             yield (0, match_1.matchCallbackQuery)(ctx);
+        }
+        else {
+            ctx.logger.warn({
+                userId: (_d = ctx.from) === null || _d === void 0 ? void 0 : _d.id,
+                callbackData: callbackData
+            }, 'Unknown callback query type');
         }
     }
 });

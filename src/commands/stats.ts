@@ -7,10 +7,7 @@ import { getUserReactions } from "../functions/getUserReactions";
 export const statsCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
-    ctx.logger.info({
-        action: 'stats_command',
-        userId
-    });
+    ctx.logger.info({ userId }, 'Starting stats command');
 
     const existingUser = await prisma.user.findUnique({
         where: { id: userId },
@@ -79,6 +76,19 @@ export const statsCommand = async (ctx: MyContext) => {
                 ? Math.round((likesGiven / totalFormsViewed) * 100)
                 : 0;
 
+            ctx.logger.info({ 
+                userId,
+                daysInBot,
+                likesGiven,
+                likesReceived,
+                mutualLikes,
+                mutualPercentage,
+                totalFormsViewed,
+                likeDislikeRatio,
+                blacklistCount,
+                hasRouletteStats: !!rouletteUser
+            }, 'User stats calculated');
+
             // 6. Форматируем статистику и отправляем пользователю
             let statsMessage = ctx.t('stats_title') + '\n\n';
 
@@ -126,6 +136,14 @@ export const statsCommand = async (ctx: MyContext) => {
                     avgDuration = totalDuration / completedChats.length;
                 }
 
+                ctx.logger.info({ 
+                    userId,
+                    totalChats,
+                    revealedProfiles,
+                    revealedUsernames,
+                    avgDuration
+                }, 'Roulette stats calculated');
+
                 statsMessage += ctx.t('stats_roulette_chats_count', { count: totalChats }) + '\n';
 
                 if (avgDuration > 0) {
@@ -158,16 +176,17 @@ export const statsCommand = async (ctx: MyContext) => {
             });
 
         } catch (error) {
-            ctx.logger.error({
-                error,
-                action: 'Error getting user stats',
-                userId
-            });
+            ctx.logger.error({ 
+                userId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error getting user stats');
 
             await ctx.reply(ctx.t('error_occurred'));
         }
     } else {
         ctx.session.step = "you_dont_have_form";
+        ctx.logger.warn({ userId }, 'User tried to view stats without profile');
 
         await ctx.reply(ctx.t('you_dont_have_form'), {
             reply_markup: notHaveFormToDeactiveKeyboard(ctx.t)

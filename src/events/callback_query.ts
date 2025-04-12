@@ -14,6 +14,13 @@ export const callbackQueryEvent = async (ctx: MyContext) => {
     const callbackQuery = ctx.callbackQuery!;
     const callbackData = callbackQuery.data;    
 
+    ctx.logger.info({ 
+        userId: ctx.from?.id,
+        username: ctx.from?.username,
+        callbackData: callbackData,
+        messageId: callbackQuery.message?.message_id
+    }, 'Processing callback query');
+
     if (callbackData) {
         if (callbackData.startsWith("complain:")) {
             await complainCallbackQuery(ctx)
@@ -33,6 +40,11 @@ export const callbackQueryEvent = async (ctx: MyContext) => {
             await complainBackCallbackQuery(ctx)
         } else if (callbackData.startsWith("match:")) {
             await matchCallbackQuery(ctx)
+        } else {
+            ctx.logger.warn({ 
+                userId: ctx.from?.id,
+                callbackData: callbackData 
+            }, 'Unknown callback query type');
         }
     }
 }

@@ -4,7 +4,8 @@ import { prisma } from '../db/postgres';
 import { sendForm } from '../functions/sendForm';
 import { findRouletteUser } from '../functions/findRouletteUser';
 import { getReactionCounts } from '../functions/getReactionCounts';
-
+import { ISessionData } from '../typescript/interfaces/ISessionData';
+import { i18n } from '../i18n';
 
 export async function rouletteSearchingStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -27,7 +28,7 @@ export async function rouletteSearchingStep(ctx: MyContext) {
             // Если был предыдущий собеседник, разрываем связь
             if (existingUser.rouletteUser?.chatPartnerId) {
                 const prevPartnerId = existingUser.rouletteUser.chatPartnerId;
-                
+
                 // Обновляем статус чата
                 await prisma.rouletteChat.updateMany({
                     where: {
@@ -53,30 +54,40 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                     }
                 });
 
-                // Уведомляем предыдущего собеседника
-                await ctx.api.sendMessage(prevPartnerId, ctx.t('roulette_partner_left'), {
-                    reply_markup: rouletteStartKeyboard(ctx.t)
+                const currentSession = await prisma.session.findUnique({
+                    where: {
+                        key: prevPartnerId
+                    }
                 });
-                
+
+                const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+
+                const translate = (key: string, ...args: any[]) => i18n(false).t(__language_code || "ru", key, ...args);
+
+                // Уведомляем предыдущего собеседника
+                await ctx.api.sendMessage(prevPartnerId, translate('roulette_partner_left'), {
+                    reply_markup: rouletteStartKeyboard(translate)
+                });
+
                 const userReactionCounts = await getReactionCounts(userId);
-                
-                await ctx.api.sendMessage(prevPartnerId, ctx.t('roulette_put_reaction_on_your_partner'), {
-                    reply_markup: rouletteReactionKeyboard(ctx.t, userId, userReactionCounts)
+
+                await ctx.api.sendMessage(prevPartnerId, translate('roulette_put_reaction_on_your_partner'), {
+                    reply_markup: rouletteReactionKeyboard(translate, userId, userReactionCounts)
                 });
 
                 await ctx.reply(ctx.t('roulette_chat_ended'), {
                     reply_markup: rouletteStartKeyboard(ctx.t)
                 });
-                
+
                 // Получаем количество реакций для предыдущего собеседника
                 const partnerReactionCounts = await getReactionCounts(prevPartnerId);
-                
+
                 // Предлагаем пользователю оценить собеседника
                 await ctx.reply(ctx.t('roulette_put_reaction_on_your_partner'), {
                     reply_markup: rouletteReactionKeyboard(ctx.t, prevPartnerId, partnerReactionCounts)
                 });
             }
-            
+
             if (message === ctx.t('main_menu')) {
                 ctx.session.step = 'profile';
 
@@ -107,10 +118,10 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                     data: {
                         endedAt: new Date(),
                         isProfileRevealed: existingUser.rouletteUser?.profileRevealed,
-                        isUsernameRevealed: existingUser.rouletteUser?.usernameRevealed 
+                        isUsernameRevealed: existingUser.rouletteUser?.usernameRevealed
                     }
                 });
-                
+
                 await prisma.rouletteUser.update({
                     where: { id: partnerUserId },
                     data: {
@@ -121,17 +132,27 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                     }
                 });
 
-                // Уведомляем собеседника
-                await ctx.api.sendMessage(partnerUserId, ctx.t('roulette_partner_left'), {
-                    reply_markup: rouletteStartKeyboard(ctx.t)
+                const currentSession = await prisma.session.findUnique({
+                    where: {
+                        key: partnerUserId
+                    }
                 });
-                
+
+                const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+
+                const translate = (key: string, ...args: any[]) => i18n(false).t(__language_code || "ru", key, ...args);
+
+                // Уведомляем собеседника
+                await ctx.api.sendMessage(partnerUserId, translate('roulette_partner_left'), {
+                    reply_markup: rouletteStartKeyboard(translate)
+                });
+
                 // Получаем количество реакций для пользователя
                 const userReactionCounts = await getReactionCounts(userId);
-                
+
                 // Предлагаем собеседнику оценить пользователя
-                await ctx.api.sendMessage(partnerUserId, ctx.t('roulette_put_reaction_on_your_partner'), {
-                    reply_markup: rouletteReactionKeyboard(ctx.t, userId, userReactionCounts)
+                await ctx.api.sendMessage(partnerUserId, translate('roulette_put_reaction_on_your_partner'), {
+                    reply_markup: rouletteReactionKeyboard(translate, userId, userReactionCounts)
                 });
             }
 
@@ -150,12 +171,12 @@ export async function rouletteSearchingStep(ctx: MyContext) {
             await ctx.reply(ctx.t('roulette_chat_ended'), {
                 reply_markup: rouletteStartKeyboard(ctx.t)
             });
-            
+
             // Предлагаем пользователю оценить собеседника
             if (existingUser.rouletteUser?.chatPartnerId) {
                 // Получаем количество реакций для собеседника
                 const partnerReactionCounts = await getReactionCounts(existingUser.rouletteUser.chatPartnerId);
-                
+
                 await ctx.reply(ctx.t('roulette_put_reaction_on_your_partner'), {
                     reply_markup: rouletteReactionKeyboard(ctx.t, existingUser.rouletteUser.chatPartnerId, partnerReactionCounts)
                 });
@@ -172,9 +193,18 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                     return;
                 }
 
+                const currentSession = await prisma.session.findUnique({
+                    where: {
+                        key: existingUser.rouletteUser.chatPartnerId
+                    }
+                });
+
+                const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+
+                const translate = (key: string, ...args: any[]) => i18n(false).t(__language_code || "ru", key, ...args);
                 // Создаем клавиатуру для ответа на запрос о раскрытии
-                await ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, ctx.t('roulette_reveal_request'), {
-                    reply_markup: confirmRevealKeyboard(ctx.t, userId)
+                await ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, translate('roulette_reveal_request'), {
+                    reply_markup: confirmRevealKeyboard(translate, userId)
                 });
 
                 // Уведомляем пользователя о том, что запрос был отправлен
@@ -190,9 +220,19 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                     return;
                 }
 
+                const currentSession = await prisma.session.findUnique({
+                    where: {
+                        key: existingUser.rouletteUser.chatPartnerId
+                    }
+                });
+
+                const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+
+                const translate = (key: string, ...args: any[]) => i18n(false).t(__language_code || "ru", key, ...args);
+
                 // Создаем клавиатуру для ответа на запрос о раскрытии
-                await ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, ctx.t('roulette_reveal_username_request'), {
-                    reply_markup: confirmRevealKeyboard(ctx.t, userId, true)
+                await ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, translate('roulette_reveal_username_request'), {
+                    reply_markup: confirmRevealKeyboard(translate, userId, true)
                 });
 
                 await ctx.reply(ctx.t('roulette_reveal_username_request_sent'));
@@ -204,7 +244,7 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                 // Получаем информацию о статусе раскрытия для формирования клавиатуры
                 const profileRevealed = existingUser.rouletteUser.profileRevealed;
                 const usernameRevealed = existingUser.rouletteUser.usernameRevealed;
-                
+
                 await ctx.reply(ctx.t('roulette_you_have_partner'), {
                     reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed)
                 });

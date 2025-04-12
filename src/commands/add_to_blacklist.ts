@@ -7,14 +7,27 @@ import { addToBlacklist } from "../functions/addToBlacklist";
 export const addToBlacklistCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
+    ctx.logger.info({ userId }, 'Starting add to blacklist command');
+
     const existingUser = await prisma.user.findUnique({
         where: { id: userId },
     });
     
     if (existingUser && ctx.session.currentCandidateProfile && (ctx.session.step === "search_people" || ctx.session.step === "search_people_with_likes" || ctx.session.step === "options_to_user")) {
+        ctx.logger.info({ 
+            userId, 
+            candidateProfileId: ctx.session.currentCandidateProfile.id,
+            step: ctx.session.step 
+        }, 'Adding profile to blacklist');
+        
         await addToBlacklist(ctx)
     } else {
         ctx.session.step = "cannot_send_complain";
+        ctx.logger.warn({ 
+            userId, 
+            step: ctx.session.step,
+            hasCandidateProfile: !!ctx.session.currentCandidateProfile
+        }, 'Cannot add to blacklist - wrong context');
 
         await ctx.reply(ctx.t('can_add_to_blacklist_only_while_searching'), {
             reply_markup: goBackKeyboard(ctx.t, true)

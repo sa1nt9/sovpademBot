@@ -74,50 +74,64 @@ dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, postgres_1.connectPostgres)();
-        exports.bot.catch(error_1.errorHandler);
-        exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
-            ctx.logger = logger_1.logger;
-            yield next();
-        }));
-        const sessionMiddleware = (0, grammy_1.session)({
-            initial: sessionInitial_1.sessionInitial,
-            storage: new storage_prisma_1.PrismaAdapter(postgres_1.prisma.session),
-        });
-        exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
-            if (ctx.inlineQuery) {
-                return next();
-            }
-            return sessionMiddleware(ctx, next);
-        }));
-        exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
-            if (ctx.inlineQuery) {
-                return (0, i18n_1.i18n)(true).middleware()(ctx, next);
-            }
-            return (0, i18n_1.i18n)(false).middleware()(ctx, next);
-        }));
-        exports.bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
-        exports.bot.use(rouletteMiddleware_1.rouletteMiddleware);
-        exports.bot.use(changeSessionFieldsMiddleware_1.changeSessionFieldsMiddleware);
-        exports.bot.command("start", start_1.startCommand);
-        exports.bot.command("myprofile", myprofile_1.myprofileCommand);
-        exports.bot.command("switch", switch_1.switchCommand);
-        exports.bot.command("roulette", roulette_1.rouletteCommand);
-        exports.bot.command("blacklist", blacklist_1.blacklistCommand);
-        exports.bot.command("matches", matches_1.matchesCommand);
-        exports.bot.command("add_to_blacklist", add_to_blacklist_1.addToBlacklistCommand);
-        exports.bot.command("new_likes", new_likes_1.newLikesCommand);
-        exports.bot.command("complain", complain_1.complainCommand);
-        exports.bot.command("stats", stats_1.statsCommand);
-        exports.bot.command("stop_roulette", stop_roulette_1.stopRouletteCommand);
-        exports.bot.command("language", language_1.languageCommand);
-        exports.bot.command("deactivate", deactivate_1.deactivateCommand);
-        exports.bot.on("message", message_1.messageEvent);
-        exports.bot.on("callback_query", callback_query_1.callbackQueryEvent);
-        exports.bot.on("inline_query", inline_query_1.inlineQueryEvent);
-        exports.bot.start();
+        try {
+            logger_1.logger.info('Connecting to database...');
+            yield (0, postgres_1.connectPostgres)();
+            logger_1.logger.info('Database connection established');
+            exports.bot.catch(error_1.errorHandler);
+            // Middleware для добавления логгера в контекст
+            exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                ctx.logger = logger_1.logger;
+                yield next();
+            }));
+            const sessionMiddleware = (0, grammy_1.session)({
+                initial: sessionInitial_1.sessionInitial,
+                storage: new storage_prisma_1.PrismaAdapter(postgres_1.prisma.session),
+            });
+            exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                if (ctx.inlineQuery) {
+                    return next();
+                }
+                return sessionMiddleware(ctx, next);
+            }));
+            exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                if (ctx.inlineQuery) {
+                    return (0, i18n_1.i18n)(true).middleware()(ctx, next);
+                }
+                return (0, i18n_1.i18n)(false).middleware()(ctx, next);
+            }));
+            exports.bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
+            exports.bot.use(rouletteMiddleware_1.rouletteMiddleware);
+            exports.bot.use(changeSessionFieldsMiddleware_1.changeSessionFieldsMiddleware);
+            // Регистрация команд
+            exports.bot.command("start", start_1.startCommand);
+            exports.bot.command("myprofile", myprofile_1.myprofileCommand);
+            exports.bot.command("switch", switch_1.switchCommand);
+            exports.bot.command("roulette", roulette_1.rouletteCommand);
+            exports.bot.command("blacklist", blacklist_1.blacklistCommand);
+            exports.bot.command("matches", matches_1.matchesCommand);
+            exports.bot.command("add_to_blacklist", add_to_blacklist_1.addToBlacklistCommand);
+            exports.bot.command("new_likes", new_likes_1.newLikesCommand);
+            exports.bot.command("complain", complain_1.complainCommand);
+            exports.bot.command("stats", stats_1.statsCommand);
+            exports.bot.command("stop_roulette", stop_roulette_1.stopRouletteCommand);
+            exports.bot.command("language", language_1.languageCommand);
+            exports.bot.command("deactivate", deactivate_1.deactivateCommand);
+            // Регистрация обработчиков событий
+            exports.bot.on("message", message_1.messageEvent);
+            exports.bot.on("callback_query", callback_query_1.callbackQueryEvent);
+            exports.bot.on("inline_query", inline_query_1.inlineQueryEvent);
+            logger_1.logger.info('Starting bot...');
+            exports.bot.start();
+            logger_1.logger.info('Bot started successfully');
+        }
+        catch (error) {
+            logger_1.logger.error({ error }, 'Failed to start bot');
+            throw error;
+        }
     });
 }
-startBot().then(() => {
-    console.log('Bot started');
+startBot().catch((error) => {
+    logger_1.logger.error({ error }, 'Fatal error during bot startup');
+    process.exit(1);
 });

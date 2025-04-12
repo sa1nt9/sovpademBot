@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.revealUsernameAcceptCallbackQuery = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
+const i18n_1 = require("../i18n");
 const revealUsernameAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const callbackQuery = ctx.callbackQuery;
@@ -55,7 +56,13 @@ const revealUsernameAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, voi
             parse_mode: 'Markdown',
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
         });
-        yield ctx.api.sendMessage(userId, ctx.t('roulette_revealed_username_by_partner') + `[${currentUser.name}](https://t.me/${(_b = callbackQuery.from) === null || _b === void 0 ? void 0 : _b.username})`, {
+        const currentSession = yield postgres_1.prisma.session.findUnique({
+            where: {
+                key: userId
+            }
+        });
+        const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+        yield ctx.api.sendMessage(userId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_revealed_username_by_partner') + `[${currentUser.name}](https://t.me/${(_b = callbackQuery.from) === null || _b === void 0 ? void 0 : _b.username})`, {
             parse_mode: 'Markdown',
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
         });

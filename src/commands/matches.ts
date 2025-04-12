@@ -11,6 +11,8 @@ import { getProfileModelName } from "../functions/db/profilesService";
 export const matchesCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
+    ctx.logger.info({ userId }, 'Starting matches command');
+
     const existingUser = await prisma.user.findUnique({
         where: { id: userId },
     });
@@ -32,6 +34,7 @@ export const matchesCommand = async (ctx: MyContext) => {
         const activeProfileId = profile?.id || "";
         
         if (!activeProfileId) {
+            ctx.logger.warn({ userId }, 'No active profile found');
             await ctx.reply(ctx.t('no_active_profile'));
             return;
         }
@@ -51,12 +54,18 @@ export const matchesCommand = async (ctx: MyContext) => {
 
         if (mutualLikes.length === 0) {
             ctx.session.step = 'form_disabled';
+            ctx.logger.info({ userId }, 'No matches found');
 
             await ctx.reply(ctx.t('no_matches'), {
                 reply_markup: formDisabledKeyboard(ctx.t)
             });
             return;
         }
+
+        ctx.logger.info({ 
+            userId, 
+            matchesCount: mutualLikes.length 
+        }, 'Found matches');
 
         let message = mutualLikes.length > 100 ? ctx.t('matches_message_last') : ctx.t('matches_message_all') + '\n\n';
 
@@ -93,7 +102,11 @@ export const matchesCommand = async (ctx: MyContext) => {
                 }
                 keyboard.text(`${i + 1}. ${targetName}, ${ctx.t(`profile_type_${like.profileType.toLowerCase()}`)}`, `match:${targetUserId}`);
             } catch (e) {
-                ctx.logger.error({ message: "Error retrieving profile or chat data:", error: e });
+                ctx.logger.error({ 
+                    userId,
+                    targetProfileId: like.toProfileId,
+                    error: e instanceof Error ? e.message : 'Unknown error'
+                }, 'Error retrieving profile or chat data');
                 continue;
             }
         }
@@ -114,9 +127,10 @@ export const matchesCommand = async (ctx: MyContext) => {
 
     } else {
         ctx.session.step = "you_dont_have_form";
+        ctx.logger.warn({ userId }, 'User tried to view matches without profile');
 
         await ctx.reply(ctx.t('you_dont_have_form'), {
             reply_markup: notHaveFormToDeactiveKeyboard(ctx.t)
-        })
+        });
     }
 }

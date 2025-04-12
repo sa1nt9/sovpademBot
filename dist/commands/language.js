@@ -12,7 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.languageCommand = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const languageCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting language command');
     ctx.session.step = "choose_language";
+    ctx.logger.info({ userId, step: ctx.session.step }, 'Showing language selection menu');
     ctx.reply(ctx.t('choose_language'), {
         reply_markup: keyboards_1.languageKeyboard
     });

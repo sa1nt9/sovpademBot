@@ -15,14 +15,16 @@ const postgres_1 = require("../db/postgres");
 const getOneLike_1 = require("../functions/db/getOneLike");
 const sendForm_1 = require("../functions/sendForm");
 const newLikesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting new likes command');
     const existingUser = yield postgres_1.prisma.user.findUnique({
         where: { id: userId },
     });
     if (existingUser) {
         const oneLike = yield (0, getOneLike_1.getOneLike)(userId, 'user');
         if (oneLike) {
+            ctx.logger.info({ userId, fromProfileId: (_b = oneLike.fromProfile) === null || _b === void 0 ? void 0 : _b.id }, 'Found new like');
             ctx.session.step = 'search_people_with_likes';
             ctx.session.additionalFormInfo.searchingLikes = true;
             ctx.session.currentCandidateProfile = oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile;
@@ -34,6 +36,7 @@ const newLikesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () 
             }
         }
         else {
+            ctx.logger.info({ userId }, 'No new likes found');
             yield ctx.reply(ctx.t('no_new_likes'), {
                 reply_markup: (0, keyboards_1.notHaveFormToDeactiveKeyboard)(ctx.t)
             });
@@ -45,6 +48,7 @@ const newLikesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () 
     }
     else {
         ctx.session.step = "you_dont_have_form";
+        ctx.logger.warn({ userId }, 'User tried to check likes without profile');
         yield ctx.reply(ctx.t('you_dont_have_form'), {
             reply_markup: (0, keyboards_1.notHaveFormToDeactiveKeyboard)(ctx.t)
         });

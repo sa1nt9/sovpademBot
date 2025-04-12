@@ -13,6 +13,7 @@ exports.revealAcceptCallbackQuery = void 0;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
 const sendForm_1 = require("../functions/sendForm");
+const i18n_1 = require("../i18n");
 const revealAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const callbackQuery = ctx.callbackQuery;
@@ -52,8 +53,14 @@ const revealAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, fun
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
         });
         yield (0, sendForm_1.sendForm)(ctx, requestingUser, { myForm: false });
-        yield ctx.api.sendMessage(userId, ctx.t('roulette_your_profile_revealed'));
-        yield ctx.api.sendMessage(userId, ctx.t('roulette_revealed'), {
+        const currentSession = yield postgres_1.prisma.session.findUnique({
+            where: {
+                key: userId
+            }
+        });
+        const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+        yield ctx.api.sendMessage(userId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_your_profile_revealed'));
+        yield ctx.api.sendMessage(userId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_revealed'), {
             reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
         });
         yield (0, sendForm_1.sendForm)(ctx, currentUser, { myForm: false, sendTo: userId });

@@ -1,4 +1,7 @@
+import { prisma } from "../db/postgres";
+import { i18n } from "../i18n";
 import { MyContext } from "../typescript/context";
+import { ISessionData } from "../typescript/interfaces/ISessionData";
 
 export const revealUsernameRejectCallbackQuery = async (ctx: MyContext) => {
     const callbackQuery = ctx.callbackQuery!;
@@ -21,6 +24,13 @@ export const revealUsernameRejectCallbackQuery = async (ctx: MyContext) => {
     }
 
     // Уведомляем запросившего пользователя об отказе
-    await ctx.api.sendMessage(userId, ctx.t('roulette_reveal_rejected_message'));
+    const currentSession = await prisma.session.findUnique({
+        where: {
+            key: userId
+        }
+    });
+
+    const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+    await ctx.api.sendMessage(userId, i18n(false).t(__language_code || "ru", 'roulette_reveal_rejected_message'));
 }
 

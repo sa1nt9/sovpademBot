@@ -7,6 +7,8 @@ import { sendForm } from '../functions/sendForm';
 export const newLikesCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
+    ctx.logger.info({ userId }, 'Starting new likes command');
+
     const existingUser = await prisma.user.findUnique({
         where: { id: userId },
     });
@@ -15,10 +17,10 @@ export const newLikesCommand = async (ctx: MyContext) => {
         const oneLike = await getOneLike(userId, 'user');
 
         if (oneLike) {
+            ctx.logger.info({ userId, fromProfileId: oneLike.fromProfile?.id }, 'Found new like');
+            
             ctx.session.step = 'search_people_with_likes'
             ctx.session.additionalFormInfo.searchingLikes = true
-
-
             ctx.session.currentCandidateProfile = oneLike?.fromProfile
 
             await ctx.reply("✨🔍", {
@@ -29,6 +31,8 @@ export const newLikesCommand = async (ctx: MyContext) => {
                 await sendForm(ctx, oneLike.fromProfile.user, { myForm: false, like: oneLike });
             }
         } else {
+            ctx.logger.info({ userId }, 'No new likes found');
+            
             await ctx.reply(ctx.t('no_new_likes'), {
                 reply_markup: notHaveFormToDeactiveKeyboard(ctx.t)
             })
@@ -40,6 +44,7 @@ export const newLikesCommand = async (ctx: MyContext) => {
         }
     } else {
         ctx.session.step = "you_dont_have_form";
+        ctx.logger.warn({ userId }, 'User tried to check likes without profile');
 
         await ctx.reply(ctx.t('you_dont_have_form'), {
             reply_markup: notHaveFormToDeactiveKeyboard(ctx.t)

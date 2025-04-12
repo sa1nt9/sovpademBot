@@ -16,6 +16,7 @@ const haversine_1 = require("./haversine");
 const gameLink_1 = require("./gameLink");
 const profilesService_1 = require("./db/profilesService");
 const postgres_1 = require("../db/postgres");
+const i18n_1 = require("../i18n");
 const defaultOptions = {
     myForm: true,
     like: null,
@@ -57,6 +58,7 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
     if (options.like) {
         count = yield (0, getLikesInfo_1.getLikesCount)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), 'user');
     }
+    ctx.t = options.translate || ctx.t;
     if (options.isInline) {
         const currentSession = yield postgres_1.prisma.session.findUnique({
             where: {
@@ -139,7 +141,19 @@ const sendForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, form_1,
         }
     });
     const { files, description } = yield getProfileFiles(user);
-    const text = yield (0, exports.buildTextForm)(ctx, user, Object.assign(Object.assign({}, options), { description: description }));
+    let text = '';
+    if (options.sendTo) {
+        const currentSession = yield postgres_1.prisma.session.findUnique({
+            where: {
+                key: options.sendTo
+            }
+        });
+        const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+        text = yield (0, exports.buildTextForm)(ctx, user, Object.assign(Object.assign({}, options), { description: description, translate: (...args) => (0, i18n_1.i18n)(false).t(__language_code || "ru", ...args) }));
+    }
+    else {
+        text = yield (0, exports.buildTextForm)(ctx, user, Object.assign(Object.assign({}, options), { description: description }));
+    }
     if (files && files.length > 0) {
         if (options.sendTo) {
             yield ctx.api.sendMediaGroup(options.sendTo, files.map((i, index) => (Object.assign(Object.assign({}, i), { caption: index === 0 ? text : '', parse_mode: 'Markdown' }))));

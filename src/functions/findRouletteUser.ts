@@ -4,7 +4,8 @@ import { MyContext } from "../typescript/context";
 import { getUserReactions } from "./getUserReactions";
 import { getRoulettePartner } from "./db/getRoulettePartner";
 import { buildInfoText } from "./sendForm";
-
+import { ISessionData } from "../typescript/interfaces/ISessionData";
+import { i18n } from "../i18n";
 export const findRouletteUser = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
 
@@ -90,21 +91,30 @@ export const findRouletteUser = async (ctx: MyContext) => {
 
         let fullMessageYou;
 
+        const currentSession = await prisma.session.findUnique({
+            where: {
+                key: userId
+            }
+        });
+
+        const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+        const i18nInstance = i18n(false);
+        
         // Добавляем информацию о партнере в сообщение
         if (currentUser && partnerUser) {
             // Информация о партнере для текущего пользователя
             const userInfoText = buildInfoText(ctx, currentUser, { myForm: false });
             
             if (reactionsMessageYou) {
-                fullMessageYou = `${ctx.t('roulette_found')}\n\n${userInfoText}\n\n${reactionsMessageYou}`;
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}\n\n${userInfoText}\n\n${reactionsMessageYou}`;
             } else {
-                fullMessageYou = `${ctx.t('roulette_found')}\n\n${userInfoText}`;
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}\n\n${userInfoText}`;
             }
         } else {
             if (reactionsMessageYou) {
-                fullMessageYou = `${ctx.t('roulette_found')}\n\n${reactionsMessageYou}`;
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}\n\n${reactionsMessageYou}`;
             } else {
-                fullMessageYou = ctx.t('roulette_found');
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}`;
             }
         }
         

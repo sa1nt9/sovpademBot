@@ -9,6 +9,7 @@ const path_1 = __importDefault(require("path"));
 const pino_1 = require("pino");
 const ffi_napi_1 = __importDefault(require("ffi-napi"));
 const os_1 = __importDefault(require("os"));
+// Настройка кодировки для Windows
 if (os_1.default.platform() === 'win32') {
     const kernel = ffi_napi_1.default.Library('Kernel32', {
         'SetConsoleOutputCP': [ffi_napi_1.default.types.bool, [ffi_napi_1.default.types.uint]],
@@ -18,36 +19,66 @@ if (os_1.default.platform() === 'win32') {
     kernel.SetConsoleOutputCP(CP_UTF8);
     kernel.SetConsoleCP(CP_UTF8);
 }
+// Определение окружения
 const isProd = process.env.NODE_ENV === "production";
-const logFilePath = path_1.default.resolve(__dirname, "../logs/bot.log");
-const logDir = path_1.default.dirname(logFilePath);
+// Создание директории для логов
+const logDir = path_1.default.resolve(__dirname, "../logs");
 if (!fs_1.default.existsSync(logDir)) {
     fs_1.default.mkdirSync(logDir, { recursive: true });
 }
-// Конфигурируем логгер
+// Настройка путей для лог-файлов
+const logFilePath = path_1.default.join(logDir, "bot.log");
+const errorLogFilePath = path_1.default.join(logDir, "error.log");
+const debugLogFilePath = path_1.default.join(logDir, "debug.log");
+// Конфигурация логгера
 exports.logger = (0, pino_1.pino)({
-    level: "info",
+    level: isProd ? "info" : "debug",
+    timestamp: pino_1.pino.stdTimeFunctions.isoTime,
     transport: {
         targets: [
-            ...(isProd
-                ? [
-                    {
-                        target: "pino/file",
-                        level: "info",
-                        options: { destination: logFilePath },
+            // Вывод в консоль в режиме разработки
+            ...(isProd ? [] : [{
+                    target: "pino-pretty",
+                    level: "debug",
+                    options: {
+                        colorize: true,
+                        translateTime: "HH:MM:ss Z",
+                        ignore: "pid,hostname",
                     },
-                ]
-                : [
-                    {
-                        target: "pino-pretty",
-                        level: "info",
-                        options: {
-                            ignore: "pid,hostname",
-                            colorize: true,
-                            translateTime: "HH:MM:ss Z",
-                        },
-                    },
-                ]),
+                }]),
+            // Вывод всех логов в файл
+            {
+                target: "pino/file",
+                level: "info",
+                options: {
+                    destination: logFilePath,
+                    mkdir: true,
+                },
+            },
+            // Отдельный файл для ошибок
+            {
+                target: "pino/file",
+                level: "error",
+                options: {
+                    destination: errorLogFilePath,
+                    mkdir: true,
+                },
+            },
+            // Отдельный файл для отладочных сообщений
+            {
+                target: "pino/file",
+                level: "debug",
+                options: {
+                    destination: debugLogFilePath,
+                    mkdir: true,
+                },
+            },
         ],
+    },
+    // Добавление полей по умолчанию ко всем записям лога
+    base: {
+        env: process.env.NODE_ENV,
+        version: process.env.npm_package_version,
+        hostname: os_1.default.hostname(),
     },
 });

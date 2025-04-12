@@ -15,16 +15,23 @@ const postgres_1 = require("../db/postgres");
 const encodeId_1 = require("../functions/encodeId");
 const sendForm_1 = require("../functions/sendForm");
 const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
     const startParam = (_c = (_b = ctx.message) === null || _b === void 0 ? void 0 : _b.text) === null || _c === void 0 ? void 0 : _c.split(' ')[1];
+    ctx.logger.info({
+        userId,
+        username: (_d = ctx.from) === null || _d === void 0 ? void 0 : _d.username,
+        startParam,
+        isNewUser: !((_e = ctx.session) === null || _e === void 0 ? void 0 : _e.step)
+    }, 'Processing start command');
     const existingUser = yield postgres_1.prisma.user.findUnique({
         where: { id: userId },
     });
     ctx.logger.info({
-        msg: 'start',
-        existingUser: existingUser
-    });
+        userId,
+        isExistingUser: !!existingUser,
+        referrerId: ctx.session.referrerId
+    }, 'User lookup completed');
     if (startParam === null || startParam === void 0 ? void 0 : startParam.startsWith('i_')) {
         const encodedReferrerId = startParam.substring(2);
         if (encodedReferrerId) {
@@ -33,14 +40,21 @@ const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 if (referrerId && referrerId !== userId) {
                     if (!existingUser) {
                         ctx.session.referrerId = referrerId;
+                        ctx.logger.info({
+                            userId,
+                            referrerId,
+                            encodedReferrerId
+                        }, 'Referrer ID set for new user');
                     }
                 }
             }
             catch (error) {
                 ctx.logger.error({
-                    msg: 'Error decoding referrer ID',
-                    error: error
-                });
+                    userId,
+                    encodedReferrerId,
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    stack: error instanceof Error ? error.stack : undefined
+                }, 'Error decoding referrer ID');
             }
         }
     }
@@ -48,10 +62,15 @@ const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         const encodedId = startParam.substring(8);
         if (encodedId) {
             try {
-                const userId = (0, encodeId_1.decodeId)(encodedId);
-                if (userId) {
+                const profileUserId = (0, encodeId_1.decodeId)(encodedId);
+                if (profileUserId) {
+                    ctx.logger.info({
+                        userId,
+                        profileUserId,
+                        encodedId
+                    }, 'Processing profile view request');
                     const user = yield postgres_1.prisma.user.findUnique({
-                        where: { id: userId },
+                        where: { id: profileUserId },
                     });
                     if (user && (user === null || user === void 0 ? void 0 : user.id) !== (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id)) {
                         if (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id) {
@@ -60,6 +79,11 @@ const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                         else {
                             ctx.session.step = "start_using_bot";
                         }
+                        ctx.logger.info({
+                            userId,
+                            profileUserId,
+                            step: ctx.session.step
+                        }, 'Sending profile view');
                         yield ctx.reply(ctx.t('this_is_user_profile'), {
                             reply_markup: (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id) ? (0, keyboards_1.mainMenuKeyboard)(ctx.t) : (0, keyboards_1.createFormKeyboard)(ctx.t)
                         });
@@ -67,20 +91,30 @@ const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                         return;
                     }
                     else if ((user === null || user === void 0 ? void 0 : user.id) !== (existingUser === null || existingUser === void 0 ? void 0 : existingUser.id)) {
+                        ctx.logger.warn({
+                            userId,
+                            profileUserId
+                        }, 'Profile not found');
                         yield ctx.reply(ctx.t('user_not_found'));
                     }
                 }
             }
             catch (error) {
                 ctx.logger.error({
-                    msg: 'Error decoding ID',
-                    error: error
-                });
+                    userId,
+                    encodedId,
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    stack: error instanceof Error ? error.stack : undefined
+                }, 'Error decoding profile ID');
             }
         }
     }
     if (existingUser) {
         ctx.session.step = "profile";
+        ctx.logger.info({
+            userId,
+            step: ctx.session.step
+        }, 'Sending profile for existing user');
         yield (0, sendForm_1.sendForm)(ctx);
         yield ctx.reply(ctx.t('profile_menu'), {
             reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -88,6 +122,10 @@ const startCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     }
     else {
         ctx.session.step = "choose_language_start";
+        ctx.logger.info({
+            userId,
+            step: ctx.session.step
+        }, 'Starting language selection for new user');
         yield ctx.reply(ctx.t('choose_language'), {
             reply_markup: keyboards_1.languageKeyboard
         });

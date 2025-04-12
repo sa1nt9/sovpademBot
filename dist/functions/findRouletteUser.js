@@ -15,6 +15,7 @@ const postgres_1 = require("../db/postgres");
 const getUserReactions_1 = require("./getUserReactions");
 const getRoulettePartner_1 = require("./db/getRoulettePartner");
 const sendForm_1 = require("./sendForm");
+const i18n_1 = require("../i18n");
 const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
@@ -90,23 +91,30 @@ const findRouletteUser = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
         });
         const reactionsMessageYou = yield (0, getUserReactions_1.getUserReactions)(ctx, userId, { showTitle: true });
         let fullMessageYou;
+        const currentSession = yield postgres_1.prisma.session.findUnique({
+            where: {
+                key: userId
+            }
+        });
+        const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
+        const i18nInstance = (0, i18n_1.i18n)(false);
         // Добавляем информацию о партнере в сообщение
         if (currentUser && partnerUser) {
             // Информация о партнере для текущего пользователя
             const userInfoText = (0, sendForm_1.buildInfoText)(ctx, currentUser, { myForm: false });
             if (reactionsMessageYou) {
-                fullMessageYou = `${ctx.t('roulette_found')}\n\n${userInfoText}\n\n${reactionsMessageYou}`;
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}\n\n${userInfoText}\n\n${reactionsMessageYou}`;
             }
             else {
-                fullMessageYou = `${ctx.t('roulette_found')}\n\n${userInfoText}`;
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}\n\n${userInfoText}`;
             }
         }
         else {
             if (reactionsMessageYou) {
-                fullMessageYou = `${ctx.t('roulette_found')}\n\n${reactionsMessageYou}`;
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}\n\n${reactionsMessageYou}`;
             }
             else {
-                fullMessageYou = ctx.t('roulette_found');
+                fullMessageYou = `${i18nInstance.t(__language_code || "ru", 'roulette_found')}`;
             }
         }
         yield ctx.api.sendMessage(partnerId, fullMessageYou, {

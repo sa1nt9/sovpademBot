@@ -31,7 +31,14 @@ import { youAlreadyHaveThisProfileStep } from "../messages/you_already_have_this
 import { youDontHaveFormStep } from "../messages/you_dont_have_form"
 import { MyContext } from "../typescript/context"
 
-export const messageEvent = async (ctx: MyContext) => {
+export async function messageEvent(ctx: MyContext) {
+    ctx.logger.info({ 
+        userId: ctx.from?.id,
+        username: ctx.from?.username,
+        step: ctx.session.step,
+        messageType: ctx.message?.text ? 'text' : ctx.message?.photo ? 'photo' : 'other'
+    }, 'Processing message event');
+
     if (ctx.session.step === "choose_language_start") {
         await chooseLanguageStartStep(ctx)
     } else if (ctx.session.step === "choose_language") {
@@ -97,6 +104,10 @@ export const messageEvent = async (ctx: MyContext) => {
     } else if (ctx.session.step === 'you_already_have_this_profile') {
         await youAlreadyHaveThisProfileStep(ctx)
     } else {
+        ctx.logger.warn({ 
+            userId: ctx.from?.id,
+            step: ctx.session.step 
+        }, 'Unknown step encountered');
         await ctx.reply(ctx.t('no_such_answer'));
     }
 }

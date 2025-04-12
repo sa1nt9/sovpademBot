@@ -1,7 +1,9 @@
 import { complainKeyboard, rouletteKeyboard } from "../constants/keyboards";
 import { prisma } from "../db/postgres";
 import { sendForm } from "../functions/sendForm";
+import { i18n } from "../i18n";
 import { MyContext } from "../typescript/context";
+import { ISessionData } from "../typescript/interfaces/ISessionData";
 
 export const revealUsernameAcceptCallbackQuery = async (ctx: MyContext) => {
     const callbackQuery = ctx.callbackQuery!;
@@ -60,7 +62,15 @@ export const revealUsernameAcceptCallbackQuery = async (ctx: MyContext) => {
             reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed)
         });
 
-        await ctx.api.sendMessage(userId, ctx.t('roulette_revealed_username_by_partner') + `[${currentUser.name}](https://t.me/${callbackQuery.from?.username})`, {
+        const currentSession = await prisma.session.findUnique({
+            where: {
+                key: userId
+            }
+        });
+    
+        const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+        
+        await ctx.api.sendMessage(userId, i18n(false).t(__language_code || "ru", 'roulette_revealed_username_by_partner') + `[${currentUser.name}](https://t.me/${callbackQuery.from?.username})`, {
             parse_mode: 'Markdown',
             reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed)
         });

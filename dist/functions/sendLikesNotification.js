@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendLikesNotification = sendLikesNotification;
 const keyboards_1 = require("../constants/keyboards");
 const postgres_1 = require("../db/postgres");
+const i18n_1 = require("../i18n");
 const getLikesInfo_1 = require("./db/getLikesInfo");
 const sendForm_1 = require("./sendForm");
 function sendLikesNotification(ctx, targetUserId, isAnswer) {
@@ -40,7 +41,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                 if (isAnswer) {
                     ctx.logger.info({ currentValue, targetUserId, isAnswer });
                     if ((currentValue.step === 'search_people' || currentValue.step === 'search_people_with_likes') && ((_a = currentValue.currentCandidateProfile) === null || _a === void 0 ? void 0 : _a.id)) {
-                        yield ctx.api.sendMessage(targetUserId, ctx.t('somebody_liked_you_end_with_it'));
+                        yield ctx.api.sendMessage(targetUserId, (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'somebody_liked_you_end_with_it'));
                         yield postgres_1.prisma.session.update({
                             where: {
                                 key: targetUserId
@@ -69,8 +70,8 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                             sendTo: targetUserId,
                             privateNote: userLike === null || userLike === void 0 ? void 0 : userLike.privateNote
                         });
-                        yield ctx.api.sendMessage(targetUserId, `${ctx.t('mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${(_d = ctx.from) === null || _d === void 0 ? void 0 : _d.username})`, {
-                            reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String((_e = ctx.from) === null || _e === void 0 ? void 0 : _e.id)),
+                        yield ctx.api.sendMessage(targetUserId, `${(0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${(_d = ctx.from) === null || _d === void 0 ? void 0 : _d.username})`, {
+                            reply_markup: (0, keyboards_1.complainToUserKeyboard)((...args) => (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", ...args), String((_e = ctx.from) === null || _e === void 0 ? void 0 : _e.id)),
                             link_preview_options: {
                                 is_disabled: true
                             },
@@ -84,7 +85,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                                 value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { step: 'sleep_menu' }))
                             }
                         });
-                        yield ctx.api.sendMessage(targetUserId, ctx.t('sleep_menu'), {
+                        yield ctx.api.sendMessage(targetUserId, (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'sleep_menu'), {
                             reply_markup: (0, keyboards_1.profileKeyboard)()
                         });
                     }
@@ -98,7 +99,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                             value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { step: 'somebodys_liked_you' }))
                         }
                     });
-                    yield ctx.api.sendMessage(targetUserId, ctx.t('somebodys_liked_you', {
+                    yield ctx.api.sendMessage(targetUserId, (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'somebodys_liked_you', {
                         count,
                         gender,
                         userGender

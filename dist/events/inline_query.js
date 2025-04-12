@@ -14,7 +14,13 @@ const postgres_1 = require("../db/postgres");
 const sendForm_1 = require("../functions/sendForm");
 const encodeId_1 = require("../functions/encodeId");
 const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId: userId,
+        username: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.username,
+        query: (_b = ctx.inlineQuery) === null || _b === void 0 ? void 0 : _b.query
+    }, 'Processing inline query');
     try {
         const user = yield postgres_1.prisma.user.findUnique({
             where: {
@@ -22,6 +28,7 @@ const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
             }
         });
         if (!user) {
+            ctx.logger.info({ userId }, 'User not found for inline query');
             yield ctx.answerInlineQuery([{
                     type: "article",
                     id: "no_profile",
@@ -37,6 +44,7 @@ const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
                 }], { cache_time: 0 });
             return;
         }
+        ctx.logger.info({ userId }, 'Building text form for inline query');
         const text = yield (0, sendForm_1.buildTextForm)(ctx, user, { isInline: true });
         const results = [{
                 type: "article",
@@ -59,9 +67,14 @@ const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* ()
                 }
             }];
         yield ctx.answerInlineQuery(results, { cache_time: 0 });
+        ctx.logger.info({ userId }, 'Inline query answered successfully');
     }
     catch (error) {
-        console.error("Error in inline query:", error);
+        ctx.logger.error({
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error in inline query');
         yield ctx.answerInlineQuery([{
                 type: "article",
                 id: "error",

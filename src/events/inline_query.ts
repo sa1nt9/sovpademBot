@@ -7,6 +7,12 @@ import { encodeId } from "../functions/encodeId";
 export const inlineQueryEvent = async (ctx: MyContext) => {
     const userId = String(ctx.from!.id);
 
+    ctx.logger.info({ 
+        userId: userId,
+        username: ctx.from?.username,
+        query: ctx.inlineQuery?.query
+    }, 'Processing inline query');
+
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -15,6 +21,7 @@ export const inlineQueryEvent = async (ctx: MyContext) => {
         });
 
         if (!user) {
+            ctx.logger.info({ userId }, 'User not found for inline query');
             await ctx.answerInlineQuery([{
                 type: "article",
                 id: "no_profile",
@@ -30,6 +37,8 @@ export const inlineQueryEvent = async (ctx: MyContext) => {
             }], { cache_time: 0 });
             return;
         }
+
+        ctx.logger.info({ userId }, 'Building text form for inline query');
         const text = await buildTextForm(ctx, user, { isInline: true })
 
         const results: InlineQueryResult[] = [{
@@ -54,8 +63,14 @@ export const inlineQueryEvent = async (ctx: MyContext) => {
         }];
 
         await ctx.answerInlineQuery(results, { cache_time: 0 });
+        ctx.logger.info({ userId }, 'Inline query answered successfully');
     } catch (error) {
-        console.error("Error in inline query:", error);
+        ctx.logger.error({ 
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error in inline query');
+        
         await ctx.answerInlineQuery([{
             type: "article",
             id: "error",
