@@ -21,6 +21,7 @@ function searchPeopleWithLikesStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const message = ctx.message.text;
+        const userId = String(ctx.from.id);
         if (message === '❤️') {
             if (ctx.session.currentCandidateProfile) {
                 ctx.logger.info(ctx.session.currentCandidateProfile, 'Candidate to set mutual like');
@@ -36,6 +37,27 @@ function searchPeopleWithLikesStep(ctx) {
                     },
                     parse_mode: 'Markdown',
                 });
+                const oneLike = yield (0, getOneLike_1.getOneLike)(userId, 'user');
+                if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile) {
+                    if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+                        yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx, { withoutSleepMenu: true });
+                    }
+                    ctx.session.step = 'continue_see_forms';
+                    ctx.session.additionalFormInfo.searchingLikes = false;
+                    yield ctx.reply(ctx.t('continue_searching_likes'), {
+                        reply_markup: (0, keyboards_1.continueKeyboard)(ctx.t)
+                    });
+                }
+                else {
+                    if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+                        yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx, { withoutSleepMenu: true });
+                    }
+                    ctx.session.step = 'continue_see_forms';
+                    ctx.session.additionalFormInfo.searchingLikes = false;
+                    yield ctx.reply(ctx.t('its_all_go_next_question'), {
+                        reply_markup: (0, keyboards_1.continueKeyboard)(ctx.t)
+                    });
+                }
             }
         }
         else if (message === '👎') {

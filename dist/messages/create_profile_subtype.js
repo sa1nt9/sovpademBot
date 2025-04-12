@@ -18,14 +18,13 @@ function createProfileSubtypeStep(ctx) {
         var _a;
         const message = ctx.message.text;
         const subtypeLocalizations = (0, profilesService_1.getSubtypeLocalizations)(ctx.t);
-        if (message && Object.keys(subtypeLocalizations[ctx.session.activeProfile.profileType.toLowerCase()]).includes(message)) {
-            const profileType = ctx.session.activeProfile.profileType;
-            const subType = subtypeLocalizations[profileType.toLowerCase()][message];
+        if (message && Object.keys(subtypeLocalizations[ctx.session.additionalFormInfo.selectedProfileType.toLowerCase()]).includes(message)) {
+            const profileType = ctx.session.additionalFormInfo.selectedProfileType;
+            const subType = subtypeLocalizations[profileType === null || profileType === void 0 ? void 0 : profileType.toLowerCase()][message];
+            ctx.session.additionalFormInfo.selectedSubType = subType;
             const existingProfile = yield (0, profilesService_1.getUserProfile)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), profileType, subType);
             if (existingProfile) {
                 ctx.session.step = 'you_already_have_this_profile';
-                ctx.session.additionalFormInfo.selectedProfileType = profileType;
-                ctx.session.additionalFormInfo.selectedSubType = subType;
                 yield ctx.reply(ctx.t('you_already_have_this_profile'), {
                     reply_markup: (0, keyboards_1.youAlreadyHaveThisProfileKeyboard)(ctx.t)
                 });
@@ -35,7 +34,7 @@ function createProfileSubtypeStep(ctx) {
         }
         else {
             yield ctx.reply(ctx.t('no_such_answer'), {
-                reply_markup: (0, keyboards_1.createProfileSubtypeKeyboard)(ctx.t, ctx.session.activeProfile.profileType)
+                reply_markup: (0, keyboards_1.createProfileSubtypeKeyboard)(ctx.t, ctx.session.additionalFormInfo.selectedProfileType)
             });
         }
     });

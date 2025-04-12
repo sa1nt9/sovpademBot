@@ -17,6 +17,7 @@ function acceptPrivacyStep(ctx) {
         if (message === ctx.t('ok')) {
             ctx.session.privacyAccepted = true;
             ctx.session.step = "create_profile_type";
+            ctx.session.isCreatingProfile = true;
             yield ctx.reply(ctx.t('profile_type_title'), {
                 reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
             });

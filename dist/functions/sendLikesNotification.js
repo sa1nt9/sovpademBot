@@ -103,7 +103,8 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                         gender,
                         userGender
                     }), {
-                        reply_markup: (0, keyboards_1.somebodysLikedYouKeyboard)()
+                        reply_markup: (0, keyboards_1.somebodysLikedYouKeyboard)(),
+                        parse_mode: 'HTML'
                     });
                 }
             }

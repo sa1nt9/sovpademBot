@@ -96,7 +96,7 @@ const buildTextForm = (ctx_1, form_1, ...args_1) => __awaiter(void 0, [ctx_1, fo
 
 ` : '')
         +
-            `${ctx.t(`profile_type_${profileType.toLowerCase()}`)}, ${(0, exports.buildInfoText)(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
+            `${ctx.t(`profile_type_${profileType.toLowerCase()}`)} - ${(0, exports.buildInfoText)(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
         +
             (((_b = options.like) === null || _b === void 0 ? void 0 : _b.message) ? `
             

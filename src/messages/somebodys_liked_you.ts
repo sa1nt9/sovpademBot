@@ -13,7 +13,6 @@ export async function somebodysLikedYouStep(ctx: MyContext) {
         ctx.session.additionalFormInfo.searchingLikes = true
 
         const oneLike = await getOneLike(userId, 'user');
-        console.log("oneLike", oneLike);
 
         ctx.session.currentCandidateProfile = oneLike?.fromProfile
 

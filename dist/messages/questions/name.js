@@ -30,7 +30,7 @@ const nameQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         }
         ctx.session.activeProfile.name = message;
         yield ctx.reply(ctx.t('text_question', {
-            profileType: ctx.session.activeProfile.profileType
+            profileType: ctx.session.additionalFormInfo.selectedProfileType
         }), {
             reply_markup: (0, keyboards_1.textKeyboard)(ctx.t, ctx.session)
         });

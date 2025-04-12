@@ -103,7 +103,6 @@ function getOneLike(id, type) {
                     }
                 }
             });
-            console.log('like', like);
             if (!like)
                 return null;
             // Получаем информацию о профиле, который поставил лайк
@@ -112,7 +111,6 @@ function getOneLike(id, type) {
                 where: { id: like.fromProfileId },
                 include: { user: true }
             });
-            console.log(fromProfile, fromProfileModel, fromProfile.isActive);
             // Проверяем, что профиль активен
             if (!fromProfile || !fromProfile.isActive)
                 return null;

@@ -197,8 +197,6 @@ export async function getLikesInfo(targetId: string, type?: 'user' | 'profile') 
                 });
             }
 
-            console.log('likesInfo', likers, respondedIds, likersByType)
-
             let gender: 'female' | 'male' | 'all';
             if (genders.size === 1) {
                 gender = genders.has('female') ? 'female' : 'male';

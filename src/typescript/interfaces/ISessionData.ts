@@ -7,7 +7,7 @@ interface IAdditionalFormInfo {
     reportType?: string;
     searchingLikes?: boolean;
     reportedUserId?: string;
-    selectedProfileType?: ProfileType;
+    selectedProfileType: ProfileType;
     selectedSubType?: TProfileSubType;
 }
 
@@ -93,4 +93,5 @@ export interface ISessionData {
     originalReactionMessage?: IOriginalReactionMessage;
     privateNote?: string;
     isEditingProfile?: boolean; // Флаг, указывающий, что пользователь находится в процессе редактирования анкеты
+    isCreatingProfile?: boolean;
 }

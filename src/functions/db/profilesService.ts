@@ -94,7 +94,7 @@ export async function getUserProfile(
 
             return {
                 ...profile,
-                files: JSON.parse(profile.files as string) as IFile[] || []
+                files: JSON.parse(profile.files as any) as IFile[] || []
             } as IRelationshipProfile;
         }
 
@@ -195,12 +195,14 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
             const saved = await prisma.relationshipProfile.upsert({
                 where: { userId: profile.userId },
                 update: {
+                    id: profile.id,
                     interestedIn: relationshipProfile.interestedIn,
                     description: relationshipProfile.description,
                     files: fileJson,
                     isActive: true
                 },
                 create: {
+                    id: profile.id,
                     userId: profile.userId,
                     interestedIn: relationshipProfile.interestedIn,
                     description: relationshipProfile.description,
@@ -226,6 +228,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     }
                 },
                 update: {
+                    id: profile.id,
                     level: sportProfile.level,
                     description: profile.description,
                     interestedIn: sportProfile.interestedIn,
@@ -233,6 +236,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     isActive: true
                 },
                 create: {
+                    id: profile.id,
                     userId: profile.userId,
                     subType: sportProfile.subType,
                     interestedIn: sportProfile.interestedIn,
@@ -260,6 +264,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     }
                 },
                 update: {
+                    id: profile.id,
                     accountLink: gameProfile.accountLink,
                     description: profile.description,
                     interestedIn: gameProfile.interestedIn,
@@ -267,6 +272,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     isActive: true
                 },
                 create: {
+                    id: profile.id,
                     userId: profile.userId,
                     subType: gameProfile.subType,
                     accountLink: gameProfile.accountLink,
@@ -294,12 +300,14 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     }
                 },
                 update: {
+                    id: profile.id,
                     description: profile.description,
                     interestedIn: hobbyProfile.interestedIn,
                     files: fileJson,
                     isActive: true
                 },
                 create: {
+                    id: profile.id,
                     userId: profile.userId,
                     subType: hobbyProfile.subType,
                     interestedIn: hobbyProfile.interestedIn,
@@ -326,6 +334,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     }
                 },
                 update: {
+                    id: profile.id,
                     interestedIn: itProfile.interestedIn,
                     experience: itProfile.experience,
                     technologies: itProfile.technologies,
@@ -335,6 +344,7 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                     isActive: true
                 },
                 create: {
+                    id: profile.id,
                     userId: profile.userId,
                     subType: itProfile.subType,
                     experience: itProfile.experience,

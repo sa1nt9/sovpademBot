@@ -29,9 +29,9 @@ export async function complainTextStep(ctx: MyContext) {
             await prisma.report.create({
                 data: {
                     reporterId: String(ctx.from?.id),
-                    targetId: ctx.session.currentCandidateProfile?.id || ctx.session.additionalFormInfo.reportedUserId || "",
+                    targetId: ctx.session.currentCandidateProfile?.userId || ctx.session.additionalFormInfo.reportedUserId || "",
                     type: ctx.session.additionalFormInfo.reportType as any,
-                    text: message === ctx.t('send_complain_without_comment') ? 'withour comment' : message
+                    text: message === ctx.t('send_complain_without_comment') ? 'without comment' : message
                 }
             });
             if (ctx.session.currentCandidateProfile) {
@@ -46,6 +46,7 @@ export async function complainTextStep(ctx: MyContext) {
             await ctx.reply(ctx.t('complain_will_be_examined'));
 
         }
+
         if (ctx.session.additionalFormInfo.searchingLikes) {
             ctx.session.step = 'search_people_with_likes'
 

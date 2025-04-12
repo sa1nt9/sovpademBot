@@ -7,8 +7,10 @@ import { startSearchingPeople } from '../functions/startSearchingPeople';
 import { MyContext } from '../typescript/context';
 
 export async function cannotSendComplainStep(ctx: MyContext) {    
+    const userId = String(ctx.message!.from.id)
+
     const existingUser = await prisma.user.findUnique({
-        where: { id: String(ctx.message!.from.id) },
+        where: { id: userId },
     });
 
     if (existingUser) {
@@ -25,6 +27,7 @@ export async function cannotSendComplainStep(ctx: MyContext) {
     } else {
         if (ctx.session.privacyAccepted) {
             ctx.session.step = "create_profile_type"
+            ctx.session.isCreatingProfile = true;
 
             await ctx.reply(ctx.t('profile_type_title'), {
                 reply_markup: createProfileTypeKeyboard(ctx.t)

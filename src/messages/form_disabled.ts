@@ -1,8 +1,4 @@
-import { ProfileType } from '@prisma/client';
-import { answerFormKeyboard, createProfileTypeKeyboard, deactivateProfileKeyboard, formDisabledKeyboard, profileKeyboard } from '../constants/keyboards';
-import { candidatesEnded } from '../functions/candidatesEnded';
-import { getCandidate } from '../functions/db/getCandidate';
-import { toggleProfileActive } from '../functions/db/profilesService';
+import { createProfileTypeKeyboard, formDisabledKeyboard, profileKeyboard } from '../constants/keyboards';
 import { sendForm } from '../functions/sendForm';
 import { MyContext } from '../typescript/context';
 
@@ -11,6 +7,7 @@ export async function formDisabledStep(ctx: MyContext) {
 
     if (message === ctx.t("create_new_profile")) {
         ctx.session.step = "create_profile_type"
+        ctx.session.isCreatingProfile = true;
 
         await ctx.reply(ctx.t('profile_type_title'), {
             reply_markup: createProfileTypeKeyboard(ctx.t)

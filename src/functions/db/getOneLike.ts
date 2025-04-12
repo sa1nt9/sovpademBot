@@ -105,8 +105,6 @@ export async function getOneLike(id: string, type?: 'user' | 'profile') {
             }
         });
 
-        console.log('like', like);
-
         if (!like) return null;
 
         // Получаем информацию о профиле, который поставил лайк
@@ -115,8 +113,6 @@ export async function getOneLike(id: string, type?: 'user' | 'profile') {
             where: { id: like.fromProfileId },
             include: { user: true }
         });
-
-        console.log(fromProfile, fromProfileModel, fromProfile.isActive);
 
         // Проверяем, что профиль активен
         if (!fromProfile || !fromProfile.isActive) return null;

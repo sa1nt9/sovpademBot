@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.saveUser = saveUser;
+const client_1 = require("@prisma/client");
 const postgres_1 = require("../../db/postgres");
 const profilesService_1 = require("./profilesService");
 const defaultOptions = {
@@ -19,9 +20,14 @@ function saveUser(ctx_1) {
     return __awaiter(this, arguments, void 0, function* (ctx, options = defaultOptions) {
         var _a;
         try {
+            ctx.session.activeProfile.profileType = ctx.session.additionalFormInfo.selectedProfileType;
+            if (ctx.session.activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP && ctx.session.additionalFormInfo.selectedSubType) {
+                ctx.session.activeProfile.subType = ctx.session.additionalFormInfo.selectedSubType;
+            }
             const userData = ctx.session.activeProfile;
             const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
             ctx.session.isEditingProfile = false;
+            ctx.session.isCreatingProfile = false;
             if (!options.onlyProfile) {
                 // Сохраняем основные данные пользователя
                 const existingUser = yield postgres_1.prisma.user.findUnique({

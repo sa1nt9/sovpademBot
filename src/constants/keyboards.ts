@@ -53,7 +53,7 @@ export const cityKeyboard = (t: TranslateFunction, session: ISessionData): Reply
 })
 
 export const textKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : session.activeProfile?.description ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile?.description && session.activeProfile?.profileType === session.additionalFormInfo.selectedProfileType) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
     resize_keyboard: true,
 })
 
@@ -254,7 +254,7 @@ export const continueKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => (
 
 export const complainKeyboard = (): ReplyKeyboardMarkup => ({
     keyboard: [
-        ["1 🔞", "2 💰", "3 📰", "4 ⛔️", "5 💩", "6 🦨", "✖️"]
+        ["1 🔞", "2 💰", "3 🎭", "4 📰", "5 ⛔️", "6 💩", "7 🦨", "✖️"]
     ],
     resize_keyboard: true,
 })
@@ -485,17 +485,17 @@ export const selectItExperienceKeyboard = (t: TranslateFunction): ReplyKeyboardM
 })
 
 export const itTechnologiesKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile as IItProfile)?.technologies ? [[t("leave_current_m")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((session.activeProfile as IItProfile)?.technologies && session.isEditingProfile) ? [[t("leave_current_m")], [t("skip")]] : [[t("skip")]]),
     resize_keyboard: true,
 })
 
 export const itGithubKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile as IItProfile)?.github ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((session.activeProfile as IItProfile)?.github && session.isEditingProfile) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
     resize_keyboard: true,
 })
 
 export const gameAccountKeyboard = (t: TranslateFunction, session: ISessionData): ReplyKeyboardMarkup | ReplyKeyboardRemove => ({
-    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (session.activeProfile as IGameProfile)?.accountLink ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+    keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((session.activeProfile as IGameProfile)?.accountLink && session.isEditingProfile) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
     resize_keyboard: true,
 })
 

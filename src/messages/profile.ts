@@ -7,6 +7,7 @@ import { candidatesEnded } from '../functions/candidatesEnded';
 import { changeProfileFromStart } from '../functions/changeProfileFromStart';
 import { getUserProfiles } from '../functions/db/profilesService';
 import { startSearchingPeople } from '../functions/startSearchingPeople';
+import { ProfileType } from '@prisma/client';
 
 
 export async function profileStep(ctx: MyContext) {
@@ -26,12 +27,21 @@ export async function profileStep(ctx: MyContext) {
         }
 
     } else if (message === '2') {
-        await changeProfileFromStart(ctx)
+        ctx.session.isEditingProfile = true;
+        ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType
+        if (ctx.session.activeProfile.profileType !== ProfileType.RELATIONSHIP) {
+            ctx.session.additionalFormInfo.selectedSubType = ctx.session.activeProfile.subType
+        }
 
+        await changeProfileFromStart(ctx)
     } else if (message === '3') {
         ctx.session.step = 'questions'
-        ctx.session.isEditingProfile = true;
         ctx.session.question = 'file'
+
+        ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType
+        if (ctx.session.activeProfile.profileType !== ProfileType.RELATIONSHIP) {
+            ctx.session.additionalFormInfo.selectedSubType = ctx.session.activeProfile.subType
+        }
 
         ctx.session.additionalFormInfo.canGoBack = true
 
@@ -41,8 +51,12 @@ export async function profileStep(ctx: MyContext) {
 
     } else if (message === '4') {
         ctx.session.step = 'questions'
-        ctx.session.isEditingProfile = true;
         ctx.session.question = "text";
+
+        ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType
+        if (ctx.session.activeProfile.profileType !== ProfileType.RELATIONSHIP) {
+            ctx.session.additionalFormInfo.selectedSubType = ctx.session.activeProfile.subType
+        }
         
         ctx.session.additionalFormInfo.canGoBack = true
 

@@ -50,9 +50,9 @@ const cityKeyboard = (t, session) => {
 };
 exports.cityKeyboard = cityKeyboard;
 const textKeyboard = (t, session) => {
-    var _a;
+    var _a, _b;
     return ({
-        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.description) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.description) && ((_b = session.activeProfile) === null || _b === void 0 ? void 0 : _b.profileType) === session.additionalFormInfo.selectedProfileType) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
         resize_keyboard: true,
     });
 };
@@ -257,7 +257,7 @@ const continueKeyboard = (t) => ({
 exports.continueKeyboard = continueKeyboard;
 const complainKeyboard = () => ({
     keyboard: [
-        ["1 🔞", "2 💰", "3 📰", "4 ⛔️", "5 💩", "6 🦨", "✖️"]
+        ["1 🔞", "2 💰", "3 🎭", "4 📰", "5 ⛔️", "6 💩", "7 🦨", "✖️"]
     ],
     resize_keyboard: true,
 });
@@ -478,7 +478,7 @@ exports.selectItExperienceKeyboard = selectItExperienceKeyboard;
 const itTechnologiesKeyboard = (t, session) => {
     var _a;
     return ({
-        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.technologies) ? [[t("leave_current_m")], [t("skip")]] : [[t("skip")]]),
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.technologies) && session.isEditingProfile) ? [[t("leave_current_m")], [t("skip")]] : [[t("skip")]]),
         resize_keyboard: true,
     });
 };
@@ -486,7 +486,7 @@ exports.itTechnologiesKeyboard = itTechnologiesKeyboard;
 const itGithubKeyboard = (t, session) => {
     var _a;
     return ({
-        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.github) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.github) && session.isEditingProfile) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
         resize_keyboard: true,
     });
 };
@@ -494,7 +494,7 @@ exports.itGithubKeyboard = itGithubKeyboard;
 const gameAccountKeyboard = (t, session) => {
     var _a;
     return ({
-        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : ((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.accountLink) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
+        keyboard: (session.additionalFormInfo.canGoBack ? [[t('go_back')]] : (((_a = session.activeProfile) === null || _a === void 0 ? void 0 : _a.accountLink) && session.isEditingProfile) ? [[t("leave_current")], [t("skip")]] : [[t("skip")]]),
         resize_keyboard: true,
     });
 };

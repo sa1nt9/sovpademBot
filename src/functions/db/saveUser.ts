@@ -1,6 +1,7 @@
+import { ProfileType } from "@prisma/client";
 import { prisma } from "../../db/postgres";
 import { MyContext } from "../../typescript/context";
-import { IProfile } from "../../typescript/interfaces/IProfile";
+import { IProfile, TProfileSubType } from "../../typescript/interfaces/IProfile";
 import { saveProfile } from "./profilesService";
 
 interface SaveUserOptions {
@@ -13,10 +14,15 @@ const defaultOptions: SaveUserOptions = {
 
 export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaultOptions) {
     try {
+        ctx.session.activeProfile.profileType = ctx.session.additionalFormInfo.selectedProfileType
+        if (ctx.session.activeProfile.profileType !== ProfileType.RELATIONSHIP && ctx.session.additionalFormInfo.selectedSubType) {
+            ctx.session.activeProfile.subType = ctx.session.additionalFormInfo.selectedSubType as TProfileSubType
+        }
         const userData = ctx.session.activeProfile;
         const userId = String(ctx.message?.from.id);
 
         ctx.session.isEditingProfile = false;
+        ctx.session.isCreatingProfile = false;
 
         if (!options.onlyProfile) {
             // Сохраняем основные данные пользователя

@@ -25,6 +25,7 @@ export const switchCommand = async (ctx: MyContext) => {
         });
     } else {
         ctx.session.step = "create_profile_type"
+        ctx.session.isCreatingProfile = true;
 
         await ctx.reply(ctx.t('profile_type_title'), {
             reply_markup: createProfileTypeKeyboard(ctx.t)

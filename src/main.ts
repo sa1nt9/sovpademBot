@@ -25,6 +25,7 @@ import { matchesCommand } from './commands/matches';
 import { inlineQueryEvent } from './events/inline_query';
 import { switchCommand } from './commands/switch';
 import { changeSessionFieldsMiddleware } from './middlewares/changeSessionFieldsMiddleware';
+import { newLikesCommand } from './commands/new_likes';
 
 dotenv.config();
 
@@ -85,6 +86,8 @@ async function startBot() {
     bot.command("matches", matchesCommand);
 
     bot.command("add_to_blacklist", addToBlacklistCommand);
+
+    bot.command("new_likes", newLikesCommand);
 
     bot.command("complain", complainCommand);
 

@@ -18,8 +18,9 @@ const sendForm_1 = require("../functions/sendForm");
 const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function cannotSendComplainStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userId = String(ctx.message.from.id);
         const existingUser = yield postgres_1.prisma.user.findUnique({
-            where: { id: String(ctx.message.from.id) },
+            where: { id: userId },
         });
         if (existingUser) {
             yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
@@ -35,6 +36,7 @@ function cannotSendComplainStep(ctx) {
         else {
             if (ctx.session.privacyAccepted) {
                 ctx.session.step = "create_profile_type";
+                ctx.session.isCreatingProfile = true;
                 yield ctx.reply(ctx.t('profile_type_title'), {
                     reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
                 });

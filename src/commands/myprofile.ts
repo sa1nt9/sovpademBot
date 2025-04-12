@@ -3,6 +3,7 @@ import { acceptPrivacyKeyboard, ageKeyboard, profileKeyboard } from "../constant
 import { prisma } from "../db/postgres";
 import { sendForm } from "../functions/sendForm";
 import { MyContext } from "../typescript/context";
+import { restoreProfileValues } from '../functions/restoreProfileValues';
 
 export const myprofileCommand = async (ctx: MyContext) => {
     const userId = String(ctx.message?.from.id);
@@ -10,7 +11,14 @@ export const myprofileCommand = async (ctx: MyContext) => {
     const existingUser = await prisma.user.findUnique({
         where: { id: userId },
     });
+    
     if (existingUser) {
+        if (ctx.session.isEditingProfile) {
+            ctx.session.isEditingProfile = false;
+
+            await restoreProfileValues(ctx);
+        }
+
         ctx.session.step = "profile";
 
 
@@ -22,6 +30,7 @@ export const myprofileCommand = async (ctx: MyContext) => {
     } else {
         if (ctx.session.privacyAccepted) {
             ctx.session.step = "create_profile_type"
+            ctx.session.isCreatingProfile = true;
 
             await ctx.reply(ctx.t('profile_type_title'), {
                 reply_markup: createProfileTypeKeyboard(ctx.t)

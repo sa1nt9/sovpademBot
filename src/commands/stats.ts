@@ -121,10 +121,8 @@ export const statsCommand = async (ctx: MyContext) => {
 
                 if (completedChats.length > 0) {
                     const totalDuration = completedChats.reduce((sum, chat) => {
-                        console.log(chat.endedAt!.getTime(), chat.startedAt.getTime(), chat.endedAt!.getTime() - chat.startedAt.getTime())
                         return sum + (chat.endedAt!.getTime() - chat.startedAt.getTime());
                     }, 0);
-                    console.log(totalDuration, completedChats.length)
                     avgDuration = totalDuration / completedChats.length;
                 }
 

@@ -190,7 +190,6 @@ function getLikesInfo(targetId, type) {
                         genders.add(user.user.gender || 'male');
                     });
                 }
-                console.log('likesInfo', likers, respondedIds, likersByType);
                 let gender;
                 if (genders.size === 1) {
                     gender = genders.has('female') ? 'female' : 'male';

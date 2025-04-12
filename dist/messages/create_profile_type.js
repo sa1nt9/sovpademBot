@@ -30,18 +30,17 @@ function createProfileTypeStep(ctx) {
                     return;
                 }
             }
-            ctx.session.activeProfile.profileType = profileType;
+            ctx.session.additionalFormInfo.selectedProfileType = profileType;
             ctx.session.step = 'create_profile_subtype';
-            const text = ctx.t(`${profileType.toLowerCase()}_type_title`);
             if (profileType === client_1.ProfileType.RELATIONSHIP) {
                 ctx.session.step = "questions";
-                ctx.session.isEditingProfile = true;
                 ctx.session.question = 'years';
                 yield ctx.reply(ctx.t('years_question'), {
                     reply_markup: (0, keyboards_1.ageKeyboard)(ctx.session)
                 });
             }
             else {
+                const text = ctx.t(`${profileType.toLowerCase()}_type_title`);
                 yield ctx.reply(text, {
                     reply_markup: (0, keyboards_1.createProfileSubtypeKeyboard)(ctx.t, profileType)
                 });

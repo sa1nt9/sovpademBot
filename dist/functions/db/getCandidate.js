@@ -97,6 +97,7 @@ function getRelationshipCandidate(user, activeProfile, fifteenDaysAgo) {
 // Поиск кандидатов для анкеты спорта
 function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
+        const subTypeStr = String(activeProfile.subType);
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
             SELECT u.*,
@@ -128,7 +129,7 @@ function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
                     FROM "ProfileLike" pl
                     JOIN "SportProfile" sp ON sp."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "SportProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "SportProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -148,7 +149,7 @@ function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
                     SELECT 1 FROM "SportProfile" sp
                     WHERE sp."userId" = u."id"
                     AND sp."isActive" = true
-                    AND sp."subType" = ${activeProfile.subType}
+                    AND sp."subType"::text = ${subTypeStr}
                     AND (
                         sp."interestedIn" = 'all'
                         OR (sp."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -171,12 +172,12 @@ function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
                     SELECT 1 FROM "SportProfile" sp
                     WHERE sp."userId" = u."id"
                     AND sp."isActive" = true
-                    AND sp."subType" = ${activeProfile.subType}
+                    AND sp."subType"::text = ${subTypeStr}
                     AND sp."level" = ${activeProfile.level}
                 ) THEN 50
                 ELSE 0
             END as totalBonus
-        FROM RankedUsers
+        FROM RankedUsers u
         ORDER BY 
             ownCoordSort DESC,
             ROUND(distance * 100) / 100, 
@@ -189,6 +190,7 @@ function getSportCandidate(user, activeProfile, fifteenDaysAgo) {
 // Поиск кандидатов для анкеты игры
 function getGameCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
+        const subTypeStr = String(activeProfile.subType);
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
             SELECT u.*,
@@ -220,7 +222,7 @@ function getGameCandidate(user, activeProfile, fifteenDaysAgo) {
                     FROM "ProfileLike" pl
                     JOIN "GameProfile" gp ON gp."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "GameProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "GameProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -240,7 +242,7 @@ function getGameCandidate(user, activeProfile, fifteenDaysAgo) {
                     SELECT 1 FROM "GameProfile" gp
                     WHERE gp."userId" = u."id"
                     AND gp."isActive" = true
-                    AND gp."subType" = ${activeProfile.subType}
+                    AND gp."subType"::text = ${subTypeStr}
                     AND (
                         gp."interestedIn" = 'all'
                         OR (gp."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -271,6 +273,7 @@ function getGameCandidate(user, activeProfile, fifteenDaysAgo) {
 // Поиск кандидатов для анкеты хобби
 function getHobbyCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
+        const subTypeStr = String(activeProfile.subType);
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
             SELECT u.*,
@@ -302,7 +305,7 @@ function getHobbyCandidate(user, activeProfile, fifteenDaysAgo) {
                     FROM "ProfileLike" pl
                     JOIN "HobbyProfile" hp ON hp."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "HobbyProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "HobbyProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -322,7 +325,7 @@ function getHobbyCandidate(user, activeProfile, fifteenDaysAgo) {
                     SELECT 1 FROM "HobbyProfile" hp
                     WHERE hp."userId" = u."id"
                     AND hp."isActive" = true
-                    AND hp."subType" = ${activeProfile.subType}
+                    AND hp."subType"::text = ${subTypeStr}
                     AND (
                         hp."interestedIn" = 'all'
                         OR (hp."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -353,6 +356,7 @@ function getHobbyCandidate(user, activeProfile, fifteenDaysAgo) {
 // Поиск кандидатов для анкеты IT
 function getITCandidate(user, activeProfile, fifteenDaysAgo) {
     return __awaiter(this, void 0, void 0, function* () {
+        const subTypeStr = String(activeProfile.subType);
         const candidates = yield postgres_1.prisma.$queryRaw `
         WITH RankedUsers AS (
             SELECT u.*,
@@ -382,9 +386,9 @@ function getITCandidate(user, activeProfile, fifteenDaysAgo) {
                 AND "id" NOT IN (
                     SELECT ip."userId"
                     FROM "ProfileLike" pl
-                    JOIN "ITProfile" ip ON ip."id" = pl."toProfileId"
+                    JOIN "ItProfile" ip ON ip."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "ITProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "ItProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -394,17 +398,17 @@ function getITCandidate(user, activeProfile, fifteenDaysAgo) {
                     WHERE b."userId" = ${user.id}
                     AND b."targetProfileId" IN (
                         SELECT "id"
-                        FROM "ITProfile"
+                        FROM "ItProfile"
                         WHERE "userId" = u."id"
                         AND "isActive" = true
                     )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
-                    SELECT 1 FROM "ITProfile" ip
+                    SELECT 1 FROM "ItProfile" ip
                     WHERE ip."userId" = u."id"
                     AND ip."isActive" = true
-                    AND ip."subType" = ${activeProfile.subType}
+                    AND ip."subType"::text = ${subTypeStr}
                     AND (
                         ip."interestedIn" = 'all'
                         OR (ip."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -424,15 +428,15 @@ function getITCandidate(user, activeProfile, fifteenDaysAgo) {
             ) + 
             CASE 
                 WHEN EXISTS (
-                    SELECT 1 FROM "ITProfile" ip
+                    SELECT 1 FROM "ItProfile" ip
                     WHERE ip."userId" = u."id"
                     AND ip."isActive" = true
-                    AND ip."subType" = ${activeProfile.subType}
+                    AND ip."subType"::text = ${subTypeStr}
                     AND ip."experience" = ${activeProfile.experience}
                 ) THEN 200
                 ELSE 0
             END as totalBonus
-        FROM RankedUsers
+        FROM RankedUsers u
         ORDER BY 
             ownCoordSort DESC,
             ROUND(distance * 100) / 100, 

@@ -18,6 +18,7 @@ const candidatesEnded_1 = require("../functions/candidatesEnded");
 const changeProfileFromStart_1 = require("../functions/changeProfileFromStart");
 const profilesService_1 = require("../functions/db/profilesService");
 const startSearchingPeople_1 = require("../functions/startSearchingPeople");
+const client_1 = require("@prisma/client");
 function profileStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
@@ -34,12 +35,20 @@ function profileStep(ctx) {
             }
         }
         else if (message === '2') {
+            ctx.session.isEditingProfile = true;
+            ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType;
+            if (ctx.session.activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP) {
+                ctx.session.additionalFormInfo.selectedSubType = ctx.session.activeProfile.subType;
+            }
             yield (0, changeProfileFromStart_1.changeProfileFromStart)(ctx);
         }
         else if (message === '3') {
             ctx.session.step = 'questions';
-            ctx.session.isEditingProfile = true;
             ctx.session.question = 'file';
+            ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType;
+            if (ctx.session.activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP) {
+                ctx.session.additionalFormInfo.selectedSubType = ctx.session.activeProfile.subType;
+            }
             ctx.session.additionalFormInfo.canGoBack = true;
             yield ctx.reply(ctx.t('file_question'), {
                 reply_markup: (0, keyboards_1.fileKeyboard)(ctx.t, ctx.session, true)
@@ -47,8 +56,11 @@ function profileStep(ctx) {
         }
         else if (message === '4') {
             ctx.session.step = 'questions';
-            ctx.session.isEditingProfile = true;
             ctx.session.question = "text";
+            ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType;
+            if (ctx.session.activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP) {
+                ctx.session.additionalFormInfo.selectedSubType = ctx.session.activeProfile.subType;
+            }
             ctx.session.additionalFormInfo.canGoBack = true;
             yield ctx.reply(ctx.t('text_question', {
                 profileType: ctx.session.activeProfile.profileType

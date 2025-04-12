@@ -21,7 +21,6 @@ export interface IBaseProfile {
     isActive: boolean;
     createdAt?: Date;
     updatedAt?: Date;
-    isFinished?: boolean;
     user?: User;
 }
 

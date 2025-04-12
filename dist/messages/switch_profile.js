@@ -27,6 +27,7 @@ const switchProfileStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
     }
     else if (message === ctx.t('create_new_profile')) {
         ctx.session.step = "create_profile_type";
+        ctx.session.isCreatingProfile = true;
         yield ctx.reply(ctx.t('profile_type_title'), {
             reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
         });

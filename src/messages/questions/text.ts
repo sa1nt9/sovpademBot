@@ -3,9 +3,7 @@ import { MyContext } from "../../typescript/context";
 import { hasLinks } from "../../functions/hasLinks";
 import { saveUser } from "../../functions/db/saveUser";
 import { sendForm } from "../../functions/sendForm";
-import { prisma } from "../../db/postgres";
-import { ProfileType } from "@prisma/client";
-import { getProfileModelName, getUserProfile } from "../../functions/db/profilesService";
+import { getUserProfile } from "../../functions/db/profilesService";
 
 export const textQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;

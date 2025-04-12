@@ -166,12 +166,14 @@ function saveProfile(profile) {
                 const saved = yield postgres_1.prisma.relationshipProfile.upsert({
                     where: { userId: profile.userId },
                     update: {
+                        id: profile.id,
                         interestedIn: relationshipProfile.interestedIn,
                         description: relationshipProfile.description,
                         files: fileJson,
                         isActive: true
                     },
                     create: {
+                        id: profile.id,
                         userId: profile.userId,
                         interestedIn: relationshipProfile.interestedIn,
                         description: relationshipProfile.description,
@@ -191,6 +193,7 @@ function saveProfile(profile) {
                         }
                     },
                     update: {
+                        id: profile.id,
                         level: sportProfile.level,
                         description: profile.description,
                         interestedIn: sportProfile.interestedIn,
@@ -198,6 +201,7 @@ function saveProfile(profile) {
                         isActive: true
                     },
                     create: {
+                        id: profile.id,
                         userId: profile.userId,
                         subType: sportProfile.subType,
                         interestedIn: sportProfile.interestedIn,
@@ -219,6 +223,7 @@ function saveProfile(profile) {
                         }
                     },
                     update: {
+                        id: profile.id,
                         accountLink: gameProfile.accountLink,
                         description: profile.description,
                         interestedIn: gameProfile.interestedIn,
@@ -226,6 +231,7 @@ function saveProfile(profile) {
                         isActive: true
                     },
                     create: {
+                        id: profile.id,
                         userId: profile.userId,
                         subType: gameProfile.subType,
                         accountLink: gameProfile.accountLink,
@@ -247,12 +253,14 @@ function saveProfile(profile) {
                         }
                     },
                     update: {
+                        id: profile.id,
                         description: profile.description,
                         interestedIn: hobbyProfile.interestedIn,
                         files: fileJson,
                         isActive: true
                     },
                     create: {
+                        id: profile.id,
                         userId: profile.userId,
                         subType: hobbyProfile.subType,
                         interestedIn: hobbyProfile.interestedIn,
@@ -273,6 +281,7 @@ function saveProfile(profile) {
                         }
                     },
                     update: {
+                        id: profile.id,
                         interestedIn: itProfile.interestedIn,
                         experience: itProfile.experience,
                         technologies: itProfile.technologies,
@@ -282,6 +291,7 @@ function saveProfile(profile) {
                         isActive: true
                     },
                     create: {
+                        id: profile.id,
                         userId: profile.userId,
                         subType: itProfile.subType,
                         experience: itProfile.experience,

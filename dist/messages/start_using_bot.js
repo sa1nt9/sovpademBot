@@ -15,6 +15,7 @@ function startUsingBotStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         if (ctx.session.privacyAccepted) {
             ctx.session.step = "create_profile_type";
+            ctx.session.isCreatingProfile = true;
             yield ctx.reply(ctx.t('profile_type_title'), {
                 reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
             });

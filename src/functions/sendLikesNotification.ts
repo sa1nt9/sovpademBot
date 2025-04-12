@@ -111,7 +111,8 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                     gender,
                     userGender
                 }), {
-                    reply_markup: somebodysLikedYouKeyboard()
+                    reply_markup: somebodysLikedYouKeyboard(),
+                    parse_mode: 'HTML'
                 });
             }
         } else {

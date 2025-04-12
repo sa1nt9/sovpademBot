@@ -3,6 +3,7 @@ import { prisma } from "../../db/postgres";
 import { MyContext } from "../../typescript/context";
 import { IGameProfile, IHobbyProfile, IItProfile, IProfile, IRelationshipProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
 import { getUserProfile, getProfileModelName } from "./profilesService";
+import { Prisma } from "@prisma/client";
 
 
 // Поиск кандидатов для анкеты отношений
@@ -89,6 +90,8 @@ async function getRelationshipCandidate(user: User, activeProfile: IRelationship
 // Поиск кандидатов для анкеты спорта
 async function getSportCandidate(user: User, activeProfile: ISportProfile, fifteenDaysAgo: Date) {
     
+    const subTypeStr = String(activeProfile.subType);
+
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
             SELECT u.*,
@@ -120,7 +123,7 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                     FROM "ProfileLike" pl
                     JOIN "SportProfile" sp ON sp."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "SportProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "SportProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -140,7 +143,7 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                     SELECT 1 FROM "SportProfile" sp
                     WHERE sp."userId" = u."id"
                     AND sp."isActive" = true
-                    AND sp."subType" = ${activeProfile.subType}
+                    AND sp."subType"::text = ${subTypeStr}
                     AND (
                         sp."interestedIn" = 'all'
                         OR (sp."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -163,12 +166,12 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                     SELECT 1 FROM "SportProfile" sp
                     WHERE sp."userId" = u."id"
                     AND sp."isActive" = true
-                    AND sp."subType" = ${activeProfile.subType}
+                    AND sp."subType"::text = ${subTypeStr}
                     AND sp."level" = ${activeProfile.level}
                 ) THEN 50
                 ELSE 0
             END as totalBonus
-        FROM RankedUsers
+        FROM RankedUsers u
         ORDER BY 
             ownCoordSort DESC,
             ROUND(distance * 100) / 100, 
@@ -180,6 +183,8 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
 
 // Поиск кандидатов для анкеты игры
 async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteenDaysAgo: Date) {
+
+    const subTypeStr = String(activeProfile.subType);
 
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
@@ -212,7 +217,7 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
                     FROM "ProfileLike" pl
                     JOIN "GameProfile" gp ON gp."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "GameProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "GameProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -232,7 +237,7 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
                     SELECT 1 FROM "GameProfile" gp
                     WHERE gp."userId" = u."id"
                     AND gp."isActive" = true
-                    AND gp."subType" = ${activeProfile.subType}
+                    AND gp."subType"::text = ${subTypeStr}
                     AND (
                         gp."interestedIn" = 'all'
                         OR (gp."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -262,6 +267,8 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
 
 // Поиск кандидатов для анкеты хобби
 async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifteenDaysAgo: Date) {
+    
+    const subTypeStr = String(activeProfile.subType);
 
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
@@ -294,7 +301,7 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
                     FROM "ProfileLike" pl
                     JOIN "HobbyProfile" hp ON hp."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "HobbyProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "HobbyProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -314,7 +321,7 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
                     SELECT 1 FROM "HobbyProfile" hp
                     WHERE hp."userId" = u."id"
                     AND hp."isActive" = true
-                    AND hp."subType" = ${activeProfile.subType}
+                    AND hp."subType"::text = ${subTypeStr}
                     AND (
                         hp."interestedIn" = 'all'
                         OR (hp."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -344,7 +351,9 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
 
 // Поиск кандидатов для анкеты IT
 async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDaysAgo: Date) {
-    
+
+    const subTypeStr = String(activeProfile.subType);
+
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
             SELECT u.*,
@@ -374,9 +383,9 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
                 AND "id" NOT IN (
                     SELECT ip."userId"
                     FROM "ProfileLike" pl
-                    JOIN "ITProfile" ip ON ip."id" = pl."toProfileId"
+                    JOIN "ItProfile" ip ON ip."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
-                        SELECT "id" FROM "ITProfile" WHERE "userId" = ${user.id} AND "subType" = ${activeProfile.subType}
+                        SELECT "id" FROM "ItProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
@@ -386,17 +395,17 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
                     WHERE b."userId" = ${user.id}
                     AND b."targetProfileId" IN (
                         SELECT "id"
-                        FROM "ITProfile"
+                        FROM "ItProfile"
                         WHERE "userId" = u."id"
                         AND "isActive" = true
                     )
                 )
                 AND ABS("age" - ${user.age}) <= 2
                 AND EXISTS (
-                    SELECT 1 FROM "ITProfile" ip
+                    SELECT 1 FROM "ItProfile" ip
                     WHERE ip."userId" = u."id"
                     AND ip."isActive" = true
-                    AND ip."subType" = ${activeProfile.subType}
+                    AND ip."subType"::text = ${subTypeStr}
                     AND (
                         ip."interestedIn" = 'all'
                         OR (ip."interestedIn" = 'male' AND ${user.gender} = 'male')
@@ -416,15 +425,15 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
             ) + 
             CASE 
                 WHEN EXISTS (
-                    SELECT 1 FROM "ITProfile" ip
+                    SELECT 1 FROM "ItProfile" ip
                     WHERE ip."userId" = u."id"
                     AND ip."isActive" = true
-                    AND ip."subType" = ${activeProfile.subType}
+                    AND ip."subType"::text = ${subTypeStr}
                     AND ip."experience" = ${activeProfile.experience}
                 ) THEN 200
                 ELSE 0
             END as totalBonus
-        FROM RankedUsers
+        FROM RankedUsers u
         ORDER BY 
             ownCoordSort DESC,
             ROUND(distance * 100) / 100, 

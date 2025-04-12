@@ -69,6 +69,7 @@ const matches_1 = require("./commands/matches");
 const inline_query_1 = require("./events/inline_query");
 const switch_1 = require("./commands/switch");
 const changeSessionFieldsMiddleware_1 = require("./middlewares/changeSessionFieldsMiddleware");
+const new_likes_1 = require("./commands/new_likes");
 dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
@@ -105,6 +106,7 @@ function startBot() {
         exports.bot.command("blacklist", blacklist_1.blacklistCommand);
         exports.bot.command("matches", matches_1.matchesCommand);
         exports.bot.command("add_to_blacklist", add_to_blacklist_1.addToBlacklistCommand);
+        exports.bot.command("new_likes", new_likes_1.newLikesCommand);
         exports.bot.command("complain", complain_1.complainCommand);
         exports.bot.command("stats", stats_1.statsCommand);
         exports.bot.command("stop_roulette", stop_roulette_1.stopRouletteCommand);

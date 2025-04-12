@@ -6,7 +6,8 @@ function sessionInitial() {
         step: "choose_language_start",
         question: 'years',
         additionalFormInfo: {
-            canGoBack: false
+            canGoBack: false,
+            selectedProfileType: 'RELATIONSHIP'
         },
         privacyAccepted: false,
         activeProfile: {
@@ -27,7 +28,6 @@ function sessionInitial() {
             tempFiles: [],
             ownCoordinates: false,
             isActive: false,
-            isFinished: false
         },
         roulette: {
             chatPartnerId: null,

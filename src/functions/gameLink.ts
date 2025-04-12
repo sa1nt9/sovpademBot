@@ -22,10 +22,8 @@ export const getGameUsername = (gameType: GameType, link: string): string | fals
     try {
         switch (gameType) {
             case GameType.CS_GO:
-                console.log(link)
                 // Проверяем оба формата для CS:GO
                 const steamMatch = link.match(steamProfileRegex);
-                console.log(steamMatch)
                 if (steamMatch) return `${steamMatch[1]}:steam`;
                 
                 const faceitMatch = link.match(faceitProfileRegex);
@@ -93,12 +91,12 @@ export const getGameProfileLink = (gameType: GameType, username: string): string
             if (platform === 'faceit') {
                 return [`https://www.faceit.com/players/${name}`, platform];
             }
-            return [`https://steamcommunity.com/id/${name}`, platform];
+            return [`https://steamcommunity.com/profiles/${name}`, platform];
         }
 
         case GameType.DOTA2:
         case GameType.RUST:
-            return [`https://steamcommunity.com/id/${username}`];
+            return [`https://steamcommunity.com/profiles/${username}`];
 
         case GameType.VALORANT:
             return [`https://tracker.gg/valorant/profile/riot/${username}`];

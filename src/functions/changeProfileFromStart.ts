@@ -16,30 +16,37 @@ export async function changeProfileFromStart(ctx: MyContext) {
 
 
     ctx.session.step = "questions";
-    ctx.session.isEditingProfile = true;
-    if (ctx.session.activeProfile.profileType === ProfileType.SPORT) {
-        ctx.session.activeProfile.subType = subtypeLocalizations.sport[message as keyof typeof subtypeLocalizations.sport] as SportType;
+    if (ctx.session.additionalFormInfo.selectedProfileType === ProfileType.SPORT) {
+        if (!ctx.session.isEditingProfile) {
+            ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.sport[message] as SportType;
+        }
         ctx.session.question = 'sport_level'
 
         await ctx.reply(ctx.t('sport_level_question'), {
             reply_markup: selectSportLevelkeyboard(ctx.t)
         });
-    } else if (ctx.session.activeProfile.profileType === ProfileType.IT) {
-        ctx.session.activeProfile.subType = subtypeLocalizations.it[message] as ITType;
+    } else if (ctx.session.additionalFormInfo.selectedProfileType === ProfileType.IT) {
+        if (!ctx.session.isEditingProfile) {
+            ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.it[message] as ITType;
+        }
         ctx.session.question = 'it_experience'
 
         await ctx.reply(ctx.t('it_experience_question'), {
             reply_markup: selectItExperienceKeyboard(ctx.t)
         });
-    } else if (ctx.session.activeProfile.profileType === ProfileType.GAME) {
-        ctx.session.activeProfile.subType = subtypeLocalizations.game[message] as GameType;
+    } else if (ctx.session.additionalFormInfo.selectedProfileType === ProfileType.GAME) {
+        if (!ctx.session.isEditingProfile) {
+            ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.game[message] as GameType;
+        }
         ctx.session.question = 'game_account'
 
-        await ctx.reply(ctx.t(gameLocalizationKeys[ctx.session.activeProfile.subType]), {
-            reply_markup: gameAccountKeyboard(ctx.t, ctx.session)
-        });
-    } else if (ctx.session.activeProfile.profileType === ProfileType.HOBBY) {
-        ctx.session.activeProfile.subType = subtypeLocalizations.hobby[message] as HobbyType;
+        if (ctx.session.additionalFormInfo.selectedSubType) {
+            await ctx.reply(ctx.t(gameLocalizationKeys[ctx.session.additionalFormInfo.selectedSubType as GameType]), {
+                reply_markup: gameAccountKeyboard(ctx.t, ctx.session)
+            });
+        }
+    } else if (ctx.session.additionalFormInfo.selectedProfileType === ProfileType.HOBBY) {
+        ctx.session.additionalFormInfo.selectedSubType = subtypeLocalizations.hobby[message] as HobbyType;
         ctx.session.question = 'years'
 
         await ctx.reply(ctx.t('years_question'), {

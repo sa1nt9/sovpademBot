@@ -19,13 +19,13 @@ export const gameAccountQuestion = async (ctx: MyContext) => {
         await ctx.reply(ctx.t('profile_menu'), {
             reply_markup: profileKeyboard()
         });
-    } else if (message && !getGameUsername((ctx.session.activeProfile as IGameProfile)?.subType, message) && message !== ctx.t('skip') && message !== ctx.t('leave_current')) {
+    } else if (message && !getGameUsername((ctx.session.additionalFormInfo.selectedSubType as any), message) && message !== ctx.t('skip') && message !== ctx.t('leave_current')) {
         await ctx.reply(ctx.t('game_account_question_validate'), {
             reply_markup: gameAccountKeyboard(ctx.t, ctx.session)
         });
     } else {
         if (message !== ctx.t('leave_current')) {
-            (ctx.session.activeProfile as IGameProfile).accountLink = (!message || message === ctx.t('skip')) ? "" : (getGameUsername((ctx.session.activeProfile as IGameProfile)?.subType, message) || "")    
+            (ctx.session.activeProfile as IGameProfile).accountLink = (!message || message === ctx.t('skip')) ? "" : (getGameUsername((ctx.session.additionalFormInfo.selectedSubType as any), message) || "")    
         }
         if (ctx.session.additionalFormInfo.canGoBack) {
             ctx.session.step = 'profile'

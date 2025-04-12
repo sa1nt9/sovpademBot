@@ -24,20 +24,20 @@ export async function createProfileTypeStep(ctx: MyContext) {
             }
         }
         
-        ctx.session.activeProfile.profileType = profileType
+        ctx.session.additionalFormInfo.selectedProfileType = profileType;
         ctx.session.step = 'create_profile_subtype'
 
-        const text = ctx.t(`${profileType.toLowerCase()}_type_title`)
-
+        
         if (profileType === ProfileType.RELATIONSHIP) {
             ctx.session.step = "questions";
-            ctx.session.isEditingProfile = true;
             ctx.session.question = 'years'
-
+            
             await ctx.reply(ctx.t('years_question'), {
                 reply_markup: ageKeyboard(ctx.session)
             });
         } else {
+            const text = ctx.t(`${profileType.toLowerCase()}_type_title`)
+            
             await ctx.reply(text, {
                 reply_markup: createProfileSubtypeKeyboard(ctx.t, profileType)
             });

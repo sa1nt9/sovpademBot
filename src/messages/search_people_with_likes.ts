@@ -1,4 +1,4 @@
-import { answerLikesFormKeyboard, complainKeyboard, complainToUserKeyboard, continueSeeFormsKeyboard, optionsToUserKeyboard, profileKeyboard } from '../constants/keyboards';
+import { answerLikesFormKeyboard, complainKeyboard, complainToUserKeyboard, continueKeyboard, continueSeeFormsKeyboard, optionsToUserKeyboard, profileKeyboard } from '../constants/keyboards';
 import { getOneLike } from '../functions/db/getOneLike';
 import { saveLike } from '../functions/db/saveLike';
 import { setMutualLike } from '../functions/db/setMutualLike';
@@ -9,6 +9,7 @@ import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAf
 
 export async function searchPeopleWithLikesStep(ctx: MyContext) {
     const message = ctx.message!.text;
+    const userId = String(ctx.from!.id);
 
     if (message === '❤️') {
         if (ctx.session.currentCandidateProfile) {
@@ -30,6 +31,32 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
                 },
                 parse_mode: 'Markdown',
             });
+
+            const oneLike = await getOneLike(userId, 'user');
+
+            if (oneLike?.fromProfile) {
+                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+                    await sendMutualSympathyAfterAnswer(ctx, { withoutSleepMenu: true })
+                }
+
+                ctx.session.step = 'continue_see_forms'
+                ctx.session.additionalFormInfo.searchingLikes = false
+
+                await ctx.reply(ctx.t('continue_searching_likes'), {
+                    reply_markup: continueKeyboard(ctx.t)
+                });
+            } else {
+                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+                    await sendMutualSympathyAfterAnswer(ctx, { withoutSleepMenu: true })
+                }
+
+                ctx.session.step = 'continue_see_forms'
+                ctx.session.additionalFormInfo.searchingLikes = false
+
+                await ctx.reply(ctx.t('its_all_go_next_question'), {
+                    reply_markup: continueKeyboard(ctx.t)
+                });
+            }
         }
 
     } else if (message === '👎') {

@@ -37,9 +37,9 @@ function complainTextStep(ctx) {
                 yield postgres_1.prisma.report.create({
                     data: {
                         reporterId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
-                        targetId: ((_b = ctx.session.currentCandidateProfile) === null || _b === void 0 ? void 0 : _b.id) || ctx.session.additionalFormInfo.reportedUserId || "",
+                        targetId: ((_b = ctx.session.currentCandidateProfile) === null || _b === void 0 ? void 0 : _b.userId) || ctx.session.additionalFormInfo.reportedUserId || "",
                         type: ctx.session.additionalFormInfo.reportType,
-                        text: message === ctx.t('send_complain_without_comment') ? 'withour comment' : message
+                        text: message === ctx.t('send_complain_without_comment') ? 'without comment' : message
                     }
                 });
                 if (ctx.session.currentCandidateProfile) {

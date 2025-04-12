@@ -119,7 +119,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
 ` : '')
         +
-        `${ctx.t(`profile_type_${profileType.toLowerCase()}`)}, ${buildInfoText(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
+        `${ctx.t(`profile_type_${profileType.toLowerCase()}`)} - ${buildInfoText(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
         +
         (options.like?.message ? `
             
@@ -153,6 +153,7 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
             if (!profile || !profile.files || profile.files.length === 0) {
                 return { files: [], description: profile?.description || '' };
             }
+            
 
             // Преобразуем файлы в формат для отправки
             return { files: profile.files, description: profile.description };
