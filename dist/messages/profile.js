@@ -23,18 +23,22 @@ function profileStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         const userId = String(ctx.message.from.id);
+        ctx.logger.info({ userId, message }, 'User is in profile menu, action selected');
         if (message === '1 🚀') {
+            ctx.logger.info({ userId }, 'User starting people search');
             yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-            ctx.logger.info(candidate, 'This is new candidate');
+            ctx.logger.info({ userId, candidateId: candidate === null || candidate === void 0 ? void 0 : candidate.id }, 'Received candidate from database');
             if (candidate) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             }
             else {
+                ctx.logger.info({ userId }, 'No candidates available for user');
                 yield (0, candidatesEnded_1.candidatesEnded)(ctx);
             }
         }
         else if (message === '2') {
+            ctx.logger.info({ userId, profileType: ctx.session.activeProfile.profileType }, 'User editing profile');
             ctx.session.isEditingProfile = true;
             ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType;
             if (ctx.session.activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP) {
@@ -43,6 +47,7 @@ function profileStep(ctx) {
             yield (0, changeProfileFromStart_1.changeProfileFromStart)(ctx);
         }
         else if (message === '3') {
+            ctx.logger.info({ userId, profileType: ctx.session.activeProfile.profileType }, 'User changing profile photo');
             ctx.session.step = 'questions';
             ctx.session.question = 'file';
             ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType;
@@ -55,6 +60,7 @@ function profileStep(ctx) {
             });
         }
         else if (message === '4') {
+            ctx.logger.info({ userId, profileType: ctx.session.activeProfile.profileType }, 'User changing profile text');
             ctx.session.step = 'questions';
             ctx.session.question = "text";
             ctx.session.additionalFormInfo.selectedProfileType = ctx.session.activeProfile.profileType;
@@ -69,17 +75,21 @@ function profileStep(ctx) {
             });
         }
         else if (message === '5') {
+            ctx.logger.info({ userId }, 'User switching between profiles');
             ctx.session.step = "switch_profile";
             const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
+            ctx.logger.debug({ userId, profilesCount: profiles.length }, 'Retrieved user profiles');
             yield ctx.reply(ctx.t('switch_profile_message'), {
                 reply_markup: (0, keyboards_1.switchProfileKeyboard)(ctx.t, profiles)
             });
         }
         else if (message === '6 🎲') {
+            ctx.logger.info({ userId }, 'User entering roulette mode');
             ctx.session.step = 'roulette_start';
             yield (0, roulette_start_1.showRouletteStart)(ctx);
         }
         else {
+            ctx.logger.warn({ userId, message }, 'User sent unexpected message in profile menu');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
             });

@@ -16,13 +16,16 @@ const sendForm_1 = require("../functions/sendForm");
 const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function continueSeeFormsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'continue_see_forms' }, 'User continuing to browse profiles');
         yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
         const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-        ctx.logger.info(candidate, 'This is new candidate');
+        ctx.logger.info({ userId, candidateId: candidate === null || candidate === void 0 ? void 0 : candidate.id }, 'Retrieved next candidate for user');
         if (candidate) {
             yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
         }
         else {
+            ctx.logger.info({ userId }, 'No more candidates available');
             yield (0, candidatesEnded_1.candidatesEnded)(ctx);
         }
     });

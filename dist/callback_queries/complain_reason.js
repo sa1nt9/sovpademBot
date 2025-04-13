@@ -11,14 +11,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.complainReasonCallbackQuery = void 0;
 const postgres_1 = require("../db/postgres");
+const logger_1 = require("../logger");
 const complainReasonCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c, _d;
+    logger_1.logger.info({ userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id, reason: (_b = ctx.callbackQuery) === null || _b === void 0 ? void 0 : _b.data }, 'User selected complaint reason');
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
     const callbackParts = callbackData.split(":");
     const reasonId = callbackParts[1];
     const targetUserId = callbackParts[2];
-    const fromUserId = String((_a = ctx.callbackQuery) === null || _a === void 0 ? void 0 : _a.from.id);
+    const fromUserId = String((_c = ctx.callbackQuery) === null || _c === void 0 ? void 0 : _c.from.id);
     // Маппинг ID причины на типы отчетов из Prisma
     const reasonToReportType = {
         "1": "adult_content",
@@ -55,7 +57,7 @@ const complainReasonCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, f
             }
         });
         // Отображаем сообщение, что жалоба принята
-        if ((_b = ctx.callbackQuery) === null || _b === void 0 ? void 0 : _b.message) {
+        if ((_d = ctx.callbackQuery) === null || _d === void 0 ? void 0 : _d.message) {
             yield ctx.api.editMessageText(ctx.callbackQuery.message.chat.id, ctx.callbackQuery.message.message_id, ctx.t('complain_will_be_examined'), { reply_markup: { inline_keyboard: [] } });
         }
         yield ctx.answerCallbackQuery({

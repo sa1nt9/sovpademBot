@@ -13,6 +13,8 @@ exports.friendsStep = friendsStep;
 const keyboards_1 = require("../constants/keyboards");
 function friendsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'friends' }, 'User leaving friend referral screen');
         ctx.session.step = 'sleep_menu';
         yield ctx.reply(ctx.t('sleep_menu'), {
             reply_markup: (0, keyboards_1.profileKeyboard)()

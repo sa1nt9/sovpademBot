@@ -10,10 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.reactionCallbackQuery = void 0;
+exports.reaction = reaction;
 const postgres_1 = require("../db/postgres");
 const reaction_1 = require("../constants/reaction");
 const complain_1 = require("../constants/complain");
 const keyboards_1 = require("../constants/keyboards");
+const logger_1 = require("../logger");
 const reactionCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const callbackQuery = ctx.callbackQuery;
@@ -117,3 +119,10 @@ const reactionCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.reactionCallbackQuery = reactionCallbackQuery;
+function reaction(ctx) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
+        logger_1.logger.info({ userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id, reaction: (_b = ctx.callbackQuery) === null || _b === void 0 ? void 0 : _b.data }, 'User reacted to message');
+        yield ctx.answerCallbackQuery();
+    });
+}

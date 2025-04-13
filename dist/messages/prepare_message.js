@@ -14,13 +14,17 @@ const keyboards_1 = require("../constants/keyboards");
 function prepareMessageStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'prepare_message' }, 'User on introduction screen');
         if (message === ctx.t('ok_lets_start')) {
+            ctx.logger.info({ userId }, 'User confirming start of onboarding process');
             ctx.session.step = "accept_privacy";
             yield ctx.reply(ctx.t('privacy_message'), {
                 reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),
             });
         }
         else {
+            ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid response on introduction screen');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.prepareMessageKeyboard)(ctx.t),
             });

@@ -2,8 +2,11 @@ import { prisma } from "../db/postgres";
 import { ISessionData } from "../typescript/interfaces/ISessionData";
 import { MyContext } from "../typescript/context";
 import { i18n } from "../i18n";
+import { logger } from "../logger";
 
 export const revealRejectCallbackQuery = async (ctx: MyContext) => {
+    logger.info({ userId: ctx.from?.id }, 'User rejected reveal request');
+    
     const callbackQuery = ctx.callbackQuery!;
     const callbackData = callbackQuery.data!;
 

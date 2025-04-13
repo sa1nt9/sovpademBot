@@ -20,6 +20,7 @@ const rouletteStartStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
     var _a;
     const message = ctx.message.text;
     const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting roulette step');
     if (message === ctx.t('main_menu')) {
         ctx.session.step = 'profile';
         yield (0, sendForm_1.sendForm)(ctx);
@@ -36,9 +37,11 @@ const rouletteStartStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
             }
         });
         if (existingUser) {
+            ctx.logger.info({ userId }, 'Found existing user, starting roulette search');
             yield (0, findRouletteUser_1.findRouletteUser)(ctx);
         }
         else {
+            ctx.logger.info({ userId }, 'User not found, redirecting to form creation');
             ctx.session.step = "you_dont_have_form";
             yield ctx.reply(ctx.t('you_dont_have_form'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -57,6 +60,7 @@ function showRouletteStart(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        ctx.logger.info({ userId }, 'Showing roulette start screen');
         const reactionsMessage = yield (0, getUserReactions_1.getUserReactions)(ctx, userId, { me: true, showTitle: true });
         let fullMessage;
         if (reactionsMessage) {

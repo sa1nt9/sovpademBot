@@ -19,13 +19,16 @@ function chooseLanguageStep(ctx) {
         var _a;
         const message = ctx.message.text;
         const language = languages_1.languages.find(i => i.name === message);
+        const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+        ctx.logger.info({ userId, step: 'choose_language', selectedLanguage: message }, 'User selecting language');
         if (language) {
+            ctx.logger.info({ userId, languageCode: language.mark }, 'Language selected successfully');
             yield ctx.i18n.setLocale(language.mark || "ru");
-            const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
             const existingUser = yield postgres_1.prisma.user.findUnique({
                 where: { id: userId },
             });
             if (existingUser) {
+                ctx.logger.info({ userId, existingUser: true }, 'Existing user found, navigating to profile');
                 ctx.session.step = "profile";
                 yield (0, sendForm_1.sendForm)(ctx);
                 yield ctx.reply(ctx.t('profile_menu'), {
@@ -33,7 +36,9 @@ function chooseLanguageStep(ctx) {
                 });
             }
             else {
+                ctx.logger.info({ userId, newUser: true }, 'New user detected');
                 if (ctx.session.privacyAccepted) {
+                    ctx.logger.info({ userId }, 'Privacy accepted, proceeding to profile creation');
                     ctx.session.step = "create_profile_type";
                     ctx.session.isCreatingProfile = true;
                     yield ctx.reply(ctx.t('profile_type_title'), {
@@ -41,6 +46,7 @@ function chooseLanguageStep(ctx) {
                     });
                 }
                 else {
+                    ctx.logger.info({ userId }, 'Redirecting to privacy acceptance');
                     ctx.session.step = "accept_privacy";
                     yield ctx.reply(ctx.t('privacy_message'), {
                         reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),
@@ -49,6 +55,7 @@ function chooseLanguageStep(ctx) {
             }
         }
         else {
+            ctx.logger.warn({ userId, invalidLanguage: message }, 'User selected invalid language option');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: keyboards_1.languageKeyboard
             });

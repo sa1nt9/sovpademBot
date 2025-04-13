@@ -11,8 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.complainBackCallbackQuery = void 0;
 const keyboards_1 = require("../constants/keyboards");
+const logger_1 = require("../logger");
 const complainBackCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
     const callbackParts = callbackData.split(":");
@@ -24,6 +25,7 @@ const complainBackCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, fun
                 reply_markup: (0, keyboards_1.rouletteReactionKeyboard)(ctx.t, targetUserId)
             });
         }
+        logger_1.logger.info({ userId: (_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id }, 'User returned from complaint');
         yield ctx.answerCallbackQuery();
     }
     catch (error) {

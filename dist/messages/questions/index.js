@@ -43,8 +43,16 @@ const gameAccount_1 = require("./gameAccount");
 // }
 function questionsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         const message = ctx.message.text;
-        ctx.logger.info({ message, question: ctx.session.question });
+        const userId = String(ctx.from.id);
+        ctx.logger.info({
+            userId,
+            step: 'questions',
+            question: ctx.session.question,
+            message,
+            profileType: (_a = ctx.session.activeProfile) === null || _a === void 0 ? void 0 : _a.profileType
+        }, 'User answering profile question');
         switch (ctx.session.question) {
             case "sport_level":
                 yield (0, sportLevel_1.sportLevelQuestion)(ctx);

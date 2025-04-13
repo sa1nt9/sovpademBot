@@ -19,22 +19,27 @@ const startSearchingPeople_1 = require("../functions/startSearchingPeople");
 function cannotSendComplainStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const userId = String(ctx.message.from.id);
+        ctx.logger.info({ userId, step: 'cannot_send_complain' }, 'User unable to send complaint, redirecting');
         const existingUser = yield postgres_1.prisma.user.findUnique({
             where: { id: userId },
         });
         if (existingUser) {
+            ctx.logger.info({ userId, hasProfile: true }, 'User has profile, redirecting to people search');
             yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-            ctx.logger.info(candidate, 'This is new candidate');
+            ctx.logger.info({ userId, candidateId: candidate === null || candidate === void 0 ? void 0 : candidate.id }, 'Retrieved next candidate after blocked complaint');
             if (candidate) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             }
             else {
+                ctx.logger.info({ userId }, 'No more candidates available after blocked complaint');
                 yield (0, candidatesEnded_1.candidatesEnded)(ctx);
             }
         }
         else {
+            ctx.logger.info({ userId, hasProfile: false }, 'User has no profile, redirecting to profile creation');
             if (ctx.session.privacyAccepted) {
+                ctx.logger.info({ userId, privacyAccepted: true }, 'Privacy already accepted, proceeding to profile type');
                 ctx.session.step = "create_profile_type";
                 ctx.session.isCreatingProfile = true;
                 yield ctx.reply(ctx.t('profile_type_title'), {
@@ -42,6 +47,7 @@ function cannotSendComplainStep(ctx) {
                 });
             }
             else {
+                ctx.logger.info({ userId, privacyAccepted: false }, 'Privacy not accepted, redirecting to privacy');
                 ctx.session.step = "accept_privacy";
                 yield ctx.reply(ctx.t('privacy_message'), {
                     reply_markup: (0, keyboards_1.acceptPrivacyKeyboard)(ctx.t),

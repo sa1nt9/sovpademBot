@@ -5,8 +5,18 @@ import { haversine } from "../../functions/haversine";
 
 export const cityQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
+    const userId = String(ctx.from!.id);
+    
+    ctx.logger.info({ 
+        userId, 
+        question: 'city', 
+        input: message,
+        hasLocation: !!ctx.message!.location,
+        profileType: ctx.session.activeProfile?.profileType
+    }, 'User answering city question');
     
     if (message === `${ctx.session.activeProfile.ownCoordinates ? "📍 " : ""}${ctx.session.activeProfile.city}`) {
+        ctx.logger.info({ userId, city: ctx.session.activeProfile.city }, 'User confirmed current city');
         ctx.session.question = "name";
 
         await ctx.reply(ctx.t('name_question'), {
@@ -14,6 +24,7 @@ export const cityQuestion = async (ctx: MyContext) => {
         });
     } else if (ctx.message!.location) {
         const { latitude, longitude } = ctx.message!.location;
+        ctx.logger.info({ userId, latitude, longitude }, 'User shared location');
 
         try {
             const cities: any[] = JSON.parse(fs.readFileSync("./data/cities.json", "utf-8"));
@@ -32,10 +43,11 @@ export const cityQuestion = async (ctx: MyContext) => {
 
             if (nearestCity) {
                 ctx.logger.info({
+                    userId,
                     nearestCity: nearestCity.name,
-                    distance: `${minDistance.toFixed(2)} км`,
-                    msg: "Ближайший город"
-                })
+                    distance: `${minDistance.toFixed(2)} km`,
+                }, 'Found nearest city to user location');
+                
                 ctx.session.activeProfile.city = nearestCity.name
                 ctx.session.activeProfile.ownCoordinates = true
                 ctx.session.activeProfile.location = { longitude: nearestCity.longitude, latitude: nearestCity.latitude }
@@ -47,13 +59,15 @@ export const cityQuestion = async (ctx: MyContext) => {
                 reply_markup: nameKeyboard(ctx.session),
             });
         } catch (error) {
-            ctx.logger.error(error, "Ошибка чтения файла cities.json:");
+            ctx.logger.error({ userId, error }, "Error reading cities.json file");
             await ctx.reply("Ошибка обработки данных.");
         }
     } else {
         try {
             const cities: any[] = JSON.parse(fs.readFileSync("./data/cities.json", "utf-8"));
             const normalizedMessage = message?.trim().toLowerCase();
+            
+            ctx.logger.info({ userId, cityInput: message }, 'User entered city name manually');
 
             const foundCity = cities.find(city => {
                 const cityNames = [city.name, ...(city.alternateNames || [])];
@@ -61,6 +75,7 @@ export const cityQuestion = async (ctx: MyContext) => {
             });
 
             if (foundCity) {
+                ctx.logger.info({ userId, city: message, found: true }, 'City found in database');
                 ctx.session.activeProfile.city = message || ""
                 ctx.session.activeProfile.ownCoordinates = false
                 ctx.session.activeProfile.location = { longitude: foundCity.longitude, latitude: foundCity.latitude }
@@ -69,12 +84,13 @@ export const cityQuestion = async (ctx: MyContext) => {
                     reply_markup: nameKeyboard(ctx.session)
                 });
             } else {
+                ctx.logger.warn({ userId, cityInput: message }, 'City not found in database');
                 await ctx.reply(ctx.t('no_such_city'), {
                     reply_markup: cityKeyboard(ctx.t, ctx.session)
                 });
             }
         } catch (error) {
-            ctx.logger.error(error, 'Ошибка чтения файла cities.json:');
+            ctx.logger.error({ userId, error }, 'Error reading cities.json file');
             await ctx.reply("error");
         }
     }

@@ -13,20 +13,24 @@ import { startSearchingPeople } from '../functions/startSearchingPeople';
 export async function sleepMenuStep(ctx: MyContext) {
     const message = ctx.message!.text;
     const userId = String(ctx.message!.from.id);
+    
+    ctx.logger.info({ userId, action: message }, 'User in main menu');
 
     if (message === '1 🚀') {
+        ctx.logger.info({ userId }, 'User starting people search from main menu');
         await startSearchingPeople(ctx, { setActive: true }) 
 
         const candidate = await getCandidate(ctx)
-        ctx.logger.info(candidate, 'This is new candidate')
 
         if (candidate) {
             await sendForm(ctx, candidate || null, { myForm: false })
         } else {
+            ctx.logger.info({ userId }, 'No candidates available');
             await candidatesEnded(ctx)
         }
 
     } else if (message === '2') {
+        ctx.logger.info({ userId }, 'User viewing own profile');
         ctx.session.step = 'profile';
 
         await sendForm(ctx)
@@ -35,6 +39,7 @@ export async function sleepMenuStep(ctx: MyContext) {
         });
 
     } else if (message === '3') {
+        ctx.logger.info({ userId }, 'User entering disable form menu');
         ctx.session.step = 'disable_form'
 
         const profiles = await getUserProfiles(userId, ctx);
@@ -44,6 +49,7 @@ export async function sleepMenuStep(ctx: MyContext) {
         })
 
     } else if (message === '4') {
+        ctx.logger.info({ userId }, 'User switching profile');
         ctx.session.step = "switch_profile";
 
         const profiles = await getUserProfiles(userId, ctx);
@@ -52,9 +58,10 @@ export async function sleepMenuStep(ctx: MyContext) {
             reply_markup: switchProfileKeyboard(ctx.t, profiles)
         });
     } else if (message === '5') {
+        ctx.logger.info({ userId }, 'User accessing invite friends');
         ctx.session.step = 'friends'
 
-        const encodedId = encodeId(String(ctx.message!.from.id));
+        const encodedId = encodeId(userId);
         const url = `https://t.me/${process.env.BOT_USERNAME}?start=i_${encodedId}`;
         const text = `${ctx.t('invite_link_message', { botname: process.env.CHANNEL_NAME || "" })}`
 
@@ -63,7 +70,7 @@ export async function sleepMenuStep(ctx: MyContext) {
 
         const comeIn15Days = await prisma.user.count({
             where: {
-                referrerId: String(ctx.message!.from.id),
+                referrerId: userId,
                 createdAt: {
                     gte: fifteenDaysAgo
                 }
@@ -71,10 +78,12 @@ export async function sleepMenuStep(ctx: MyContext) {
         })
         const comeInAll = await prisma.user.count({
             where: {
-                referrerId: String(ctx.message!.from.id)
+                referrerId: userId
             }
         })
         const bonus = Math.min(comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5, 100)
+        
+        ctx.logger.debug({ userId, comeIn15Days, comeInAll, bonus }, 'User referral stats');
 
         await ctx.reply(ctx.t('invite_friends_message', { bonus, comeIn15Days, comeInAll }), {
             reply_markup: goBackKeyboard(ctx.t),
@@ -87,10 +96,12 @@ export async function sleepMenuStep(ctx: MyContext) {
             reply_markup: inviteFriendsKeyboard(ctx.t, url, text),
         });
     } else if (message === '6 🎲') {
+        ctx.logger.info({ userId }, 'User entering roulette mode');
         ctx.session.step = 'roulette_start';
         
         await showRouletteStart(ctx);
     } else {
+        ctx.logger.warn({ userId, message }, 'Unknown action in main menu');
         await ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: profileKeyboard()
         });

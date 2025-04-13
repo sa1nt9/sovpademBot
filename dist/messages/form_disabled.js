@@ -15,7 +15,10 @@ const sendForm_1 = require("../functions/sendForm");
 function formDisabledStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'form_disabled' }, 'User accessing disabled form screen');
         if (message === ctx.t("create_new_profile")) {
+            ctx.logger.info({ userId }, 'User choosing to create new profile after form disabled');
             ctx.session.step = "create_profile_type";
             ctx.session.isCreatingProfile = true;
             yield ctx.reply(ctx.t('profile_type_title'), {
@@ -23,6 +26,7 @@ function formDisabledStep(ctx) {
             });
         }
         else if (message === ctx.t("main_menu")) {
+            ctx.logger.info({ userId }, 'User returning to main menu from disabled form');
             ctx.session.step = "profile";
             yield (0, sendForm_1.sendForm)(ctx);
             yield ctx.reply(ctx.t('profile_menu'), {
@@ -30,6 +34,7 @@ function formDisabledStep(ctx) {
             });
         }
         else {
+            ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid response on disabled form screen');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.formDisabledKeyboard)(ctx.t)
             });

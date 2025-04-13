@@ -13,8 +13,17 @@ exports.sportLevelQuestion = void 0;
 const keyboards_1 = require("../../constants/keyboards");
 const checkIsKeyboardOption_1 = require("../../functions/checkIsKeyboardOption");
 const sportLevelQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const message = ctx.message.text;
+    const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId,
+        question: 'sport_level',
+        input: message,
+        profileType: (_a = ctx.session.activeProfile) === null || _a === void 0 ? void 0 : _a.profileType
+    }, 'User answering sport level question');
     if ((0, checkIsKeyboardOption_1.checkIsKeyboardOption)((0, keyboards_1.selectSportLevelkeyboard)(ctx.t), message)) {
+        ctx.logger.info({ userId, sportLevel: message }, 'User sport level validated and saved');
         ctx.session.question = 'years';
         ctx.session.activeProfile.level = message;
         yield ctx.reply(ctx.t('years_question'), {
@@ -22,6 +31,7 @@ const sportLevelQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* 
         });
     }
     else {
+        ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid sport level');
         yield ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: (0, keyboards_1.selectSportLevelkeyboard)(ctx.t)
         });

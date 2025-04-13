@@ -4,6 +4,7 @@ import { prisma } from "../db/postgres";
 import { getReactionEmoji } from "../constants/reaction";
 import { MAX_USER_REACTIONS } from "../constants/complain";
 import { complainReasonKeyboard } from "../constants/keyboards";
+import { logger } from "../logger";
 
 export const reactionCallbackQuery = async (ctx: MyContext) => {
     const callbackQuery = ctx.callbackQuery!;
@@ -132,4 +133,10 @@ export const reactionCallbackQuery = async (ctx: MyContext) => {
             show_alert: false
         });
     }
+}
+
+export async function reaction(ctx: MyContext) {
+    logger.info({ userId: ctx.from?.id, reaction: ctx.callbackQuery?.data }, 'User reacted to message');
+    
+    await ctx.answerCallbackQuery();
 } 

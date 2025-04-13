@@ -15,7 +15,10 @@ const sendForm_1 = require("../functions/sendForm");
 function goMainMenuStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'go_main_menu', message }, 'User attempting to return to main menu');
         if (message === ctx.t("main_menu")) {
+            ctx.logger.info({ userId }, 'User returned to main menu');
             ctx.session.step = "profile";
             yield (0, sendForm_1.sendForm)(ctx);
             yield ctx.reply(ctx.t('profile_menu'), {
@@ -23,6 +26,7 @@ function goMainMenuStep(ctx) {
             });
         }
         else {
+            ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid response in main menu navigation');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.mainMenuKeyboard)(ctx.t)
             });

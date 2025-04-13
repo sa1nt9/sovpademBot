@@ -12,16 +12,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.interestedInQuestion = void 0;
 const keyboards_1 = require("../../constants/keyboards");
 const interestedInQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const message = ctx.message.text;
-    if ((_a = (0, keyboards_1.interestedInKeyboard)(ctx.t)) === null || _a === void 0 ? void 0 : _a.keyboard[0].includes(message || "")) {
+    const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId,
+        question: 'interested_in',
+        input: message,
+        profileType: (_a = ctx.session.activeProfile) === null || _a === void 0 ? void 0 : _a.profileType
+    }, 'User answering interested in question');
+    if ((_b = (0, keyboards_1.interestedInKeyboard)(ctx.t)) === null || _b === void 0 ? void 0 : _b.keyboard[0].includes(message || "")) {
+        const interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
+        ctx.logger.info({ userId, interestedIn }, 'User preference validated and saved');
         ctx.session.question = "city";
-        ctx.session.activeProfile.interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
+        ctx.session.activeProfile.interestedIn = interestedIn;
         yield ctx.reply(ctx.t('city_question'), {
             reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t, ctx.session)
         });
     }
     else {
+        ctx.logger.warn({ userId, invalidInput: message }, 'User provided invalid preference option');
         yield ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: (0, keyboards_1.interestedInKeyboard)(ctx.t)
         });

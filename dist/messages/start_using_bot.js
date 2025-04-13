@@ -13,7 +13,10 @@ exports.startUsingBotStep = startUsingBotStep;
 const keyboards_1 = require("../constants/keyboards");
 function startUsingBotStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'start_using_bot' }, 'User starting bot usage flow');
         if (ctx.session.privacyAccepted) {
+            ctx.logger.info({ userId }, 'Privacy already accepted, proceeding to profile creation');
             ctx.session.step = "create_profile_type";
             ctx.session.isCreatingProfile = true;
             yield ctx.reply(ctx.t('profile_type_title'), {
@@ -21,6 +24,7 @@ function startUsingBotStep(ctx) {
             });
         }
         else {
+            ctx.logger.info({ userId }, 'Privacy not accepted, redirecting to language selection');
             ctx.session.step = "choose_language_start";
             yield ctx.reply(ctx.t('choose_language'), {
                 reply_markup: keyboards_1.languageKeyboard

@@ -6,11 +6,14 @@ import { findRouletteUser } from '../functions/findRouletteUser';
 import { getReactionCounts } from '../functions/getReactionCounts';
 import { ISessionData } from '../typescript/interfaces/ISessionData';
 import { i18n } from '../i18n';
+import { logger } from "../logger";
 
 export async function rouletteSearchingStep(ctx: MyContext) {
     const message = ctx.message!.text;
     const userId = String(ctx.message?.from.id);
-
+    
+    ctx.logger.info({ userId, action: message }, 'Roulette action');
+    
     // Проверяем наличие активной анкеты
     const existingUser = await prisma.user.findUnique({
         where: {
@@ -24,10 +27,10 @@ export async function rouletteSearchingStep(ctx: MyContext) {
     if (existingUser) {
         // Обработка команд рулетки
         if (message === ctx.t('roulette_next') || message === ctx.t('roulette_find') || message === ctx.t('main_menu')) {
-
             // Если был предыдущий собеседник, разрываем связь
             if (existingUser.rouletteUser?.chatPartnerId) {
                 const prevPartnerId = existingUser.rouletteUser.chatPartnerId;
+                ctx.logger.info({ userId, prevPartnerId }, 'Disconnecting from previous partner');
 
                 // Обновляем статус чата
                 await prisma.rouletteChat.updateMany({
@@ -89,6 +92,7 @@ export async function rouletteSearchingStep(ctx: MyContext) {
             }
 
             if (message === ctx.t('main_menu')) {
+                ctx.logger.info({ userId }, 'Exiting roulette to main menu');
                 ctx.session.step = 'profile';
 
                 await sendForm(ctx)
@@ -96,17 +100,16 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                     reply_markup: profileKeyboard()
                 });
             } else {
+                ctx.logger.info({ userId }, 'Finding new roulette partner');
                 await findRouletteUser(ctx)
             }
 
         } else if (message === ctx.t('roulette_stop')) {
-            ctx.logger.info({
-                action: 'Roulette stop',
-                userId: userId
-            });
             // Завершаем чат
             const partnerUserId = existingUser.rouletteUser?.chatPartnerId;
             if (partnerUserId) {
+                ctx.logger.info({ userId, partnerId: partnerUserId }, 'User stopped roulette chat');
+                
                 // Обновляем статус чата
                 await prisma.rouletteChat.updateMany({
                     where: {
@@ -182,20 +185,21 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                 });
             }
 
-
-
         } else if (message === ctx.t('roulette_reveal')) {
+            const partnerId = existingUser.rouletteUser?.chatPartnerId;
+            ctx.logger.info({ userId, partnerId }, 'User requesting profile reveal');
+            
             // Запрос на раскрытие профиля
-            if (existingUser.rouletteUser?.chatPartnerId) {
+            if (partnerId) {
                 // Проверяем, не был ли профиль уже раскрыт
-                if (existingUser.rouletteUser.profileRevealed) {
+                if (existingUser.rouletteUser?.profileRevealed) {
                     await ctx.reply(ctx.t('roulette_profile_already_revealed'));
                     return;
                 }
 
                 const currentSession = await prisma.session.findUnique({
                     where: {
-                        key: existingUser.rouletteUser.chatPartnerId
+                        key: partnerId
                     }
                 });
 
@@ -203,7 +207,7 @@ export async function rouletteSearchingStep(ctx: MyContext) {
 
                 const translate = (key: string, ...args: any[]) => i18n(false).t(__language_code || "ru", key, ...args);
                 // Создаем клавиатуру для ответа на запрос о раскрытии
-                await ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, translate('roulette_reveal_request'), {
+                await ctx.api.sendMessage(partnerId, translate('roulette_reveal_request'), {
                     reply_markup: confirmRevealKeyboard(translate, userId)
                 });
 
@@ -212,17 +216,20 @@ export async function rouletteSearchingStep(ctx: MyContext) {
             }
 
         } else if (message === ctx.t('roulette_reveal_username')) {
+            const partnerId = existingUser.rouletteUser?.chatPartnerId;
+            ctx.logger.info({ userId, partnerId }, 'User requesting username reveal');
+            
             // Запрос на раскрытие профиля
-            if (existingUser.rouletteUser?.chatPartnerId) {
+            if (partnerId) {
                 // Проверяем, не был ли username уже раскрыт
-                if (existingUser.rouletteUser.usernameRevealed) {
+                if (existingUser.rouletteUser?.usernameRevealed) {
                     await ctx.reply(ctx.t('roulette_username_already_revealed'));
                     return;
                 }
 
                 const currentSession = await prisma.session.findUnique({
                     where: {
-                        key: existingUser.rouletteUser.chatPartnerId
+                        key: partnerId
                     }
                 });
 
@@ -231,7 +238,7 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                 const translate = (key: string, ...args: any[]) => i18n(false).t(__language_code || "ru", key, ...args);
 
                 // Создаем клавиатуру для ответа на запрос о раскрытии
-                await ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, translate('roulette_reveal_username_request'), {
+                await ctx.api.sendMessage(partnerId, translate('roulette_reveal_username_request'), {
                     reply_markup: confirmRevealKeyboard(translate, userId, true)
                 });
 
@@ -239,7 +246,8 @@ export async function rouletteSearchingStep(ctx: MyContext) {
             }
 
         } else if (message === ctx.t('roulette_stop_searching')) {
-            // Запрос на раскрытие профиля
+            ctx.logger.info({ userId }, 'User stopped roulette search');
+            // Проверяем наличие активного собеседника
             if (existingUser.rouletteUser?.chatPartnerId) {
                 // Получаем информацию о статусе раскрытия для формирования клавиатуры
                 const profileRevealed = existingUser.rouletteUser.profileRevealed;
@@ -266,11 +274,12 @@ export async function rouletteSearchingStep(ctx: MyContext) {
                 });
             }
 
-
         } else {
             // Пересылаем сообщение собеседнику
             if (existingUser.rouletteUser?.chatPartnerId) {
                 try {
+                    ctx.logger.info({ userId, partnerId: existingUser.rouletteUser.chatPartnerId }, 'Forwarding message to partner');
+                    
                     if (ctx.message?.text) {
                         await ctx.api.sendMessage(existingUser.rouletteUser.chatPartnerId, ctx.message.text);
                     } else if (ctx.message?.photo) {
@@ -306,6 +315,7 @@ export async function rouletteSearchingStep(ctx: MyContext) {
             }
         }
     } else {
+        ctx.logger.info({ userId }, 'User not found, redirecting to form creation');
         ctx.session.step = "you_dont_have_form";
 
         await ctx.reply(ctx.t('you_dont_have_form'), {

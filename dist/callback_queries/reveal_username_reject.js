@@ -15,7 +15,14 @@ const i18n_1 = require("../i18n");
 const revealUsernameRejectCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
-    const userId = callbackData.split(":")[1];
+    const currentUserId = String(callbackQuery.from.id);
+    const requestingUserId = callbackData.split(":")[1];
+    ctx.logger.info({
+        currentUserId,
+        requestingUserId,
+        callbackType: 'reveal_username_reject',
+        action: 'username_reveal_rejected'
+    }, 'User rejected username reveal request');
     yield ctx.answerCallbackQuery({
         text: ctx.t('roulette_reveal_username_rejected'),
         show_alert: false
@@ -27,10 +34,15 @@ const revealUsernameRejectCallbackQuery = (ctx) => __awaiter(void 0, void 0, voi
     // Уведомляем запросившего пользователя об отказе
     const currentSession = yield postgres_1.prisma.session.findUnique({
         where: {
-            key: userId
+            key: requestingUserId
         }
     });
     const { __language_code } = currentSession ? JSON.parse(currentSession.value) : {};
-    yield ctx.api.sendMessage(userId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_reveal_rejected_message'));
+    ctx.logger.info({
+        currentUserId,
+        requestingUserId,
+        language: __language_code || "ru"
+    }, 'Sending username reveal rejection notification');
+    yield ctx.api.sendMessage(requestingUserId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_reveal_rejected_message'));
 });
 exports.revealUsernameRejectCallbackQuery = revealUsernameRejectCallbackQuery;

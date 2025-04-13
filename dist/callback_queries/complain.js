@@ -11,7 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.complainCallbackQuery = void 0;
 const keyboards_1 = require("../constants/keyboards");
+const logger_1 = require("../logger");
 const complainCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    logger_1.logger.info({ userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id }, 'User initiated complaint');
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
     yield ctx.answerCallbackQuery({

@@ -13,6 +13,8 @@ exports.continueSeeLikesFormsStep = continueSeeLikesFormsStep;
 const continueSeeLikesForms_1 = require("../functions/continueSeeLikesForms");
 function continueSeeLikesFormsStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'continue_see_likes_forms' }, 'User continuing to browse received likes');
         ctx.session.step = 'search_people_with_likes';
         ctx.session.additionalFormInfo.searchingLikes = true;
         yield (0, continueSeeLikesForms_1.continueSeeLikesForms)(ctx);

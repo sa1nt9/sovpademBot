@@ -5,8 +5,17 @@ import { ISportProfile } from "../../typescript/interfaces/IProfile";
 
 export const sportLevelQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
+    const userId = String(ctx.from!.id);
+    
+    ctx.logger.info({ 
+        userId, 
+        question: 'sport_level',
+        input: message,
+        profileType: ctx.session.activeProfile?.profileType
+    }, 'User answering sport level question');
 
     if (checkIsKeyboardOption(selectSportLevelkeyboard(ctx.t), message)) {
+        ctx.logger.info({ userId, sportLevel: message }, 'User sport level validated and saved');
         ctx.session.question = 'years';
         (ctx.session.activeProfile as ISportProfile).level = message
 
@@ -14,6 +23,7 @@ export const sportLevelQuestion = async (ctx: MyContext) => {
             reply_markup: ageKeyboard(ctx.session)
         });
     } else {
+        ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid sport level');
         await ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: selectSportLevelkeyboard(ctx.t)
         });

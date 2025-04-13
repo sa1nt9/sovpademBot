@@ -16,21 +16,24 @@ const checkIsKeyboardOption_1 = require("../functions/checkIsKeyboardOption");
 const profilesService_1 = require("../functions/db/profilesService");
 function disableFormStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
+        var _a;
         const message = ctx.message.text;
-        const profiles = yield (0, profilesService_1.getUserProfiles)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), ctx);
+        const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        ctx.logger.info({ userId }, 'User in disable form menu');
+        const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
         if ((0, checkIsKeyboardOption_1.checkIsKeyboardOption)((0, keyboards_1.deactivateProfileKeyboard)(ctx.t, profiles), message)) {
             if (message === ctx.t("disable_all_profiles")) {
+                ctx.logger.info({ userId, profilesCount: profiles.length }, 'User disabling all profiles');
                 ctx.session.step = 'form_disabled';
                 profiles.forEach((profile) => __awaiter(this, void 0, void 0, function* () {
-                    var _a;
-                    yield (0, profilesService_1.toggleProfileActive)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), profile.profileType, false, profile.subType);
+                    yield (0, profilesService_1.toggleProfileActive)(userId, profile.profileType, false, profile.subType);
                 }));
                 yield ctx.reply(ctx.t('form_disabled_message'), {
                     reply_markup: (0, keyboards_2.formDisabledKeyboard)(ctx.t)
                 });
             }
             else if (message === ctx.t('go_back')) {
+                ctx.logger.info({ userId }, 'User returning to main menu');
                 ctx.session.step = 'sleep_menu';
                 yield ctx.reply(ctx.t('sleep_menu'), {
                     reply_markup: (0, keyboards_1.profileKeyboard)()
@@ -49,7 +52,12 @@ function disableFormStep(ctx) {
                     return profileString === message;
                 });
                 if (selectedProfile) {
-                    yield (0, profilesService_1.toggleProfileActive)(String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id), selectedProfile.profileType, false, selectedProfile.subType);
+                    ctx.logger.info({
+                        userId,
+                        profileType: selectedProfile.profileType,
+                        subType: selectedProfile.subType
+                    }, 'Disabling specific profile');
+                    yield (0, profilesService_1.toggleProfileActive)(userId, selectedProfile.profileType, false, selectedProfile.subType);
                 }
                 ctx.session.step = 'form_disabled';
                 yield ctx.reply(ctx.t('form_disabled_message'), {
@@ -58,6 +66,7 @@ function disableFormStep(ctx) {
             }
         }
         else {
+            ctx.logger.warn({ userId, message }, 'Invalid selection in disable form menu');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.deactivateProfileKeyboard)(ctx.t, profiles)
             });

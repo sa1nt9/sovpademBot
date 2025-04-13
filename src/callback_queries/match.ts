@@ -2,8 +2,11 @@ import { prisma } from "../db/postgres";
 import { sendForm } from "../functions/sendForm";
 import { mainMenuKeyboard } from "../constants/keyboards";
 import { MyContext } from "../typescript/context";
+import { logger } from "../logger";
 
 export const matchCallbackQuery = async (ctx: MyContext) => {
+    logger.info({ userId: ctx.from?.id }, 'User initiated match');
+    
     const callbackQuery = ctx.callbackQuery!;
     const callbackData = callbackQuery.data || "";
     const targetUserId = callbackData.split(":")[1];

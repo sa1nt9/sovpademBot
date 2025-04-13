@@ -22,7 +22,12 @@ function complainTextStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
         const message = ctx.message.text;
+        const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        const reportedUserId = ((_b = ctx.session.currentCandidateProfile) === null || _b === void 0 ? void 0 : _b.userId) || ctx.session.additionalFormInfo.reportedUserId;
+        const reportType = ctx.session.additionalFormInfo.reportType;
+        ctx.logger.info({ userId, reportType }, 'User writing complaint text');
         if (message === ctx.t('back')) {
+            ctx.logger.info({ userId }, 'User returned from complaint text');
             ctx.session.step = 'complain';
             ctx.session.additionalFormInfo.reportType = undefined;
             ctx.session.additionalFormInfo.reportedUserId = '';
@@ -32,13 +37,19 @@ function complainTextStep(ctx) {
             return;
         }
         try {
-            if (ctx.session.additionalFormInfo.reportType && (ctx.session.currentCandidateProfile || ctx.session.additionalFormInfo.reportedUserId)) {
+            if (reportType && (ctx.session.currentCandidateProfile || ctx.session.additionalFormInfo.reportedUserId)) {
+                ctx.logger.info({
+                    userId,
+                    reportedUserId,
+                    reportType,
+                    withoutComment: message === ctx.t('send_complain_without_comment')
+                }, 'Saving complaint');
                 // Создаем запись о жалобе в базе данных
                 yield postgres_1.prisma.report.create({
                     data: {
-                        reporterId: String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id),
-                        targetId: ((_b = ctx.session.currentCandidateProfile) === null || _b === void 0 ? void 0 : _b.userId) || ctx.session.additionalFormInfo.reportedUserId || "",
-                        type: ctx.session.additionalFormInfo.reportType,
+                        reporterId: userId,
+                        targetId: reportedUserId || "",
+                        type: reportType,
                         text: message === ctx.t('send_complain_without_comment') ? 'without comment' : message
                     }
                 });
@@ -52,10 +63,12 @@ function complainTextStep(ctx) {
                 yield ctx.reply(ctx.t('complain_will_be_examined'));
             }
             if (ctx.session.additionalFormInfo.searchingLikes) {
+                ctx.logger.info({ userId }, 'Redirecting to likes search after complaint');
                 ctx.session.step = 'search_people_with_likes';
                 yield (0, continueSeeLikesForms_1.continueSeeLikesForms)(ctx);
             }
             else {
+                ctx.logger.info({ userId }, 'Redirecting to people search after complaint');
                 yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
                 const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
                 if (candidate) {
@@ -67,7 +80,7 @@ function complainTextStep(ctx) {
             }
         }
         catch (error) {
-            ctx.logger.error(error, 'Error saving report');
+            ctx.logger.error({ error, userId, reportedUserId }, 'Error saving complaint');
             // В случае ошибки возвращаемся к просмотру анкет
             yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);

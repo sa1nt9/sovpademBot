@@ -18,6 +18,7 @@ function somebodysLikedYouStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         const userId = String(ctx.from.id);
+        ctx.logger.info({ userId }, 'Processing likes notification');
         if (message === '1 👍') {
             ctx.session.step = 'search_people_with_likes';
             ctx.session.additionalFormInfo.searchingLikes = true;
@@ -28,6 +29,7 @@ function somebodysLikedYouStep(ctx) {
             });
             if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile) {
                 yield (0, sendForm_1.sendForm)(ctx, oneLike.fromProfile.user, { myForm: false, like: oneLike });
+                ctx.logger.info({ userId, likesCount: 1 }, 'Sent likes notification');
             }
         }
         else if (message === '2 💤') {

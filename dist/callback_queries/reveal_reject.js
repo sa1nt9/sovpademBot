@@ -12,7 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.revealRejectCallbackQuery = void 0;
 const postgres_1 = require("../db/postgres");
 const i18n_1 = require("../i18n");
+const logger_1 = require("../logger");
 const revealRejectCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    logger_1.logger.info({ userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id }, 'User rejected reveal request');
     const callbackQuery = ctx.callbackQuery;
     const callbackData = callbackQuery.data;
     const userId = callbackData.split(":")[1];

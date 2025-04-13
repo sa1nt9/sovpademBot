@@ -35,8 +35,15 @@ import { gameAccountQuestion } from './gameAccount';
 
 export async function questionsStep(ctx: MyContext) {
     const message = ctx.message!.text;
-
-    ctx.logger.info({ message, question: ctx.session.question })
+    const userId = String(ctx.from!.id);
+    
+    ctx.logger.info({ 
+        userId, 
+        step: 'questions', 
+        question: ctx.session.question,
+        message,
+        profileType: ctx.session.activeProfile?.profileType
+    }, 'User answering profile question');
 
     switch (ctx.session.question) {
         case "sport_level":

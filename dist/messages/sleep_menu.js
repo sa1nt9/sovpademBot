@@ -23,18 +23,21 @@ function sleepMenuStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         const userId = String(ctx.message.from.id);
+        ctx.logger.info({ userId, action: message }, 'User in main menu');
         if (message === '1 🚀') {
+            ctx.logger.info({ userId }, 'User starting people search from main menu');
             yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
             const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-            ctx.logger.info(candidate, 'This is new candidate');
             if (candidate) {
                 yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
             }
             else {
+                ctx.logger.info({ userId }, 'No candidates available');
                 yield (0, candidatesEnded_1.candidatesEnded)(ctx);
             }
         }
         else if (message === '2') {
+            ctx.logger.info({ userId }, 'User viewing own profile');
             ctx.session.step = 'profile';
             yield (0, sendForm_1.sendForm)(ctx);
             yield ctx.reply(ctx.t('profile_menu'), {
@@ -42,6 +45,7 @@ function sleepMenuStep(ctx) {
             });
         }
         else if (message === '3') {
+            ctx.logger.info({ userId }, 'User entering disable form menu');
             ctx.session.step = 'disable_form';
             const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
             yield ctx.reply(ctx.t('are_you_sure_you_want_to_disable_your_form'), {
@@ -49,6 +53,7 @@ function sleepMenuStep(ctx) {
             });
         }
         else if (message === '4') {
+            ctx.logger.info({ userId }, 'User switching profile');
             ctx.session.step = "switch_profile";
             const profiles = yield (0, profilesService_1.getUserProfiles)(userId, ctx);
             yield ctx.reply(ctx.t('switch_profile_message'), {
@@ -56,15 +61,16 @@ function sleepMenuStep(ctx) {
             });
         }
         else if (message === '5') {
+            ctx.logger.info({ userId }, 'User accessing invite friends');
             ctx.session.step = 'friends';
-            const encodedId = (0, encodeId_1.encodeId)(String(ctx.message.from.id));
+            const encodedId = (0, encodeId_1.encodeId)(userId);
             const url = `https://t.me/${process.env.BOT_USERNAME}?start=i_${encodedId}`;
             const text = `${ctx.t('invite_link_message', { botname: process.env.CHANNEL_NAME || "" })}`;
             const now = new Date();
             const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
             const comeIn15Days = yield postgres_1.prisma.user.count({
                 where: {
-                    referrerId: String(ctx.message.from.id),
+                    referrerId: userId,
                     createdAt: {
                         gte: fifteenDaysAgo
                     }
@@ -72,10 +78,11 @@ function sleepMenuStep(ctx) {
             });
             const comeInAll = yield postgres_1.prisma.user.count({
                 where: {
-                    referrerId: String(ctx.message.from.id)
+                    referrerId: userId
                 }
             });
             const bonus = Math.min(comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5, 100);
+            ctx.logger.debug({ userId, comeIn15Days, comeInAll, bonus }, 'User referral stats');
             yield ctx.reply(ctx.t('invite_friends_message', { bonus, comeIn15Days, comeInAll }), {
                 reply_markup: (0, keyboards_1.goBackKeyboard)(ctx.t),
             });
@@ -86,10 +93,12 @@ function sleepMenuStep(ctx) {
             });
         }
         else if (message === '6 🎲') {
+            ctx.logger.info({ userId }, 'User entering roulette mode');
             ctx.session.step = 'roulette_start';
             yield (0, roulette_start_1.showRouletteStart)(ctx);
         }
         else {
+            ctx.logger.warn({ userId, message }, 'Unknown action in main menu');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.profileKeyboard)()
             });

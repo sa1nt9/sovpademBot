@@ -1,8 +1,11 @@
 import { MyContext } from "../typescript/context";
 import { prisma } from "../db/postgres";
 import { ReportType } from "@prisma/client";
+import { logger } from "../logger";
 
 export const complainReasonCallbackQuery = async (ctx: MyContext) => {
+    logger.info({ userId: ctx.from?.id, reason: ctx.callbackQuery?.data }, 'User selected complaint reason');
+    
     const callbackQuery = ctx.callbackQuery!;
     const callbackData = callbackQuery.data!;
     const callbackParts = callbackData.split(":");

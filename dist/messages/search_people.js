@@ -19,60 +19,74 @@ const sendMutualSympathyAfterAnswer_1 = require("../functions/sendMutualSympathy
 const candidatesEnded_1 = require("../functions/candidatesEnded");
 function searchPeopleStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        const message = ctx.message.text;
-        if (message === '❤️') {
-            if (ctx.session.currentCandidateProfile) {
-                ctx.logger.info(ctx.session.currentCandidateProfile, '❤️');
-                yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidateProfile.id, true);
-                yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId);
-                // Проверяем наличие отложенной взаимной симпатии
-                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
-                    yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
-                    return;
+        var _a, _b;
+        const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        try {
+            const message = ctx.message.text;
+            ctx.logger.info({ userId, action: message }, 'Search people action');
+            if (message === '❤️') {
+                if (ctx.session.currentCandidateProfile) {
+                    const candidateId = ctx.session.currentCandidateProfile.id;
+                    ctx.logger.info({ userId, candidateId }, 'User liked profile');
+                    yield (0, saveLike_1.saveLike)(ctx, candidateId, true);
+                    yield (0, sendLikesNotification_1.sendLikesNotification)(ctx, ctx.session.currentCandidateProfile.userId);
+                    // Проверяем наличие отложенной взаимной симпатии
+                    if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+                        yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
+                        return;
+                    }
+                }
+                const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                if (candidate) {
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else {
+                    ctx.logger.info({ userId }, 'No more candidates');
+                    yield (0, candidatesEnded_1.candidatesEnded)(ctx);
                 }
             }
-            const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-            ctx.logger.info(candidate, 'This is new candidate');
-            if (candidate) {
-                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+            else if (message === '💌/📹') {
+                ctx.logger.info({ userId, candidateId: (_b = ctx.session.currentCandidateProfile) === null || _b === void 0 ? void 0 : _b.id }, 'User sending message');
+                ctx.session.step = 'text_or_video_to_user';
+                yield ctx.reply(ctx.t('text_or_video_to_user'), {
+                    reply_markup: (0, keyboards_1.textOrVideoKeyboard)(ctx.t)
+                });
             }
-            else {
-                yield (0, candidatesEnded_1.candidatesEnded)(ctx);
-            }
-        }
-        else if (message === '💌/📹') {
-            ctx.session.step = 'text_or_video_to_user';
-            yield ctx.reply(ctx.t('text_or_video_to_user'), {
-                reply_markup: (0, keyboards_1.textOrVideoKeyboard)(ctx.t)
-            });
-        }
-        else if (message === '👎') {
-            if (ctx.session.currentCandidateProfile) {
-                yield (0, saveLike_1.saveLike)(ctx, ctx.session.currentCandidateProfile.id, false);
-                if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
-                    yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
-                    return;
+            else if (message === '👎') {
+                if (ctx.session.currentCandidateProfile) {
+                    const candidateId = ctx.session.currentCandidateProfile.id;
+                    ctx.logger.info({ userId, candidateId }, 'User disliked profile');
+                    yield (0, saveLike_1.saveLike)(ctx, candidateId, false);
+                    if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+                        yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
+                        return;
+                    }
+                }
+                const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+                if (candidate) {
+                    yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+                }
+                else {
+                    ctx.logger.info({ userId }, 'No more candidates');
+                    yield (0, candidatesEnded_1.candidatesEnded)(ctx);
                 }
             }
-            const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
-            ctx.logger.info(candidate, 'This is new candidate');
-            if (candidate) {
-                yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+            else if (message === '📋') {
+                ctx.logger.info({ userId }, 'User selected more options');
+                ctx.session.step = 'options_to_user';
+                yield ctx.reply(ctx.t('more_options_message'), {
+                    reply_markup: (0, keyboards_1.optionsToUserKeyboard)(ctx.t)
+                });
             }
             else {
-                yield (0, candidatesEnded_1.candidatesEnded)(ctx);
+                ctx.logger.warn({ userId, message }, 'Unknown search action');
+                yield ctx.reply(ctx.t('no_such_answer'), {
+                    reply_markup: (0, keyboards_1.answerFormKeyboard)()
+                });
             }
         }
-        else if (message === '📋') {
-            ctx.session.step = 'options_to_user';
-            yield ctx.reply(ctx.t('more_options_message'), {
-                reply_markup: (0, keyboards_1.optionsToUserKeyboard)(ctx.t)
-            });
-        }
-        else {
-            yield ctx.reply(ctx.t('no_such_answer'), {
-                reply_markup: (0, keyboards_1.answerFormKeyboard)()
-            });
+        catch (error) {
+            ctx.logger.error({ error, userId }, 'Error in people search');
         }
     });
 }

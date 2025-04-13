@@ -1,7 +1,10 @@
 import { complainKeyboard } from "../constants/keyboards";
 import { MyContext } from "../typescript/context";
+import { logger } from "../logger";
 
 export const complainCallbackQuery = async (ctx: MyContext) => {
+    logger.info({ userId: ctx.from?.id }, 'User initiated complaint');
+    
     const callbackQuery = ctx.callbackQuery!;
     const callbackData = callbackQuery.data!;
 

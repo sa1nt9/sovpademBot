@@ -19,13 +19,16 @@ const switchProfileStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
     var _a;
     const message = ctx.message.text;
     const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    ctx.logger.info({ userId }, 'User in profile switch menu');
     if (message === ctx.t('go_back')) {
+        ctx.logger.info({ userId }, 'User returning to main menu');
         ctx.session.step = 'sleep_menu';
         yield ctx.reply(ctx.t('sleep_menu'), {
             reply_markup: (0, keyboards_2.profileKeyboard)()
         });
     }
     else if (message === ctx.t('create_new_profile')) {
+        ctx.logger.info({ userId }, 'User creating new profile');
         ctx.session.step = "create_profile_type";
         ctx.session.isCreatingProfile = true;
         yield ctx.reply(ctx.t('profile_type_title'), {
@@ -47,6 +50,11 @@ const switchProfileStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
                 return profileString === message;
             });
             if (selectedProfile) {
+                ctx.logger.info({
+                    userId,
+                    profileType: selectedProfile.profileType,
+                    subType: selectedProfile.subType
+                }, 'User switched profile');
                 const fullProfile = yield (0, profilesService_1.getUserProfile)(userId, selectedProfile.profileType, selectedProfile.subType);
                 if (fullProfile) {
                     ctx.session.activeProfile = Object.assign(Object.assign({}, ctx.session.activeProfile), fullProfile);
@@ -59,6 +67,7 @@ const switchProfileStep = (ctx) => __awaiter(void 0, void 0, void 0, function* (
             }
         }
         else {
+            ctx.logger.warn({ userId, message }, 'Invalid profile selection');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.switchProfileKeyboard)(ctx.t, profiles)
             });

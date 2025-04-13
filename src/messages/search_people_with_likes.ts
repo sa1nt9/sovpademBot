@@ -10,22 +10,27 @@ import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAf
 export async function searchPeopleWithLikesStep(ctx: MyContext) {
     const message = ctx.message!.text;
     const userId = String(ctx.from!.id);
+    
+    ctx.logger.info({ userId, action: message }, 'User in likes search');
 
     if (message === '❤️') {
         if (ctx.session.currentCandidateProfile) {
-            ctx.logger.info(ctx.session.currentCandidateProfile, 'Candidate to set mutual like')
+            const candidateId = ctx.session.currentCandidateProfile.id;
+            const candidateUserId = ctx.session.currentCandidateProfile.userId;
+            
+            ctx.logger.info({ userId, candidateId, candidateUserId }, 'Creating mutual like');
 
-            await setMutualLike(ctx.session.currentCandidateProfile.id, ctx.session.activeProfile.id);
-            await saveLike(ctx, ctx.session.currentCandidateProfile.id, true, { isMutual: true });
+            await setMutualLike(candidateId, ctx.session.activeProfile.id);
+            await saveLike(ctx, candidateId, true, { isMutual: true });
 
-            const userInfo = await ctx.api.getChat(ctx.session.currentCandidateProfile.userId);
+            const userInfo = await ctx.api.getChat(candidateUserId);
 
-            await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId, true)
+            await sendLikesNotification(ctx, candidateUserId, true)
 
             ctx.session.step = 'continue_see_likes_forms'
 
             await ctx.reply(`${ctx.t('good_mutual_sympathy')} [${ctx.session.currentCandidateProfile.user?.name}](https://t.me/${userInfo.username})`, {
-                reply_markup: complainToUserKeyboard(ctx.t, String(ctx.session.currentCandidateProfile.userId)),
+                reply_markup: complainToUserKeyboard(ctx.t, String(candidateUserId)),
                 link_preview_options: {
                     is_disabled: true
                 },
@@ -33,6 +38,7 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
             });
 
             const oneLike = await getOneLike(userId, 'user');
+            ctx.logger.debug({ userId, hasMoreLikes: !!oneLike }, 'Checking for more likes');
 
             if (oneLike?.fromProfile) {
                 if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
@@ -61,19 +67,24 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
 
     } else if (message === '👎') {
         if (ctx.session.currentCandidateProfile) {
-            await saveLike(ctx, ctx.session.currentCandidateProfile.id, false);
+            const candidateId = ctx.session.currentCandidateProfile.id;
+            ctx.logger.info({ userId, candidateId }, 'User disliked profile in likes search');
+            
+            await saveLike(ctx, candidateId, false);
 
             if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
                 await sendMutualSympathyAfterAnswer(ctx)
                 return
             }
 
-            const oneLike = await getOneLike(String(ctx.from!.id), 'user');
+            const oneLike = await getOneLike(userId, 'user');
 
             if (oneLike?.fromProfile) {
+                ctx.logger.info({ userId }, 'Showing next like');
                 ctx.session.currentCandidateProfile = oneLike.fromProfile
                 await sendForm(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
             } else {
+                ctx.logger.info({ userId }, 'No more likes to show');
                 ctx.session.step = 'continue_see_forms'
                 ctx.session.additionalFormInfo.searchingLikes = false
 
@@ -83,20 +94,26 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
             }
         }
 
-
     } else if (message === '⚠️') {
+        ctx.logger.info({ 
+            userId, 
+            reportedUserId: ctx.session.currentCandidateProfile?.userId 
+        }, 'User reporting profile from likes search');
+        
         ctx.session.step = "complain";
 
         await ctx.reply(ctx.t('complain_text'), {
             reply_markup: complainKeyboard()
         })
     } else if (message === '📋') {
+        ctx.logger.info({ userId }, 'User selected more options in likes search');
         ctx.session.step = 'options_to_user'
 
         await ctx.reply(ctx.t('more_options_message'), {
             reply_markup: optionsToUserKeyboard(ctx.t)
         })
     } else {
+        ctx.logger.warn({ userId, message }, 'Unknown action in likes search');
         await ctx.reply(ctx.t('no_such_answer'), {
             reply_markup: answerLikesFormKeyboard()
         });

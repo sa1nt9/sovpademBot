@@ -17,11 +17,15 @@ function createProfileTypeStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const message = ctx.message.text;
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'create_profile_type', message }, 'User selecting profile type');
         if (message && message in (0, profilesService_1.getProfileTypeLocalizations)(ctx.t)) {
             const profileType = (0, profilesService_1.getProfileTypeLocalizations)(ctx.t)[message];
+            ctx.logger.info({ userId, profileType }, 'Profile type selected');
             if (profileType === client_1.ProfileType.RELATIONSHIP) {
                 const existingProfile = yield (0, profilesService_1.getUserProfile)(String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id), client_1.ProfileType.RELATIONSHIP);
                 if (existingProfile) {
+                    ctx.logger.info({ userId, profileType }, 'User already has relationship profile');
                     ctx.session.step = 'you_already_have_this_profile';
                     ctx.session.additionalFormInfo.selectedProfileType = profileType;
                     yield ctx.reply(ctx.t('you_already_have_this_profile'), {
@@ -33,6 +37,7 @@ function createProfileTypeStep(ctx) {
             ctx.session.additionalFormInfo.selectedProfileType = profileType;
             ctx.session.step = 'create_profile_subtype';
             if (profileType === client_1.ProfileType.RELATIONSHIP) {
+                ctx.logger.info({ userId, profileType }, 'Relationship profile - proceeding to age question');
                 ctx.session.step = "questions";
                 ctx.session.question = 'years';
                 yield ctx.reply(ctx.t('years_question'), {
@@ -40,6 +45,7 @@ function createProfileTypeStep(ctx) {
                 });
             }
             else {
+                ctx.logger.info({ userId, profileType }, 'Non-relationship profile - proceeding to subtype selection');
                 const text = ctx.t(`${profileType.toLowerCase()}_type_title`);
                 yield ctx.reply(text, {
                     reply_markup: (0, keyboards_1.createProfileSubtypeKeyboard)(ctx.t, profileType)
@@ -47,6 +53,7 @@ function createProfileTypeStep(ctx) {
             }
         }
         else {
+            ctx.logger.warn({ userId, invalidOption: message }, 'User selected invalid profile type');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
             });

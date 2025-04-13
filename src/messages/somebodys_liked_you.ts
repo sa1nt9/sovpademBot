@@ -8,6 +8,8 @@ export async function somebodysLikedYouStep(ctx: MyContext) {
     const message = ctx.message!.text;
     const userId = String(ctx.from!.id);
     
+    ctx.logger.info({ userId }, 'Processing likes notification');
+
     if (message === '1 👍') {
         ctx.session.step = 'search_people_with_likes'
         ctx.session.additionalFormInfo.searchingLikes = true
@@ -22,6 +24,7 @@ export async function somebodysLikedYouStep(ctx: MyContext) {
 
         if (oneLike?.fromProfile) {
             await sendForm(ctx, oneLike.fromProfile.user, { myForm: false, like: oneLike });
+            ctx.logger.info({ userId, likesCount: 1 }, 'Sent likes notification');
         }
 
     } else if (message === '2 💤') {

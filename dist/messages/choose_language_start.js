@@ -16,7 +16,10 @@ function chooseLanguageStartStep(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = ctx.message.text;
         const language = languages_1.languages.find(i => i.name === message);
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'choose_language_start', selectedLanguage: message }, 'User selecting initial language');
         if (language) {
+            ctx.logger.info({ userId, languageCode: language.mark }, 'Initial language selected successfully');
             yield ctx.i18n.setLocale(language.mark || "ru");
             ctx.session.step = "prepare_message";
             yield ctx.reply(ctx.t('lets_start'), {
@@ -24,6 +27,7 @@ function chooseLanguageStartStep(ctx) {
             });
         }
         else {
+            ctx.logger.warn({ userId, invalidLanguage: message }, 'User selected invalid initial language option');
             yield ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: keyboards_1.languageKeyboard
             });

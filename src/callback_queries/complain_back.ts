@@ -1,5 +1,6 @@
 import { MyContext } from "../typescript/context";
 import { rouletteReactionKeyboard } from "../constants/keyboards";
+import { logger } from "../logger";
 
 export const complainBackCallbackQuery = async (ctx: MyContext) => {
     const callbackQuery = ctx.callbackQuery!;
@@ -19,6 +20,8 @@ export const complainBackCallbackQuery = async (ctx: MyContext) => {
                 }
             );
         }
+
+        logger.info({ userId: ctx.from?.id }, 'User returned from complaint');
 
         await ctx.answerCallbackQuery();
     } catch (error) {

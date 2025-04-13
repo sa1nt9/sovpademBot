@@ -8,14 +8,18 @@ import { profileKeyboard } from "../constants/keyboards";
 export const switchProfileStep = async (ctx: MyContext) => {
     const message = ctx.message!.text;
     const userId = String(ctx.from?.id);
+    
+    ctx.logger.info({ userId }, 'User in profile switch menu');
 
     if (message === ctx.t('go_back')) {
+        ctx.logger.info({ userId }, 'User returning to main menu');
         ctx.session.step = 'sleep_menu'
 
         await ctx.reply(ctx.t('sleep_menu'), {
             reply_markup: profileKeyboard()
         });
     } else if (message === ctx.t('create_new_profile')) {
+        ctx.logger.info({ userId }, 'User creating new profile');
         ctx.session.step = "create_profile_type"
         ctx.session.isCreatingProfile = true;
 
@@ -46,6 +50,12 @@ export const switchProfileStep = async (ctx: MyContext) => {
             });
 
             if (selectedProfile) {
+                ctx.logger.info({ 
+                    userId, 
+                    profileType: selectedProfile.profileType, 
+                    subType: selectedProfile.subType 
+                }, 'User switched profile');
+                
                 const fullProfile = await getUserProfile(
                     userId,
                     selectedProfile.profileType,
@@ -64,6 +74,7 @@ export const switchProfileStep = async (ctx: MyContext) => {
                 }
             }
         } else {
+            ctx.logger.warn({ userId, message }, 'Invalid profile selection');
             await ctx.reply(ctx.t('no_such_answer'), {
                 reply_markup: switchProfileKeyboard(ctx.t, profiles)
             });
