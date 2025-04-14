@@ -70,6 +70,7 @@ const inline_query_1 = require("./events/inline_query");
 const switch_1 = require("./commands/switch");
 const changeSessionFieldsMiddleware_1 = require("./middlewares/changeSessionFieldsMiddleware");
 const new_likes_1 = require("./commands/new_likes");
+const initQueues_1 = require("./queues/initQueues");
 dotenv.config();
 exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
 function startBot() {
@@ -78,6 +79,8 @@ function startBot() {
             logger_1.logger.info('Connecting to database...');
             yield (0, postgres_1.connectPostgres)();
             logger_1.logger.info('Database connection established');
+            // Инициализация очередей
+            (0, initQueues_1.initQueues)();
             exports.bot.catch(error_1.errorHandler);
             // Middleware для добавления логгера в контекст
             exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {

@@ -33,7 +33,7 @@ model User {
 
     // Связи для черного списка
     blacklist Blacklist[] @relation("UserBlacklist")
-    
+
     // Связи для банов
     bans UserBan[] @relation("UserBanned")
 }
@@ -148,9 +148,11 @@ model ProfileLike {
 }
 
 model Session {
-    id    Int    @id @default(autoincrement())
-    key   String @unique
-    value String
+    id        Int      @id @default(autoincrement())
+    key       String   @unique
+    value     String
+    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime @default(now())
 }
 
 model Report {
@@ -303,12 +305,12 @@ model RouletteChat {
 }
 
 model Blacklist {
-    id              String   @id @default(uuid())
+    id              String      @id @default(uuid())
     userId          String // Кто добавил в ЧС
     targetUserId    String // ID профиля, который добавили в ЧС
     targetProfileId String
     profileType     ProfileType
-    createdAt       DateTime @default(now())
+    createdAt       DateTime    @default(now())
 
     user User @relation("UserBlacklist", fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -316,11 +318,26 @@ model Blacklist {
 // Модель для банов пользователей
 model UserBan {
     id          String   @id @default(uuid())
-    userId      String   // ID пользователя, которого забанили
-    reason      String?  // Причина бана (опционально)
+    userId      String // ID пользователя, которого забанили
+    reason      String? // Причина бана (опционально)
     bannedUntil DateTime // Дата окончания бана
     createdAt   DateTime @default(now())
     isActive    Boolean  @default(true) // Активен ли бан
 
     user User @relation("UserBanned", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PendingNotification {
+    id          String           @id @default(uuid())
+    userId      String // ID пользователя, которому предназначено уведомление
+    type        NotificationType // Тип уведомления: "like", "mutualLike", etc.
+    data        Json // Данные для уведомления в формате JSON
+    createdAt   DateTime         @default(now())
+    status      String           @default("pending") // "pending", "sent", "failed"
+    lastAttempt DateTime? // Время последней попытки отправки
+}
+
+enum NotificationType {
+    LIKE
+    MUTUAL_LIKE
 }

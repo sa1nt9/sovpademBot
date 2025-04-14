@@ -97,7 +97,10 @@ export const revealUsernameAcceptCallbackQuery = async (ctx: MyContext) => {
 
         await ctx.reply(ctx.t('roulette_revealed_username') + `[${requestingUser.name}](https://t.me/${userInfo.username})`, {
             parse_mode: 'Markdown',
-            reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed)
+            reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed),
+            link_preview_options: {
+                is_disabled: true
+            },
         });
 
         const currentSession = await prisma.session.findUnique({
@@ -116,7 +119,10 @@ export const revealUsernameAcceptCallbackQuery = async (ctx: MyContext) => {
         
         await ctx.api.sendMessage(requestingUserId, i18n(false).t(__language_code || "ru", 'roulette_revealed_username_by_partner') + `[${currentUser.name}](https://t.me/${callbackQuery.from?.username})`, {
             parse_mode: 'Markdown',
-            reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed)
+            reply_markup: rouletteKeyboard(ctx.t, profileRevealed, usernameRevealed),
+            link_preview_options: {
+                is_disabled: true
+            },
         });
     } else {
         ctx.logger.warn({

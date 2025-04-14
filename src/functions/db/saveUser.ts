@@ -49,14 +49,6 @@ export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaul
             });
 
             if (existingUser) {
-                ctx.logger.info({ 
-                    userId,
-                    existingName: existingUser.name,
-                    existingCity: existingUser.city,
-                    existingGender: existingUser.gender,
-                    existingAge: existingUser.age
-                }, 'Found existing user, updating data');
-
                 // Обновляем существующего пользователя
                 await prisma.user.update({
                     where: { id: userId },
@@ -108,13 +100,8 @@ export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaul
         // Сохраняем профиль пользователя с помощью функции из profilesService
         if (userData.profileType) {
             try {
-                ctx.logger.info({ 
-                    userId,
-                    profileType: userData.profileType,
-                    subType: (userData as any)?.subType
-                }, 'Starting profile save');
-
                 const savedProfile = await saveProfile({ ...userData, userId });
+                ctx.session.activeProfile.id = savedProfile?.id;
 
                 ctx.logger.info({
                     userId,

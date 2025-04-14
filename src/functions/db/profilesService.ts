@@ -209,7 +209,6 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                         isActive: true
                     },
                     create: {
-                        id: profile.id,
                         userId: profile.userId,
                         interestedIn: relationshipProfile.interestedIn,
                         description: relationshipProfile.description,
@@ -243,7 +242,6 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                         isActive: true
                     },
                     create: {
-                        id: profile.id,
                         userId: profile.userId,
                         subType: sportProfile.subType,
                         interestedIn: sportProfile.interestedIn,
@@ -279,7 +277,6 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                         isActive: true
                     },
                     create: {
-                        id: profile.id,
                         userId: profile.userId,
                         subType: gameProfile.subType,
                         accountLink: gameProfile.accountLink,
@@ -314,7 +311,6 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                         isActive: true
                     },
                     create: {
-                        id: profile.id,
                         userId: profile.userId,
                         subType: hobbyProfile.subType,
                         interestedIn: hobbyProfile.interestedIn,
@@ -351,7 +347,6 @@ export async function saveProfile(profile: IProfile): Promise<IProfile> {
                         isActive: true
                     },
                     create: {
-                        id: profile.id,
                         userId: profile.userId,
                         subType: itProfile.subType,
                         experience: itProfile.experience,

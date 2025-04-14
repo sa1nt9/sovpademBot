@@ -15,9 +15,11 @@ const postgres_1 = require("../db/postgres");
 const i18n_1 = require("../i18n");
 const getLikesInfo_1 = require("./db/getLikesInfo");
 const sendForm_1 = require("./sendForm");
+const utils_1 = require("../queues/utils");
+const client_1 = require("@prisma/client");
 function sendLikesNotification(ctx, targetUserId, isAnswer) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e, _f, _g;
+        var _a, _b, _c, _d;
         const fromUserId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
         ctx.logger.info({
             fromUserId,
@@ -32,7 +34,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                 }
             });
             if (currentSession) {
-                const currentValue = currentSession ? JSON.parse(currentSession.value) : {};
+                const currentValue = JSON.parse(currentSession.value);
                 // Получаем пользователя, чтобы узнать его пол
                 const targetUser = yield postgres_1.prisma.user.findUnique({
                     where: {
@@ -42,8 +44,6 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                         gender: true
                     }
                 });
-                // Пол пользователя для правильного склонения
-                const userGender = (targetUser === null || targetUser === void 0 ? void 0 : targetUser.gender) === 'female' ? 'female' : 'male';
                 if (isAnswer) {
                     ctx.logger.info({
                         fromUserId,
@@ -58,7 +58,7 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                                 key: targetUserId
                             },
                             data: {
-                                value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { pendingMutualLike: true, pendingMutualLikeProfileId: String((_d = ctx.from) === null || _d === void 0 ? void 0 : _d.id) }))
+                                value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { pendingMutualLike: true, pendingMutualLikeProfileId: fromUserId }))
                             }
                         });
                         ctx.logger.info({
@@ -68,10 +68,30 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                         }, 'Updated session with pending mutual like');
                     }
                     else {
+                        const rouletteUser = yield postgres_1.prisma.rouletteUser.findUnique({
+                            where: { id: targetUserId },
+                            select: {
+                                searchingPartner: true,
+                                chatPartnerId: true
+                            }
+                        });
+                        if ((rouletteUser === null || rouletteUser === void 0 ? void 0 : rouletteUser.searchingPartner) || (rouletteUser === null || rouletteUser === void 0 ? void 0 : rouletteUser.chatPartnerId)) {
+                            yield (0, utils_1.scheduleNotification)(targetUserId, fromUserId, client_1.NotificationType.MUTUAL_LIKE, {
+                                isAnswer: true,
+                                delay: 2 * 60 * 1000
+                            });
+                            ctx.logger.info({
+                                fromUserId,
+                                targetUserId,
+                                isAnswer,
+                                notificationType: client_1.NotificationType.MUTUAL_LIKE
+                            }, 'Notification scheduled successfully');
+                            return;
+                        }
                         const userLike = yield postgres_1.prisma.profileLike.findFirst({
                             where: {
                                 toProfileId: targetUserId,
-                                fromProfileId: String((_e = ctx.from) === null || _e === void 0 ? void 0 : _e.id),
+                                fromProfileId: fromUserId,
                                 liked: true
                             },
                             orderBy: {
@@ -86,8 +106,8 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                             sendTo: targetUserId,
                             privateNote: userLike === null || userLike === void 0 ? void 0 : userLike.privateNote
                         });
-                        yield ctx.api.sendMessage(targetUserId, `${(0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${(_f = ctx.from) === null || _f === void 0 ? void 0 : _f.username})`, {
-                            reply_markup: (0, keyboards_1.complainToUserKeyboard)((...args) => (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", ...args), String((_g = ctx.from) === null || _g === void 0 ? void 0 : _g.id)),
+                        yield ctx.api.sendMessage(targetUserId, `${(0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${((_d = ctx.from) === null || _d === void 0 ? void 0 : _d.username) || ''})`, {
+                            reply_markup: (0, keyboards_1.complainToUserKeyboard)((...args) => (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", ...args), fromUserId),
                             link_preview_options: {
                                 is_disabled: true
                             },
@@ -111,33 +131,15 @@ function sendLikesNotification(ctx, targetUserId, isAnswer) {
                     }
                 }
                 else {
+                    yield (0, utils_1.scheduleNotification)(targetUserId, fromUserId, client_1.NotificationType.LIKE, {
+                        isAnswer: false
+                    });
                     ctx.logger.info({
                         fromUserId,
                         targetUserId,
-                        count,
-                        gender,
-                        userGender
-                    }, 'Sending new likes notification');
-                    yield postgres_1.prisma.session.update({
-                        where: {
-                            key: targetUserId
-                        },
-                        data: {
-                            value: JSON.stringify(Object.assign(Object.assign({}, currentValue), { step: 'somebodys_liked_you' }))
-                        }
-                    });
-                    yield ctx.api.sendMessage(targetUserId, (0, i18n_1.i18n)(false).t(currentValue.__language_code || "ru", 'somebodys_liked_you', {
-                        count,
-                        gender,
-                        userGender
-                    }), {
-                        reply_markup: (0, keyboards_1.somebodysLikedYouKeyboard)(),
-                        parse_mode: 'HTML'
-                    });
-                    ctx.logger.info({
-                        fromUserId,
-                        targetUserId
-                    }, 'Sent new likes notification and updated session');
+                        isAnswer,
+                        notificationType: client_1.NotificationType.LIKE
+                    }, 'Notification scheduled successfully');
                 }
             }
             else {

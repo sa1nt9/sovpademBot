@@ -86,7 +86,10 @@ const revealUsernameAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, voi
         }, 'Usernames revealed for both users');
         yield ctx.reply(ctx.t('roulette_revealed_username') + `[${requestingUser.name}](https://t.me/${userInfo.username})`, {
             parse_mode: 'Markdown',
-            reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
+            reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed),
+            link_preview_options: {
+                is_disabled: true
+            },
         });
         const currentSession = yield postgres_1.prisma.session.findUnique({
             where: {
@@ -101,7 +104,10 @@ const revealUsernameAcceptCallbackQuery = (ctx) => __awaiter(void 0, void 0, voi
         }, 'Sending username reveal notification to requesting user');
         yield ctx.api.sendMessage(requestingUserId, (0, i18n_1.i18n)(false).t(__language_code || "ru", 'roulette_revealed_username_by_partner') + `[${currentUser.name}](https://t.me/${(_d = callbackQuery.from) === null || _d === void 0 ? void 0 : _d.username})`, {
             parse_mode: 'Markdown',
-            reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed)
+            reply_markup: (0, keyboards_1.rouletteKeyboard)(ctx.t, profileRevealed, usernameRevealed),
+            link_preview_options: {
+                is_disabled: true
+            },
         });
     }
     else {

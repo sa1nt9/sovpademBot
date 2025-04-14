@@ -178,7 +178,6 @@ function saveProfile(profile) {
                             isActive: true
                         },
                         create: {
-                            id: profile.id,
                             userId: profile.userId,
                             interestedIn: relationshipProfile.interestedIn,
                             description: relationshipProfile.description,
@@ -206,7 +205,6 @@ function saveProfile(profile) {
                             isActive: true
                         },
                         create: {
-                            id: profile.id,
                             userId: profile.userId,
                             subType: sportProfile.subType,
                             interestedIn: sportProfile.interestedIn,
@@ -236,7 +234,6 @@ function saveProfile(profile) {
                             isActive: true
                         },
                         create: {
-                            id: profile.id,
                             userId: profile.userId,
                             subType: gameProfile.subType,
                             accountLink: gameProfile.accountLink,
@@ -265,7 +262,6 @@ function saveProfile(profile) {
                             isActive: true
                         },
                         create: {
-                            id: profile.id,
                             userId: profile.userId,
                             subType: hobbyProfile.subType,
                             interestedIn: hobbyProfile.interestedIn,
@@ -296,7 +292,6 @@ function saveProfile(profile) {
                             isActive: true
                         },
                         create: {
-                            id: profile.id,
                             userId: profile.userId,
                             subType: itProfile.subType,
                             experience: itProfile.experience,

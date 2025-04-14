@@ -5,11 +5,14 @@ import { MyContext } from "../typescript/context";
 import { ISessionData } from "../typescript/interfaces/ISessionData";
 import { getLikesInfo } from "./db/getLikesInfo";
 import { sendForm } from "./sendForm";
+import { scheduleNotification } from "../queues/utils";
+import { sendNotificationDirectly } from "./sendNotificationDirectly";
+import { NotificationType } from "@prisma/client";
 
-export async function sendLikesNotification(ctx: MyContext, targetUserId: string, isAnswer?: boolean) {
+export async function sendLikesNotification(ctx: MyContext, targetUserId: string, isAnswer?: boolean): Promise<void> {
     const fromUserId = String(ctx.from?.id);
-    
-    ctx.logger.info({ 
+
+    ctx.logger.info({
         fromUserId,
         targetUserId,
         isAnswer
@@ -25,7 +28,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
         });
 
         if (currentSession) {
-            const currentValue = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
+            const currentValue = JSON.parse(currentSession.value as string) as ISessionData;
 
             // Получаем пользователя, чтобы узнать его пол
             const targetUser = await prisma.user.findUnique({
@@ -37,11 +40,9 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                 }
             });
 
-            // Пол пользователя для правильного склонения
-            const userGender = targetUser?.gender === 'female' ? 'female' : 'male';
 
             if (isAnswer) {
-                ctx.logger.info({ 
+                ctx.logger.info({
                     fromUserId,
                     targetUserId,
                     step: currentValue.step,
@@ -59,21 +60,50 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                             value: JSON.stringify({
                                 ...currentValue,
                                 pendingMutualLike: true,
-                                pendingMutualLikeProfileId: String(ctx.from?.id)
+                                pendingMutualLikeProfileId: fromUserId
                             })
                         }
                     });
 
-                    ctx.logger.info({ 
+                    ctx.logger.info({
                         fromUserId,
                         targetUserId,
                         step: currentValue.step
                     }, 'Updated session with pending mutual like');
                 } else {
+                    const rouletteUser = await prisma.rouletteUser.findUnique({
+                        where: { id: targetUserId },
+                        select: {
+                            searchingPartner: true,
+                            chatPartnerId: true
+                        }
+                    });
+
+                    if (rouletteUser?.searchingPartner || rouletteUser?.chatPartnerId) {
+                        await scheduleNotification(
+                            targetUserId,
+                            fromUserId,
+                            NotificationType.MUTUAL_LIKE,
+                            {
+                                isAnswer: true,
+                                delay: 2 * 60 * 1000
+                            }
+                        );
+        
+                        ctx.logger.info({
+                            fromUserId,
+                            targetUserId,
+                            isAnswer,
+                            notificationType: NotificationType.MUTUAL_LIKE
+                        }, 'Notification scheduled successfully');
+
+                        return
+                    }
+
                     const userLike = await prisma.profileLike.findFirst({
                         where: {
                             toProfileId: targetUserId,
-                            fromProfileId: String(ctx.from?.id),
+                            fromProfileId: fromUserId,
                             liked: true
                         },
                         orderBy: {
@@ -90,8 +120,8 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                         privateNote: userLike?.privateNote
                     });
 
-                    await ctx.api.sendMessage(targetUserId, `${i18n(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${ctx.from?.username})`, {
-                        reply_markup: complainToUserKeyboard((...args) => i18n(false).t(currentValue.__language_code || "ru", ...args), String(ctx.from?.id)),
+                    await ctx.api.sendMessage(targetUserId, `${i18n(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${ctx.from?.username || ''})`, {
+                        reply_markup: complainToUserKeyboard((...args) => i18n(false).t(currentValue.__language_code || "ru", ...args), fromUserId),
                         link_preview_options: {
                             is_disabled: true
                         },
@@ -114,55 +144,38 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                         reply_markup: profileKeyboard()
                     });
 
-                    ctx.logger.info({ 
+                    ctx.logger.info({
                         fromUserId,
                         targetUserId
                     }, 'Sent mutual sympathy notification and updated session');
                 }
             } else {
-                ctx.logger.info({ 
+
+                await scheduleNotification(
+                    targetUserId,
+                    fromUserId,
+                    NotificationType.LIKE,
+                    {
+                        isAnswer: false
+                    }
+                );
+
+                ctx.logger.info({
                     fromUserId,
                     targetUserId,
-                    count,
-                    gender,
-                    userGender
-                }, 'Sending new likes notification');
-
-                await prisma.session.update({
-                    where: {
-                        key: targetUserId
-                    },
-                    data: {
-                        value: JSON.stringify({
-                            ...currentValue,
-                            step: 'somebodys_liked_you',
-                        })
-                    }
-                });
-
-                await ctx.api.sendMessage(targetUserId, i18n(false).t(currentValue.__language_code || "ru", 'somebodys_liked_you', {
-                    count,
-                    gender,
-                    userGender
-                }), {
-                    reply_markup: somebodysLikedYouKeyboard(),
-                    parse_mode: 'HTML'
-                });
-
-                ctx.logger.info({ 
-                    fromUserId,
-                    targetUserId
-                }, 'Sent new likes notification and updated session');
+                    isAnswer,
+                    notificationType: NotificationType.LIKE
+                }, 'Notification scheduled successfully');
             }
         } else {
-            ctx.logger.error({ 
+            ctx.logger.error({
                 fromUserId,
                 targetUserId
             }, 'Error updating session somebodys_liked_you, session not found');
         }
 
     } catch (error) {
-        ctx.logger.error({ 
+        ctx.logger.error({
             fromUserId,
             targetUserId,
             error: error instanceof Error ? error.message : 'Unknown error',

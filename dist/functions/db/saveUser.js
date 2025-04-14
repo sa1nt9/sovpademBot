@@ -49,13 +49,6 @@ function saveUser(ctx_1) {
                     where: { id: userId },
                 });
                 if (existingUser) {
-                    ctx.logger.info({
-                        userId,
-                        existingName: existingUser.name,
-                        existingCity: existingUser.city,
-                        existingGender: existingUser.gender,
-                        existingAge: existingUser.age
-                    }, 'Found existing user, updating data');
                     // Обновляем существующего пользователя
                     yield postgres_1.prisma.user.update({
                         where: { id: userId },
@@ -104,12 +97,8 @@ function saveUser(ctx_1) {
             // Сохраняем профиль пользователя с помощью функции из profilesService
             if (userData.profileType) {
                 try {
-                    ctx.logger.info({
-                        userId,
-                        profileType: userData.profileType,
-                        subType: userData === null || userData === void 0 ? void 0 : userData.subType
-                    }, 'Starting profile save');
                     const savedProfile = yield (0, profilesService_1.saveProfile)(Object.assign(Object.assign({}, userData), { userId }));
+                    ctx.session.activeProfile.id = savedProfile === null || savedProfile === void 0 ? void 0 : savedProfile.id;
                     ctx.logger.info({
                         userId,
                         profileType: userData.profileType,

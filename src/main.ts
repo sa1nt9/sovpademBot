@@ -26,16 +26,23 @@ import { inlineQueryEvent } from './events/inline_query';
 import { switchCommand } from './commands/switch';
 import { changeSessionFieldsMiddleware } from './middlewares/changeSessionFieldsMiddleware';
 import { newLikesCommand } from './commands/new_likes';
+// Импортируем очереди
+import { notificationQueue } from './queues/notificationQueue';
+import { initQueues } from './queues/initQueues';
 
 dotenv.config();
 
 export const bot = new Bot<MyContext>(String(process.env.BOT_TOKEN));
+
 
 async function startBot() {
     try {
         logger.info('Connecting to database...');
         await connectPostgres();
         logger.info('Database connection established');
+
+        // Инициализация очередей
+        initQueues();
 
         bot.catch(errorHandler);
 

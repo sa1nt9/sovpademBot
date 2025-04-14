@@ -1,0 +1,16 @@
+node_modules
+dist
+.git
+.github
+.vscode
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+*.log
+logs
+.env.local
+.env.development
+.DS_Store
+Dockerfile
+docker-compose.yml
+.dockerignore 
