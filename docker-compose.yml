@@ -12,11 +12,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app_network
+    ports:
+      - "127.0.0.1:5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME}"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   redis:
     image: redis:alpine
@@ -26,9 +29,11 @@ services:
       - redis_data:/data
     networks:
       - app_network
+    ports:
+      - "127.0.0.1:6380:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
@@ -57,6 +62,36 @@ services:
         limits:
           cpus: '1'
           memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        
+  backup:
+    image: postgres:15-alpine
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./scripts/backup:/scripts
+      - db_backups:/app/data/backups
+    environment:
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+    networks:
+      - app_network
+    entrypoint: ["sh", "-c"]
+    command: |
+      "
+      apk add --no-cache bash findutils
+      chmod +x /scripts/postgres-backup.sh
+      chmod +x /scripts/postgres-restore.sh
+      echo '0 2 * * * /scripts/postgres-backup.sh >> /app/data/backups/backup.log 2>&1' > /var/spool/cron/crontabs/root
+      crond -f -d 8
+      "
 
 networks:
   app_network:
@@ -65,4 +100,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
-  bot_logs: 
+  bot_logs:
+  db_backups: 

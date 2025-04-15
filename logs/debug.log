@@ -2940,3 +2940,81 @@
 {"level":30,"time":"2025-04-14T17:43:11.774Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
 {"level":30,"time":"2025-04-14T17:43:11.776Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
 {"level":30,"time":"2025-04-14T17:43:11.829Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T17:58:14.018Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T17:58:14.087Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T17:58:14.087Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T17:58:14.089Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T17:58:14.135Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T17:58:16.692Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T17:58:16.740Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T17:58:16.740Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T17:58:16.742Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T17:58:16.782Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T19:48:55.116Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T19:48:55.159Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T19:48:55.159Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T19:48:55.161Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T19:48:55.198Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T19:48:57.472Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T19:48:57.516Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T19:48:57.516Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T19:48:57.518Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T19:48:57.556Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T20:38:10.329Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T20:38:10.516Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T20:38:10.517Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T20:38:10.518Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T20:38:10.558Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T20:39:29.292Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T20:39:29.329Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T20:39:29.329Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T20:39:29.330Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T20:39:29.367Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T20:45:48.384Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T20:45:48.447Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T20:45:48.447Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T20:45:48.449Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T20:45:48.489Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T20:45:49.032Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":5134025713,"username":"sa1nt9","step":"sleep_menu","messageType":"text","msg":"Processing message event"}
+{"level":30,"time":"2025-04-14T20:45:49.032Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","action":"1 🚀","msg":"User in main menu"}
+{"level":30,"time":"2025-04-14T20:45:49.032Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"User starting people search from main menu"}
+{"level":30,"time":"2025-04-14T20:45:49.032Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","setActive":true,"msg":"Starting people search"}
+{"level":30,"time":"2025-04-14T20:45:49.243Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","isActive":true,"msg":"Toggling profile active status"}
+{"level":30,"time":"2025-04-14T20:45:49.250Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Profile activated for search"}
+{"level":30,"time":"2025-04-14T20:45:49.255Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","profileId":"33ae86ed-25b4-4e2e-a838-f2562e9c12d2","msg":"Starting candidate search"}
+{"level":30,"time":"2025-04-14T20:45:49.270Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"No candidate found for user"}
+{"level":30,"time":"2025-04-14T20:45:49.270Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","candidateFound":false,"profileType":"RELATIONSHIP","msg":"Candidate search completed"}
+{"level":30,"time":"2025-04-14T20:45:49.270Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"No candidates available"}
+{"level":30,"time":"2025-04-14T20:45:49.270Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Candidates ended, returning to sleep menu"}
+{"level":30,"time":"2025-04-14T21:12:25.017Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T21:12:25.067Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T21:12:25.067Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T21:12:25.069Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T21:12:25.108Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T21:32:42.463Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-14T21:32:42.540Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-14T21:32:42.540Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-14T21:32:42.542Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot..."}
+{"level":30,"time":"2025-04-14T21:32:42.592Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot started successfully"}
+{"level":30,"time":"2025-04-14T21:32:52.511Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","username":"sa1nt9","isEditingProfile":false,"privacyAccepted":true,"msg":"Processing myprofile command"}
+{"level":30,"time":"2025-04-14T21:32:52.515Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","step":"profile","msg":"Sending profile for existing user"}
+{"level":30,"time":"2025-04-14T21:32:52.515Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","options":{"myForm":true,"isBlacklist":false,"isInline":false},"msg":"Starting sendForm function"}
+{"level":30,"time":"2025-04-14T21:32:52.604Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Getting user profile"}
+{"level":30,"time":"2025-04-14T21:32:52.606Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"User profile found"}
+{"level":30,"time":"2025-04-14T21:32:52.606Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"Getting profile files"}
+{"level":30,"time":"2025-04-14T21:32:52.606Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"Getting specific user profile"}
+{"level":30,"time":"2025-04-14T21:32:52.609Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","filesCount":1,"msg":"Profile files retrieved successfully"}
+{"level":30,"time":"2025-04-14T21:32:52.609Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","hasFiles":true,"sendTo":"","msg":"Sending form"}
+{"level":30,"time":"2025-04-14T21:32:52.704Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Form sent successfully"}
+{"level":30,"time":"2025-04-14T21:32:55.265Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":5134025713,"username":"sa1nt9","step":"profile","messageType":"text","msg":"Processing message event"}
+{"level":30,"time":"2025-04-14T21:32:55.266Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","message":"1 🚀","msg":"User is in profile menu, action selected"}
+{"level":30,"time":"2025-04-14T21:32:55.266Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"User starting people search"}
+{"level":30,"time":"2025-04-14T21:32:55.266Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","setActive":true,"msg":"Starting people search"}
+{"level":30,"time":"2025-04-14T21:32:55.422Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","isActive":true,"msg":"Toggling profile active status"}
+{"level":30,"time":"2025-04-14T21:32:55.429Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Profile activated for search"}
+{"level":30,"time":"2025-04-14T21:32:55.433Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","profileId":"33ae86ed-25b4-4e2e-a838-f2562e9c12d2","msg":"Starting candidate search"}
+{"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"No candidate found for user"}
+{"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","candidateFound":false,"profileType":"RELATIONSHIP","msg":"Candidate search completed"}
+{"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Received candidate from database"}
+{"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"No candidates available for user"}
+{"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Candidates ended, returning to sleep menu"}

@@ -14,14 +14,14 @@
         "prisma:studio": "prisma studio",
         "prisma:generate": "prisma generate",
         "prisma:migrate:dev": "prisma migrate dev",
-        "prisma:migrate:deploy": "dprisma migrate deploy",
+        "prisma:migrate:deploy": "prisma migrate deploy",
         "prisma:seed": "ts-node prisma/seed.ts",
         "prisma:reset": "prisma migrate reset --force",
         "prisma:setup:dev": "npm run prisma:generate && npm run prisma:migrate:dev",
         "prisma:setup:prod": " npm run prisma:generate && npm run prisma:migrate:deploy"
     },
     "prisma": {
-        "schema": "src/db/prisma/schema.prisma"
+        "schema": "prisma/schema.prisma"
     },
     "devDependencies": {
         "eslint": "^9.21.0",
@@ -35,12 +35,10 @@
         "@prisma/client": "^6.4.1",
         "@types/bull": "^3.15.9",
         "@types/date-fns": "^2.5.3",
-        "@types/ffi-napi": "^4.0.10",
         "@types/pg": "^8.11.11",
         "bull": "^4.16.5",
         "date-fns": "^4.1.0",
         "dotenv": "^16.4.7",
-        "ffi-napi": "^4.0.3",
         "grammy": "^1.35.0",
         "i18next": "^24.2.2",
         "ioredis": "^5.5.0",

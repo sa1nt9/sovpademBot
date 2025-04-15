@@ -1,13 +1,1 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MAX_USER_REACTIONS = exports.complainTypes = void 0;
-exports.complainTypes = {
-    '1 🔞': 'adult_content',
-    '2 💰': 'sale',
-    '3 🎭': 'fake',
-    '4 📰': 'advertising',
-    '5 ⛔️': 'scam',
-    '6 💩': 'dislike',
-    '7 🦨': 'other',
-};
-exports.MAX_USER_REACTIONS = 3;
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.MAX_USER_REACTIONS=exports.complainTypes=void 0,exports.complainTypes={"1 🔞":"adult_content","2 💰":"sale","3 🎭":"fake","4 📰":"advertising","5 ⛔️":"scam","6 💩":"dislike","7 🦨":"other"},exports.MAX_USER_REACTIONS=3;

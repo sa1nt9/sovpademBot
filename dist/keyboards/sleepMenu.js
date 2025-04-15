@@ -1,13 +1,1 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sleepMenu = void 0;
-const grammy_1 = require("grammy");
-exports.sleepMenu = new grammy_1.KeyboardBuilder()
-    .text("1. Смотреть анкеты")
-    .text("2. Моя анкета")
-    .text("3. Я больше не хочу никого искать")
-    .row()
-    .text("4. Пригласи друзей - получи больше лайков 😎")
-    .row()
-    .text("5. Cыграть в чат-рулетку")
-    .resized();
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.sleepMenu=void 0;const grammy_1=require("grammy");exports.sleepMenu=(new grammy_1.KeyboardBuilder).text("1. Смотреть анкеты").text("2. Моя анкета").text("3. Я больше не хочу никого искать").row().text("4. Пригласи друзей - получи больше лайков 😎").row().text("5. Cыграть в чат-рулетку").resized();

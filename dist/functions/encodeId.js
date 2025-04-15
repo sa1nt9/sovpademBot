@@ -1,17 +1,1 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.encodeId = encodeId;
-exports.decodeId = decodeId;
-// Функция для кодирования ID в короткий формат
-function encodeId(id) {
-    // Преобразуем строку в число
-    const num = parseInt(id);
-    // Используем base36 (0-9 и a-z) для кодирования
-    return num.toString(36);
-}
-// Функция для декодирования ID из короткого формата
-function decodeId(encoded) {
-    // Преобразуем из base36 обратно в число
-    const num = parseInt(encoded, 36);
-    return num.toString();
-}
+"use strict";function encodeId(e){return parseInt(e).toString(36)}function decodeId(e){return parseInt(e,36).toString()}Object.defineProperty(exports,"__esModule",{value:!0}),exports.encodeId=encodeId,exports.decodeId=decodeId;

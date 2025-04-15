@@ -48,6 +48,12 @@ check_dependencies() {
   print_status "Все зависимости установлены."
 }
 
+# Остановка всех контейнеров
+stop_containers() {
+  print_status "Останавливаем все контейнеры..."
+  docker compose down --remove-orphans || true
+}
+
 # Функция для запуска приложения
 start_application() {
   print_status "Запуск приложения..."
@@ -58,8 +64,18 @@ start_application() {
     exit 1
   fi
   
+  # Останавливаем предыдущие контейнеры
+  stop_containers
+  
   # Запуск контейнеров
-  docker compose up -d
+  docker compose up -d postgres redis
+  
+  # Ждем запуска базы данных
+  print_status "Ожидание запуска базы данных..."
+  sleep 10
+  
+  # Сборка и запуск контейнеров бота и бэкапа
+  docker compose up -d --build bot backup
   
   # Проверка статуса
   if [ $? -eq 0 ]; then
@@ -82,8 +98,8 @@ apply_migrations() {
     sleep 5
   done
   
-  # Выполняем миграции
-  docker compose exec bot npm run prisma:migrate:deploy
+  # Выполняем миграции через npx prisma
+  docker compose exec bot sh -c 'cd /app && npx prisma migrate deploy --schema=./prisma/schema.prisma'
   
   if [ $? -eq 0 ]; then
     print_status "Миграции успешно применены!"
@@ -103,7 +119,7 @@ update_application() {
   # Пересобираем контейнеры
   docker compose down
   docker compose build --no-cache bot
-  docker compose up -d
+  docker compose up -d postgres redis bot backup
   
   # Проверка статуса
   if [ $? -eq 0 ]; then
@@ -125,24 +141,46 @@ view_logs() {
   docker compose logs -f bot
 }
 
+# Функция для просмотра логов бэкапа
+view_backup_logs() {
+  print_status "Вывод логов контейнера с бэкапом (для выхода нажмите Ctrl+C)..."
+  docker compose logs -f backup
+  
+  # Также показываем лог бэкапа если он есть
+  if docker compose exec backup test -f /app/data/backups/backup.log; then
+    print_status "Содержимое лога бэкапа:"
+    docker compose exec backup cat /app/data/backups/backup.log
+  fi
+}
+
+# Функция для ручного запуска бэкапа
+run_backup() {
+  print_status "Запуск ручного бэкапа базы данных..."
+  docker compose exec backup /scripts/postgres-backup.sh
+}
+
 # Функция для вывода меню
 show_menu() {
   echo -e "\n${GREEN}=== Меню управления ботом ===${NC}"
   echo -e "1. Запустить бота"
   echo -e "2. Обновить бота"
-  echo -e "3. Просмотреть логи"
-  echo -e "4. Остановить бота"
-  echo -e "5. Выход"
-  echo -e "Выберите действие (1-5): \c"
+  echo -e "3. Просмотреть логи бота"
+  echo -e "4. Просмотреть логи бэкапа"
+  echo -e "5. Запустить бэкап вручную"
+  echo -e "6. Остановить все контейнеры"
+  echo -e "7. Выход"
+  echo -e "Выберите действие (1-7): \c"
   read choice
   
   case $choice in
     1) start_application; apply_migrations ;;
     2) update_application ;;
     3) view_logs ;;
-    4) docker compose down; print_status "Бот остановлен" ;;
-    5) exit 0 ;;
-    *) print_error "Неверный выбор. Пожалуйста, выберите действие от 1 до 5." ;;
+    4) view_backup_logs ;;
+    5) run_backup ;;
+    6) docker compose down; print_status "Все контейнеры остановлены" ;;
+    7) exit 0 ;;
+    *) print_error "Неверный выбор. Пожалуйста, выберите действие от 1 до 7." ;;
   esac
 }
 

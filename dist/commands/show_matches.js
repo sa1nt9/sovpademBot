@@ -1,17 +1,1 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.showMatchesCommand = void 0;
-const showMatchesCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
-});
-exports.showMatchesCommand = showMatchesCommand;
+"use strict";var __awaiter=this&&this.__awaiter||function(t,o,e,n){return new(e||(e=Promise))((function(a,i){function s(t){try{c(n.next(t))}catch(t){i(t)}}function r(t){try{c(n.throw(t))}catch(t){i(t)}}function c(t){var o;t.done?a(t.value):(o=t.value,o instanceof e?o:new e((function(t){t(o)}))).then(s,r)}c((n=n.apply(t,o||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.showMatchesCommand=void 0;const showMatchesCommand=t=>__awaiter(void 0,void 0,void 0,(function*(){var o;String(null===(o=t.message)||void 0===o?void 0:o.from.id)}));exports.showMatchesCommand=showMatchesCommand;
