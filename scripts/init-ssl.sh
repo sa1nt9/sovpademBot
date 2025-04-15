@@ -46,7 +46,7 @@ sed -i "s/BOT_DOMAIN/$DOMAIN/g" ./nginx/conf/app.conf
 # Создаем файл .env с настройками домена
 print_status "Обновляем .env файл с настройками домена"
 grep -q "BOT_DOMAIN=" .env && sed -i "s/# BOT_DOMAIN=.*/BOT_DOMAIN=$DOMAIN/" .env || echo "BOT_DOMAIN=$DOMAIN" >> .env
-grep -q "WEBHOOK_PATH=" .env && sed -i "s/# WEBHOOK_PATH=.*/WEBHOOK_PATH=\/telegram\/webhook/" .env || echo "WEBHOOK_PATH=/telegram/webhook" >> .env
+grep -q "WEBHOOK_PATH=" .env && sed -i "s/# WEBHOOK_PATH=.*/WEBHOOK_PATH=\/telegram\/bnsdfbcmbeworpvcbt/" .env || echo "WEBHOOK_PATH=/telegram/bnsdfbcmbeworpvcbt" >> .env
 grep -q "NODE_ENV=" .env && sed -i "s/# NODE_ENV=.*/NODE_ENV=production/" .env || echo "NODE_ENV=production" >> .env
 
 # Проверяем наличие Docker и Docker Compose
@@ -65,9 +65,7 @@ sleep 5
 
 # Получаем SSL сертификат
 print_status "Получаем SSL сертификат для $DOMAIN"
-docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot \
-    --email $EMAIL --agree-tos --no-eff-email \
-    -d $DOMAIN
+docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email webmaster@sovpadem.site --agree-tos --no-eff-email -d sovpadem.site
 
 # Проверяем наличие сертификата
 if [ -d "./nginx/certbot/conf/live/$DOMAIN" ]; then
