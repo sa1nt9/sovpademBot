@@ -1,1 +1,24 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,n,t,d){return new(t||(t=Promise))((function(i,o){function r(e){try{s(d.next(e))}catch(e){o(e)}}function a(e){try{s(d.throw(e))}catch(e){o(e)}}function s(e){var n;e.done?i(e.value):(n=e.value,n instanceof t?n:new t((function(e){e(n)}))).then(r,a)}s((d=d.apply(e,n||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.candidatesEnded=void 0;const keyboards_1=require("../constants/keyboards"),candidatesEnded=e=>__awaiter(void 0,void 0,void 0,(function*(){var n;const t=String(null===(n=e.from)||void 0===n?void 0:n.id);e.logger.info({userId:t},"Candidates ended, returning to sleep menu"),yield e.reply(e.t("candidates_ended")),e.session.step="sleep_menu",yield e.reply(e.t("sleep_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()})}));exports.candidatesEnded=candidatesEnded;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.candidatesEnded = void 0;
+const keyboards_1 = require("../constants/keyboards");
+const candidatesEnded = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    ctx.logger.info({ userId }, 'Candidates ended, returning to sleep menu');
+    yield ctx.reply(ctx.t('candidates_ended'));
+    ctx.session.step = 'sleep_menu';
+    yield ctx.reply(ctx.t('sleep_menu'), {
+        reply_markup: (0, keyboards_1.profileKeyboard)()
+    });
+});
+exports.candidatesEnded = candidatesEnded;

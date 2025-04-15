@@ -1,1 +1,78 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,i,o){return new(i||(i=Promise))((function(s,t){function l(e){try{d(o.next(e))}catch(e){t(e)}}function n(e){try{d(o.throw(e))}catch(e){t(e)}}function d(e){var r;e.done?s(e.value):(r=e.value,r instanceof i?r:new i((function(e){e(r)}))).then(l,n)}d((o=o.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.blacklistCommand=void 0;const keyboards_1=require("../constants/keyboards"),postgres_1=require("../db/postgres"),sendForm_1=require("../functions/sendForm"),profilesService_1=require("../functions/db/profilesService"),blacklistCommand=e=>__awaiter(void 0,void 0,void 0,(function*(){var r;const i=String(null===(r=e.message)||void 0===r?void 0:r.from.id);e.logger.info({userId:i},"Starting blacklist command");try{const[r,o]=yield Promise.all([postgres_1.prisma.blacklist.findFirst({where:{userId:i},orderBy:{createdAt:"desc"}}),postgres_1.prisma.blacklist.count({where:{userId:i}})]);if(!r)return e.logger.info({userId:i},"Blacklist is empty"),yield e.reply(e.t("blacklist_empty")),void(yield e.reply(e.t("sleep_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()}));e.session.step="blacklist_user",yield e.reply("🚫📋",{reply_markup:(0,keyboards_1.blacklistKeyboard)(e.t)});const s=yield postgres_1.prisma[(0,profilesService_1.getProfileModelName)(r.profileType)].findUnique({where:{id:r.targetProfileId}}),t=yield postgres_1.prisma.user.findUnique({where:{id:s.userId}});if(!t)return e.logger.warn({userId:i,profileId:s.id},"Profile not found in blacklist"),void(yield e.reply(e.t("profile_not_found")));yield(0,sendForm_1.sendForm)(e,t,{myForm:!1,isBlacklist:!0,blacklistCount:o-1,profileType:r.profileType,subType:r.subType||""}),e.session.currentBlacklistedProfile=s}catch(r){e.logger.error({userId:i,error:r instanceof Error?r.message:"Unknown error"},"Error in blacklist command"),yield e.reply(e.t("error_occurred"))}}));exports.blacklistCommand=blacklistCommand;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.blacklistCommand = void 0;
+const keyboards_1 = require("../constants/keyboards");
+const postgres_1 = require("../db/postgres");
+const sendForm_1 = require("../functions/sendForm");
+const profilesService_1 = require("../functions/db/profilesService");
+const blacklistCommand = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+    ctx.logger.info({ userId }, 'Starting blacklist command');
+    try {
+        // Получаем первую запись и общее количество
+        const [blacklistedProfile, totalCount] = yield Promise.all([
+            postgres_1.prisma.blacklist.findFirst({
+                where: { userId },
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            }),
+            postgres_1.prisma.blacklist.count({
+                where: { userId }
+            })
+        ]);
+        if (!blacklistedProfile) {
+            ctx.logger.info({ userId }, 'Blacklist is empty');
+            yield ctx.reply(ctx.t('blacklist_empty'));
+            yield ctx.reply(ctx.t('sleep_menu'), {
+                reply_markup: (0, keyboards_1.profileKeyboard)()
+            });
+            return;
+        }
+        ctx.session.step = "blacklist_user";
+        yield ctx.reply("🚫📋", {
+            reply_markup: (0, keyboards_1.blacklistKeyboard)(ctx.t)
+        });
+        // Проверяем все возможные типы профилей
+        const profile = yield postgres_1.prisma[(0, profilesService_1.getProfileModelName)(blacklistedProfile.profileType)].findUnique({
+            where: { id: blacklistedProfile.targetProfileId }
+        });
+        // Получаем пользователя для этого профиля
+        const user = yield postgres_1.prisma.user.findUnique({
+            where: { id: profile.userId }
+        });
+        if (!user) {
+            ctx.logger.warn({ userId, profileId: profile.id }, 'Profile not found in blacklist');
+            yield ctx.reply(ctx.t('profile_not_found'));
+            return;
+        }
+        // Показываем запись из черного списка
+        yield (0, sendForm_1.sendForm)(ctx, user, {
+            myForm: false,
+            isBlacklist: true,
+            blacklistCount: totalCount - 1,
+            profileType: blacklistedProfile.profileType,
+            subType: blacklistedProfile.subType || ""
+        });
+        // Сохраняем текущий профиль из черного списка в сессию
+        ctx.session.currentBlacklistedProfile = profile;
+    }
+    catch (error) {
+        ctx.logger.error({
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        }, 'Error in blacklist command');
+        yield ctx.reply(ctx.t('error_occurred'));
+    }
+});
+exports.blacklistCommand = blacklistCommand;

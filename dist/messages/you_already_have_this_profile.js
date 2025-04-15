@@ -1,1 +1,66 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,i,o,r){return new(o||(o=Promise))((function(s,t){function n(e){try{a(r.next(e))}catch(e){t(e)}}function l(e){try{a(r.throw(e))}catch(e){t(e)}}function a(e){var i;e.done?s(e.value):(i=e.value,i instanceof o?i:new o((function(e){e(i)}))).then(n,l)}a((r=r.apply(e,i||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.youAlreadyHaveThisProfileStep=void 0;const client_1=require("@prisma/client"),keyboards_1=require("../constants/keyboards"),profilesService_1=require("../functions/db/profilesService"),sendForm_1=require("../functions/sendForm"),youAlreadyHaveThisProfileStep=e=>__awaiter(void 0,void 0,void 0,(function*(){var i,o;const r=e.message.text,s=String(null===(i=e.from)||void 0===i?void 0:i.id);if(e.logger.info({userId:s,step:"you_already_have_this_profile",profileType:e.session.additionalFormInfo.selectedProfileType,subType:e.session.additionalFormInfo.selectedSubType},"User has profile conflict"),r===e.t("switch_to_this_profile")){e.logger.info({userId:s,profileType:e.session.additionalFormInfo.selectedProfileType,subType:e.session.additionalFormInfo.selectedSubType},"User switching to existing profile");const i=yield(0,profilesService_1.getUserProfile)(String(null===(o=e.from)||void 0===o?void 0:o.id),e.session.additionalFormInfo.selectedProfileType||client_1.ProfileType.SPORT,e.session.additionalFormInfo.selectedSubType);i&&(e.session.activeProfile=Object.assign(Object.assign({},e.session.activeProfile),i),e.session.step="profile",yield(0,sendForm_1.sendForm)(e),yield e.reply(e.t("profile_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()}))}else r===e.t("create_new_profile")?(e.logger.info({userId:s},"User selecting to create a different profile type"),e.session.step="create_profile_type",e.session.isCreatingProfile=!0,yield e.reply(e.t("profile_type_title"),{reply_markup:(0,keyboards_1.createProfileTypeKeyboard)(e.t)})):r===e.t("main_menu")?(e.logger.info({userId:s},"User returning to main menu from profile conflict"),e.session.step="profile",yield(0,sendForm_1.sendForm)(e),yield e.reply(e.t("profile_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()})):(e.logger.warn({userId:s,invalidOption:r},"User provided invalid response in profile conflict screen"),yield e.reply(e.t("no_such_answer"),{reply_markup:(0,keyboards_1.youAlreadyHaveThisProfileKeyboard)(e.t)}))}));exports.youAlreadyHaveThisProfileStep=youAlreadyHaveThisProfileStep;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.youAlreadyHaveThisProfileStep = void 0;
+const client_1 = require("@prisma/client");
+const keyboards_1 = require("../constants/keyboards");
+const profilesService_1 = require("../functions/db/profilesService");
+const sendForm_1 = require("../functions/sendForm");
+const youAlreadyHaveThisProfileStep = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const message = ctx.message.text;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    ctx.logger.info({
+        userId,
+        step: 'you_already_have_this_profile',
+        profileType: ctx.session.additionalFormInfo.selectedProfileType,
+        subType: ctx.session.additionalFormInfo.selectedSubType
+    }, 'User has profile conflict');
+    if (message === ctx.t('switch_to_this_profile')) {
+        ctx.logger.info({
+            userId,
+            profileType: ctx.session.additionalFormInfo.selectedProfileType,
+            subType: ctx.session.additionalFormInfo.selectedSubType
+        }, 'User switching to existing profile');
+        const fullProfile = yield (0, profilesService_1.getUserProfile)(String((_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id), ctx.session.additionalFormInfo.selectedProfileType || client_1.ProfileType.SPORT, ctx.session.additionalFormInfo.selectedSubType);
+        if (fullProfile) {
+            ctx.session.activeProfile = Object.assign(Object.assign({}, ctx.session.activeProfile), fullProfile);
+            ctx.session.step = "profile";
+            yield (0, sendForm_1.sendForm)(ctx);
+            yield ctx.reply(ctx.t('profile_menu'), {
+                reply_markup: (0, keyboards_1.profileKeyboard)()
+            });
+        }
+    }
+    else if (message === ctx.t('create_new_profile')) {
+        ctx.logger.info({ userId }, 'User selecting to create a different profile type');
+        ctx.session.step = "create_profile_type";
+        ctx.session.isCreatingProfile = true;
+        yield ctx.reply(ctx.t('profile_type_title'), {
+            reply_markup: (0, keyboards_1.createProfileTypeKeyboard)(ctx.t)
+        });
+    }
+    else if (message === ctx.t('main_menu')) {
+        ctx.logger.info({ userId }, 'User returning to main menu from profile conflict');
+        ctx.session.step = "profile";
+        yield (0, sendForm_1.sendForm)(ctx);
+        yield ctx.reply(ctx.t('profile_menu'), {
+            reply_markup: (0, keyboards_1.profileKeyboard)()
+        });
+    }
+    else {
+        ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid response in profile conflict screen');
+        yield ctx.reply(ctx.t('no_such_answer'), {
+            reply_markup: (0, keyboards_1.youAlreadyHaveThisProfileKeyboard)(ctx.t)
+        });
+    }
+});
+exports.youAlreadyHaveThisProfileStep = youAlreadyHaveThisProfileStep;

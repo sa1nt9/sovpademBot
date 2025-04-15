@@ -1,1 +1,103 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,i,t,o){return new(t||(t=Promise))((function(s,n){function r(e){try{l(o.next(e))}catch(e){n(e)}}function a(e){try{l(o.throw(e))}catch(e){n(e)}}function l(e){var i;e.done?s(e.value):(i=e.value,i instanceof t?i:new t((function(e){e(i)}))).then(r,a)}l((o=o.apply(e,i||[])).next())}))},__importDefault=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0}),exports.cityQuestion=void 0;const keyboards_1=require("../../constants/keyboards"),fs_1=__importDefault(require("fs")),haversine_1=require("../../functions/haversine"),cityQuestion=e=>__awaiter(void 0,void 0,void 0,(function*(){var i;const t=e.message.text,o=String(e.from.id);if(e.logger.info({userId:o,question:"city",input:t,hasLocation:!!e.message.location,profileType:null===(i=e.session.activeProfile)||void 0===i?void 0:i.profileType},"User answering city question"),t===`${e.session.activeProfile.ownCoordinates?"📍 ":""}${e.session.activeProfile.city}`)e.logger.info({userId:o,city:e.session.activeProfile.city},"User confirmed current city"),e.session.question="name",yield e.reply(e.t("name_question"),{reply_markup:(0,keyboards_1.nameKeyboard)(e.session)});else if(e.message.location){const{latitude:i,longitude:t}=e.message.location;e.logger.info({userId:o,latitude:i,longitude:t},"User shared location");try{const s=JSON.parse(fs_1.default.readFileSync("./data/cities.json","utf-8"));let n=null,r=1/0;for(const e of s){const o=(0,haversine_1.haversine)(i,t,e.latitude,e.longitude);o<r&&(r=o,n=e)}n&&(e.logger.info({userId:o,nearestCity:n.name,distance:`${r.toFixed(2)} km`},"Found nearest city to user location"),e.session.activeProfile.city=n.name,e.session.activeProfile.ownCoordinates=!0,e.session.activeProfile.location={longitude:n.longitude,latitude:n.latitude}),e.session.question="name",yield e.reply(e.t("name_question"),{reply_markup:(0,keyboards_1.nameKeyboard)(e.session)})}catch(i){e.logger.error({userId:o,error:i},"Error reading cities.json file"),yield e.reply("Ошибка обработки данных.")}}else try{const i=JSON.parse(fs_1.default.readFileSync("./data/cities.json","utf-8")),s=null==t?void 0:t.trim().toLowerCase();e.logger.info({userId:o,cityInput:t},"User entered city name manually");const n=i.find((e=>[e.name,...e.alternateNames||[]].some((e=>e.toLowerCase()===s))));n?(e.logger.info({userId:o,city:t,found:!0},"City found in database"),e.session.activeProfile.city=t||"",e.session.activeProfile.ownCoordinates=!1,e.session.activeProfile.location={longitude:n.longitude,latitude:n.latitude},e.session.question="name",yield e.reply(e.t("name_question"),{reply_markup:(0,keyboards_1.nameKeyboard)(e.session)})):(e.logger.warn({userId:o,cityInput:t},"City not found in database"),yield e.reply(e.t("no_such_city"),{reply_markup:(0,keyboards_1.cityKeyboard)(e.t,e.session)}))}catch(i){e.logger.error({userId:o,error:i},"Error reading cities.json file"),yield e.reply("error")}}));exports.cityQuestion=cityQuestion;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.cityQuestion = void 0;
+const keyboards_1 = require("../../constants/keyboards");
+const fs_1 = __importDefault(require("fs"));
+const haversine_1 = require("../../functions/haversine");
+const cityQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const message = ctx.message.text;
+    const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId,
+        question: 'city',
+        input: message,
+        hasLocation: !!ctx.message.location,
+        profileType: (_a = ctx.session.activeProfile) === null || _a === void 0 ? void 0 : _a.profileType
+    }, 'User answering city question');
+    if (message === `${ctx.session.activeProfile.ownCoordinates ? "📍 " : ""}${ctx.session.activeProfile.city}`) {
+        ctx.logger.info({ userId, city: ctx.session.activeProfile.city }, 'User confirmed current city');
+        ctx.session.question = "name";
+        yield ctx.reply(ctx.t('name_question'), {
+            reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
+        });
+    }
+    else if (ctx.message.location) {
+        const { latitude, longitude } = ctx.message.location;
+        ctx.logger.info({ userId, latitude, longitude }, 'User shared location');
+        try {
+            const cities = JSON.parse(fs_1.default.readFileSync("./data/cities.json", "utf-8"));
+            let nearestCity = null;
+            let minDistance = Infinity;
+            for (const city of cities) {
+                const distance = (0, haversine_1.haversine)(latitude, longitude, city.latitude, city.longitude);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestCity = city;
+                }
+            }
+            if (nearestCity) {
+                ctx.logger.info({
+                    userId,
+                    nearestCity: nearestCity.name,
+                    distance: `${minDistance.toFixed(2)} km`,
+                }, 'Found nearest city to user location');
+                ctx.session.activeProfile.city = nearestCity.name;
+                ctx.session.activeProfile.ownCoordinates = true;
+                ctx.session.activeProfile.location = { longitude: nearestCity.longitude, latitude: nearestCity.latitude };
+            }
+            ctx.session.question = "name";
+            yield ctx.reply(ctx.t("name_question"), {
+                reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session),
+            });
+        }
+        catch (error) {
+            ctx.logger.error({ userId, error }, "Error reading cities.json file");
+            yield ctx.reply("Ошибка обработки данных.");
+        }
+    }
+    else {
+        try {
+            const cities = JSON.parse(fs_1.default.readFileSync("./data/cities.json", "utf-8"));
+            const normalizedMessage = message === null || message === void 0 ? void 0 : message.trim().toLowerCase();
+            ctx.logger.info({ userId, cityInput: message }, 'User entered city name manually');
+            const foundCity = cities.find(city => {
+                const cityNames = [city.name, ...(city.alternateNames || [])];
+                return cityNames.some(cityName => cityName.toLowerCase() === normalizedMessage);
+            });
+            if (foundCity) {
+                ctx.logger.info({ userId, city: message, found: true }, 'City found in database');
+                ctx.session.activeProfile.city = message || "";
+                ctx.session.activeProfile.ownCoordinates = false;
+                ctx.session.activeProfile.location = { longitude: foundCity.longitude, latitude: foundCity.latitude };
+                ctx.session.question = "name";
+                yield ctx.reply(ctx.t('name_question'), {
+                    reply_markup: (0, keyboards_1.nameKeyboard)(ctx.session)
+                });
+            }
+            else {
+                ctx.logger.warn({ userId, cityInput: message }, 'City not found in database');
+                yield ctx.reply(ctx.t('no_such_city'), {
+                    reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t, ctx.session)
+                });
+            }
+        }
+        catch (error) {
+            ctx.logger.error({ userId, error }, 'Error reading cities.json file');
+            yield ctx.reply("error");
+        }
+    }
+});
+exports.cityQuestion = cityQuestion;

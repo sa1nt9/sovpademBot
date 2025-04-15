@@ -1,1 +1,135 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,i,o){return new(i||(i=Promise))((function(s,n){function t(e){try{l(o.next(e))}catch(e){n(e)}}function a(e){try{l(o.throw(e))}catch(e){n(e)}}function l(e){var r;e.done?s(e.value):(r=e.value,r instanceof i?r:new i((function(e){e(r)}))).then(t,a)}l((o=o.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.saveUser=saveUser;const client_1=require("@prisma/client"),postgres_1=require("../../db/postgres"),profilesService_1=require("./profilesService"),defaultOptions={onlyProfile:!1};function saveUser(e){return __awaiter(this,arguments,void 0,(function*(e,r=defaultOptions){var i;const o=String(null===(i=e.message)||void 0===i?void 0:i.from.id);e.logger.info({userId:o,onlyProfile:r.onlyProfile},"Starting user save process");try{e.session.activeProfile.profileType=e.session.additionalFormInfo.selectedProfileType,e.session.activeProfile.profileType!==client_1.ProfileType.RELATIONSHIP&&e.session.additionalFormInfo.selectedSubType&&(e.session.activeProfile.subType=e.session.additionalFormInfo.selectedSubType);const i=e.session.activeProfile;if(e.logger.info({userId:o,profileType:i.profileType,subType:null==i?void 0:i.subType,hasName:!!i.name,hasCity:!!i.city,hasGender:!!i.gender,hasAge:!!i.age,hasLocation:!!i.location,ownCoordinates:i.ownCoordinates},"Prepared user data for saving"),e.session.isEditingProfile=!1,e.session.isCreatingProfile=!1,!r.onlyProfile){(yield postgres_1.prisma.user.findUnique({where:{id:o}}))?(yield postgres_1.prisma.user.update({where:{id:o},data:{name:i.name||"",city:i.city||"",gender:i.gender||"",age:i.age||0,longitude:i.location.longitude,latitude:i.location.latitude,ownCoordinates:i.ownCoordinates}}),e.logger.info({userId:o,newName:i.name,newCity:i.city,newGender:i.gender,newAge:i.age},"User data updated successfully")):(e.logger.info({userId:o},"Creating new user"),yield postgres_1.prisma.user.create({data:{id:o,name:i.name||"",city:i.city||"",gender:i.gender||"",age:i.age||0,longitude:i.location.longitude,referrerId:e.session.referrerId||"",latitude:i.location.latitude,ownCoordinates:i.ownCoordinates}}),e.logger.info({userId:o,name:i.name,city:i.city,hasReferrer:!!e.session.referrerId},"New user created successfully"))}if(i.profileType)try{const r=yield(0,profilesService_1.saveProfile)(Object.assign(Object.assign({},i),{userId:o}));return e.session.activeProfile.id=null==r?void 0:r.id,e.logger.info({userId:o,profileType:i.profileType,subType:null==i?void 0:i.subType,profileId:null==r?void 0:r.id},"Profile saved successfully"),r}catch(r){return e.logger.error({userId:o,profileType:i.profileType,subType:null==i?void 0:i.subType,error:r instanceof Error?r.message:"Unknown error",stack:r instanceof Error?r.stack:void 0},"Error saving profile"),null}else e.logger.warn({userId:o},"No profile type specified, skipping profile save");return null}catch(r){return e.logger.error({userId:o,error:r instanceof Error?r.message:"Unknown error",stack:r instanceof Error?r.stack:void 0},"Error in user save process"),null}}))}
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.saveUser = saveUser;
+const client_1 = require("@prisma/client");
+const postgres_1 = require("../../db/postgres");
+const profilesService_1 = require("./profilesService");
+const defaultOptions = {
+    onlyProfile: false
+};
+function saveUser(ctx_1) {
+    return __awaiter(this, arguments, void 0, function* (ctx, options = defaultOptions) {
+        var _a;
+        const userId = String((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.from.id);
+        ctx.logger.info({
+            userId,
+            onlyProfile: options.onlyProfile
+        }, 'Starting user save process');
+        try {
+            ctx.session.activeProfile.profileType = ctx.session.additionalFormInfo.selectedProfileType;
+            if (ctx.session.activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP && ctx.session.additionalFormInfo.selectedSubType) {
+                ctx.session.activeProfile.subType = ctx.session.additionalFormInfo.selectedSubType;
+            }
+            const userData = ctx.session.activeProfile;
+            ctx.logger.info({
+                userId,
+                profileType: userData.profileType,
+                subType: userData === null || userData === void 0 ? void 0 : userData.subType,
+                hasName: !!userData.name,
+                hasCity: !!userData.city,
+                hasGender: !!userData.gender,
+                hasAge: !!userData.age,
+                hasLocation: !!userData.location,
+                ownCoordinates: userData.ownCoordinates
+            }, 'Prepared user data for saving');
+            ctx.session.isEditingProfile = false;
+            ctx.session.isCreatingProfile = false;
+            if (!options.onlyProfile) {
+                // Сохраняем основные данные пользователя
+                const existingUser = yield postgres_1.prisma.user.findUnique({
+                    where: { id: userId },
+                });
+                if (existingUser) {
+                    // Обновляем существующего пользователя
+                    yield postgres_1.prisma.user.update({
+                        where: { id: userId },
+                        data: {
+                            name: userData.name || "",
+                            city: userData.city || "",
+                            gender: userData.gender || "",
+                            age: userData.age || 0,
+                            longitude: userData.location.longitude,
+                            latitude: userData.location.latitude,
+                            ownCoordinates: userData.ownCoordinates
+                        },
+                    });
+                    ctx.logger.info({
+                        userId,
+                        newName: userData.name,
+                        newCity: userData.city,
+                        newGender: userData.gender,
+                        newAge: userData.age
+                    }, 'User data updated successfully');
+                }
+                else {
+                    ctx.logger.info({ userId }, 'Creating new user');
+                    // Создаем нового пользователя
+                    yield postgres_1.prisma.user.create({
+                        data: {
+                            id: userId,
+                            name: userData.name || "",
+                            city: userData.city || "",
+                            gender: userData.gender || "",
+                            age: userData.age || 0,
+                            longitude: userData.location.longitude,
+                            referrerId: ctx.session.referrerId || "",
+                            latitude: userData.location.latitude,
+                            ownCoordinates: userData.ownCoordinates
+                        },
+                    });
+                    ctx.logger.info({
+                        userId,
+                        name: userData.name,
+                        city: userData.city,
+                        hasReferrer: !!ctx.session.referrerId
+                    }, 'New user created successfully');
+                }
+            }
+            // Сохраняем профиль пользователя с помощью функции из profilesService
+            if (userData.profileType) {
+                try {
+                    const savedProfile = yield (0, profilesService_1.saveProfile)(Object.assign(Object.assign({}, userData), { userId }));
+                    ctx.session.activeProfile.id = savedProfile === null || savedProfile === void 0 ? void 0 : savedProfile.id;
+                    ctx.logger.info({
+                        userId,
+                        profileType: userData.profileType,
+                        subType: userData === null || userData === void 0 ? void 0 : userData.subType,
+                        profileId: savedProfile === null || savedProfile === void 0 ? void 0 : savedProfile.id
+                    }, 'Profile saved successfully');
+                    return savedProfile;
+                }
+                catch (profileError) {
+                    ctx.logger.error({
+                        userId,
+                        profileType: userData.profileType,
+                        subType: userData === null || userData === void 0 ? void 0 : userData.subType,
+                        error: profileError instanceof Error ? profileError.message : 'Unknown error',
+                        stack: profileError instanceof Error ? profileError.stack : undefined
+                    }, 'Error saving profile');
+                    return null;
+                }
+            }
+            else {
+                ctx.logger.warn({ userId }, 'No profile type specified, skipping profile save');
+            }
+            return null;
+        }
+        catch (error) {
+            ctx.logger.error({
+                userId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }, 'Error in user save process');
+            return null;
+        }
+    });
+}

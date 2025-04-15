@@ -1,1 +1,33 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(t,e,r,n){return new(r||(r=Promise))((function(i,o){function c(t){try{u(n.next(t))}catch(t){o(t)}}function a(t){try{u(n.throw(t))}catch(t){o(t)}}function u(t){var e;t.done?i(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(c,a)}u((n=n.apply(t,e||[])).next())}))};function checkSubscription(t,e){return __awaiter(this,void 0,void 0,(function*(){var r;try{const n=yield t.api.getChatMember(`@${e}`,null===(r=t.from)||void 0===r?void 0:r.id);return!!["member","administrator","creator"].includes(n.status)}catch(e){return t.logger.error({msg:"Ошибка проверки подписки",error:e}),!1}}))}Object.defineProperty(exports,"__esModule",{value:!0}),exports.checkSubscription=checkSubscription;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkSubscription = checkSubscription;
+function checkSubscription(ctx, channelId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        try {
+            const member = yield ctx.api.getChatMember(`@${channelId}`, (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+            if (["member", "administrator", "creator"].includes(member.status)) {
+                return true; // Подписан
+            }
+            else {
+                return false; // Не подписан
+            }
+        }
+        catch (error) {
+            ctx.logger.error({
+                msg: 'Ошибка проверки подписки',
+                error: error
+            });
+            return false; // Ошибка — считаем, что не подписан
+        }
+    });
+}

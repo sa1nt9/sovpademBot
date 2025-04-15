@@ -1,1 +1,40 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,i,o,n){return new(o||(o=Promise))((function(t,r){function s(e){try{a(n.next(e))}catch(e){r(e)}}function c(e){try{a(n.throw(e))}catch(e){r(e)}}function a(e){var i;e.done?t(e.value):(i=e.value,i instanceof o?i:new o((function(e){e(i)}))).then(s,c)}a((n=n.apply(e,i||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.itExperienceQuestion=void 0;const keyboards_1=require("../../constants/keyboards"),checkIsKeyboardOption_1=require("../../functions/checkIsKeyboardOption"),itExperienceQuestion=e=>__awaiter(void 0,void 0,void 0,(function*(){var i;const o=e.message.text,n=String(e.from.id);e.logger.info({userId:n,question:"it_experience",input:o,profileType:null===(i=e.session.activeProfile)||void 0===i?void 0:i.profileType},"User answering IT experience question"),o&&(0,checkIsKeyboardOption_1.checkIsKeyboardOption)((0,keyboards_1.selectItExperienceKeyboard)(e.t),o)?(e.logger.info({userId:n,itExperience:o},"User IT experience validated and saved"),e.session.question="it_technologies",e.session.activeProfile.experience=o,yield e.reply(e.t("it_technologies_question"),{reply_markup:(0,keyboards_1.itTechnologiesKeyboard)(e.t,e.session)})):(e.logger.warn({userId:n,invalidOption:o},"User provided invalid IT experience option"),yield e.reply(e.t("no_such_answer"),{reply_markup:(0,keyboards_1.selectSportLevelkeyboard)(e.t)}))}));exports.itExperienceQuestion=itExperienceQuestion;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.itExperienceQuestion = void 0;
+const keyboards_1 = require("../../constants/keyboards");
+const checkIsKeyboardOption_1 = require("../../functions/checkIsKeyboardOption");
+const itExperienceQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const message = ctx.message.text;
+    const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId,
+        question: 'it_experience',
+        input: message,
+        profileType: (_a = ctx.session.activeProfile) === null || _a === void 0 ? void 0 : _a.profileType
+    }, 'User answering IT experience question');
+    if (message && (0, checkIsKeyboardOption_1.checkIsKeyboardOption)((0, keyboards_1.selectItExperienceKeyboard)(ctx.t), message)) {
+        ctx.logger.info({ userId, itExperience: message }, 'User IT experience validated and saved');
+        ctx.session.question = 'it_technologies';
+        ctx.session.activeProfile.experience = message;
+        yield ctx.reply(ctx.t('it_technologies_question'), {
+            reply_markup: (0, keyboards_1.itTechnologiesKeyboard)(ctx.t, ctx.session)
+        });
+    }
+    else {
+        ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid IT experience option');
+        yield ctx.reply(ctx.t('no_such_answer'), {
+            reply_markup: (0, keyboards_1.selectSportLevelkeyboard)(ctx.t)
+        });
+    }
+});
+exports.itExperienceQuestion = itExperienceQuestion;

@@ -1,1 +1,128 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,i,o){return new(i||(i=Promise))((function(s,t){function n(e){try{a(o.next(e))}catch(e){t(e)}}function l(e){try{a(o.throw(e))}catch(e){t(e)}}function a(e){var r;e.done?s(e.value):(r=e.value,r instanceof i?r:new i((function(e){e(r)}))).then(n,l)}a((o=o.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.restoreProfileValues=void 0;const client_1=require("@prisma/client"),postgres_1=require("../db/postgres"),restoreProfileValues=e=>__awaiter(void 0,void 0,void 0,(function*(){var r,i;try{const i=String(null===(r=e.from)||void 0===r?void 0:r.id);if(!i)return void e.logger.warn("No user ID found for profile restoration");e.logger.info({userId:i},"Starting profile values restoration");const o=e.session.activeProfile;if(!o)return void e.logger.warn({userId:i},"No active profile found for restoration");const s=`${o.profileType.toLowerCase()}Profile`;if(!s)return void e.logger.warn({userId:i,profileType:o.profileType},"Invalid profile model name");e.logger.info({userId:i,profileType:o.profileType,profileModelName:s},"Restoring profile values");let t=null;switch(s){case"relationshipProfile":t=yield postgres_1.prisma.relationshipProfile.findFirst({where:{userId:i}});break;case"sportProfile":t=yield postgres_1.prisma.sportProfile.findFirst({where:Object.assign({userId:i},o.profileType!==client_1.ProfileType.RELATIONSHIP&&"subType"in o?{subType:o.subType}:{})});break;case"gameProfile":t=yield postgres_1.prisma.gameProfile.findFirst({where:Object.assign({userId:i},o.profileType!==client_1.ProfileType.RELATIONSHIP&&"subType"in o?{subType:o.subType}:{})});break;case"hobbyProfile":t=yield postgres_1.prisma.hobbyProfile.findFirst({where:Object.assign({userId:i},o.profileType!==client_1.ProfileType.RELATIONSHIP&&"subType"in o?{subType:o.subType}:{})});break;case"itProfile":t=yield postgres_1.prisma.itProfile.findFirst({where:Object.assign({userId:i},o.profileType!==client_1.ProfileType.RELATIONSHIP&&"subType"in o?{subType:o.subType}:{})})}if(t){e.logger.info({userId:i,profileType:o.profileType,hasProfile:!0},"Found profile in database");const r=yield postgres_1.prisma.user.findUnique({where:{id:i}});if(!r)return void e.logger.warn({userId:i},"User not found in database");e.session.activeProfile=Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({},e.session.activeProfile),{name:r.name||"",age:r.age||0,gender:r.gender||"",city:r.city||"",location:{longitude:r.longitude||0,latitude:r.latitude||0},ownCoordinates:r.ownCoordinates||!1,description:t.description||"",interestedIn:t.interestedIn||"",files:JSON.parse(t.files)||[]}),o.profileType===client_1.ProfileType.SPORT?{level:t.level||""}:{}),o.profileType===client_1.ProfileType.GAME?{accountLink:t.accountLink||""}:{}),o.profileType===client_1.ProfileType.IT?{experience:t.experience||""}:{}),o.profileType===client_1.ProfileType.IT?{technologies:t.technologies||""}:{}),o.profileType===client_1.ProfileType.IT?{github:t.github||""}:{}),e.logger.info({userId:i,profileType:o.profileType},"Successfully restored profile values")}else e.logger.warn({userId:i,profileType:o.profileType},"Profile not found in database")}catch(r){e.logger.error({userId:null===(i=e.from)||void 0===i?void 0:i.id,error:r instanceof Error?r.message:"Unknown error",stack:r instanceof Error?r.stack:void 0},"Error restoring profile values")}}));exports.restoreProfileValues=restoreProfileValues;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.restoreProfileValues = void 0;
+const client_1 = require("@prisma/client");
+const postgres_1 = require("../db/postgres");
+// Функция для восстановления значений профиля из базы данных
+const restoreProfileValues = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        if (!userId) {
+            ctx.logger.warn('No user ID found for profile restoration');
+            return;
+        }
+        ctx.logger.info({ userId }, 'Starting profile values restoration');
+        // Получаем активный профиль пользователя
+        const activeProfile = ctx.session.activeProfile;
+        if (!activeProfile) {
+            ctx.logger.warn({ userId }, 'No active profile found for restoration');
+            return;
+        }
+        // Получаем актуальные данные профиля из базы данных
+        const profileModelName = `${activeProfile.profileType.toLowerCase()}Profile`;
+        if (!profileModelName) {
+            ctx.logger.warn({ userId, profileType: activeProfile.profileType }, 'Invalid profile model name');
+            return;
+        }
+        ctx.logger.info({
+            userId,
+            profileType: activeProfile.profileType,
+            profileModelName
+        }, 'Restoring profile values');
+        // Используем динамический доступ к моделям Prisma
+        let profile = null;
+        switch (profileModelName) {
+            case 'relationshipProfile':
+                profile = yield postgres_1.prisma.relationshipProfile.findFirst({
+                    where: {
+                        userId: userId,
+                    }
+                });
+                break;
+            case 'sportProfile':
+                profile = yield postgres_1.prisma.sportProfile.findFirst({
+                    where: Object.assign({ userId: userId }, (activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP && 'subType' in activeProfile
+                        ? { subType: activeProfile.subType }
+                        : {}))
+                });
+                break;
+            case 'gameProfile':
+                profile = yield postgres_1.prisma.gameProfile.findFirst({
+                    where: Object.assign({ userId: userId }, (activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP && 'subType' in activeProfile
+                        ? { subType: activeProfile.subType }
+                        : {}))
+                });
+                break;
+            case 'hobbyProfile':
+                profile = yield postgres_1.prisma.hobbyProfile.findFirst({
+                    where: Object.assign({ userId: userId }, (activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP && 'subType' in activeProfile
+                        ? { subType: activeProfile.subType }
+                        : {}))
+                });
+                break;
+            case 'itProfile':
+                profile = yield postgres_1.prisma.itProfile.findFirst({
+                    where: Object.assign({ userId: userId }, (activeProfile.profileType !== client_1.ProfileType.RELATIONSHIP && 'subType' in activeProfile
+                        ? { subType: activeProfile.subType }
+                        : {}))
+                });
+                break;
+        }
+        if (profile) {
+            ctx.logger.info({
+                userId,
+                profileType: activeProfile.profileType,
+                hasProfile: true
+            }, 'Found profile in database');
+            const user = yield postgres_1.prisma.user.findUnique({
+                where: { id: userId }
+            });
+            if (!user) {
+                ctx.logger.warn({ userId }, 'User not found in database');
+                return;
+            }
+            ctx.session.activeProfile = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, ctx.session.activeProfile), { name: user.name || "", age: user.age || 0, gender: user.gender || "", city: user.city || "", location: {
+                    longitude: user.longitude || 0,
+                    latitude: user.latitude || 0
+                }, ownCoordinates: user.ownCoordinates || false, description: profile.description || "", interestedIn: profile.interestedIn || "", files: JSON.parse(profile.files) || [] }), (activeProfile.profileType === client_1.ProfileType.SPORT
+                ? { level: profile.level || "" }
+                : {})), (activeProfile.profileType === client_1.ProfileType.GAME
+                ? { accountLink: profile.accountLink || "" }
+                : {})), (activeProfile.profileType === client_1.ProfileType.IT
+                ? { experience: profile.experience || "" }
+                : {})), (activeProfile.profileType === client_1.ProfileType.IT
+                ? { technologies: profile.technologies || "" }
+                : {})), (activeProfile.profileType === client_1.ProfileType.IT
+                ? { github: profile.github || "" }
+                : {}));
+            ctx.logger.info({
+                userId,
+                profileType: activeProfile.profileType
+            }, 'Successfully restored profile values');
+        }
+        else {
+            ctx.logger.warn({
+                userId,
+                profileType: activeProfile.profileType
+            }, 'Profile not found in database');
+        }
+    }
+    catch (error) {
+        ctx.logger.error({
+            userId: (_b = ctx.from) === null || _b === void 0 ? void 0 : _b.id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error restoring profile values');
+    }
+});
+exports.restoreProfileValues = restoreProfileValues;

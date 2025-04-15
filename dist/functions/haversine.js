@@ -1,1 +1,26 @@
-"use strict";function haversine(t,e,a,r){const s=t=>Math.PI/180*t,n=s(a-t),o=s(r-e),h=Math.pow(Math.sin(n/2),2)+Math.cos(s(t))*Math.cos(s(a))*Math.pow(Math.sin(o/2),2);return 6371*(2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h)))}function formatDistance(t,e){if(t<1){const a=Math.round(10*t);return a<100?e?e("very_close_distance"):"Очень близко":`${100*a} ${e?e("meters"):"м"}`}return`${Math.round(t)} ${e?e("kilometers"):"км"}`}Object.defineProperty(exports,"__esModule",{value:!0}),exports.haversine=haversine,exports.formatDistance=formatDistance;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.haversine = haversine;
+exports.formatDistance = formatDistance;
+// Функция для вычисления расстояния между двумя точками (широта и долгота)
+function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Радиус Земли в километрах
+    const toRad = (angle) => (Math.PI / 180) * angle;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.pow(Math.sin(dLat / 2), 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.pow(Math.sin(dLon / 2), 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Расстояние в километрах
+}
+// Функция форматирования расстояния в удобный для чтения вид
+function formatDistance(distanceKm, t) {
+    if (distanceKm < 1) {
+        const meters = Math.round(distanceKm * 10);
+        if (meters < 100) {
+            return t ? t('very_close_distance') : 'Очень близко';
+        }
+        return `${meters * 100} ${t ? t('meters') : 'м'}`;
+    }
+    return `${Math.round(distanceKm)} ${t ? t('kilometers') : 'км'}`;
+}

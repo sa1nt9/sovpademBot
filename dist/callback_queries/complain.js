@@ -1,1 +1,33 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,a,o,r){return new(o||(o=Promise))((function(t,i){function n(e){try{c(r.next(e))}catch(e){i(e)}}function l(e){try{c(r.throw(e))}catch(e){i(e)}}function c(e){var a;e.done?t(e.value):(a=e.value,a instanceof o?a:new o((function(e){e(a)}))).then(n,l)}c((r=r.apply(e,a||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.complainCallbackQuery=void 0;const keyboards_1=require("../constants/keyboards"),logger_1=require("../logger"),complainCallbackQuery=e=>__awaiter(void 0,void 0,void 0,(function*(){var a;logger_1.logger.info({userId:null===(a=e.from)||void 0===a?void 0:a.id},"User initiated complaint");const o=e.callbackQuery.data;yield e.answerCallbackQuery({text:"👇",show_alert:!1,cache_time:86400});const r=o.split(":")[1];e.session.additionalFormInfo.reportedUserId=r,e.session.step="complain",yield e.answerCallbackQuery(),yield e.reply(e.t("complain_text"),{reply_markup:(0,keyboards_1.complainKeyboard)()})}));exports.complainCallbackQuery=complainCallbackQuery;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.complainCallbackQuery = void 0;
+const keyboards_1 = require("../constants/keyboards");
+const logger_1 = require("../logger");
+const complainCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    logger_1.logger.info({ userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id }, 'User initiated complaint');
+    const callbackQuery = ctx.callbackQuery;
+    const callbackData = callbackQuery.data;
+    yield ctx.answerCallbackQuery({
+        text: "👇",
+        show_alert: false,
+        cache_time: 86400
+    });
+    const userId = callbackData.split(":")[1];
+    ctx.session.additionalFormInfo.reportedUserId = userId;
+    ctx.session.step = 'complain';
+    yield ctx.answerCallbackQuery();
+    yield ctx.reply(ctx.t('complain_text'), {
+        reply_markup: (0, keyboards_1.complainKeyboard)()
+    });
+});
+exports.complainCallbackQuery = complainCallbackQuery;

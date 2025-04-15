@@ -1,1 +1,68 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,t,r,i){return new(r||(r=Promise))((function(n,o){function s(e){try{a(i.next(e))}catch(e){o(e)}}function u(e){try{a(i.throw(e))}catch(e){o(e)}}function a(e){var t;e.done?n(e.value):(t=e.value,t instanceof r?t:new r((function(e){e(t)}))).then(s,u)}a((i=i.apply(e,t||[])).next())}))},__importDefault=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0}),exports.checkGithubUserExists=exports.getGithubUsername=void 0;const node_fetch_1=__importDefault(require("node-fetch")),githubLinkRegex_1=require("../constants/regex/githubLinkRegex"),logger_1=require("../logger"),getGithubUsername=e=>{const t=e.match(githubLinkRegex_1.githubShortLinkRegex),r=t?t[1]:null;return r?logger_1.logger.info({link:e,username:r},"Extracted GitHub username"):logger_1.logger.warn({link:e},"Failed to extract GitHub username"),r};exports.getGithubUsername=getGithubUsername;const checkGithubUserExists=e=>__awaiter(void 0,void 0,void 0,(function*(){try{const t=e.startsWith("http")||e.startsWith("www")?(0,exports.getGithubUsername)(e):e;if(!t)return logger_1.logger.warn({input:e},"No valid GitHub username found"),!1;logger_1.logger.info({username:t},"Checking GitHub user existence");const r=200===(yield(0,node_fetch_1.default)(`https://api.github.com/users/${t}`,{method:"GET",headers:{Accept:"application/vnd.github.v3+json","User-Agent":"SovpademBot"}})).status;return logger_1.logger.info({username:t,exists:r},"GitHub user check completed"),r}catch(t){return logger_1.logger.error({input:e,error:t instanceof Error?t.message:"Unknown error",stack:t instanceof Error?t.stack:void 0},"Error checking GitHub user"),!1}}));exports.checkGithubUserExists=checkGithubUserExists;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkGithubUserExists = exports.getGithubUsername = void 0;
+const node_fetch_1 = __importDefault(require("node-fetch"));
+const githubLinkRegex_1 = require("../constants/regex/githubLinkRegex");
+const logger_1 = require("../logger");
+const getGithubUsername = (link) => {
+    const match = link.match(githubLinkRegex_1.githubShortLinkRegex);
+    const username = match ? match[1] : null;
+    if (username) {
+        logger_1.logger.info({ link, username }, 'Extracted GitHub username');
+    }
+    else {
+        logger_1.logger.warn({ link }, 'Failed to extract GitHub username');
+    }
+    return username;
+};
+exports.getGithubUsername = getGithubUsername;
+const checkGithubUserExists = (input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const username = (input.startsWith('http') || input.startsWith('www')) ? (0, exports.getGithubUsername)(input) : input;
+        if (!username) {
+            logger_1.logger.warn({ input }, 'No valid GitHub username found');
+            return false;
+        }
+        logger_1.logger.info({ username }, 'Checking GitHub user existence');
+        const response = yield (0, node_fetch_1.default)(`https://api.github.com/users/${username}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'SovpademBot'
+            }
+        });
+        const exists = response.status === 200;
+        logger_1.logger.info({ username, exists }, 'GitHub user check completed');
+        return exists;
+    }
+    catch (error) {
+        logger_1.logger.error({
+            input,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error checking GitHub user');
+        return false;
+    }
+});
+exports.checkGithubUserExists = checkGithubUserExists;
+// Примеры работы getGithubUsername:
+// getGithubUsername('https://github.com/username?tab=repositories') -> 'username'
+// getGithubUsername('https://github.com/username#readme') -> 'username'
+// getGithubUsername('https://github.com/username/repo?tab=readme#readme') -> 'username'
+// getGithubUsername('https://github.com/username') -> 'username'
+// getGithubUsername('https://github.com/') -> null
+// Примеры работы checkGithubUserExists:
+// await checkGithubUserExists('https://github.com/username') -> true/false
+// await checkGithubUserExists('username') -> true/false

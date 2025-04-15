@@ -1,6 +1,6 @@
 choose_language = Wybierz język 👇
 
-need_subscription = Aby kontynuować, najpierw zasubskrybuj [nasz kanał {$botname}](https://t.me/{ $botusername })
+need_subscription = Aby kontynuować, najpierw zasubskrybuj [nasz kanał {$botname}](https://t.me/sovpadem)
 
     Po subskrypcji kliknij przycisk *Gotowe*, aby kontynuować.
 

@@ -1,1 +1,53 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.formatDate=formatDate,exports.formatDuration=formatDuration;const logger_1=require("../logger");function formatDate(r){try{const t=r.toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});return logger_1.logger.info({date:r.toISOString(),formattedDate:t},"Formatted date"),t}catch(t){return logger_1.logger.error({date:r.toISOString(),error:t instanceof Error?t.message:"Unknown error",stack:t instanceof Error?t.stack:void 0},"Error formatting date"),"Unknown date"}}function formatDuration(r,t){try{const o=Math.floor(r/36e5),e=Math.floor(r%36e5/6e4),n=Math.floor(r%6e4/1e3);let a="";return a=o>0?`${o} ${t("time_hour")} ${e} ${t("time_minute")} ${n} ${t("time_second")}`:e>0?`${e} ${t("time_minute")} ${n} ${t("time_second")}`:`${n} ${t("time_second")}`,logger_1.logger.info({durationMs:r,formattedDuration:a},"Formatted duration"),a}catch(t){return logger_1.logger.error({durationMs:r,error:t instanceof Error?t.message:"Unknown error",stack:t instanceof Error?t.stack:void 0},"Error formatting duration"),"Unknown duration"}}
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.formatDate = formatDate;
+exports.formatDuration = formatDuration;
+const logger_1 = require("../logger");
+function formatDate(date) {
+    try {
+        const formattedDate = date.toLocaleString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        logger_1.logger.info({ date: date.toISOString(), formattedDate }, 'Formatted date');
+        return formattedDate;
+    }
+    catch (error) {
+        logger_1.logger.error({
+            date: date.toISOString(),
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error formatting date');
+        return 'Unknown date';
+    }
+}
+function formatDuration(durationMs, t) {
+    try {
+        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+        let formattedDuration = '';
+        if (hours > 0) {
+            formattedDuration = `${hours} ${t('time_hour')} ${minutes} ${t('time_minute')} ${seconds} ${t('time_second')}`;
+        }
+        else if (minutes > 0) {
+            formattedDuration = `${minutes} ${t('time_minute')} ${seconds} ${t('time_second')}`;
+        }
+        else {
+            formattedDuration = `${seconds} ${t('time_second')}`;
+        }
+        logger_1.logger.info({ durationMs, formattedDuration }, 'Formatted duration');
+        return formattedDuration;
+    }
+    catch (error) {
+        logger_1.logger.error({
+            durationMs,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error formatting duration');
+        return 'Unknown duration';
+    }
+}

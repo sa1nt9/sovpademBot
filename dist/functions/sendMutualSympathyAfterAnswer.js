@@ -1,1 +1,73 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,t,r,s){return new(r||(r=Promise))((function(i,n){function o(e){try{d(s.next(e))}catch(e){n(e)}}function a(e){try{d(s.throw(e))}catch(e){n(e)}}function d(e){var t;e.done?i(e.value):(t=e.value,t instanceof r?t:new r((function(e){e(t)}))).then(o,a)}d((s=s.apply(e,t||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.sendMutualSympathyAfterAnswer=void 0;const keyboards_1=require("../constants/keyboards"),postgres_1=require("../db/postgres"),sendForm_1=require("./sendForm"),defaultOptions={withoutSleepMenu:!1},sendMutualSympathyAfterAnswer=(e,...t)=>__awaiter(void 0,[e,...t],void 0,(function*(e,t=defaultOptions){var r;const s=String(null===(r=e.from)||void 0===r?void 0:r.id),i=String(e.session.pendingMutualLikeProfileId);e.logger.info({userId:s,targetUserId:i,withoutSleepMenu:t.withoutSleepMenu},"Sending mutual sympathy after answer");const n=yield postgres_1.prisma.user.findUnique({where:{id:i}});if(n){const r=yield postgres_1.prisma.profileLike.findFirst({where:{fromProfileId:s,toProfileId:n.id,liked:!0},orderBy:{createdAt:"desc"},select:{privateNote:!0}});yield(0,sendForm_1.sendForm)(e,n,{myForm:!1,privateNote:null==r?void 0:r.privateNote}),e.session.step="continue_see_forms";const o=yield e.api.getChat(n.id);yield e.reply(`${e.t("mutual_sympathy")} [${n.name}](https://t.me/${o.username})`,{reply_markup:(0,keyboards_1.complainToUserKeyboard)(e.t,String(n.id)),link_preview_options:{is_disabled:!0},parse_mode:"Markdown"}),t.withoutSleepMenu||(e.session.step="sleep_menu",yield e.reply(e.t("sleep_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()})),e.session.pendingMutualLike=!1,e.session.pendingMutualLikeProfileId=void 0,e.logger.info({userId:s,targetUserId:i},"Mutual sympathy sent successfully")}else e.logger.warn({userId:s,targetUserId:i},"Liked user not found")}));exports.sendMutualSympathyAfterAnswer=sendMutualSympathyAfterAnswer;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendMutualSympathyAfterAnswer = void 0;
+const keyboards_1 = require("../constants/keyboards");
+const postgres_1 = require("../db/postgres");
+const sendForm_1 = require("./sendForm");
+const defaultOptions = {
+    withoutSleepMenu: false
+};
+const sendMutualSympathyAfterAnswer = (ctx_1, ...args_1) => __awaiter(void 0, [ctx_1, ...args_1], void 0, function* (ctx, options = defaultOptions) {
+    var _a;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    const targetUserId = String(ctx.session.pendingMutualLikeProfileId);
+    ctx.logger.info({
+        userId,
+        targetUserId,
+        withoutSleepMenu: options.withoutSleepMenu
+    }, 'Sending mutual sympathy after answer');
+    // Получаем данные пользователя, который поставил лайк
+    const likedUser = yield postgres_1.prisma.user.findUnique({
+        where: {
+            id: targetUserId
+        }
+    });
+    if (likedUser) {
+        const userLike = yield postgres_1.prisma.profileLike.findFirst({
+            where: {
+                fromProfileId: userId,
+                toProfileId: likedUser.id,
+                liked: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            select: {
+                privateNote: true
+            }
+        });
+        // Отправляем анкету пользователя, который поставил лайк
+        yield (0, sendForm_1.sendForm)(ctx, likedUser, { myForm: false, privateNote: userLike === null || userLike === void 0 ? void 0 : userLike.privateNote });
+        ctx.session.step = 'continue_see_forms';
+        const userInfo = yield ctx.api.getChat(likedUser.id);
+        yield ctx.reply(`${ctx.t('mutual_sympathy')} [${likedUser.name}](https://t.me/${userInfo.username})`, {
+            reply_markup: (0, keyboards_1.complainToUserKeyboard)(ctx.t, String(likedUser.id)),
+            link_preview_options: {
+                is_disabled: true
+            },
+            parse_mode: 'Markdown',
+        });
+        if (!options.withoutSleepMenu) {
+            ctx.session.step = 'sleep_menu';
+            yield ctx.reply(ctx.t('sleep_menu'), {
+                reply_markup: (0, keyboards_1.profileKeyboard)()
+            });
+        }
+        ctx.session.pendingMutualLike = false;
+        ctx.session.pendingMutualLikeProfileId = undefined;
+        ctx.logger.info({ userId, targetUserId }, 'Mutual sympathy sent successfully');
+    }
+    else {
+        ctx.logger.warn({ userId, targetUserId }, 'Liked user not found');
+    }
+});
+exports.sendMutualSympathyAfterAnswer = sendMutualSympathyAfterAnswer;

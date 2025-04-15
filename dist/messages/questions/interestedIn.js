@@ -1,1 +1,40 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,n,t,i){return new(t||(t=Promise))((function(r,o){function s(e){try{a(i.next(e))}catch(e){o(e)}}function d(e){try{a(i.throw(e))}catch(e){o(e)}}function a(e){var n;e.done?r(e.value):(n=e.value,n instanceof t?n:new t((function(e){e(n)}))).then(s,d)}a((i=i.apply(e,n||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.interestedInQuestion=void 0;const keyboards_1=require("../../constants/keyboards"),interestedInQuestion=e=>__awaiter(void 0,void 0,void 0,(function*(){var n,t;const i=e.message.text,r=String(e.from.id);if(e.logger.info({userId:r,question:"interested_in",input:i,profileType:null===(n=e.session.activeProfile)||void 0===n?void 0:n.profileType},"User answering interested in question"),null===(t=(0,keyboards_1.interestedInKeyboard)(e.t))||void 0===t?void 0:t.keyboard[0].includes(i||"")){const n=i===e.t("men")?"male":i===e.t("women")?"female":"all";e.logger.info({userId:r,interestedIn:n},"User preference validated and saved"),e.session.question="city",e.session.activeProfile.interestedIn=n,yield e.reply(e.t("city_question"),{reply_markup:(0,keyboards_1.cityKeyboard)(e.t,e.session)})}else e.logger.warn({userId:r,invalidInput:i},"User provided invalid preference option"),yield e.reply(e.t("no_such_answer"),{reply_markup:(0,keyboards_1.interestedInKeyboard)(e.t)})}));exports.interestedInQuestion=interestedInQuestion;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.interestedInQuestion = void 0;
+const keyboards_1 = require("../../constants/keyboards");
+const interestedInQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const message = ctx.message.text;
+    const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId,
+        question: 'interested_in',
+        input: message,
+        profileType: (_a = ctx.session.activeProfile) === null || _a === void 0 ? void 0 : _a.profileType
+    }, 'User answering interested in question');
+    if ((_b = (0, keyboards_1.interestedInKeyboard)(ctx.t)) === null || _b === void 0 ? void 0 : _b.keyboard[0].includes(message || "")) {
+        const interestedIn = message === ctx.t('men') ? 'male' : message === ctx.t('women') ? 'female' : "all";
+        ctx.logger.info({ userId, interestedIn }, 'User preference validated and saved');
+        ctx.session.question = "city";
+        ctx.session.activeProfile.interestedIn = interestedIn;
+        yield ctx.reply(ctx.t('city_question'), {
+            reply_markup: (0, keyboards_1.cityKeyboard)(ctx.t, ctx.session)
+        });
+    }
+    else {
+        ctx.logger.warn({ userId, invalidInput: message }, 'User provided invalid preference option');
+        yield ctx.reply(ctx.t('no_such_answer'), {
+            reply_markup: (0, keyboards_1.interestedInKeyboard)(ctx.t)
+        });
+    }
+});
+exports.interestedInQuestion = interestedInQuestion;

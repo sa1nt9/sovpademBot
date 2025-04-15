@@ -1,1 +1,554 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,t,i,r){return new(i||(i=Promise))((function(p,s){function n(e){try{_(r.next(e))}catch(e){s(e)}}function o(e){try{_(r.throw(e))}catch(e){s(e)}}function _(e){var t;e.done?p(e.value):(t=e.value,t instanceof i?t:new i((function(e){e(t)}))).then(n,o)}_((r=r.apply(e,t||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.findKeyByValue=exports.getSubtypeLocalizations=exports.getProfileTypeLocalizations=void 0,exports.getUserProfiles=getUserProfiles,exports.getUserProfile=getUserProfile,exports.saveProfile=saveProfile,exports.toggleProfileActive=toggleProfileActive,exports.getProfileModelName=getProfileModelName;const postgres_1=require("../../db/postgres"),client_1=require("@prisma/client"),logger_1=require("../../logger");function getUserProfiles(e,t){return __awaiter(this,void 0,void 0,(function*(){logger_1.logger.info({userId:e},"Getting all user profiles");const i=yield postgres_1.prisma.relationshipProfile.findUnique({where:{userId:e}}),r=yield postgres_1.prisma.sportProfile.findMany({where:{userId:e}}),p=yield postgres_1.prisma.gameProfile.findMany({where:{userId:e}}),s=yield postgres_1.prisma.hobbyProfile.findMany({where:{userId:e}}),n=yield postgres_1.prisma.itProfile.findMany({where:{userId:e}}),o=[];return i&&o.push({profileType:client_1.ProfileType.RELATIONSHIP,name:t.t("profile_type_relationship"),isActive:i.isActive}),r.forEach((e=>{o.push({profileType:client_1.ProfileType.SPORT,subType:e.subType,name:`${t.t("profile_type_sport")}: ${t.t(getSportTypeName(e.subType))}`,isActive:e.isActive})})),p.forEach((e=>{o.push({profileType:client_1.ProfileType.GAME,subType:e.subType,name:`${t.t("profile_type_game")}: ${t.t(getGameTypeName(e.subType))}`,isActive:e.isActive})})),s.forEach((e=>{o.push({profileType:client_1.ProfileType.HOBBY,subType:e.subType,name:`${t.t("profile_type_hobby")}: ${t.t(getHobbyTypeName(e.subType))}`,isActive:e.isActive})})),n.forEach((e=>{o.push({profileType:client_1.ProfileType.IT,subType:e.subType,name:`${t.t("profile_type_it")}: ${t.t(getITTypeName(e.subType))}`,isActive:e.isActive})})),logger_1.logger.info({userId:e,profilesCount:o.length},"User profiles retrieved"),o}))}function getUserProfile(e,t,i){return __awaiter(this,void 0,void 0,(function*(){switch(logger_1.logger.info({userId:e,profileType:t,subType:i},"Getting specific user profile"),t){case client_1.ProfileType.RELATIONSHIP:{const t=yield postgres_1.prisma.relationshipProfile.findUnique({where:{userId:e}});return t?Object.assign(Object.assign({},t),{files:JSON.parse(t.files)||[]}):null}case client_1.ProfileType.SPORT:{if(!i)return null;const t=yield postgres_1.prisma.sportProfile.findUnique({where:{userId_subType:{userId:e,subType:i}}});return t?Object.assign(Object.assign({},t),{files:JSON.parse(t.files)}):null}case client_1.ProfileType.GAME:{if(!i)return null;const t=yield postgres_1.prisma.gameProfile.findUnique({where:{userId_subType:{userId:e,subType:i}}});return t?Object.assign(Object.assign({},t),{files:JSON.parse(t.files)}):null}case client_1.ProfileType.HOBBY:{if(!i)return null;const t=yield postgres_1.prisma.hobbyProfile.findUnique({where:{userId_subType:{userId:e,subType:i}}});return t?Object.assign(Object.assign({},t),{files:JSON.parse(t.files)}):null}case client_1.ProfileType.IT:{if(!i)return null;const t=yield postgres_1.prisma.itProfile.findUnique({where:{userId_subType:{userId:e,subType:i}}});return t?Object.assign(Object.assign({},t),{files:JSON.parse(t.files)}):null}default:return null}}))}function saveProfile(e){return __awaiter(this,void 0,void 0,(function*(){logger_1.logger.info({userId:e.userId,profileType:e.profileType},"Saving user profile");const t=JSON.stringify(e.files);try{switch(e.profileType){case"RELATIONSHIP":{const i=e,r=yield postgres_1.prisma.relationshipProfile.upsert({where:{userId:e.userId},update:{id:e.id,interestedIn:i.interestedIn,description:i.description,files:t,isActive:!0},create:{userId:e.userId,interestedIn:i.interestedIn,description:i.description,files:t,isActive:!0}});return Object.assign(Object.assign({},r),{files:e.files})}case"SPORT":{const i=e,r=yield postgres_1.prisma.sportProfile.upsert({where:{userId_subType:{userId:e.userId,subType:i.subType}},update:{id:e.id,level:i.level,description:e.description,interestedIn:i.interestedIn,files:t,isActive:!0},create:{userId:e.userId,subType:i.subType,interestedIn:i.interestedIn,level:i.level,description:e.description,files:t,isActive:!0}});return Object.assign(Object.assign({},r),{files:e.files})}case"GAME":{const i=e,r=yield postgres_1.prisma.gameProfile.upsert({where:{userId_subType:{userId:e.userId,subType:i.subType}},update:{id:e.id,accountLink:i.accountLink,description:e.description,interestedIn:i.interestedIn,files:t,isActive:!0},create:{userId:e.userId,subType:i.subType,accountLink:i.accountLink,interestedIn:i.interestedIn,description:e.description,files:t,isActive:!0}});return Object.assign(Object.assign({},r),{files:e.files})}case"HOBBY":{const i=e,r=yield postgres_1.prisma.hobbyProfile.upsert({where:{userId_subType:{userId:e.userId,subType:i.subType}},update:{id:e.id,description:e.description,interestedIn:i.interestedIn,files:t,isActive:!0},create:{userId:e.userId,subType:i.subType,interestedIn:i.interestedIn,description:e.description,files:t,isActive:!0}});return Object.assign(Object.assign({},r),{files:e.files})}case"IT":{const i=e,r=yield postgres_1.prisma.itProfile.upsert({where:{userId_subType:{userId:e.userId,subType:i.subType}},update:{id:e.id,interestedIn:i.interestedIn,experience:i.experience,technologies:i.technologies,github:i.github,description:e.description,files:t,isActive:!0},create:{userId:e.userId,subType:i.subType,experience:i.experience,technologies:i.technologies,github:i.github,description:e.description,interestedIn:i.interestedIn,files:t,isActive:!0}});return Object.assign(Object.assign({},r),{files:e.files})}default:throw new Error(`Неизвестный тип профиля: ${e.profileType}`)}}catch(t){throw logger_1.logger.error({error:t,userId:e.userId,profileType:e.profileType},"Error saving profile"),t}}))}function toggleProfileActive(e,t,i,r){return __awaiter(this,void 0,void 0,(function*(){logger_1.logger.info({userId:e,profileType:t,isActive:i,subType:r},"Toggling profile active status");try{switch(t){case client_1.ProfileType.RELATIONSHIP:yield postgres_1.prisma.relationshipProfile.update({where:{userId:e},data:{isActive:i}});break;case client_1.ProfileType.SPORT:if(!r)return!1;yield postgres_1.prisma.sportProfile.update({where:{userId_subType:{userId:e,subType:r}},data:{isActive:i}});break;case client_1.ProfileType.GAME:if(!r)return!1;yield postgres_1.prisma.gameProfile.update({where:{userId_subType:{userId:e,subType:r}},data:{isActive:i}});break;case client_1.ProfileType.HOBBY:if(!r)return!1;yield postgres_1.prisma.hobbyProfile.update({where:{userId_subType:{userId:e,subType:r}},data:{isActive:i}});break;case client_1.ProfileType.IT:if(!r)return!1;yield postgres_1.prisma.itProfile.update({where:{userId_subType:{userId:e,subType:r}},data:{isActive:i}});break;default:return!1}return!0}catch(i){return logger_1.logger.error({error:i,action:"Error updating profile status",userId:e,profileType:t,subType:r}),!1}}))}function getSportTypeName(e){return{[client_1.SportType.GYM]:"sport_type_gym",[client_1.SportType.RUNNING]:"sport_type_running",[client_1.SportType.SWIMMING]:"sport_type_swimming",[client_1.SportType.FOOTBALL]:"sport_type_football",[client_1.SportType.BASKETBALL]:"sport_type_basketball",[client_1.SportType.TENNIS]:"sport_type_tennis",[client_1.SportType.MARTIAL_ARTS]:"sport_type_martial_arts",[client_1.SportType.YOGA]:"sport_type_yoga",[client_1.SportType.CYCLING]:"sport_type_cycling",[client_1.SportType.CLIMBING]:"sport_type_climbing",[client_1.SportType.SKI_SNOWBOARD]:"sport_type_ski_snowboard"}[e]||"unknown"}function getGameTypeName(e){return{[client_1.GameType.CS_GO]:"game_type_cs_go",[client_1.GameType.DOTA2]:"game_type_dota2",[client_1.GameType.VALORANT]:"game_type_valorant",[client_1.GameType.RUST]:"game_type_rust",[client_1.GameType.MINECRAFT]:"game_type_minecraft",[client_1.GameType.LEAGUE_OF_LEGENDS]:"game_type_league_of_legends",[client_1.GameType.FORTNITE]:"game_type_fortnite",[client_1.GameType.PUBG]:"game_type_pubg",[client_1.GameType.GTA]:"game_type_gta",[client_1.GameType.APEX_LEGENDS]:"game_type_apex_legends",[client_1.GameType.FIFA]:"game_type_fifa",[client_1.GameType.CALL_OF_DUTY]:"game_type_call_of_duty",[client_1.GameType.WOW]:"game_type_wow",[client_1.GameType.GENSHIN_IMPACT]:"game_type_genshin_impact"}[e]||"unknown"}function getHobbyTypeName(e){return{[client_1.HobbyType.MUSIC]:"hobby_type_music",[client_1.HobbyType.DRAWING]:"hobby_type_drawing",[client_1.HobbyType.PHOTOGRAPHY]:"hobby_type_photography",[client_1.HobbyType.COOKING]:"hobby_type_cooking",[client_1.HobbyType.CRAFTS]:"hobby_type_crafts",[client_1.HobbyType.DANCING]:"hobby_type_dancing",[client_1.HobbyType.READING]:"hobby_type_reading"}[e]||"unknown"}function getITTypeName(e){return{[client_1.ITType.FRONTEND]:"it_type_frontend",[client_1.ITType.BACKEND]:"it_type_backend",[client_1.ITType.FULLSTACK]:"it_type_fullstack",[client_1.ITType.MOBILE]:"it_type_mobile",[client_1.ITType.DEVOPS]:"it_type_devops",[client_1.ITType.QA]:"it_type_qa",[client_1.ITType.DATA_SCIENCE]:"it_type_data_science",[client_1.ITType.GAME_DEV]:"it_type_game_dev",[client_1.ITType.CYBERSECURITY]:"it_type_cybersecurity",[client_1.ITType.UI_UX]:"it_type_ui_ux"}[e]||"unknown"}const getProfileTypeLocalizations=e=>({[e("profile_type_relationship")]:client_1.ProfileType.RELATIONSHIP,[e("profile_type_sport")]:client_1.ProfileType.SPORT,[e("profile_type_game")]:client_1.ProfileType.GAME,[e("profile_type_hobby")]:client_1.ProfileType.HOBBY,[e("profile_type_it")]:client_1.ProfileType.IT});exports.getProfileTypeLocalizations=getProfileTypeLocalizations;const getSubtypeLocalizations=e=>({sport:{[e("sport_type_gym")]:client_1.SportType.GYM,[e("sport_type_running")]:client_1.SportType.RUNNING,[e("sport_type_swimming")]:client_1.SportType.SWIMMING,[e("sport_type_football")]:client_1.SportType.FOOTBALL,[e("sport_type_basketball")]:client_1.SportType.BASKETBALL,[e("sport_type_tennis")]:client_1.SportType.TENNIS,[e("sport_type_martial_arts")]:client_1.SportType.MARTIAL_ARTS,[e("sport_type_yoga")]:client_1.SportType.YOGA,[e("sport_type_cycling")]:client_1.SportType.CYCLING,[e("sport_type_climbing")]:client_1.SportType.CLIMBING,[e("sport_type_ski_snowboard")]:client_1.SportType.SKI_SNOWBOARD},it:{[e("it_type_frontend")]:client_1.ITType.FRONTEND,[e("it_type_backend")]:client_1.ITType.BACKEND,[e("it_type_fullstack")]:client_1.ITType.FULLSTACK,[e("it_type_mobile")]:client_1.ITType.MOBILE,[e("it_type_devops")]:client_1.ITType.DEVOPS,[e("it_type_qa")]:client_1.ITType.QA,[e("it_type_data_science")]:client_1.ITType.DATA_SCIENCE,[e("it_type_game_dev")]:client_1.ITType.GAME_DEV,[e("it_type_cybersecurity")]:client_1.ITType.CYBERSECURITY,[e("it_type_ui_ux")]:client_1.ITType.UI_UX},game:{[e("game_type_cs_go")]:client_1.GameType.CS_GO,[e("game_type_dota2")]:client_1.GameType.DOTA2,[e("game_type_valorant")]:client_1.GameType.VALORANT,[e("game_type_rust")]:client_1.GameType.RUST,[e("game_type_minecraft")]:client_1.GameType.MINECRAFT,[e("game_type_league_of_legends")]:client_1.GameType.LEAGUE_OF_LEGENDS,[e("game_type_fortnite")]:client_1.GameType.FORTNITE,[e("game_type_pubg")]:client_1.GameType.PUBG,[e("game_type_gta")]:client_1.GameType.GTA,[e("game_type_apex_legends")]:client_1.GameType.APEX_LEGENDS,[e("game_type_fifa")]:client_1.GameType.FIFA,[e("game_type_call_of_duty")]:client_1.GameType.CALL_OF_DUTY,[e("game_type_wow")]:client_1.GameType.WOW,[e("game_type_genshin_impact")]:client_1.GameType.GENSHIN_IMPACT},hobby:{[e("hobby_type_music")]:client_1.HobbyType.MUSIC,[e("hobby_type_drawing")]:client_1.HobbyType.DRAWING,[e("hobby_type_photography")]:client_1.HobbyType.PHOTOGRAPHY,[e("hobby_type_cooking")]:client_1.HobbyType.COOKING,[e("hobby_type_crafts")]:client_1.HobbyType.CRAFTS,[e("hobby_type_dancing")]:client_1.HobbyType.DANCING,[e("hobby_type_reading")]:client_1.HobbyType.READING}});exports.getSubtypeLocalizations=getSubtypeLocalizations;const findKeyByValue=(e,t,i)=>{for(const[e,r]of Object.entries(i))if(r===t)return e};function getProfileModelName(e){switch(e){case client_1.ProfileType.RELATIONSHIP:return"relationshipProfile";case client_1.ProfileType.SPORT:return"sportProfile";case client_1.ProfileType.GAME:return"gameProfile";case client_1.ProfileType.HOBBY:return"hobbyProfile";case client_1.ProfileType.IT:return"itProfile";default:return"relationshipProfile"}}exports.findKeyByValue=findKeyByValue;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.findKeyByValue = exports.getSubtypeLocalizations = exports.getProfileTypeLocalizations = void 0;
+exports.getUserProfiles = getUserProfiles;
+exports.getUserProfile = getUserProfile;
+exports.saveProfile = saveProfile;
+exports.toggleProfileActive = toggleProfileActive;
+exports.getProfileModelName = getProfileModelName;
+const postgres_1 = require("../../db/postgres");
+const client_1 = require("@prisma/client");
+const logger_1 = require("../../logger");
+// Получить все профили пользователя
+function getUserProfiles(userId, ctx) {
+    return __awaiter(this, void 0, void 0, function* () {
+        logger_1.logger.info({ userId }, 'Getting all user profiles');
+        const relationship = yield postgres_1.prisma.relationshipProfile.findUnique({
+            where: { userId }
+        });
+        const sports = yield postgres_1.prisma.sportProfile.findMany({
+            where: { userId }
+        });
+        const games = yield postgres_1.prisma.gameProfile.findMany({
+            where: { userId }
+        });
+        const hobbies = yield postgres_1.prisma.hobbyProfile.findMany({
+            where: { userId }
+        });
+        const it = yield postgres_1.prisma.itProfile.findMany({
+            where: { userId }
+        });
+        const profiles = [];
+        if (relationship) {
+            profiles.push({
+                profileType: client_1.ProfileType.RELATIONSHIP,
+                name: ctx.t('profile_type_relationship'),
+                isActive: relationship.isActive
+            });
+        }
+        sports.forEach(sport => {
+            profiles.push({
+                profileType: client_1.ProfileType.SPORT,
+                subType: sport.subType,
+                name: `${ctx.t('profile_type_sport')}: ${ctx.t(getSportTypeName(sport.subType))}`,
+                isActive: sport.isActive
+            });
+        });
+        games.forEach(game => {
+            profiles.push({
+                profileType: client_1.ProfileType.GAME,
+                subType: game.subType,
+                name: `${ctx.t('profile_type_game')}: ${ctx.t(getGameTypeName(game.subType))}`,
+                isActive: game.isActive
+            });
+        });
+        hobbies.forEach(hobby => {
+            profiles.push({
+                profileType: client_1.ProfileType.HOBBY,
+                subType: hobby.subType,
+                name: `${ctx.t('profile_type_hobby')}: ${ctx.t(getHobbyTypeName(hobby.subType))}`,
+                isActive: hobby.isActive
+            });
+        });
+        it.forEach(itProfile => {
+            profiles.push({
+                profileType: client_1.ProfileType.IT,
+                subType: itProfile.subType,
+                name: `${ctx.t('profile_type_it')}: ${ctx.t(getITTypeName(itProfile.subType))}`,
+                isActive: itProfile.isActive
+            });
+        });
+        logger_1.logger.info({ userId, profilesCount: profiles.length }, 'User profiles retrieved');
+        return profiles;
+    });
+}
+// Получить конкретный профиль пользователя
+function getUserProfile(userId, profileType, subType) {
+    return __awaiter(this, void 0, void 0, function* () {
+        logger_1.logger.info({ userId, profileType, subType }, 'Getting specific user profile');
+        switch (profileType) {
+            case client_1.ProfileType.RELATIONSHIP: {
+                const profile = yield postgres_1.prisma.relationshipProfile.findUnique({
+                    where: { userId }
+                });
+                if (!profile)
+                    return null;
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) || [] });
+            }
+            case client_1.ProfileType.SPORT: {
+                if (!subType)
+                    return null;
+                const profile = yield postgres_1.prisma.sportProfile.findUnique({
+                    where: {
+                        userId_subType: {
+                            userId,
+                            subType: subType
+                        }
+                    }
+                });
+                if (!profile)
+                    return null;
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
+            }
+            case client_1.ProfileType.GAME: {
+                if (!subType)
+                    return null;
+                const profile = yield postgres_1.prisma.gameProfile.findUnique({
+                    where: {
+                        userId_subType: {
+                            userId,
+                            subType: subType
+                        }
+                    }
+                });
+                if (!profile)
+                    return null;
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
+            }
+            case client_1.ProfileType.HOBBY: {
+                if (!subType)
+                    return null;
+                const profile = yield postgres_1.prisma.hobbyProfile.findUnique({
+                    where: {
+                        userId_subType: {
+                            userId,
+                            subType: subType
+                        }
+                    }
+                });
+                if (!profile)
+                    return null;
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
+            }
+            case client_1.ProfileType.IT: {
+                if (!subType)
+                    return null;
+                const profile = yield postgres_1.prisma.itProfile.findUnique({
+                    where: {
+                        userId_subType: {
+                            userId,
+                            subType: subType
+                        }
+                    }
+                });
+                if (!profile)
+                    return null;
+                return Object.assign(Object.assign({}, profile), { files: JSON.parse(profile.files) });
+            }
+            default:
+                return null;
+        }
+    });
+}
+// Сохранить профиль пользователя
+function saveProfile(profile) {
+    return __awaiter(this, void 0, void 0, function* () {
+        logger_1.logger.info({ userId: profile.userId, profileType: profile.profileType }, 'Saving user profile');
+        const fileJson = JSON.stringify(profile.files);
+        try {
+            switch (profile.profileType) {
+                case 'RELATIONSHIP': {
+                    const relationshipProfile = profile;
+                    const saved = yield postgres_1.prisma.relationshipProfile.upsert({
+                        where: { userId: profile.userId },
+                        update: {
+                            id: profile.id,
+                            interestedIn: relationshipProfile.interestedIn,
+                            description: relationshipProfile.description,
+                            files: fileJson,
+                            isActive: true
+                        },
+                        create: {
+                            userId: profile.userId,
+                            interestedIn: relationshipProfile.interestedIn,
+                            description: relationshipProfile.description,
+                            files: fileJson,
+                            isActive: true
+                        }
+                    });
+                    return Object.assign(Object.assign({}, saved), { files: profile.files });
+                }
+                case 'SPORT': {
+                    const sportProfile = profile;
+                    const saved = yield postgres_1.prisma.sportProfile.upsert({
+                        where: {
+                            userId_subType: {
+                                userId: profile.userId,
+                                subType: sportProfile.subType
+                            }
+                        },
+                        update: {
+                            id: profile.id,
+                            level: sportProfile.level,
+                            description: profile.description,
+                            interestedIn: sportProfile.interestedIn,
+                            files: fileJson,
+                            isActive: true
+                        },
+                        create: {
+                            userId: profile.userId,
+                            subType: sportProfile.subType,
+                            interestedIn: sportProfile.interestedIn,
+                            level: sportProfile.level,
+                            description: profile.description,
+                            files: fileJson,
+                            isActive: true
+                        }
+                    });
+                    return Object.assign(Object.assign({}, saved), { files: profile.files });
+                }
+                case 'GAME': {
+                    const gameProfile = profile;
+                    const saved = yield postgres_1.prisma.gameProfile.upsert({
+                        where: {
+                            userId_subType: {
+                                userId: profile.userId,
+                                subType: gameProfile.subType
+                            }
+                        },
+                        update: {
+                            id: profile.id,
+                            accountLink: gameProfile.accountLink,
+                            description: profile.description,
+                            interestedIn: gameProfile.interestedIn,
+                            files: fileJson,
+                            isActive: true
+                        },
+                        create: {
+                            userId: profile.userId,
+                            subType: gameProfile.subType,
+                            accountLink: gameProfile.accountLink,
+                            interestedIn: gameProfile.interestedIn,
+                            description: profile.description,
+                            files: fileJson,
+                            isActive: true
+                        }
+                    });
+                    return Object.assign(Object.assign({}, saved), { files: profile.files });
+                }
+                case 'HOBBY': {
+                    const hobbyProfile = profile;
+                    const saved = yield postgres_1.prisma.hobbyProfile.upsert({
+                        where: {
+                            userId_subType: {
+                                userId: profile.userId,
+                                subType: hobbyProfile.subType
+                            }
+                        },
+                        update: {
+                            id: profile.id,
+                            description: profile.description,
+                            interestedIn: hobbyProfile.interestedIn,
+                            files: fileJson,
+                            isActive: true
+                        },
+                        create: {
+                            userId: profile.userId,
+                            subType: hobbyProfile.subType,
+                            interestedIn: hobbyProfile.interestedIn,
+                            description: profile.description,
+                            files: fileJson,
+                            isActive: true
+                        }
+                    });
+                    return Object.assign(Object.assign({}, saved), { files: profile.files });
+                }
+                case 'IT': {
+                    const itProfile = profile;
+                    const saved = yield postgres_1.prisma.itProfile.upsert({
+                        where: {
+                            userId_subType: {
+                                userId: profile.userId,
+                                subType: itProfile.subType
+                            }
+                        },
+                        update: {
+                            id: profile.id,
+                            interestedIn: itProfile.interestedIn,
+                            experience: itProfile.experience,
+                            technologies: itProfile.technologies,
+                            github: itProfile.github,
+                            description: profile.description,
+                            files: fileJson,
+                            isActive: true
+                        },
+                        create: {
+                            userId: profile.userId,
+                            subType: itProfile.subType,
+                            experience: itProfile.experience,
+                            technologies: itProfile.technologies,
+                            github: itProfile.github,
+                            description: profile.description,
+                            interestedIn: itProfile.interestedIn,
+                            files: fileJson,
+                            isActive: true
+                        }
+                    });
+                    return Object.assign(Object.assign({}, saved), { files: profile.files });
+                }
+                default:
+                    throw new Error(`Неизвестный тип профиля: ${profile.profileType}`);
+            }
+        }
+        catch (error) {
+            logger_1.logger.error({ error, userId: profile.userId, profileType: profile.profileType }, 'Error saving profile');
+            throw error;
+        }
+    });
+}
+// Включить/выключить профиль
+function toggleProfileActive(userId, profileType, isActive, subType) {
+    return __awaiter(this, void 0, void 0, function* () {
+        logger_1.logger.info({ userId, profileType, isActive, subType }, 'Toggling profile active status');
+        try {
+            switch (profileType) {
+                case client_1.ProfileType.RELATIONSHIP:
+                    yield postgres_1.prisma.relationshipProfile.update({
+                        where: { userId },
+                        data: { isActive }
+                    });
+                    break;
+                case client_1.ProfileType.SPORT:
+                    if (!subType)
+                        return false;
+                    yield postgres_1.prisma.sportProfile.update({
+                        where: {
+                            userId_subType: {
+                                userId,
+                                subType: subType
+                            }
+                        },
+                        data: { isActive }
+                    });
+                    break;
+                case client_1.ProfileType.GAME:
+                    if (!subType)
+                        return false;
+                    yield postgres_1.prisma.gameProfile.update({
+                        where: {
+                            userId_subType: {
+                                userId,
+                                subType: subType
+                            }
+                        },
+                        data: { isActive }
+                    });
+                    break;
+                case client_1.ProfileType.HOBBY:
+                    if (!subType)
+                        return false;
+                    yield postgres_1.prisma.hobbyProfile.update({
+                        where: {
+                            userId_subType: {
+                                userId,
+                                subType: subType
+                            }
+                        },
+                        data: { isActive }
+                    });
+                    break;
+                case client_1.ProfileType.IT:
+                    if (!subType)
+                        return false;
+                    yield postgres_1.prisma.itProfile.update({
+                        where: {
+                            userId_subType: {
+                                userId,
+                                subType: subType
+                            }
+                        },
+                        data: { isActive }
+                    });
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+        catch (error) {
+            logger_1.logger.error({
+                error,
+                action: 'Error updating profile status',
+                userId,
+                profileType,
+                subType
+            });
+            return false;
+        }
+    });
+}
+// Получить имя типа спорта
+function getSportTypeName(type) {
+    const names = {
+        [client_1.SportType.GYM]: "sport_type_gym",
+        [client_1.SportType.RUNNING]: "sport_type_running",
+        [client_1.SportType.SWIMMING]: "sport_type_swimming",
+        [client_1.SportType.FOOTBALL]: "sport_type_football",
+        [client_1.SportType.BASKETBALL]: "sport_type_basketball",
+        [client_1.SportType.TENNIS]: "sport_type_tennis",
+        [client_1.SportType.MARTIAL_ARTS]: "sport_type_martial_arts",
+        [client_1.SportType.YOGA]: "sport_type_yoga",
+        [client_1.SportType.CYCLING]: "sport_type_cycling",
+        [client_1.SportType.CLIMBING]: "sport_type_climbing",
+        [client_1.SportType.SKI_SNOWBOARD]: "sport_type_ski_snowboard"
+    };
+    return names[type] || "unknown";
+}
+// Получить имя типа игры
+function getGameTypeName(type) {
+    const names = {
+        [client_1.GameType.CS_GO]: "game_type_cs_go",
+        [client_1.GameType.DOTA2]: "game_type_dota2",
+        [client_1.GameType.VALORANT]: "game_type_valorant",
+        [client_1.GameType.RUST]: "game_type_rust",
+        [client_1.GameType.MINECRAFT]: "game_type_minecraft",
+        [client_1.GameType.LEAGUE_OF_LEGENDS]: "game_type_league_of_legends",
+        [client_1.GameType.FORTNITE]: "game_type_fortnite",
+        [client_1.GameType.PUBG]: "game_type_pubg",
+        [client_1.GameType.GTA]: "game_type_gta",
+        [client_1.GameType.APEX_LEGENDS]: "game_type_apex_legends",
+        [client_1.GameType.FIFA]: "game_type_fifa",
+        [client_1.GameType.CALL_OF_DUTY]: "game_type_call_of_duty",
+        [client_1.GameType.WOW]: "game_type_wow",
+        [client_1.GameType.GENSHIN_IMPACT]: "game_type_genshin_impact"
+    };
+    return names[type] || "unknown";
+}
+// Получить имя типа хобби
+function getHobbyTypeName(type) {
+    const names = {
+        [client_1.HobbyType.MUSIC]: "hobby_type_music",
+        [client_1.HobbyType.DRAWING]: "hobby_type_drawing",
+        [client_1.HobbyType.PHOTOGRAPHY]: "hobby_type_photography",
+        [client_1.HobbyType.COOKING]: "hobby_type_cooking",
+        [client_1.HobbyType.CRAFTS]: "hobby_type_crafts",
+        [client_1.HobbyType.DANCING]: "hobby_type_dancing",
+        [client_1.HobbyType.READING]: "hobby_type_reading"
+    };
+    return names[type] || "unknown";
+}
+// Получить имя типа IT
+function getITTypeName(type) {
+    const names = {
+        [client_1.ITType.FRONTEND]: "it_type_frontend",
+        [client_1.ITType.BACKEND]: "it_type_backend",
+        [client_1.ITType.FULLSTACK]: "it_type_fullstack",
+        [client_1.ITType.MOBILE]: "it_type_mobile",
+        [client_1.ITType.DEVOPS]: "it_type_devops",
+        [client_1.ITType.QA]: "it_type_qa",
+        [client_1.ITType.DATA_SCIENCE]: "it_type_data_science",
+        [client_1.ITType.GAME_DEV]: "it_type_game_dev",
+        [client_1.ITType.CYBERSECURITY]: "it_type_cybersecurity",
+        [client_1.ITType.UI_UX]: "it_type_ui_ux"
+    };
+    return names[type] || "unknown";
+}
+const getProfileTypeLocalizations = (t) => ({
+    [t("profile_type_relationship")]: client_1.ProfileType.RELATIONSHIP,
+    [t("profile_type_sport")]: client_1.ProfileType.SPORT,
+    [t("profile_type_game")]: client_1.ProfileType.GAME,
+    [t("profile_type_hobby")]: client_1.ProfileType.HOBBY,
+    [t("profile_type_it")]: client_1.ProfileType.IT
+});
+exports.getProfileTypeLocalizations = getProfileTypeLocalizations;
+const getSubtypeLocalizations = (t) => ({
+    sport: {
+        [t("sport_type_gym")]: client_1.SportType.GYM,
+        [t("sport_type_running")]: client_1.SportType.RUNNING,
+        [t("sport_type_swimming")]: client_1.SportType.SWIMMING,
+        [t("sport_type_football")]: client_1.SportType.FOOTBALL,
+        [t("sport_type_basketball")]: client_1.SportType.BASKETBALL,
+        [t("sport_type_tennis")]: client_1.SportType.TENNIS,
+        [t("sport_type_martial_arts")]: client_1.SportType.MARTIAL_ARTS,
+        [t("sport_type_yoga")]: client_1.SportType.YOGA,
+        [t("sport_type_cycling")]: client_1.SportType.CYCLING,
+        [t("sport_type_climbing")]: client_1.SportType.CLIMBING,
+        [t("sport_type_ski_snowboard")]: client_1.SportType.SKI_SNOWBOARD,
+    },
+    // IT subtypes
+    it: {
+        [t("it_type_frontend")]: client_1.ITType.FRONTEND,
+        [t("it_type_backend")]: client_1.ITType.BACKEND,
+        [t("it_type_fullstack")]: client_1.ITType.FULLSTACK,
+        [t("it_type_mobile")]: client_1.ITType.MOBILE,
+        [t("it_type_devops")]: client_1.ITType.DEVOPS,
+        [t("it_type_qa")]: client_1.ITType.QA,
+        [t("it_type_data_science")]: client_1.ITType.DATA_SCIENCE,
+        [t("it_type_game_dev")]: client_1.ITType.GAME_DEV,
+        [t("it_type_cybersecurity")]: client_1.ITType.CYBERSECURITY,
+        [t("it_type_ui_ux")]: client_1.ITType.UI_UX,
+    },
+    // Game subtypes
+    game: {
+        [t("game_type_cs_go")]: client_1.GameType.CS_GO,
+        [t("game_type_dota2")]: client_1.GameType.DOTA2,
+        [t("game_type_valorant")]: client_1.GameType.VALORANT,
+        [t("game_type_rust")]: client_1.GameType.RUST,
+        [t("game_type_minecraft")]: client_1.GameType.MINECRAFT,
+        [t("game_type_league_of_legends")]: client_1.GameType.LEAGUE_OF_LEGENDS,
+        [t("game_type_fortnite")]: client_1.GameType.FORTNITE,
+        [t("game_type_pubg")]: client_1.GameType.PUBG,
+        [t("game_type_gta")]: client_1.GameType.GTA,
+        [t("game_type_apex_legends")]: client_1.GameType.APEX_LEGENDS,
+        [t("game_type_fifa")]: client_1.GameType.FIFA,
+        [t("game_type_call_of_duty")]: client_1.GameType.CALL_OF_DUTY,
+        [t("game_type_wow")]: client_1.GameType.WOW,
+        [t("game_type_genshin_impact")]: client_1.GameType.GENSHIN_IMPACT,
+    },
+    // Hobby subtypes
+    hobby: {
+        [t("hobby_type_music")]: client_1.HobbyType.MUSIC,
+        [t("hobby_type_drawing")]: client_1.HobbyType.DRAWING,
+        [t("hobby_type_photography")]: client_1.HobbyType.PHOTOGRAPHY,
+        [t("hobby_type_cooking")]: client_1.HobbyType.COOKING,
+        [t("hobby_type_crafts")]: client_1.HobbyType.CRAFTS,
+        [t("hobby_type_dancing")]: client_1.HobbyType.DANCING,
+        [t("hobby_type_reading")]: client_1.HobbyType.READING
+    }
+});
+exports.getSubtypeLocalizations = getSubtypeLocalizations;
+const findKeyByValue = (t, value, object) => {
+    // Ищем ключ по значению
+    for (const [key, val] of Object.entries(object)) {
+        if (val === value) {
+            return key;
+        }
+    }
+    return undefined;
+};
+exports.findKeyByValue = findKeyByValue;
+function getProfileModelName(profileType) {
+    switch (profileType) {
+        case client_1.ProfileType.RELATIONSHIP:
+            return 'relationshipProfile';
+        case client_1.ProfileType.SPORT:
+            return 'sportProfile';
+        case client_1.ProfileType.GAME:
+            return 'gameProfile';
+        case client_1.ProfileType.HOBBY:
+            return 'hobbyProfile';
+        case client_1.ProfileType.IT:
+            return 'itProfile';
+        default:
+            return 'relationshipProfile';
+    }
+}

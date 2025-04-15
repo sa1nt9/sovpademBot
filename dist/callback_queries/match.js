@@ -1,1 +1,52 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,t,a){return new(t||(t=Promise))((function(i,o){function n(e){try{l(a.next(e))}catch(e){o(e)}}function s(e){try{l(a.throw(e))}catch(e){o(e)}}function l(e){var r;e.done?i(e.value):(r=e.value,r instanceof t?r:new t((function(e){e(r)}))).then(n,s)}l((a=a.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.matchCallbackQuery=void 0;const postgres_1=require("../db/postgres"),sendForm_1=require("../functions/sendForm"),keyboards_1=require("../constants/keyboards"),logger_1=require("../logger"),matchCallbackQuery=e=>__awaiter(void 0,void 0,void 0,(function*(){var r;logger_1.logger.info({userId:null===(r=e.from)||void 0===r?void 0:r.id},"User initiated match");const t=(e.callbackQuery.data||"").split(":")[1],a=yield postgres_1.prisma.user.findUnique({where:{id:t}});if(!a)return void(yield e.answerCallbackQuery({text:e.t("user_form_disabled"),show_alert:!0}));const i=`https://t.me/${(yield e.api.getChat(a.id)).username}`,o=e.t("match_selected",{user:`[${a.name}](${i})`});e.session.step="go_main_menu",yield e.answerCallbackQuery({text:e.t("match_you_select",{user:a.name}),show_alert:!1}),yield e.reply(o,{parse_mode:"Markdown",reply_markup:(0,keyboards_1.mainMenuKeyboard)(e.t),link_preview_options:{is_disabled:!0}}),yield(0,sendForm_1.sendForm)(e,a,{myForm:!1})}));exports.matchCallbackQuery=matchCallbackQuery;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.matchCallbackQuery = void 0;
+const postgres_1 = require("../db/postgres");
+const sendForm_1 = require("../functions/sendForm");
+const keyboards_1 = require("../constants/keyboards");
+const logger_1 = require("../logger");
+const matchCallbackQuery = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    logger_1.logger.info({ userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id }, 'User initiated match');
+    const callbackQuery = ctx.callbackQuery;
+    const callbackData = callbackQuery.data || "";
+    const targetUserId = callbackData.split(":")[1];
+    const targetUser = yield postgres_1.prisma.user.findUnique({
+        where: {
+            id: targetUserId,
+        }
+    });
+    if (!targetUser) {
+        yield ctx.answerCallbackQuery({
+            text: ctx.t('user_form_disabled'),
+            show_alert: true
+        });
+        return;
+    }
+    const userInfo = yield ctx.api.getChat(targetUser.id);
+    const username = `https://t.me/${userInfo.username}`;
+    const text = ctx.t('match_selected', { user: `[${targetUser.name}](${username})` });
+    ctx.session.step = 'go_main_menu';
+    yield ctx.answerCallbackQuery({
+        text: ctx.t('match_you_select', { user: targetUser.name }),
+        show_alert: false,
+    });
+    yield ctx.reply(text, {
+        parse_mode: 'Markdown',
+        reply_markup: (0, keyboards_1.mainMenuKeyboard)(ctx.t),
+        link_preview_options: {
+            is_disabled: true
+        }
+    });
+    yield (0, sendForm_1.sendForm)(ctx, targetUser, { myForm: false });
+});
+exports.matchCallbackQuery = matchCallbackQuery;

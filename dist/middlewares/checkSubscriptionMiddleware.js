@@ -1,1 +1,62 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,i,r,s){return new(r||(r=Promise))((function(o,t){function n(e){try{a(s.next(e))}catch(e){t(e)}}function c(e){try{a(s.throw(e))}catch(e){t(e)}}function a(e){var i;e.done?o(e.value):(i=e.value,i instanceof r?i:new r((function(e){e(i)}))).then(n,c)}a((s=s.apply(e,i||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.checkSubscriptionMiddleware=void 0;const myprofile_1=require("../commands/myprofile"),keyboards_1=require("../constants/keyboards"),checkSubscription_1=require("../functions/checkSubscription"),checkSubscriptionMiddleware=(e,i)=>__awaiter(void 0,void 0,void 0,(function*(){var r,s;if(e.inlineQuery)return void(yield i());if((null===(s=null===(r=e.message)||void 0===r?void 0:r.text)||void 0===s?void 0:s.startsWith("/start"))||"choose_language_start"===e.session.step)return e.session.isNeededSubscription=!1,void(yield i());(yield(0,checkSubscription_1.checkSubscription)(e,String(process.env.CHANNEL_USERNAME)))?e.session.isNeededSubscription?(e.session.isNeededSubscription=!1,yield e.reply(e.t("thanks_for_subscription"),{reply_markup:{remove_keyboard:!0}}),"prepare_message"===e.session.step?yield e.reply(e.t("lets_start"),{reply_markup:(0,keyboards_1.prepareMessageKeyboard)(e.t)}):yield(0,myprofile_1.myprofileCommand)(e)):yield i():(e.session.isNeededSubscription=!0,yield e.reply(e.t("need_subscription",{botname:process.env.CHANNEL_NAME||""}),{reply_markup:(0,keyboards_1.subscribeChannelKeyboard)(e.t),parse_mode:"Markdown"}))}));exports.checkSubscriptionMiddleware=checkSubscriptionMiddleware;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkSubscriptionMiddleware = void 0;
+const myprofile_1 = require("../commands/myprofile");
+const keyboards_1 = require("../constants/keyboards");
+const checkSubscription_1 = require("../functions/checkSubscription");
+const checkSubscriptionMiddleware = (ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    if (ctx.inlineQuery) {
+        yield next();
+        return;
+    }
+    if (((_b = (_a = ctx.message) === null || _a === void 0 ? void 0 : _a.text) === null || _b === void 0 ? void 0 : _b.startsWith('/start')) || ctx.session.step === 'choose_language_start') {
+        ctx.session.isNeededSubscription = false;
+        yield next();
+        return;
+    }
+    // if (ctx.session.isNeededSubscription) {
+    //     await ctx.reply(ctx.t('not_subscribed'), {
+    //         reply_markup: subscribeChannelKeyboard(ctx.t),
+    //     });
+    // }
+    const isSubscribed = yield (0, checkSubscription_1.checkSubscription)(ctx, String(process.env.CHANNEL_USERNAME));
+    if (isSubscribed) {
+        if (ctx.session.isNeededSubscription) {
+            ctx.session.isNeededSubscription = false;
+            yield ctx.reply(ctx.t('thanks_for_subscription'), {
+                reply_markup: {
+                    remove_keyboard: true
+                },
+            });
+            if (ctx.session.step === 'prepare_message') {
+                yield ctx.reply(ctx.t('lets_start'), {
+                    reply_markup: (0, keyboards_1.prepareMessageKeyboard)(ctx.t),
+                });
+            }
+            else {
+                yield (0, myprofile_1.myprofileCommand)(ctx);
+            }
+        }
+        else {
+            yield next();
+        }
+    }
+    else {
+        ctx.session.isNeededSubscription = true;
+        yield ctx.reply(ctx.t('need_subscription', { botname: process.env.CHANNEL_NAME || "" }), {
+            reply_markup: (0, keyboards_1.subscribeChannelKeyboard)(ctx.t),
+            parse_mode: "Markdown"
+        });
+    }
+});
+exports.checkSubscriptionMiddleware = checkSubscriptionMiddleware;

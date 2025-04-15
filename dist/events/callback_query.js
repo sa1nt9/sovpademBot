@@ -1,1 +1,68 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,a,r,c){return new(r||(r=Promise))((function(l,t){function i(e){try{_(c.next(e))}catch(e){t(e)}}function n(e){try{_(c.throw(e))}catch(e){t(e)}}function _(e){var a;e.done?l(e.value):(a=e.value,a instanceof r?a:new r((function(e){e(a)}))).then(i,n)}_((c=c.apply(e,a||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.callbackQueryEvent=void 0;const complain_1=require("../callback_queries/complain"),complain_back_1=require("../callback_queries/complain_back"),complain_reason_1=require("../callback_queries/complain_reason"),reaction_1=require("../callback_queries/reaction"),reveal_accept_1=require("../callback_queries/reveal_accept"),reveal_reject_1=require("../callback_queries/reveal_reject"),reveal_username_accept_1=require("../callback_queries/reveal_username_accept"),reveal_username_reject_1=require("../callback_queries/reveal_username_reject"),match_1=require("../callback_queries/match"),callbackQueryEvent=e=>__awaiter(void 0,void 0,void 0,(function*(){var a,r,c,l;const t=e.callbackQuery,i=t.data;e.logger.info({userId:null===(a=e.from)||void 0===a?void 0:a.id,username:null===(r=e.from)||void 0===r?void 0:r.username,callbackData:i,messageId:null===(c=t.message)||void 0===c?void 0:c.message_id},"Processing callback query"),i&&(i.startsWith("complain:")?yield(0,complain_1.complainCallbackQuery)(e):i.startsWith("reveal_accept:")?yield(0,reveal_accept_1.revealAcceptCallbackQuery)(e):i.startsWith("reveal_reject:")?yield(0,reveal_reject_1.revealRejectCallbackQuery)(e):i.startsWith("reveal_username_accept:")?yield(0,reveal_username_accept_1.revealUsernameAcceptCallbackQuery)(e):i.startsWith("reveal_username_reject:")?yield(0,reveal_username_reject_1.revealUsernameRejectCallbackQuery)(e):i.startsWith("reaction:")?yield(0,reaction_1.reactionCallbackQuery)(e):i.startsWith("complain_reason:")?yield(0,complain_reason_1.complainReasonCallbackQuery)(e):i.startsWith("complain_back:")?yield(0,complain_back_1.complainBackCallbackQuery)(e):i.startsWith("match:")?yield(0,match_1.matchCallbackQuery)(e):e.logger.warn({userId:null===(l=e.from)||void 0===l?void 0:l.id,callbackData:i},"Unknown callback query type"))}));exports.callbackQueryEvent=callbackQueryEvent;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.callbackQueryEvent = void 0;
+const complain_1 = require("../callback_queries/complain");
+const complain_back_1 = require("../callback_queries/complain_back");
+const complain_reason_1 = require("../callback_queries/complain_reason");
+const reaction_1 = require("../callback_queries/reaction");
+const reveal_accept_1 = require("../callback_queries/reveal_accept");
+const reveal_reject_1 = require("../callback_queries/reveal_reject");
+const reveal_username_accept_1 = require("../callback_queries/reveal_username_accept");
+const reveal_username_reject_1 = require("../callback_queries/reveal_username_reject");
+const match_1 = require("../callback_queries/match");
+const callbackQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
+    const callbackQuery = ctx.callbackQuery;
+    const callbackData = callbackQuery.data;
+    ctx.logger.info({
+        userId: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id,
+        username: (_b = ctx.from) === null || _b === void 0 ? void 0 : _b.username,
+        callbackData: callbackData,
+        messageId: (_c = callbackQuery.message) === null || _c === void 0 ? void 0 : _c.message_id
+    }, 'Processing callback query');
+    if (callbackData) {
+        if (callbackData.startsWith("complain:")) {
+            yield (0, complain_1.complainCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("reveal_accept:")) {
+            yield (0, reveal_accept_1.revealAcceptCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("reveal_reject:")) {
+            yield (0, reveal_reject_1.revealRejectCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("reveal_username_accept:")) {
+            yield (0, reveal_username_accept_1.revealUsernameAcceptCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("reveal_username_reject:")) {
+            yield (0, reveal_username_reject_1.revealUsernameRejectCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("reaction:")) {
+            yield (0, reaction_1.reactionCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("complain_reason:")) {
+            yield (0, complain_reason_1.complainReasonCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("complain_back:")) {
+            yield (0, complain_back_1.complainBackCallbackQuery)(ctx);
+        }
+        else if (callbackData.startsWith("match:")) {
+            yield (0, match_1.matchCallbackQuery)(ctx);
+        }
+        else {
+            ctx.logger.warn({
+                userId: (_d = ctx.from) === null || _d === void 0 ? void 0 : _d.id,
+                callbackData: callbackData
+            }, 'Unknown callback query type');
+        }
+    }
+});
+exports.callbackQueryEvent = callbackQueryEvent;

@@ -1,1 +1,69 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,i,t){return new(i||(i=Promise))((function(d,s){function a(e){try{o(t.next(e))}catch(e){s(e)}}function n(e){try{o(t.throw(e))}catch(e){s(e)}}function o(e){var r;e.done?d(e.value):(r=e.value,r instanceof i?r:new i((function(e){e(r)}))).then(a,n)}o((t=t.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.addToBlacklist=void 0;const getCandidate_1=require("./db/getCandidate"),postgres_1=require("../db/postgres"),sendMutualSympathyAfterAnswer_1=require("./sendMutualSympathyAfterAnswer"),sendForm_1=require("./sendForm"),candidatesEnded_1=require("./candidatesEnded"),startSearchingPeople_1=require("./startSearchingPeople"),addToBlacklist=e=>__awaiter(void 0,void 0,void 0,(function*(){var r;const i=String(null===(r=e.from)||void 0===r?void 0:r.id);if(e.session.currentCandidateProfile){e.logger.info({userId:i,targetProfileId:e.session.currentCandidateProfile.id,targetUserId:e.session.currentCandidateProfile.userId},"Adding profile to blacklist");if(yield postgres_1.prisma.blacklist.findFirst({where:{userId:i,targetProfileId:e.session.currentCandidateProfile.id,targetUserId:e.session.currentCandidateProfile.userId}}))return e.logger.info({userId:i,targetProfileId:e.session.currentCandidateProfile.id},"Profile already in blacklist"),void(yield e.reply(e.t("more_options_blacklist_already")));if(yield postgres_1.prisma.blacklist.create({data:{userId:i,targetProfileId:e.session.currentCandidateProfile.id,profileType:e.session.currentCandidateProfile.profileType,targetUserId:e.session.currentCandidateProfile.userId}}),e.logger.info({userId:i,targetProfileId:e.session.currentCandidateProfile.id},"Profile added to blacklist"),yield e.reply(e.t("more_options_blacklist_success")),e.session.pendingMutualLike&&e.session.pendingMutualLikeProfileId)return void(yield(0,sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(e));yield(0,startSearchingPeople_1.startSearchingPeople)(e);const r=yield(0,getCandidate_1.getCandidate)(e);r?yield(0,sendForm_1.sendForm)(e,r||null,{myForm:!1}):yield(0,candidatesEnded_1.candidatesEnded)(e)}else e.logger.warn({userId:i},"No current candidate profile for blacklist")}));exports.addToBlacklist=addToBlacklist;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.addToBlacklist = void 0;
+const getCandidate_1 = require("./db/getCandidate");
+const postgres_1 = require("../db/postgres");
+const sendMutualSympathyAfterAnswer_1 = require("./sendMutualSympathyAfterAnswer");
+const sendForm_1 = require("./sendForm");
+const candidatesEnded_1 = require("./candidatesEnded");
+const startSearchingPeople_1 = require("./startSearchingPeople");
+const addToBlacklist = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    if (ctx.session.currentCandidateProfile) {
+        ctx.logger.info({
+            userId,
+            targetProfileId: ctx.session.currentCandidateProfile.id,
+            targetUserId: ctx.session.currentCandidateProfile.userId
+        }, 'Adding profile to blacklist');
+        // Проверяем, не добавлен ли уже пользователь в черный список
+        const existingBlacklist = yield postgres_1.prisma.blacklist.findFirst({
+            where: {
+                userId: userId,
+                targetProfileId: ctx.session.currentCandidateProfile.id,
+                targetUserId: ctx.session.currentCandidateProfile.userId
+            }
+        });
+        if (existingBlacklist) {
+            ctx.logger.info({ userId, targetProfileId: ctx.session.currentCandidateProfile.id }, 'Profile already in blacklist');
+            yield ctx.reply(ctx.t('more_options_blacklist_already'));
+            return;
+        }
+        // Добавляем пользователя в черный список
+        yield postgres_1.prisma.blacklist.create({
+            data: {
+                userId: userId,
+                targetProfileId: ctx.session.currentCandidateProfile.id,
+                profileType: ctx.session.currentCandidateProfile.profileType,
+                targetUserId: ctx.session.currentCandidateProfile.userId
+            }
+        });
+        ctx.logger.info({ userId, targetProfileId: ctx.session.currentCandidateProfile.id }, 'Profile added to blacklist');
+        yield ctx.reply(ctx.t('more_options_blacklist_success'));
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+            yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx);
+            return;
+        }
+        yield (0, startSearchingPeople_1.startSearchingPeople)(ctx);
+        const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+        if (candidate) {
+            yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+        }
+        else {
+            yield (0, candidatesEnded_1.candidatesEnded)(ctx);
+        }
+    }
+    else {
+        ctx.logger.warn({ userId }, 'No current candidate profile for blacklist');
+    }
+});
+exports.addToBlacklist = addToBlacklist;

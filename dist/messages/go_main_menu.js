@@ -1,1 +1,35 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,n,r,t){return new(r||(r=Promise))((function(o,i){function a(e){try{u(t.next(e))}catch(e){i(e)}}function s(e){try{u(t.throw(e))}catch(e){i(e)}}function u(e){var n;e.done?o(e.value):(n=e.value,n instanceof r?n:new r((function(e){e(n)}))).then(a,s)}u((t=t.apply(e,n||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.goMainMenuStep=goMainMenuStep;const keyboards_1=require("../constants/keyboards"),sendForm_1=require("../functions/sendForm");function goMainMenuStep(e){return __awaiter(this,void 0,void 0,(function*(){const n=e.message.text,r=String(e.from.id);e.logger.info({userId:r,step:"go_main_menu",message:n},"User attempting to return to main menu"),n===e.t("main_menu")?(e.logger.info({userId:r},"User returned to main menu"),e.session.step="profile",yield(0,sendForm_1.sendForm)(e),yield e.reply(e.t("profile_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()})):(e.logger.warn({userId:r,invalidOption:n},"User provided invalid response in main menu navigation"),yield e.reply(e.t("no_such_answer"),{reply_markup:(0,keyboards_1.mainMenuKeyboard)(e.t)}))}))}
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.goMainMenuStep = goMainMenuStep;
+const keyboards_1 = require("../constants/keyboards");
+const sendForm_1 = require("../functions/sendForm");
+function goMainMenuStep(ctx) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const message = ctx.message.text;
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'go_main_menu', message }, 'User attempting to return to main menu');
+        if (message === ctx.t("main_menu")) {
+            ctx.logger.info({ userId }, 'User returned to main menu');
+            ctx.session.step = "profile";
+            yield (0, sendForm_1.sendForm)(ctx);
+            yield ctx.reply(ctx.t('profile_menu'), {
+                reply_markup: (0, keyboards_1.profileKeyboard)()
+            });
+        }
+        else {
+            ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid response in main menu navigation');
+            yield ctx.reply(ctx.t('no_such_answer'), {
+                reply_markup: (0, keyboards_1.mainMenuKeyboard)(ctx.t)
+            });
+        }
+    });
+}

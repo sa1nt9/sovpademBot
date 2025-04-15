@@ -1,1 +1,89 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,n,i){return new(n||(n=Promise))((function(t,o){function s(e){try{c(i.next(e))}catch(e){o(e)}}function d(e){try{c(i.throw(e))}catch(e){o(e)}}function c(e){var r;e.done?t(e.value):(r=e.value,r instanceof n?r:new n((function(e){e(r)}))).then(s,d)}c((i=i.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.inlineQueryEvent=void 0;const postgres_1=require("../db/postgres"),sendForm_1=require("../functions/sendForm"),encodeId_1=require("../functions/encodeId"),inlineQueryEvent=e=>__awaiter(void 0,void 0,void 0,(function*(){var r,n;const i=String(e.from.id);e.logger.info({userId:i,username:null===(r=e.from)||void 0===r?void 0:r.username,query:null===(n=e.inlineQuery)||void 0===n?void 0:n.query},"Processing inline query");try{const r=yield postgres_1.prisma.user.findUnique({where:{id:i}});if(!r)return e.logger.info({userId:i},"User not found for inline query"),void(yield e.answerInlineQuery([{type:"article",id:"no_profile",title:e.t("no_profile"),description:e.t("no_profile_description"),input_message_content:{message_text:e.t("no_profile_message",{botname:`[${process.env.CHANNEL_NAME||""}](https://t.me/${process.env.BOT_USERNAME||""})`}),parse_mode:"Markdown",link_preview_options:{is_disabled:!0}}}],{cache_time:0}));e.logger.info({userId:i},"Building text form for inline query");const n=yield(0,sendForm_1.buildTextForm)(e,r,{isInline:!0}),t=[{type:"article",id:"profile",title:e.t("share_profile"),description:n,input_message_content:{message_text:e.t("inline_message_text",{botname:`[${process.env.CHANNEL_NAME||""}](https://t.me/${process.env.BOT_USERNAME||""})`})+"\n\n"+n,parse_mode:"Markdown",link_preview_options:{is_disabled:!0}},reply_markup:{inline_keyboard:[[{text:e.t("open_full_profile"),url:`t.me/${process.env.BOT_USERNAME}?start=profile_${(0,encodeId_1.encodeId)(i)}`}]]}}];yield e.answerInlineQuery(t,{cache_time:0}),e.logger.info({userId:i},"Inline query answered successfully")}catch(r){e.logger.error({userId:i,error:r instanceof Error?r.message:"Unknown error",stack:r instanceof Error?r.stack:void 0},"Error in inline query"),yield e.answerInlineQuery([{type:"article",id:"error",title:e.t("error_occurred"),description:e.t("error_occurred_description"),input_message_content:{message_text:e.t("error_occurred_description")}}],{cache_time:0})}}));exports.inlineQueryEvent=inlineQueryEvent;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.inlineQueryEvent = void 0;
+const postgres_1 = require("../db/postgres");
+const sendForm_1 = require("../functions/sendForm");
+const encodeId_1 = require("../functions/encodeId");
+const inlineQueryEvent = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId: userId,
+        username: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.username,
+        query: (_b = ctx.inlineQuery) === null || _b === void 0 ? void 0 : _b.query
+    }, 'Processing inline query');
+    try {
+        const user = yield postgres_1.prisma.user.findUnique({
+            where: {
+                id: userId,
+            }
+        });
+        if (!user) {
+            ctx.logger.info({ userId }, 'User not found for inline query');
+            yield ctx.answerInlineQuery([{
+                    type: "article",
+                    id: "no_profile",
+                    title: ctx.t("no_profile"),
+                    description: ctx.t("no_profile_description"),
+                    input_message_content: {
+                        message_text: ctx.t("no_profile_message", { botname: `[${process.env.CHANNEL_NAME || ""}](https://t.me/${process.env.BOT_USERNAME || ""})` }),
+                        parse_mode: "Markdown",
+                        link_preview_options: {
+                            is_disabled: true
+                        }
+                    },
+                }], { cache_time: 0 });
+            return;
+        }
+        ctx.logger.info({ userId }, 'Building text form for inline query');
+        const text = yield (0, sendForm_1.buildTextForm)(ctx, user, { isInline: true });
+        const results = [{
+                type: "article",
+                id: "profile",
+                title: ctx.t("share_profile"),
+                description: text,
+                input_message_content: {
+                    message_text: ctx.t("inline_message_text", { botname: `[${process.env.CHANNEL_NAME || ""}](https://t.me/${process.env.BOT_USERNAME || ""})` }) +
+                        "\n\n" +
+                        text,
+                    parse_mode: "Markdown",
+                    link_preview_options: {
+                        is_disabled: true
+                    }
+                },
+                reply_markup: {
+                    inline_keyboard: [[
+                            { text: ctx.t("open_full_profile"), url: `t.me/${process.env.BOT_USERNAME}?start=profile_${(0, encodeId_1.encodeId)(userId)}` }
+                        ]]
+                }
+            }];
+        yield ctx.answerInlineQuery(results, { cache_time: 0 });
+        ctx.logger.info({ userId }, 'Inline query answered successfully');
+    }
+    catch (error) {
+        ctx.logger.error({
+            userId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error in inline query');
+        yield ctx.answerInlineQuery([{
+                type: "article",
+                id: "error",
+                title: ctx.t("error_occurred"),
+                description: ctx.t("error_occurred_description"),
+                input_message_content: {
+                    message_text: ctx.t("error_occurred_description")
+                }
+            }], { cache_time: 0 });
+    }
+});
+exports.inlineQueryEvent = inlineQueryEvent;

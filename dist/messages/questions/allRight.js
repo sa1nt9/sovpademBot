@@ -1,1 +1,55 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,i,t,n){return new(t||(t=Promise))((function(r,o){function a(e){try{s(n.next(e))}catch(e){o(e)}}function d(e){try{s(n.throw(e))}catch(e){o(e)}}function s(e){var i;e.done?r(e.value):(i=e.value,i instanceof t?i:new t((function(e){e(i)}))).then(a,d)}s((n=n.apply(e,i||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.allRightQuestion=void 0;const keyboards_1=require("../../constants/keyboards"),getCandidate_1=require("../../functions/db/getCandidate"),sendForm_1=require("../../functions/sendForm"),candidatesEnded_1=require("../../functions/candidatesEnded"),startSearchingPeople_1=require("../../functions/startSearchingPeople"),allRightQuestion=e=>__awaiter(void 0,void 0,void 0,(function*(){var i;const t=e.message.text,n=String(e.from.id);if(e.logger.info({userId:n,question:"all_right",input:t,profileType:null===(i=e.session.activeProfile)||void 0===i?void 0:i.profileType},"User at final profile confirmation stage"),t===e.t("yes")){e.logger.info({userId:n},"User confirmed profile and ready to browse matches"),yield(0,startSearchingPeople_1.startSearchingPeople)(e,{setActive:!0});const i=yield(0,getCandidate_1.getCandidate)(e);e.logger.info({userId:n,candidateId:null==i?void 0:i.id},"First candidate after profile completion"),i?yield(0,sendForm_1.sendForm)(e,i||null,{myForm:!1}):(e.logger.info({userId:n},"No candidates available after profile completion"),yield(0,candidatesEnded_1.candidatesEnded)(e))}else t===e.t("change_form")?(e.logger.info({userId:n},"User wants to change profile before browsing"),e.session.step="profile",yield e.reply(e.t("profile_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()})):(e.logger.warn({userId:n,invalidOption:t},"User provided invalid response at confirmation"),yield e.reply(e.t("no_such_answer"),{reply_markup:(0,keyboards_1.allRightKeyboard)(e.t)}))}));exports.allRightQuestion=allRightQuestion;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.allRightQuestion = void 0;
+const keyboards_1 = require("../../constants/keyboards");
+const getCandidate_1 = require("../../functions/db/getCandidate");
+const sendForm_1 = require("../../functions/sendForm");
+const candidatesEnded_1 = require("../../functions/candidatesEnded");
+const startSearchingPeople_1 = require("../../functions/startSearchingPeople");
+const allRightQuestion = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const message = ctx.message.text;
+    const userId = String(ctx.from.id);
+    ctx.logger.info({
+        userId,
+        question: 'all_right',
+        input: message,
+        profileType: (_a = ctx.session.activeProfile) === null || _a === void 0 ? void 0 : _a.profileType
+    }, 'User at final profile confirmation stage');
+    if (message === ctx.t("yes")) {
+        ctx.logger.info({ userId }, 'User confirmed profile and ready to browse matches');
+        yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
+        const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+        ctx.logger.info({ userId, candidateId: candidate === null || candidate === void 0 ? void 0 : candidate.id }, 'First candidate after profile completion');
+        if (candidate) {
+            yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+        }
+        else {
+            ctx.logger.info({ userId }, 'No candidates available after profile completion');
+            yield (0, candidatesEnded_1.candidatesEnded)(ctx);
+        }
+    }
+    else if (message === ctx.t('change_form')) {
+        ctx.logger.info({ userId }, 'User wants to change profile before browsing');
+        ctx.session.step = 'profile';
+        yield ctx.reply(ctx.t('profile_menu'), {
+            reply_markup: (0, keyboards_1.profileKeyboard)()
+        });
+    }
+    else {
+        ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid response at confirmation');
+        yield ctx.reply(ctx.t('no_such_answer'), {
+            reply_markup: (0, keyboards_1.allRightKeyboard)(ctx.t)
+        });
+    }
+});
+exports.allRightQuestion = allRightQuestion;

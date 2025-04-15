@@ -27,7 +27,6 @@ import { switchCommand } from './commands/switch';
 import { changeSessionFieldsMiddleware } from './middlewares/changeSessionFieldsMiddleware';
 import { newLikesCommand } from './commands/new_likes';
 // Импортируем очереди
-import { notificationQueue } from './queues/notificationQueue';
 import { initQueues } from './queues/initQueues';
 // Импортируем webhook
 import { setupWebhook } from './webhook';

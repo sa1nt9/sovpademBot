@@ -1,1 +1,32 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,n,t,i){return new(t||(t=Promise))((function(r,o){function d(e){try{s(i.next(e))}catch(e){o(e)}}function a(e){try{s(i.throw(e))}catch(e){o(e)}}function s(e){var n;e.done?r(e.value):(n=e.value,n instanceof t?n:new t((function(e){e(n)}))).then(d,a)}s((i=i.apply(e,n||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.continueSeeFormsStep=continueSeeFormsStep;const candidatesEnded_1=require("../functions/candidatesEnded"),getCandidate_1=require("../functions/db/getCandidate"),sendForm_1=require("../functions/sendForm"),startSearchingPeople_1=require("../functions/startSearchingPeople");function continueSeeFormsStep(e){return __awaiter(this,void 0,void 0,(function*(){const n=String(e.from.id);e.logger.info({userId:n,step:"continue_see_forms"},"User continuing to browse profiles"),yield(0,startSearchingPeople_1.startSearchingPeople)(e,{setActive:!0});const t=yield(0,getCandidate_1.getCandidate)(e);e.logger.info({userId:n,candidateId:null==t?void 0:t.id},"Retrieved next candidate for user"),t?yield(0,sendForm_1.sendForm)(e,t||null,{myForm:!1}):(e.logger.info({userId:n},"No more candidates available"),yield(0,candidatesEnded_1.candidatesEnded)(e))}))}
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.continueSeeFormsStep = continueSeeFormsStep;
+const candidatesEnded_1 = require("../functions/candidatesEnded");
+const getCandidate_1 = require("../functions/db/getCandidate");
+const sendForm_1 = require("../functions/sendForm");
+const startSearchingPeople_1 = require("../functions/startSearchingPeople");
+function continueSeeFormsStep(ctx) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const userId = String(ctx.from.id);
+        ctx.logger.info({ userId, step: 'continue_see_forms' }, 'User continuing to browse profiles');
+        yield (0, startSearchingPeople_1.startSearchingPeople)(ctx, { setActive: true });
+        const candidate = yield (0, getCandidate_1.getCandidate)(ctx);
+        ctx.logger.info({ userId, candidateId: candidate === null || candidate === void 0 ? void 0 : candidate.id }, 'Retrieved next candidate for user');
+        if (candidate) {
+            yield (0, sendForm_1.sendForm)(ctx, candidate || null, { myForm: false });
+        }
+        else {
+            ctx.logger.info({ userId }, 'No more candidates available');
+            yield (0, candidatesEnded_1.candidatesEnded)(ctx);
+        }
+    });
+}

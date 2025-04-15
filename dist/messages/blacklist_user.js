@@ -1,1 +1,121 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,l,i){return new(l||(l=Promise))((function(o,s){function t(e){try{a(i.next(e))}catch(e){s(e)}}function n(e){try{a(i.throw(e))}catch(e){s(e)}}function a(e){var r;e.done?o(e.value):(r=e.value,r instanceof l?r:new l((function(e){e(r)}))).then(t,n)}a((i=i.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.blacklistUserStep=blacklistUserStep;const keyboards_1=require("../constants/keyboards"),postgres_1=require("../db/postgres"),getNextBlacklistProfile_1=require("../functions/db/getNextBlacklistProfile"),sendForm_1=require("../functions/sendForm");function blacklistUserStep(e){return __awaiter(this,void 0,void 0,(function*(){var r;const l=e.message.text,i=String(null===(r=e.from)||void 0===r?void 0:r.id);if(e.logger.info({userId:i},"User in blacklist management menu"),l===e.t("main_menu"))e.logger.info({userId:i},"User returning to main menu from blacklist"),e.session.step="profile",yield(0,sendForm_1.sendForm)(e),yield e.reply(e.t("profile_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()});else if(l===e.t("see_next")){if(!e.session.currentBlacklistedProfile)return e.logger.warn({userId:i},"User tried to see next blacklist profile but no current profile was found"),void(yield e.reply(e.t("error_occurred")));const r=e.session.currentBlacklistedProfile.id;e.logger.info({userId:i,currentBlacklistedProfileId:r},"User requesting next blacklisted profile");const l=yield(0,getNextBlacklistProfile_1.getNextBlacklistProfile)(e,r);if(l.profile&&l.profile.user){const r=l.profile.id,o=l.profile.user.id;e.logger.info({userId:i,nextProfileId:r,nextProfileUserId:o,remainingCount:l.remainingCount},"Found next blacklisted profile"),e.session.currentBlacklistedProfile=l.profile,yield(0,sendForm_1.sendForm)(e,l.profile.user,{myForm:!1,isBlacklist:!0,blacklistCount:l.remainingCount})}else e.logger.info({userId:i},"No more blacklisted profiles available"),yield e.reply(e.t("blacklist_no_more_users")),e.session.step="sleep_menu",e.session.currentBlacklistedProfile=null,yield e.reply(e.t("sleep_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()})}else if(l===e.t("blacklist_remove")){if(!e.session.currentBlacklistedProfile)return e.logger.warn({userId:i},"User tried to remove profile from blacklist but no current profile was found"),void(yield e.reply(e.t("error_occurred")));const r=e.session.currentBlacklistedProfile.id;e.logger.info({userId:i,profileToRemoveId:r},"Removing profile from blacklist");try{const l=yield(0,getNextBlacklistProfile_1.getNextBlacklistProfile)(e,r);if(yield postgres_1.prisma.blacklist.deleteMany({where:{userId:i,targetProfileId:r}}),e.logger.info({userId:i,profileToRemoveId:r},"Successfully removed profile from blacklist"),yield e.reply(e.t("blacklist_remove_success")),l.profile&&l.profile.user){const r=l.profile.id;e.logger.info({userId:i,nextProfileId:r,remainingCount:l.remainingCount-1},"Showing next blacklisted profile after removal"),e.session.currentBlacklistedProfile=l.profile,yield(0,sendForm_1.sendForm)(e,l.profile.user,{myForm:!1,isBlacklist:!0,blacklistCount:l.remainingCount-1})}else e.logger.info({userId:i},"No more blacklisted profiles after removal"),yield e.reply(e.t("blacklist_no_more_users")),e.session.step="sleep_menu",e.session.currentBlacklistedProfile=null,yield e.reply(e.t("sleep_menu"),{reply_markup:(0,keyboards_1.profileKeyboard)()})}catch(l){e.logger.error({userId:i,error:l,profileId:r},"Error removing profile from blacklist"),console.error("Error removing user from blacklist:",l),yield e.reply(e.t("blacklist_remove_error"))}}else e.logger.warn({userId:i,message:l},"User sent unexpected message in blacklist menu"),yield e.reply(e.t("no_such_answer"),{reply_markup:(0,keyboards_1.blacklistKeyboard)(e.t)})}))}
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.blacklistUserStep = blacklistUserStep;
+const keyboards_1 = require("../constants/keyboards");
+const postgres_1 = require("../db/postgres");
+const getNextBlacklistProfile_1 = require("../functions/db/getNextBlacklistProfile");
+const sendForm_1 = require("../functions/sendForm");
+function blacklistUserStep(ctx) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        const message = ctx.message.text;
+        const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+        ctx.logger.info({ userId }, 'User in blacklist management menu');
+        if (message === ctx.t('main_menu')) {
+            ctx.logger.info({ userId }, 'User returning to main menu from blacklist');
+            ctx.session.step = "profile";
+            yield (0, sendForm_1.sendForm)(ctx);
+            yield ctx.reply(ctx.t('profile_menu'), {
+                reply_markup: (0, keyboards_1.profileKeyboard)()
+            });
+        }
+        else if (message === ctx.t("see_next")) {
+            if (!ctx.session.currentBlacklistedProfile) {
+                ctx.logger.warn({ userId }, 'User tried to see next blacklist profile but no current profile was found');
+                yield ctx.reply(ctx.t("error_occurred"));
+                return;
+            }
+            const currentProfileId = ctx.session.currentBlacklistedProfile.id;
+            ctx.logger.info({ userId, currentBlacklistedProfileId: currentProfileId }, 'User requesting next blacklisted profile');
+            const nextProfile = yield (0, getNextBlacklistProfile_1.getNextBlacklistProfile)(ctx, currentProfileId);
+            if (nextProfile.profile && nextProfile.profile.user) {
+                const nextProfileId = nextProfile.profile.id;
+                const nextProfileUserId = nextProfile.profile.user.id;
+                ctx.logger.info({
+                    userId,
+                    nextProfileId,
+                    nextProfileUserId,
+                    remainingCount: nextProfile.remainingCount
+                }, 'Found next blacklisted profile');
+                ctx.session.currentBlacklistedProfile = nextProfile.profile;
+                yield (0, sendForm_1.sendForm)(ctx, nextProfile.profile.user, {
+                    myForm: false,
+                    isBlacklist: true,
+                    blacklistCount: nextProfile.remainingCount
+                });
+            }
+            else {
+                ctx.logger.info({ userId }, 'No more blacklisted profiles available');
+                yield ctx.reply(ctx.t('blacklist_no_more_users'));
+                ctx.session.step = "sleep_menu";
+                ctx.session.currentBlacklistedProfile = null;
+                yield ctx.reply(ctx.t('sleep_menu'), {
+                    reply_markup: (0, keyboards_1.profileKeyboard)()
+                });
+            }
+        }
+        else if (message === ctx.t("blacklist_remove")) {
+            if (!ctx.session.currentBlacklistedProfile) {
+                ctx.logger.warn({ userId }, 'User tried to remove profile from blacklist but no current profile was found');
+                yield ctx.reply(ctx.t("error_occurred"));
+                return;
+            }
+            const profileToRemoveId = ctx.session.currentBlacklistedProfile.id;
+            ctx.logger.info({ userId, profileToRemoveId }, 'Removing profile from blacklist');
+            try {
+                const result = yield (0, getNextBlacklistProfile_1.getNextBlacklistProfile)(ctx, profileToRemoveId);
+                yield postgres_1.prisma.blacklist.deleteMany({
+                    where: {
+                        userId,
+                        targetProfileId: profileToRemoveId
+                    }
+                });
+                ctx.logger.info({ userId, profileToRemoveId }, 'Successfully removed profile from blacklist');
+                yield ctx.reply(ctx.t("blacklist_remove_success"));
+                if (result.profile && result.profile.user) {
+                    const nextProfileId = result.profile.id;
+                    ctx.logger.info({
+                        userId,
+                        nextProfileId,
+                        remainingCount: result.remainingCount - 1
+                    }, 'Showing next blacklisted profile after removal');
+                    ctx.session.currentBlacklistedProfile = result.profile;
+                    yield (0, sendForm_1.sendForm)(ctx, result.profile.user, {
+                        myForm: false,
+                        isBlacklist: true,
+                        blacklistCount: result.remainingCount - 1
+                    });
+                }
+                else {
+                    ctx.logger.info({ userId }, 'No more blacklisted profiles after removal');
+                    yield ctx.reply(ctx.t('blacklist_no_more_users'));
+                    ctx.session.step = "sleep_menu";
+                    ctx.session.currentBlacklistedProfile = null;
+                    yield ctx.reply(ctx.t("sleep_menu"), {
+                        reply_markup: (0, keyboards_1.profileKeyboard)()
+                    });
+                }
+            }
+            catch (error) {
+                ctx.logger.error({ userId, error, profileId: profileToRemoveId }, 'Error removing profile from blacklist');
+                console.error("Error removing user from blacklist:", error);
+                yield ctx.reply(ctx.t("blacklist_remove_error"));
+            }
+        }
+        else {
+            ctx.logger.warn({ userId, message }, 'User sent unexpected message in blacklist menu');
+            yield ctx.reply(ctx.t('no_such_answer'), {
+                reply_markup: (0, keyboards_1.blacklistKeyboard)(ctx.t)
+            });
+        }
+    });
+}

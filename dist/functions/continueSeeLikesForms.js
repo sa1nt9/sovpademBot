@@ -1,1 +1,51 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,n,i,o){return new(i||(i=Promise))((function(r,s){function t(e){try{l(o.next(e))}catch(e){s(e)}}function u(e){try{l(o.throw(e))}catch(e){s(e)}}function l(e){var n;e.done?r(e.value):(n=e.value,n instanceof i?n:new i((function(e){e(n)}))).then(t,u)}l((o=o.apply(e,n||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.continueSeeLikesForms=void 0;const keyboards_1=require("../constants/keyboards"),getOneLike_1=require("./db/getOneLike"),sendForm_1=require("./sendForm"),sendMutualSympathyAfterAnswer_1=require("./sendMutualSympathyAfterAnswer"),continueSeeLikesForms=e=>__awaiter(void 0,void 0,void 0,(function*(){const n=String(e.from.id);e.logger.info({userId:n},"Continuing to see likes forms");const i=yield(0,getOneLike_1.getOneLike)(n,"user");if(null==i?void 0:i.fromProfile){if(e.session.pendingMutualLike&&e.session.pendingMutualLikeProfileId)return e.logger.info({userId:n},"Processing pending mutual like"),yield(0,sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(e,{withoutSleepMenu:!0}),void(e.session.step="continue_see_likes_forms");e.logger.info({userId:n,fromProfileId:i.fromProfile.id},"Showing like form"),yield e.reply("✨🔍",{reply_markup:(0,keyboards_1.answerLikesFormKeyboard)()}),e.session.currentCandidateProfile=i.fromProfile,yield(0,sendForm_1.sendForm)(e,i.fromProfile,{myForm:!1,like:i})}else e.session.pendingMutualLike&&e.session.pendingMutualLikeProfileId&&(e.logger.info({userId:n},"Processing pending mutual like"),yield(0,sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(e,{withoutSleepMenu:!0})),e.logger.info({userId:n},"No more likes to show"),e.session.step="continue_see_forms",e.session.additionalFormInfo.searchingLikes=!1,yield e.reply(e.t("its_all_go_next_question"),{reply_markup:(0,keyboards_1.continueKeyboard)(e.t)})}));exports.continueSeeLikesForms=continueSeeLikesForms;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.continueSeeLikesForms = void 0;
+const keyboards_1 = require("../constants/keyboards");
+const getOneLike_1 = require("./db/getOneLike");
+const sendForm_1 = require("./sendForm");
+const sendMutualSympathyAfterAnswer_1 = require("./sendMutualSympathyAfterAnswer");
+const continueSeeLikesForms = (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = String(ctx.from.id);
+    ctx.logger.info({ userId }, 'Continuing to see likes forms');
+    const oneLike = yield (0, getOneLike_1.getOneLike)(userId, 'user');
+    if (oneLike === null || oneLike === void 0 ? void 0 : oneLike.fromProfile) {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+            ctx.logger.info({ userId }, 'Processing pending mutual like');
+            yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx, { withoutSleepMenu: true });
+            ctx.session.step = 'continue_see_likes_forms';
+            return;
+        }
+        ctx.logger.info({
+            userId,
+            fromProfileId: oneLike.fromProfile.id
+        }, 'Showing like form');
+        yield ctx.reply("✨🔍", {
+            reply_markup: (0, keyboards_1.answerLikesFormKeyboard)()
+        });
+        ctx.session.currentCandidateProfile = oneLike.fromProfile;
+        yield (0, sendForm_1.sendForm)(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
+    }
+    else {
+        if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
+            ctx.logger.info({ userId }, 'Processing pending mutual like');
+            yield (0, sendMutualSympathyAfterAnswer_1.sendMutualSympathyAfterAnswer)(ctx, { withoutSleepMenu: true });
+        }
+        ctx.logger.info({ userId }, 'No more likes to show');
+        ctx.session.step = 'continue_see_forms';
+        ctx.session.additionalFormInfo.searchingLikes = false;
+        yield ctx.reply(ctx.t('its_all_go_next_question'), {
+            reply_markup: (0, keyboards_1.continueKeyboard)(ctx.t)
+        });
+    }
+});
+exports.continueSeeLikesForms = continueSeeLikesForms;

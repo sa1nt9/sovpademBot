@@ -1,1 +1,124 @@
-"use strict";var __awaiter=this&&this.__awaiter||function(e,r,t,i){return new(t||(t=Promise))((function(o,l){function n(e){try{a(i.next(e))}catch(e){l(e)}}function s(e){try{a(i.throw(e))}catch(e){l(e)}}function a(e){var r;e.done?o(e.value):(r=e.value,r instanceof t?r:new t((function(e){e(r)}))).then(n,s)}a((i=i.apply(e,r||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.getNextBlacklistProfile=void 0;const client_1=require("@prisma/client"),postgres_1=require("../../db/postgres"),profilesService_1=require("./profilesService"),logger_1=require("../../logger"),getNextBlacklistProfile=(e,r)=>__awaiter(void 0,void 0,void 0,(function*(){var t;const i=String(null===(t=e.from)||void 0===t?void 0:t.id);logger_1.logger.info({userId:i,currentTargetProfileId:r},"Getting next blacklist profile");try{const e=yield postgres_1.prisma.blacklist.findFirst({where:{userId:i,targetProfileId:r},select:{createdAt:!0}});if(!e)return logger_1.logger.warn({userId:i,currentTargetProfileId:r},"Current blacklist record not found"),{profile:null,remainingCount:0};logger_1.logger.info({userId:i,currentTargetProfileId:r,currentRecordDate:e.createdAt},"Found current blacklist record");const[t,o]=yield Promise.all([postgres_1.prisma.blacklist.findFirst({where:{userId:i,targetProfileId:{not:r},createdAt:{lt:e.createdAt}},orderBy:{createdAt:"desc"}}),postgres_1.prisma.blacklist.count({where:{userId:i,createdAt:{lt:e.createdAt}}})]);logger_1.logger.info({userId:i,hasNextUser:!!t,remainingCount:o},"Retrieved next user and remaining count");let l=null;return(null==t?void 0:t.targetProfileId)&&(logger_1.logger.info({userId:i,targetProfileId:t.targetProfileId,profileType:t.profileType},"Fetching profile details for next blacklist user"),l=yield postgres_1.prisma[(0,profilesService_1.getProfileModelName)(t.profileType||client_1.ProfileType.RELATIONSHIP)].findUnique({where:{id:t.targetProfileId},include:{user:!0}}),l?logger_1.logger.info({userId:i,targetProfileId:t.targetProfileId},"Found profile details for next blacklist user"):logger_1.logger.warn({userId:i,targetProfileId:t.targetProfileId},"Profile not found for next blacklist user")),{profile:l||null,remainingCount:o}}catch(e){return logger_1.logger.error({userId:i,currentTargetProfileId:r,error:e instanceof Error?e.message:"Unknown error",stack:e instanceof Error?e.stack:void 0},"Error getting next blacklist profile"),{profile:null,remainingCount:0}}}));exports.getNextBlacklistProfile=getNextBlacklistProfile;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getNextBlacklistProfile = void 0;
+const client_1 = require("@prisma/client");
+const postgres_1 = require("../../db/postgres");
+const profilesService_1 = require("./profilesService");
+const logger_1 = require("../../logger");
+const getNextBlacklistProfile = (ctx, currentTargetProfileId) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = String((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id);
+    logger_1.logger.info({
+        userId,
+        currentTargetProfileId
+    }, 'Getting next blacklist profile');
+    try {
+        // Сначала получаем время создания текущей записи
+        const currentRecord = yield postgres_1.prisma.blacklist.findFirst({
+            where: {
+                userId,
+                targetProfileId: currentTargetProfileId
+            },
+            select: {
+                createdAt: true
+            }
+        });
+        if (!currentRecord) {
+            logger_1.logger.warn({
+                userId,
+                currentTargetProfileId
+            }, 'Current blacklist record not found');
+            return {
+                profile: null,
+                remainingCount: 0
+            };
+        }
+        logger_1.logger.info({
+            userId,
+            currentTargetProfileId,
+            currentRecordDate: currentRecord.createdAt
+        }, 'Found current blacklist record');
+        // Получаем следующего пользователя и общее количество оставшихся
+        const [nextUser, remainingCount] = yield Promise.all([
+            postgres_1.prisma.blacklist.findFirst({
+                where: {
+                    userId,
+                    targetProfileId: {
+                        not: currentTargetProfileId
+                    },
+                    createdAt: {
+                        lt: currentRecord.createdAt
+                    }
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            }),
+            postgres_1.prisma.blacklist.count({
+                where: {
+                    userId,
+                    createdAt: {
+                        lt: currentRecord.createdAt
+                    }
+                }
+            })
+        ]);
+        logger_1.logger.info({
+            userId,
+            hasNextUser: !!nextUser,
+            remainingCount
+        }, 'Retrieved next user and remaining count');
+        let profile = null;
+        if (nextUser === null || nextUser === void 0 ? void 0 : nextUser.targetProfileId) {
+            logger_1.logger.info({
+                userId,
+                targetProfileId: nextUser.targetProfileId,
+                profileType: nextUser.profileType
+            }, 'Fetching profile details for next blacklist user');
+            profile = yield postgres_1.prisma[(0, profilesService_1.getProfileModelName)(nextUser.profileType || client_1.ProfileType.RELATIONSHIP)].findUnique({
+                where: { id: nextUser.targetProfileId },
+                include: {
+                    user: true
+                }
+            });
+            if (profile) {
+                logger_1.logger.info({
+                    userId,
+                    targetProfileId: nextUser.targetProfileId
+                }, 'Found profile details for next blacklist user');
+            }
+            else {
+                logger_1.logger.warn({
+                    userId,
+                    targetProfileId: nextUser.targetProfileId
+                }, 'Profile not found for next blacklist user');
+            }
+        }
+        return {
+            profile: profile || null,
+            remainingCount
+        };
+    }
+    catch (error) {
+        logger_1.logger.error({
+            userId,
+            currentTargetProfileId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        }, 'Error getting next blacklist profile');
+        return {
+            profile: null,
+            remainingCount: 0
+        };
+    }
+});
+exports.getNextBlacklistProfile = getNextBlacklistProfile;

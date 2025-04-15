@@ -3018,3 +3018,243 @@
 {"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Received candidate from database"}
 {"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"No candidates available for user"}
 {"level":30,"time":"2025-04-14T21:32:55.442Z","env":"production","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Candidates ended, returning to sleep menu"}
+{"level":30,"time":"2025-04-15T17:46:23.942Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:46:24.062Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:46:24.062Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:46:24.064Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:46:24.064Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:48:22.751Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","username":"sa1nt9","isNewUser":false,"msg":"Processing start command"}
+{"level":30,"time":"2025-04-15T17:48:22.754Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","isExistingUser":true,"msg":"User lookup completed"}
+{"level":30,"time":"2025-04-15T17:48:22.754Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","step":"profile","msg":"Sending profile for existing user"}
+{"level":30,"time":"2025-04-15T17:48:22.755Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","options":{"myForm":true,"isBlacklist":false,"isInline":false},"msg":"Starting sendForm function"}
+{"level":30,"time":"2025-04-15T17:48:22.869Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Getting user profile"}
+{"level":30,"time":"2025-04-15T17:48:22.871Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"User profile found"}
+{"level":30,"time":"2025-04-15T17:48:22.871Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"Getting profile files"}
+{"level":30,"time":"2025-04-15T17:48:22.872Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"Getting specific user profile"}
+{"level":30,"time":"2025-04-15T17:48:22.875Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","filesCount":1,"msg":"Profile files retrieved successfully"}
+{"level":30,"time":"2025-04-15T17:48:22.875Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","hasFiles":true,"sendTo":"","msg":"Sending form"}
+{"level":50,"time":"2025-04-15T17:48:22.955Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","error":{"name":"GrammyError","message":"Call to 'sendMediaGroup' failed! (400: Bad Request: failed to send message #1 with the error message \"Wrong file identifier/HTTP URL specified\")","stack":"GrammyError: Call to 'sendMediaGroup' failed! (400: Bad Request: failed to send message #1 with the error message \"Wrong file identifier/HTTP URL specified\")\n    at toGrammyError (C:\\web\\2024\\sovpademBot\\node_modules\\grammy\\out\\core\\error.js:47:12)\n    at ApiClient.callApi (C:\\web\\2024\\sovpademBot\\node_modules\\grammy\\out\\core\\client.js:97:48)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"},"update":{"update_id":292818834,"update_type":"message","chat_id":5134025713,"message_id":3},"user":{"id":"5134025713","username":"sa1nt9","language_code":"ru"},"session":{"step":"profile","activeProfile":"33ae86ed-25b4-4e2e-a838-f2562e9c12d2"},"msg":"Error occurred during update processing"}
+{"level":30,"time":"2025-04-15T17:49:10.202Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","username":"sa1nt9","isNewUser":false,"msg":"Processing start command"}
+{"level":30,"time":"2025-04-15T17:49:10.204Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","isExistingUser":true,"msg":"User lookup completed"}
+{"level":30,"time":"2025-04-15T17:49:10.204Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","step":"profile","msg":"Sending profile for existing user"}
+{"level":30,"time":"2025-04-15T17:49:10.204Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","options":{"myForm":true,"isBlacklist":false,"isInline":false},"msg":"Starting sendForm function"}
+{"level":30,"time":"2025-04-15T17:49:10.312Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"Getting user profile"}
+{"level":30,"time":"2025-04-15T17:49:10.316Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","msg":"User profile found"}
+{"level":30,"time":"2025-04-15T17:49:10.316Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"Getting profile files"}
+{"level":30,"time":"2025-04-15T17:49:10.316Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","profileType":"RELATIONSHIP","msg":"Getting specific user profile"}
+{"level":30,"time":"2025-04-15T17:49:10.319Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","filesCount":1,"msg":"Profile files retrieved successfully"}
+{"level":30,"time":"2025-04-15T17:49:10.319Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","hasFiles":true,"sendTo":"","msg":"Sending form"}
+{"level":50,"time":"2025-04-15T17:49:10.396Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","error":{"name":"GrammyError","message":"Call to 'sendMediaGroup' failed! (400: Bad Request: failed to send message #1 with the error message \"Wrong file identifier/HTTP URL specified\")","stack":"GrammyError: Call to 'sendMediaGroup' failed! (400: Bad Request: failed to send message #1 with the error message \"Wrong file identifier/HTTP URL specified\")\n    at toGrammyError (C:\\web\\2024\\sovpademBot\\node_modules\\grammy\\out\\core\\error.js:47:12)\n    at ApiClient.callApi (C:\\web\\2024\\sovpademBot\\node_modules\\grammy\\out\\core\\client.js:97:48)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"},"update":{"update_id":292818835,"update_type":"message","chat_id":5134025713,"message_id":5},"user":{"id":"5134025713","username":"sa1nt9","language_code":"ru"},"session":{"step":"profile","activeProfile":"33ae86ed-25b4-4e2e-a838-f2562e9c12d2"},"msg":"Error occurred during update processing"}
+{"level":30,"time":"2025-04-15T17:53:13.617Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Initializing new session"}
+{"level":30,"time":"2025-04-15T17:53:13.632Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","username":"sa1nt9","isNewUser":false,"msg":"Processing start command"}
+{"level":30,"time":"2025-04-15T17:53:13.638Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","isExistingUser":false,"msg":"User lookup completed"}
+{"level":30,"time":"2025-04-15T17:53:13.638Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","step":"choose_language_start","msg":"Starting language selection for new user"}
+{"level":30,"time":"2025-04-15T17:53:16.269Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":5134025713,"username":"sa1nt9","step":"choose_language_start","messageType":"text","msg":"Processing message event"}
+{"level":30,"time":"2025-04-15T17:53:16.269Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","step":"choose_language_start","selectedLanguage":"🇷🇺 Русский","msg":"User selecting initial language"}
+{"level":30,"time":"2025-04-15T17:53:16.269Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","userId":"5134025713","languageCode":"ru","msg":"Initial language selected successfully"}
+{"level":50,"time":"2025-04-15T17:53:17.845Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Ошибка проверки подписки","error":{"method":"getChatMember","payload":{"chat_id":"@sovpadem","user_id":5134025713},"ok":false,"name":"GrammyError","error_code":400,"description":"Bad Request: member list is inaccessible","parameters":{}}}
+{"level":30,"time":"2025-04-15T17:55:49.382Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:55:49.433Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:55:49.433Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:55:49.436Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:55:49.436Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:57:17.422Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:57:17.471Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:57:17.471Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:57:17.473Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:57:17.473Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":50,"time":"2025-04-15T17:58:05.608Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Ошибка проверки подписки","error":{"method":"getChatMember","payload":{"chat_id":"@sovpadem","user_id":5134025713},"ok":false,"name":"GrammyError","error_code":400,"description":"Bad Request: member list is inaccessible","parameters":{}}}
+{"level":30,"time":"2025-04-15T17:59:02.685Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:02.729Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:02.730Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:02.731Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:02.731Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:11.408Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:11.460Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:11.460Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:11.463Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:11.463Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:14.287Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:14.336Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:14.336Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:14.338Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:14.338Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:17.206Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:17.247Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:17.247Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:17.249Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:17.250Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:19.999Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:20.189Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:20.189Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:20.191Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:20.191Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:23.973Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:24.026Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:24.026Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:24.028Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:24.028Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:27.054Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:27.106Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:27.107Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:27.109Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:27.109Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:31.888Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:31.932Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:31.932Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:31.934Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:31.934Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:34.564Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:34.620Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:34.620Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:34.622Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:34.622Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:39.293Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:39.362Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:39.362Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:39.364Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:39.364Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:43.207Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:43.251Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:43.251Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:43.253Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:43.253Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:46.016Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:46.058Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:46.058Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:46.060Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:46.060Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T17:59:48.887Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T17:59:48.943Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T17:59:48.943Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T17:59:48.945Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T17:59:48.945Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":50,"time":"2025-04-15T18:00:02.381Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Ошибка проверки подписки","error":{"method":"getChatMember","payload":{"chat_id":"@sovpadem","user_id":5134025713},"ok":false,"name":"GrammyError","error_code":400,"description":"Bad Request: member list is inaccessible","parameters":{}}}
+{"level":30,"time":"2025-04-15T18:02:30.435Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:02:30.509Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:02:30.510Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:02:30.512Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:02:30.513Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:02:38.405Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:02:38.454Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:02:38.454Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:02:38.456Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:02:38.456Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":50,"time":"2025-04-15T18:02:43.841Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Ошибка проверки подписки","error":{"method":"getChatMember","payload":{"chat_id":"@sovpadem","user_id":5134025713},"ok":false,"name":"GrammyError","error_code":400,"description":"Bad Request: member list is inaccessible","parameters":{}}}
+{"level":50,"time":"2025-04-15T18:04:37.630Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Ошибка проверки подписки","error":{"method":"getChatMember","payload":{"chat_id":"@sovpadem","user_id":5134025713},"ok":false,"name":"GrammyError","error_code":400,"description":"Bad Request: member list is inaccessible","parameters":{}}}
+{"level":30,"time":"2025-04-15T18:05:32.734Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Initializing new session"}
+{"level":30,"time":"2025-04-15T18:06:04.118Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:06:04.160Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:06:04.160Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:06:04.162Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:06:04.162Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:11:15.257Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:11:15.364Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:11:15.364Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:11:15.367Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:11:15.367Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:11:32.404Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:11:32.462Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:11:32.462Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:11:32.464Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:11:32.464Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:11:41.542Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:11:41.585Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:11:41.585Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:11:41.587Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:11:41.587Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:12:20.258Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:12:20.302Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:12:20.302Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:12:20.304Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:12:20.304Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:13:00.593Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:13:00.634Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:13:00.634Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:13:00.635Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:13:00.635Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:13:44.863Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:13:44.906Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:13:44.906Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:13:44.909Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:13:44.909Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:13:47.924Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:13:47.974Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:13:47.974Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:13:47.976Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:13:47.976Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:14:12.144Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:14:12.195Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:14:12.195Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:14:12.197Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:14:12.197Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:14:15.374Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:14:15.419Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:14:15.419Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:14:15.420Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:14:15.420Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:15:18.078Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:15:18.137Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:15:18.137Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:15:18.139Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:15:18.139Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:15:33.348Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:15:33.417Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:15:33.417Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:15:33.419Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:15:33.419Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:15:38.384Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:15:38.438Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:15:38.439Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:15:38.441Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:15:38.441Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:15:44.742Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:15:44.817Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:15:44.818Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:15:44.819Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:15:44.819Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:15:50.584Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:15:50.629Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:15:50.629Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:15:50.631Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:15:50.631Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:15:54.844Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:15:54.885Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:15:54.885Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:15:54.887Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:15:54.887Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:15:59.507Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:15:59.550Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:15:59.550Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:15:59.552Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:15:59.552Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:16:39.573Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:16:39.618Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:16:39.618Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:16:39.620Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:16:39.620Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:16:43.710Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:16:43.754Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:16:43.754Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:16:43.756Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:16:43.756Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:16:47.153Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:16:47.200Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:16:47.200Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:16:47.202Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:16:47.202Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:16:51.786Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:16:51.836Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:16:51.836Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:16:51.838Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:16:51.838Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:16:56.056Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:16:56.105Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:16:56.105Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:16:56.107Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:16:56.107Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}
+{"level":30,"time":"2025-04-15T18:17:33.862Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Connecting to database..."}
+{"level":30,"time":"2025-04-15T18:17:33.904Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Database connection established"}
+{"level":30,"time":"2025-04-15T18:17:33.904Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Queues initialized successfully"}
+{"level":30,"time":"2025-04-15T18:17:33.906Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Bot configured successfully"}
+{"level":30,"time":"2025-04-15T18:17:33.907Z","version":"1.0.0","hostname":"GROLLANDDESKTOP","msg":"Starting bot in development mode with long polling"}

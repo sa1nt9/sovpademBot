@@ -1,1 +1,163 @@
-"use strict";var __createBinding=this&&this.__createBinding||(Object.create?function(e,t,r,o){void 0===o&&(o=r);var i=Object.getOwnPropertyDescriptor(t,r);i&&!("get"in i?!t.__esModule:i.writable||i.configurable)||(i={enumerable:!0,get:function(){return t[r]}}),Object.defineProperty(e,o,i)}:function(e,t,r,o){void 0===o&&(o=r),e[o]=t[r]}),__setModuleDefault=this&&this.__setModuleDefault||(Object.create?function(e,t){Object.defineProperty(e,"default",{enumerable:!0,value:t})}:function(e,t){e.default=t}),__importStar=this&&this.__importStar||function(){var e=function(t){return e=Object.getOwnPropertyNames||function(e){var t=[];for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&(t[t.length]=r);return t},e(t)};return function(t){if(t&&t.__esModule)return t;var r={};if(null!=t)for(var o=e(t),i=0;i<o.length;i++)"default"!==o[i]&&__createBinding(r,t,o[i]);return __setModuleDefault(r,t),r}}(),__awaiter=this&&this.__awaiter||function(e,t,r,o){return new(r||(r=Promise))((function(i,a){function n(e){try{l(o.next(e))}catch(e){a(e)}}function s(e){try{l(o.throw(e))}catch(e){a(e)}}function l(e){var t;e.done?i(e.value):(t=e.value,t instanceof r?t:new r((function(e){e(t)}))).then(n,s)}l((o=o.apply(e,t||[])).next())}))};Object.defineProperty(exports,"__esModule",{value:!0}),exports.bot=void 0;const logger_1=require("./logger"),grammy_1=require("grammy"),dotenv=__importStar(require("dotenv")),sessionInitial_1=require("./functions/sessionInitial"),error_1=require("./handlers/error"),i18n_1=require("./i18n"),postgres_1=require("./db/postgres"),checkSubscriptionMiddleware_1=require("./middlewares/checkSubscriptionMiddleware"),storage_prisma_1=require("@grammyjs/storage-prisma"),myprofile_1=require("./commands/myprofile"),language_1=require("./commands/language"),deactivate_1=require("./commands/deactivate"),start_1=require("./commands/start"),complain_1=require("./commands/complain"),roulette_1=require("./commands/roulette"),message_1=require("./events/message"),callback_query_1=require("./events/callback_query"),rouletteMiddleware_1=require("./middlewares/rouletteMiddleware"),stop_roulette_1=require("./commands/stop_roulette"),stats_1=require("./commands/stats"),blacklist_1=require("./commands/blacklist"),add_to_blacklist_1=require("./commands/add_to_blacklist"),matches_1=require("./commands/matches"),inline_query_1=require("./events/inline_query"),switch_1=require("./commands/switch"),changeSessionFieldsMiddleware_1=require("./middlewares/changeSessionFieldsMiddleware"),new_likes_1=require("./commands/new_likes"),initQueues_1=require("./queues/initQueues");function startBot(){return __awaiter(this,void 0,void 0,(function*(){try{logger_1.logger.info("Connecting to database..."),yield(0,postgres_1.connectPostgres)(),logger_1.logger.info("Database connection established"),(0,initQueues_1.initQueues)(),exports.bot.catch(error_1.errorHandler),exports.bot.use(((e,t)=>__awaiter(this,void 0,void 0,(function*(){e.logger=logger_1.logger,yield t()}))));const e=(0,grammy_1.session)({initial:sessionInitial_1.sessionInitial,storage:new storage_prisma_1.PrismaAdapter(postgres_1.prisma.session)});exports.bot.use(((t,r)=>__awaiter(this,void 0,void 0,(function*(){return t.inlineQuery?r():e(t,r)})))),exports.bot.use(((e,t)=>__awaiter(this,void 0,void 0,(function*(){return e.inlineQuery?(0,i18n_1.i18n)(!0).middleware()(e,t):(0,i18n_1.i18n)(!1).middleware()(e,t)})))),exports.bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware),exports.bot.use(rouletteMiddleware_1.rouletteMiddleware),exports.bot.use(changeSessionFieldsMiddleware_1.changeSessionFieldsMiddleware),exports.bot.command("start",start_1.startCommand),exports.bot.command("myprofile",myprofile_1.myprofileCommand),exports.bot.command("switch",switch_1.switchCommand),exports.bot.command("roulette",roulette_1.rouletteCommand),exports.bot.command("blacklist",blacklist_1.blacklistCommand),exports.bot.command("matches",matches_1.matchesCommand),exports.bot.command("add_to_blacklist",add_to_blacklist_1.addToBlacklistCommand),exports.bot.command("new_likes",new_likes_1.newLikesCommand),exports.bot.command("complain",complain_1.complainCommand),exports.bot.command("stats",stats_1.statsCommand),exports.bot.command("stop_roulette",stop_roulette_1.stopRouletteCommand),exports.bot.command("language",language_1.languageCommand),exports.bot.command("deactivate",deactivate_1.deactivateCommand),exports.bot.on("message",message_1.messageEvent),exports.bot.on("callback_query",callback_query_1.callbackQueryEvent),exports.bot.on("inline_query",inline_query_1.inlineQueryEvent),logger_1.logger.info("Starting bot..."),exports.bot.start(),logger_1.logger.info("Bot started successfully")}catch(e){throw logger_1.logger.error({error:e},"Failed to start bot"),e}}))}dotenv.config(),exports.bot=new grammy_1.Bot(String(process.env.BOT_TOKEN)),startBot().catch((e=>{logger_1.logger.error({error:e},"Fatal error during bot startup"),process.exit(1)}));
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.bot = void 0;
+const logger_1 = require("./logger");
+const grammy_1 = require("grammy");
+const dotenv = __importStar(require("dotenv"));
+const sessionInitial_1 = require("./functions/sessionInitial");
+const error_1 = require("./handlers/error");
+const i18n_1 = require("./i18n");
+const postgres_1 = require("./db/postgres");
+const checkSubscriptionMiddleware_1 = require("./middlewares/checkSubscriptionMiddleware");
+const storage_prisma_1 = require("@grammyjs/storage-prisma");
+const myprofile_1 = require("./commands/myprofile");
+const language_1 = require("./commands/language");
+const deactivate_1 = require("./commands/deactivate");
+const start_1 = require("./commands/start");
+const complain_1 = require("./commands/complain");
+const roulette_1 = require("./commands/roulette");
+const message_1 = require("./events/message");
+const callback_query_1 = require("./events/callback_query");
+const rouletteMiddleware_1 = require("./middlewares/rouletteMiddleware");
+const stop_roulette_1 = require("./commands/stop_roulette");
+const stats_1 = require("./commands/stats");
+const blacklist_1 = require("./commands/blacklist");
+const add_to_blacklist_1 = require("./commands/add_to_blacklist");
+const matches_1 = require("./commands/matches");
+const inline_query_1 = require("./events/inline_query");
+const switch_1 = require("./commands/switch");
+const changeSessionFieldsMiddleware_1 = require("./middlewares/changeSessionFieldsMiddleware");
+const new_likes_1 = require("./commands/new_likes");
+// Импортируем очереди
+const initQueues_1 = require("./queues/initQueues");
+// Импортируем webhook
+const webhook_1 = require("./webhook");
+dotenv.config();
+exports.bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
+// Определяем режим запуска (production или development)
+const isProduction = process.env.NODE_ENV === 'production';
+function startBot() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            logger_1.logger.info('Connecting to database...');
+            yield (0, postgres_1.connectPostgres)();
+            logger_1.logger.info('Database connection established');
+            // Инициализация очередей
+            (0, initQueues_1.initQueues)();
+            exports.bot.catch(error_1.errorHandler);
+            // Middleware для добавления логгера в контекст
+            exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                ctx.logger = logger_1.logger;
+                yield next();
+            }));
+            const sessionMiddleware = (0, grammy_1.session)({
+                initial: sessionInitial_1.sessionInitial,
+                storage: new storage_prisma_1.PrismaAdapter(postgres_1.prisma.session),
+            });
+            exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                if (ctx.inlineQuery) {
+                    return next();
+                }
+                return sessionMiddleware(ctx, next);
+            }));
+            exports.bot.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
+                if (ctx.inlineQuery) {
+                    return (0, i18n_1.i18n)(true).middleware()(ctx, next);
+                }
+                return (0, i18n_1.i18n)(false).middleware()(ctx, next);
+            }));
+            exports.bot.use(checkSubscriptionMiddleware_1.checkSubscriptionMiddleware);
+            exports.bot.use(rouletteMiddleware_1.rouletteMiddleware);
+            exports.bot.use(changeSessionFieldsMiddleware_1.changeSessionFieldsMiddleware);
+            // Регистрация команд
+            exports.bot.command("start", start_1.startCommand);
+            exports.bot.command("myprofile", myprofile_1.myprofileCommand);
+            exports.bot.command("switch", switch_1.switchCommand);
+            exports.bot.command("roulette", roulette_1.rouletteCommand);
+            exports.bot.command("blacklist", blacklist_1.blacklistCommand);
+            exports.bot.command("matches", matches_1.matchesCommand);
+            exports.bot.command("add_to_blacklist", add_to_blacklist_1.addToBlacklistCommand);
+            exports.bot.command("new_likes", new_likes_1.newLikesCommand);
+            exports.bot.command("complain", complain_1.complainCommand);
+            exports.bot.command("stats", stats_1.statsCommand);
+            exports.bot.command("stop_roulette", stop_roulette_1.stopRouletteCommand);
+            exports.bot.command("language", language_1.languageCommand);
+            exports.bot.command("deactivate", deactivate_1.deactivateCommand);
+            // Регистрация обработчиков событий
+            exports.bot.on("message", message_1.messageEvent);
+            exports.bot.on("callback_query", callback_query_1.callbackQueryEvent);
+            exports.bot.on("inline_query", inline_query_1.inlineQueryEvent);
+            logger_1.logger.info('Bot configured successfully');
+            // Запускаем бота в зависимости от режима
+            if (isProduction) {
+                // В production используем webhook
+                logger_1.logger.info('Starting bot in production mode with webhook');
+                // Получаем WEBHOOK_PORT из переменных окружения или используем 3000 по умолчанию
+                const port = Number(process.env.WEBHOOK_PORT) || 3000;
+                // Настраиваем webhook
+                const webhook = (0, webhook_1.setupWebhook)(exports.bot);
+                // Запускаем Express сервер
+                yield webhook.startServer(port);
+                // Устанавливаем webhook в Telegram API
+                yield webhook.setWebhook();
+                logger_1.logger.info('Bot started successfully with webhook');
+            }
+            else {
+                // В development используем long polling
+                logger_1.logger.info('Starting bot in development mode with long polling');
+                yield exports.bot.start();
+                logger_1.logger.info('Bot started successfully with long polling');
+            }
+        }
+        catch (error) {
+            logger_1.logger.error({ error }, 'Failed to start bot');
+            throw error;
+        }
+    });
+}
+startBot().catch((error) => {
+    logger_1.logger.error({ error }, 'Fatal error during bot startup');
+    process.exit(1);
+});
