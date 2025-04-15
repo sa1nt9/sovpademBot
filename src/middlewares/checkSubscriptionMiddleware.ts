@@ -43,7 +43,7 @@ export const checkSubscriptionMiddleware = async (ctx: MyContext, next: () => Pr
     } else {
         ctx.session.isNeededSubscription = true;
 
-        await ctx.reply(ctx.t('need_subscription', { botname: process.env.CHANNEL_NAME || "" }), {
+        await ctx.reply(ctx.t('need_subscription', { botname: process.env.CHANNEL_NAME || "", botusername: process.env.BOT_USERNAME || "" }), {
             reply_markup: subscribeChannelKeyboard(ctx.t),
             parse_mode: "Markdown"
         });

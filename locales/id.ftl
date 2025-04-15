@@ -1,6 +1,6 @@
 choose_language = Pilih bahasa 👇
 
-need_subscription = Untuk melanjutkan, silakan berlangganan [saluran kami {$botname}](https://t.me/sovnad) terlebih dahulu
+need_subscription = Untuk melanjutkan, silakan berlangganan [saluran kami {$botname}](https://t.me/{ $botusername }) terlebih dahulu
 
     Setelah berlangganan, tekan tombol *Selesai* untuk melanjutkan.
 

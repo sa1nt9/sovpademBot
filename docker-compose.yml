@@ -53,6 +53,8 @@ services:
       - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
       - DATABASE_URL=postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_NAME}
+      - NODE_ENV=production
+      - WEBHOOK_PORT=3000
     networks:
       - app_network
     volumes:
@@ -67,6 +69,31 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+        
+  nginx:
+    image: nginx:alpine
+    restart: always
+    depends_on:
+      - bot
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - app_network
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
         
   backup:
     image: postgres:15-alpine

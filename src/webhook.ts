@@ -24,7 +24,7 @@ export function setupWebhook(bot: Bot<MyContext>) {
     app.use(WEBHOOK_PATH, webhookCallback(bot, "express"));
     
     // Эндпоинт для проверки работоспособности
-    app.get('/health', (req, res) => {
+    app.get('/health', (req: any, res: any) => {
         res.status(200).send({ status: 'ok' });
     });
     

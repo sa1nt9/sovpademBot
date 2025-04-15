@@ -29,11 +29,15 @@ import { newLikesCommand } from './commands/new_likes';
 // Импортируем очереди
 import { notificationQueue } from './queues/notificationQueue';
 import { initQueues } from './queues/initQueues';
+// Импортируем webhook
+import { setupWebhook } from './webhook';
 
 dotenv.config();
 
 export const bot = new Bot<MyContext>(String(process.env.BOT_TOKEN));
 
+// Определяем режим запуска (production или development)
+const isProduction = process.env.NODE_ENV === 'production';
 
 async function startBot() {
     try {
@@ -95,9 +99,32 @@ async function startBot() {
         bot.on("callback_query", callbackQueryEvent);
         bot.on("inline_query", inlineQueryEvent);
 
-        logger.info('Starting bot...');
-        bot.start();
-        logger.info('Bot started successfully');
+        logger.info('Bot configured successfully');
+
+        // Запускаем бота в зависимости от режима
+        if (isProduction) {
+            // В production используем webhook
+            logger.info('Starting bot in production mode with webhook');
+            
+            // Получаем WEBHOOK_PORT из переменных окружения или используем 3000 по умолчанию
+            const port = Number(process.env.WEBHOOK_PORT) || 3000;
+            
+            // Настраиваем webhook
+            const webhook = setupWebhook(bot);
+            
+            // Запускаем Express сервер
+            await webhook.startServer(port);
+            
+            // Устанавливаем webhook в Telegram API
+            await webhook.setWebhook();
+            
+            logger.info('Bot started successfully with webhook');
+        } else {
+            // В development используем long polling
+            logger.info('Starting bot in development mode with long polling');
+            await bot.start();
+            logger.info('Bot started successfully with long polling');
+        }
     } catch (error) {
         logger.error({ error }, 'Failed to start bot');
         throw error;

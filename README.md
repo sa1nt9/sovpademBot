@@ -72,3 +72,37 @@ docker compose logs -f
 ```bash
 docker compose exec bot npm run prisma:studio
 ```
+
+## Настройка веб-хуков для Telegram-бота
+
+Для настройки веб-хуков вам потребуется домен и SSL-сертификат. Выполните следующие шаги:
+
+1. **Приобретите домен** у любого регистратора доменов (например, reg.ru, namecheap.com)
+
+2. **Настройте DNS-записи** для вашего домена, указав IP-адрес вашего сервера:
+   ```
+   A запись для domain.com -> IP вашего сервера
+   ```
+
+3. **Обновите переменные окружения**:
+   ```
+   NODE_ENV=production
+   BOT_DOMAIN=your-domain.com
+   WEBHOOK_PATH=/telegram/webhook
+   ```
+
+4. **Запустите скрипт инициализации SSL**:
+   ```bash
+   # Сделайте скрипт исполняемым
+   chmod +x scripts/init-ssl.sh
+   
+   # Запустите скрипт, указав ваш домен
+   ./scripts/init-ssl.sh your-domain.com your-email@example.com
+   ```
+
+5. **Проверьте статус веб-хука**:
+   ```bash
+   curl -X GET https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo
+   ```
+
+**Примечание:** Веб-хуки работают только в production режиме. В development режиме бот будет использовать Long Polling.
