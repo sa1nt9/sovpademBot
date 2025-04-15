@@ -75,7 +75,7 @@ start_application() {
   sleep 10
   
   # Сборка и запуск контейнеров бота и бэкапа
-  docker compose up -d --build bot backup
+  docker compose up -d --build bot nginx backup
   
   # Проверка статуса
   if [ $? -eq 0 ]; then
@@ -119,7 +119,7 @@ update_application() {
   # Пересобираем контейнеры
   docker compose down
   docker compose build --no-cache bot
-  docker compose up -d postgres redis bot backup
+  docker compose up -d postgres redis bot nginx backup
   
   # Проверка статуса
   if [ $? -eq 0 ]; then
