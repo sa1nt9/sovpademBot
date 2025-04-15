@@ -35,8 +35,6 @@ EMAIL=${2:-"webmaster@$DOMAIN"} # Если email не указан, исполь
 print_status "Начинаем настройку SSL для домена $DOMAIN с email $EMAIL"
 
 # Создаем необходимые директории
-mkdir -p ./nginx/certbot/conf
-mkdir -p ./nginx/certbot/www
 mkdir -p ./nginx/logs
 
 # Обновляем конфигурацию Nginx
@@ -65,7 +63,7 @@ sleep 5
 
 # Получаем SSL сертификат
 print_status "Получаем SSL сертификат для $DOMAIN"
-docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email webmaster@sovpadem.site --agree-tos --no-eff-email -d sovpadem.site
+docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d sovpadem.site
 
 # Проверяем наличие сертификата
 if [ -d "./nginx/certbot/conf/live/$DOMAIN" ]; then
