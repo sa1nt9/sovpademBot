@@ -75,7 +75,7 @@ start_application() {
   sleep 10
   
   # Сборка и запуск контейнеров бота и бэкапа
-  docker compose up -d --build bot nginx backup log-viewer
+  docker compose up -d --build bot nginx backup log-viewer prisma-studio
   
   # Проверка статуса
   if [ $? -eq 0 ]; then
@@ -125,7 +125,7 @@ update_application() {
   # Пересобираем контейнеры
   docker compose down
   docker compose build --no-cache bot
-  docker compose up -d postgres redis bot nginx backup log-viewer
+  docker compose up -d postgres redis bot nginx backup log-viewer prisma-studio
   
   # Проверка статуса
   if [ $? -eq 0 ]; then
