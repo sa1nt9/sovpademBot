@@ -15,17 +15,17 @@ echo "Загружаем переменные из .env файла..."
 export $(grep -v '^#' .env | xargs)
 
 # Проверяем, что переменные окружения установлены
-if [ -z "$LOGS_USERNAME" ] || [ -z "$LOGS_PASSWORD" ]; then
-    echo "Ошибка: Переменные LOGS_USERNAME и LOGS_PASSWORD должны быть установлены в файле .env"
+if [ -z "$ADMIN_USERNAME" ] || [ -z "$ADMIN_PASSWORD" ]; then
+    echo "Ошибка: Переменные ADMIN_USERNAME и ADMIN_PASSWORD должны быть установлены в файле .env"
     exit 1
 fi
 
 echo "Переменные успешно загружены:"
-echo "LOGS_USERNAME: $LOGS_USERNAME"
-echo "LOGS_PASSWORD: [скрыт]"
+echo "ADMIN_USERNAME: $ADMIN_USERNAME"
+echo "ADMIN_PASSWORD: [скрыт]"
 
 # Создаем временный файл .htpasswd
-echo "$LOGS_USERNAME:$(openssl passwd -apr1 $LOGS_PASSWORD)" > .htpasswd.tmp
+echo "$ADMIN_USERNAME:$(openssl passwd -apr1 $ADMIN_PASSWORD)" > .htpasswd.tmp
 
 # Копируем файл в контейнер nginx
 docker compose exec -T nginx sh -c 'cat > /etc/nginx/.htpasswd' < .htpasswd.tmp
@@ -34,7 +34,7 @@ docker compose exec -T nginx sh -c 'cat > /etc/nginx/.htpasswd' < .htpasswd.tmp
 rm .htpasswd.tmp
 
 echo "Файл .htpasswd успешно создан с учетными данными из .env файла"
-echo "Имя пользователя: $LOGS_USERNAME"
+echo "Имя пользователя: $ADMIN_USERNAME"
 echo "Пароль: [скрыт]"
 
 # Перезагружаем Nginx

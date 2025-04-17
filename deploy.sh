@@ -195,7 +195,7 @@ start_log_viewer() {
     # Создаем файл .htpasswd для доступа к логам
     if [ -f "scripts/init-htpasswd.sh" ]; then
       print_status "Создание файла аутентификации для доступа к логам..."
-      print_status "Используем учетные данные из .env: LOGS_USERNAME и LOGS_PASSWORD"
+      print_status "Используем учетные данные из .env: ADMIN_USERNAME и ADMIN_PASSWORD"
       bash scripts/init-htpasswd.sh
     else
       print_warning "Скрипт init-htpasswd.sh не найден. Аутентификация может не работать."
