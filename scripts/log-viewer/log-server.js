@@ -258,4 +258,4 @@ function escapeHtml(text) {
 app.listen(port, () => {
   console.log(`Сервер просмотра логов запущен на порту ${port}`);
   console.log(`Откройте http://localhost:${port} в браузере для просмотра логов`);
-}); 
+});
