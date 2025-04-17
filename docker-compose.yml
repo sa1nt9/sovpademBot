@@ -157,6 +157,7 @@ services:
       - "127.0.0.1:5555:5555"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_NAME}
+      - BROWSER=none # Отключаем автоматическое открытие браузера
     volumes:
       - ./prisma:/app/prisma
 
