@@ -153,7 +153,7 @@ app.get('/logs', (req, res) => {
     `;
     
     logFiles.forEach(file => {
-      html += `<li><a href="logs/${file}">${file}</a></li>`;
+      html += `<li><a href="${file}">${file}</a></li>`;
     });
     
     html += `
