@@ -82,6 +82,12 @@ start_application() {
     print_status "Приложение успешно запущено!"
     print_status "Статус контейнеров:"
     docker compose ps
+    
+    # Создаем файл .htpasswd для доступа к логам
+    if [ -f "scripts/init-htpasswd.sh" ]; then
+      print_status "Создание файла аутентификации для доступа к логам..."
+      bash scripts/init-htpasswd.sh
+    fi
   else
     print_error "Не удалось запустить приложение. Проверьте логи контейнеров."
     exit 1
@@ -185,6 +191,16 @@ start_log_viewer() {
     print_status "Веб-интерфейс для просмотра логов успешно запущен!"
     print_status "Адрес: http://localhost:3030 или через настроенный Nginx прокси"
     print_status "Для доступа через Nginx перейдите по адресу: https://sovpadem.site/logs/"
+    
+    # Создаем файл .htpasswd для доступа к логам
+    if [ -f "scripts/init-htpasswd.sh" ]; then
+      print_status "Создание файла аутентификации для доступа к логам..."
+      print_status "Используем учетные данные из .env: LOGS_USERNAME и LOGS_PASSWORD"
+      bash scripts/init-htpasswd.sh
+    else
+      print_warning "Скрипт init-htpasswd.sh не найден. Аутентификация может не работать."
+      print_warning "Имя пользователя/пароль доступа к логам по умолчанию: admin/admin"
+    fi
   else
     print_error "Не удалось запустить веб-интерфейс для просмотра логов. Проверьте логи контейнера."
   fi
