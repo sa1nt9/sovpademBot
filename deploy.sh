@@ -177,40 +177,6 @@ start_log_viewer() {
   fi
 
   print_status "Запуск веб-интерфейса для просмотра логов..."
-
-  # Проверяем наличие конфигурации для log-viewer в docker-compose.yml
-  if ! grep -q "log-viewer:" docker-compose.yml; then
-    print_warning "Сервис log-viewer не найден в docker-compose.yml"
-    print_warning "Добавляю сервис log-viewer в docker-compose.yml..."
-    
-    # Создаем временный файл с конфигурацией
-    cat << EOF > docker-compose.log-viewer.tmp
-  log-viewer:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "127.0.0.1:3030:3030"
-    environment:
-      - LOG_VIEWER_PORT=3030
-    volumes:
-      - ./logs:/app/logs
-      - ./scripts:/app/scripts
-    command: node scripts/log-viewer/log-server.js
-    networks:
-      - app_network
-EOF
-    
-    # Вставляем конфигурацию в docker-compose.yml перед секцией networks
-    sed -i '/^networks:/i \
-'"$(cat docker-compose.log-viewer.tmp)"'' docker-compose.yml
-    
-    # Удаляем временный файл
-    rm docker-compose.log-viewer.tmp
-    
-    print_status "Сервис log-viewer добавлен в docker-compose.yml"
-  fi
   
   # Запускаем сервис log-viewer
   docker compose up -d --build log-viewer
@@ -218,54 +184,7 @@ EOF
   if [ $? -eq 0 ]; then
     print_status "Веб-интерфейс для просмотра логов успешно запущен!"
     print_status "Адрес: http://localhost:3030 или через настроенный Nginx прокси"
-    
-    # Проверяем наличие конфигурации Nginx
-    if [ -d "nginx/conf" ]; then
-      print_warning "Хотите добавить конфигурацию для просмотра логов через Nginx? (y/n)"
-      read nginx_choice
-      if [ "$nginx_choice" == "y" ]; then
-        # Проверяем, существует ли уже конфигурация для логов
-        nginx_conf_files=$(find nginx/conf -type f -name "*.conf")
-        
-        # Ищем существующий server блок
-        for conf_file in $nginx_conf_files; do
-          if grep -q "server {" "$conf_file"; then
-            if ! grep -q "location /logs/" "$conf_file"; then
-              print_status "Добавляю конфигурацию для просмотра логов в $conf_file..."
-              
-              # Добавляем блок для логов перед закрывающей фигурной скобкой сервера
-              sed -i '/server {/,/}/{s/}/    # Просмотр логов\n    location \/logs\/ {\n        auth_basic "Restricted Access";\n        auth_basic_user_file \/etc\/nginx\/.htpasswd;\n        proxy_pass http:\/\/log-viewer:3030\/;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}/}' "$conf_file"
-              
-              # Создаем файл с паролем, если его нет
-              if ! docker compose exec nginx test -f /etc/nginx/.htpasswd; then
-                print_status "Создаю файл с паролем для доступа к логам..."
-                print_warning "Введите имя пользователя для доступа к логам (по умолчанию: admin):"
-                read log_user
-                log_user=${log_user:-admin}
-                
-                print_warning "Введите пароль для доступа к логам:"
-                read -s log_password
-                
-                # Создаем файл с паролем внутри контейнера
-                echo "$log_user:$(openssl passwd -apr1 $log_password)" | docker compose exec -T nginx sh -c 'cat > /etc/nginx/.htpasswd'
-                
-                print_status "Файл с паролем создан"
-              fi
-              
-              # Перезагружаем Nginx
-              docker compose exec nginx nginx -s reload
-              
-              print_status "Конфигурация для просмотра логов через Nginx добавлена"
-              print_status "Доступ: https://ваш-домен/logs/"
-              break
-            else
-              print_status "Конфигурация для просмотра логов уже существует в $conf_file"
-              break
-            fi
-          fi
-        done
-      fi
-    fi
+    print_status "Для доступа через Nginx перейдите по адресу: https://sovpadem.site/logs/"
   else
     print_error "Не удалось запустить веб-интерфейс для просмотра логов. Проверьте логи контейнера."
   fi
