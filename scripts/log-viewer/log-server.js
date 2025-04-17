@@ -204,13 +204,14 @@ app.get('/logs/:filename', (req, res) => {
     
     // Подсветка строк по типу лога
     const colorizedLines = displayedLines.map(line => {
-      if (line.includes('"level":"error"') || line.includes('ERROR')) {
+      // Проверяем числовые уровни логирования
+      if (line.includes('"level":50') || line.includes('"level":60') || line.includes('"level":"error"') || line.includes('ERROR')) {
         return `<div class="error">${escapeHtml(line)}</div>`;
-      } else if (line.includes('"level":"warn"') || line.includes('WARN')) {
+      } else if (line.includes('"level":40') || line.includes('"level":"warn"') || line.includes('WARN')) {
         return `<div class="warning">${escapeHtml(line)}</div>`;
-      } else if (line.includes('"level":"info"') || line.includes('INFO')) {
+      } else if (line.includes('"level":30') || line.includes('"level":"info"') || line.includes('INFO')) {
         return `<div class="info">${escapeHtml(line)}</div>`;
-      } else if (line.includes('"level":"debug"') || line.includes('DEBUG')) {
+      } else if (line.includes('"level":20') || line.includes('"level":10') || line.includes('"level":"debug"') || line.includes('DEBUG')) {
         return `<div class="debug">${escapeHtml(line)}</div>`;
       }
       return escapeHtml(line);
