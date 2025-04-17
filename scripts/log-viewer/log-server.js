@@ -119,7 +119,41 @@ app.get('/', (req, res) => {
     `;
     
     logFiles.forEach(file => {
-      html += `<li><a href="/logs/${file}">${file}</a></li>`;
+      html += `<li><a href="logs/${file}">${file}</a></li>`;
+    });
+    
+    html += `
+        </ul>
+      </div>
+    </body>
+    </html>
+    `;
+    
+    res.send(html);
+  });
+});
+
+// Маршрут для списка логов (для корректной работы через прокси)
+app.get('/logs', (req, res) => {
+  fs.readdir(logsDir, (err, files) => {
+    if (err) {
+      return res.status(500).send('Ошибка чтения директории логов: ' + err.message);
+    }
+
+    const logFiles = files.filter(file => file.endsWith('.log'));
+    
+    let html = `
+    <!DOCTYPE html>
+    <html lang="ru">
+    ${headContent}
+    <body>
+      <div class="container">
+        <h1>Просмотр логов бота "Совпадём"</h1>
+        <ul class="log-list">
+    `;
+    
+    logFiles.forEach(file => {
+      html += `<li><a href="logs/${file}">${file}</a></li>`;
     });
     
     html += `
@@ -188,7 +222,7 @@ app.get('/logs/:filename', (req, res) => {
       if (i === page) {
         paginationLinks += `<strong>${i}</strong> `;
       } else {
-        paginationLinks += `<a href="/logs/${filename}?page=${i}&limit=${limit}&search=${encodeURIComponent(searchTerm)}">${i}</a> `;
+        paginationLinks += `<a href="?page=${i}&limit=${limit}&search=${encodeURIComponent(searchTerm)}">${i}</a> `;
       }
     }
     
@@ -201,8 +235,8 @@ app.get('/logs/:filename', (req, res) => {
         <h1>Просмотр файла: ${filename}</h1>
         
         <div class="controls">
-          <a href="/" class="back">← Назад к списку файлов</a>
-          <form method="GET" action="/logs/${filename}">
+          <a href="/logs" class="back">← Назад к списку файлов</a>
+          <form method="GET">
             <input type="hidden" name="page" value="1">
             <input type="hidden" name="limit" value="${limit}">
             <input type="text" name="search" placeholder="Поиск в логах..." class="search" value="${searchTerm}">
@@ -226,10 +260,10 @@ app.get('/logs/:filename', (req, res) => {
         <div class="log-nav" style="margin-top: 20px;">
           <div>
             Строки на странице: 
-            <a href="/logs/${filename}?page=1&limit=100&search=${encodeURIComponent(searchTerm)}">100</a> |
-            <a href="/logs/${filename}?page=1&limit=200&search=${encodeURIComponent(searchTerm)}">200</a> |
-            <a href="/logs/${filename}?page=1&limit=500&search=${encodeURIComponent(searchTerm)}">500</a> |
-            <a href="/logs/${filename}?page=1&limit=1000&search=${encodeURIComponent(searchTerm)}">1000</a>
+            <a href="?page=1&limit=100&search=${encodeURIComponent(searchTerm)}">100</a> |
+            <a href="?page=1&limit=200&search=${encodeURIComponent(searchTerm)}">200</a> |
+            <a href="?page=1&limit=500&search=${encodeURIComponent(searchTerm)}">500</a> |
+            <a href="?page=1&limit=1000&search=${encodeURIComponent(searchTerm)}">1000</a>
           </div>
           <div>
             Страница: ${paginationLinks}
