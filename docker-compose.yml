@@ -81,7 +81,7 @@ services:
     volumes:
       - ./nginx/conf:/etc/nginx/conf.d
       - ./nginx/logs:/var/log/nginx
-      - ./data/certbot/conf:/etc/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     networks:
       - app_network
@@ -91,9 +91,9 @@ services:
     image: certbot/certbot
     restart: unless-stopped
     volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; tail -f /dev/null'"
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     
   backup:
     image: postgres:15-alpine
@@ -119,6 +119,27 @@ services:
       echo '0 2 * * * /scripts/postgres-backup.sh >> /app/data/backups/backup.log 2>&1' > /var/spool/cron/crontabs/root
       crond -f -d 8
       "
+  
+  log-viewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "127.0.0.1:3030:3030"  # Доступен только локально, проксируется через nginx
+    environment:
+      - LOG_VIEWER_PORT=3030
+    volumes:
+      - ./logs:/app/logs
+      - ./scripts:/app/scripts
+    command: node scripts/log-viewer/log-server.js
+    networks:
+      - app_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3" 
 
 networks:
   app_network:

@@ -1,4 +1,5 @@
 import { nameKeyboard, textKeyboard } from "../../constants/keyboards";
+import { hasLinks } from "../../functions/hasLinks";
 import { MyContext } from "../../typescript/context";
 
 export const nameQuestion = async (ctx: MyContext) => {
@@ -20,6 +21,11 @@ export const nameQuestion = async (ctx: MyContext) => {
     } else if (message.length > 100) {
         ctx.logger.warn({ userId, nameLength: message.length }, 'User name too long');
         await ctx.reply(ctx.t('long_name'), {
+            reply_markup: nameKeyboard(ctx.session)
+        });
+    } else if (hasLinks(message || "")) {
+        ctx.logger.warn({ userId }, 'User name contains links');
+        await ctx.reply(ctx.t('this_text_breaks_the_rules'), {
             reply_markup: nameKeyboard(ctx.session)
         });
     } else {

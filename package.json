@@ -11,6 +11,7 @@
         "start": "tsc && tsx ./src/main.ts",
         "start:prod": "NODE_ENV=production node ./dist/main.js",
         "start:force": "tsx ./src/main.ts",
+        "logs": "node scripts/log-viewer/log-server.js",
         "prisma:studio": "prisma studio",
         "prisma:generate": "prisma generate",
         "prisma:migrate:dev": "prisma migrate dev",
