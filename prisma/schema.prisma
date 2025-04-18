@@ -163,6 +163,7 @@ model Report {
     type       ReportType // Тип жалобы
     text       String? // Дополнительный текст жалобы (опциональный)
     createdAt  DateTime   @default(now())
+    isActive   Boolean    @default(true)
 
     reporter User @relation(name: "UserReports", fields: [reporterId], references: [id], onDelete: Cascade)
     target   User @relation(name: "UserReported", fields: [targetId], references: [id], onDelete: Cascade)
