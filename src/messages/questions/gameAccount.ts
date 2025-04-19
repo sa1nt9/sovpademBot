@@ -2,6 +2,7 @@ import { profileKeyboard, textKeyboard, itTechnologiesKeyboard, ageKeyboard, itG
 import { saveUser } from "../../functions/db/saveUser";
 import { getGameUsername } from "../../functions/gameLink";
 import { sendForm } from "../../functions/sendForm";
+import { startChangeGeneralUserData } from "../../functions/startChangeGeneralUserData";
 import { MyContext } from "../../typescript/context";
 import { IGameProfile } from "../../typescript/interfaces/IProfile";
 
@@ -71,11 +72,8 @@ export const gameAccountQuestion = async (ctx: MyContext) => {
             });
         } else {
             ctx.logger.info({ userId }, 'Proceeding to age question after game account');
-            ctx.session.question = 'years';
 
-            await ctx.reply(ctx.t('years_question'), {
-                reply_markup: ageKeyboard(ctx.session)
-            });
+            await startChangeGeneralUserData(ctx);
         }
     }
 }

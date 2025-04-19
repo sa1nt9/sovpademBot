@@ -724,3 +724,10 @@ skip_profile = Lewati profil
 no_new_profiles_to_review = Tidak ada profil baru untuk ditinjau
 active = Aktif
 inactive = Tidak aktif
+
+some_data_are_general = Beberapa data Anda: usia, nama, jenis kelamin, dan kota - adalah umum untuk semua profil. 
+
+    Isi ulang atau pertahankan yang sekarang?
+
+some_data_are_general_1 = Isi ulang
+some_data_are_general_2 = Pertahankan yang sekarang

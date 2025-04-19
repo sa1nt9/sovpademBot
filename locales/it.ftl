@@ -728,3 +728,10 @@ skip_profile = Salta profilo
 no_new_profiles_to_review = Nessun nuovo profilo da esaminare
 active = Attivo
 inactive = Inattivo
+
+some_data_are_general = Alcuni dei tuoi dati: età, nome, sesso e città - sono comuni a tutti i profili. 
+
+    Compilarli di nuovo o mantenere quelli attuali?
+
+some_data_are_general_1 = Compila di nuovo
+some_data_are_general_2 = Mantieni attuali

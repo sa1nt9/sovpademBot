@@ -9,6 +9,7 @@ interface IAdditionalFormInfo {
     reportedUserId?: string;
     selectedProfileType: ProfileType;
     selectedSubType?: TProfileSubType;
+    keepUserInfo?: boolean;
 }
 
 interface IRouletteData {
@@ -78,7 +79,8 @@ type TQuestion =
     "game_account" |
     "it_experience" |
     "it_technologies" |
-    "it_github";
+    "it_github" |
+    "keep_user_info";
 
 export interface ISessionData {
     step?: TStep;

@@ -16,8 +16,8 @@ export const genderQuestion = async (ctx: MyContext) => {
         const gender = message === ctx.t('i_man') ? 'male' : 'female';
         ctx.logger.info({ userId, gender }, 'User gender selection validated and saved');
         
-        ctx.session.question = "interested_in";
         ctx.session.activeProfile.gender = gender;
+        ctx.session.question = "interested_in";
 
         await ctx.reply(ctx.t('interested_in_question'), {
             reply_markup: interestedInKeyboard(ctx.t)

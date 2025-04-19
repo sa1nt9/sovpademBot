@@ -2,6 +2,7 @@ import { ProfileType } from "@prisma/client";
 import { ageKeyboard, createProfileSubtypeKeyboard, createProfileTypeKeyboard, youAlreadyHaveThisProfileKeyboard } from "../constants/keyboards";
 import { MyContext } from "../typescript/context";
 import { getProfileTypeLocalizations, getUserProfile } from "../functions/db/profilesService";
+import { startChangeGeneralUserData } from "../functions/startChangeGeneralUserData";
 
 export async function createProfileTypeStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -36,11 +37,8 @@ export async function createProfileTypeStep(ctx: MyContext) {
         if (profileType === ProfileType.RELATIONSHIP) {
             ctx.logger.info({ userId, profileType }, 'Relationship profile - proceeding to age question');
             ctx.session.step = "questions";
-            ctx.session.question = 'years'
             
-            await ctx.reply(ctx.t('years_question'), {
-                reply_markup: ageKeyboard(ctx.session)
-            });
+            await startChangeGeneralUserData(ctx);
         } else {
             ctx.logger.info({ userId, profileType }, 'Non-relationship profile - proceeding to subtype selection');
             const text = ctx.t(`${profileType.toLowerCase()}_type_title`)

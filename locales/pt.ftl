@@ -728,3 +728,10 @@ skip_profile = Ignorar perfil
 no_new_profiles_to_review = Não há novos perfis para revisar
 active = Ativo
 inactive = Inativo
+
+some_data_are_general = Alguns dos seus dados: idade, nome, gênero e cidade - são comuns para todos os perfis. 
+
+    Preencher novamente ou manter os atuais?
+
+some_data_are_general_1 = Preencher novamente
+some_data_are_general_2 = Manter atuais

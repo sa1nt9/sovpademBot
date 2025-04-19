@@ -30,11 +30,11 @@ export const nameQuestion = async (ctx: MyContext) => {
         });
     } else {
         ctx.logger.info({ userId, name: message }, 'User name validated and saved');
-        ctx.session.question = "text";
         if (ctx.session.activeProfile.name) {
             ctx.session.activeProfile.previousName = ctx.session.activeProfile.name
         }
         ctx.session.activeProfile.name = message
+        ctx.session.question = "text";
 
         await ctx.reply(ctx.t('text_question', {
             profileType: ctx.session.additionalFormInfo.selectedProfileType

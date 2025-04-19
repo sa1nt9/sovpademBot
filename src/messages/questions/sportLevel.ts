@@ -1,5 +1,6 @@
-import { ageKeyboard, nameKeyboard, selectSportLevelkeyboard } from "../../constants/keyboards";
+import { ageKeyboard, keepUserInfoKeyboard, nameKeyboard, selectSportLevelkeyboard } from "../../constants/keyboards";
 import { checkIsKeyboardOption } from "../../functions/checkIsKeyboardOption";
+import { startChangeGeneralUserData } from "../../functions/startChangeGeneralUserData";
 import { MyContext } from "../../typescript/context";
 import { ISportProfile } from "../../typescript/interfaces/IProfile";
 
@@ -16,12 +17,9 @@ export const sportLevelQuestion = async (ctx: MyContext) => {
 
     if (checkIsKeyboardOption(selectSportLevelkeyboard(ctx.t), message)) {
         ctx.logger.info({ userId, sportLevel: message }, 'User sport level validated and saved');
-        ctx.session.question = 'years';
         (ctx.session.activeProfile as ISportProfile).level = message
 
-        await ctx.reply(ctx.t('years_question'), {
-            reply_markup: ageKeyboard(ctx.session)
-        });
+        await startChangeGeneralUserData(ctx);
     } else {
         ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid sport level');
         await ctx.reply(ctx.t('no_such_answer'), {

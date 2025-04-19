@@ -1,0 +1,140 @@
+# PRIVACY POLICY
+## TELEGRAM BOT "SOVPADEM"
+
+Welcome to the Telegram bot "Sovpadem"! We respect your privacy and strive to ensure the security of your personal data. This Privacy Policy explains how we collect, use, store, and protect information about the users of our service.
+
+## 1. GENERAL PROVISIONS
+
+1.1 This Privacy Policy (hereinafter referred to as the "Policy") determines the procedure for processing and protecting information about users of the Telegram bot "Sovpadem" (hereinafter referred to as the "Bot").
+
+1.2 By using the Bot, you agree to the terms of this Policy and give consent to the processing of your personal data in accordance with its provisions.
+
+1.3 If you do not agree with the terms of this Policy, please do not use our Bot.
+
+## 2. INFORMATION WE COLLECT
+
+2.1 Personal information provided by the user:
+- Name specified during registration;
+- Age;
+- Gender;
+- City of residence or geolocation (when voluntarily provided);
+- Photos and videos uploaded to the profile;
+- Information about preferences and interests;
+- Data about profiles in gaming services (for gaming type profiles);
+- Information about work experience (for IT profiles);
+- Description texts and notes created by the user.
+
+2.2 Technical information:
+- User ID in Telegram;
+- Language settings;
+- Information about Bot usage (profile views, likes, participation in chat roulette, etc.);
+- Data on interaction with other users;
+- Bot usage metrics and statistics.
+
+2.3 The Bot does not collect or store:
+- Telegram user passwords;
+- Phone numbers (except when the user decides to share this information with other users);
+- Passports or other official documents;
+- Financial information (bank card data, etc.).
+
+## 3. PURPOSES OF DATA COLLECTION AND PROCESSING
+
+3.1 We collect and process information for the following purposes:
+- Providing access to Bot functions;
+- Creating and operating a user profile;
+- Selecting suitable profiles for dating;
+- Organizing communication between users;
+- Analyzing user preferences to improve the service;
+- Ensuring security and content moderation;
+- Preventing violations of Bot usage rules;
+- Technical support and problem solving;
+- Collecting statistics to improve service quality.
+
+## 4. STORAGE AND PROTECTION OF INFORMATION
+
+4.1 Data storage:
+- All personal data is stored on secure servers;
+- The storage period of personal data is determined by the period of Bot usage by the user;
+- When a user deactivates their account, their personal data is anonymized or deleted.
+
+4.2 Information protection:
+- We apply modern technical means to protect personal data;
+- Only a limited circle of persons directly involved in data processing has access to personal data;
+- All employees with access to personal data are obliged to maintain confidentiality.
+
+## 5. TRANSFER OF DATA TO THIRD PARTIES
+
+5.1 We do not sell, exchange, or transfer your personal data to third parties, except in the following cases:
+- With the explicit consent of the user (for example, when mutual profile disclosure in chat roulette);
+- When necessary to provide Bot functionality (for example, to hosting providers, databases);
+- In cases provided by law;
+- To protect the rights, property, or safety of our service, our users, or third parties.
+
+5.2 Anonymized data:
+- We may use anonymized and aggregated data for analytical purposes and service improvement;
+- Such data does not allow identification of specific users.
+
+## 6. INTERACTION WITH THE TELEGRAM PLATFORM
+
+6.1 The "Sovpadem" Bot operates on the Telegram platform, and some data may be collected and stored directly by Telegram. We are not responsible for Telegram's privacy policy and practices.
+
+6.2 We recommend reviewing Telegram's Privacy Policy at: https://telegram.org/privacy
+
+## 7. USER RIGHTS
+
+7.1 Users have the right to:
+- Receive information about the storage and processing of their personal data;
+- Access their personal data;
+- Request correction of inaccurate or incomplete personal data;
+- Request deletion of their personal data;
+- Withdraw consent to the processing of personal data;
+- Restrict the processing of their personal data;
+- Express objections to certain types of data processing.
+
+7.2 To exercise these rights, users can contact the Administration through the appropriate Bot functions or through the contact information specified in this Policy.
+
+## 8. USER SAFETY
+
+8.1 We recommend users observe the following precautions:
+- Do not share personal data (address, financial information, etc.) with strangers;
+- Do not transfer money or follow suspicious links;
+- Exercise caution when communicating with other users;
+- Choose public places when meeting in real life.
+
+8.2 The Administration is not responsible for users' actions when communicating with each other outside the Bot's functionality.
+
+## 9. USE OF COOKIES
+
+9.1 The "Sovpadem" Bot does not use cookies, as it operates within the Telegram platform.
+
+## 10. CHILDREN'S PRIVACY
+
+10.1 Our Bot is not intended for individuals under 18 years of age.
+
+10.2 We do not knowingly collect personal data from children under 13 years of age without parental consent.
+
+10.3 If we become aware that we have collected personal data from a child under 13 years of age without parental consent, we will take measures to delete this information from our systems.
+
+## 11. CHANGES TO THE PRIVACY POLICY
+
+11.1 We may update our Privacy Policy from time to time.
+
+11.2 We will notify you of any changes by posting the new version of the Policy in the Bot.
+
+11.3 We recommend periodically checking this Policy for changes.
+
+11.4 By continuing to use the Bot after publication of changes to the Privacy Policy, you confirm your agreement with the new terms.
+
+## 12. CONTACT INFORMATION
+
+12.1 If you have questions or suggestions regarding this Privacy Policy, please contact us through the official Telegram channel: @sovpadem.
+
+## 13. FINAL PROVISIONS
+
+13.1 This Privacy Policy is governed by and interpreted in accordance with the legislation of the Russian Federation.
+
+13.2 If any provision of this Policy is found to be invalid or unenforceable, the remaining provisions remain in force.
+
+13.3 This Privacy Policy constitutes the complete agreement between the user and the Bot Administration regarding the processing of personal data.
+
+13.4 Issues not regulated by this Policy shall be resolved in accordance with the current legislation of the Russian Federation.

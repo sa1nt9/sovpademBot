@@ -724,3 +724,10 @@ skip_profile = Skip profile
 no_new_profiles_to_review = No new profiles to review
 active = Active
 inactive = Inactive
+
+some_data_are_general = Some of your data: age, name, gender and city - are common for all profiles. 
+
+    Fill them out again or keep the current ones?
+
+some_data_are_general_1 = Fill out again
+some_data_are_general_2 = Keep current

@@ -727,3 +727,10 @@ skip_profile = प्रोफाइल छोड़ें
 no_new_profiles_to_review = समीक्षा के लिए कोई नई प्रोफाइल नहीं
 active = सक्रिय
 inactive = निष्क्रिय
+
+some_data_are_general = आपके कुछ डेटा: उम्र, नाम, लिंग और शहर - सभी प्रोफाइल के लिए सामान्य हैं। 
+
+    उन्हें फिर से भरें या वर्तमान रखें?
+
+some_data_are_general_1 = फिर से भरें
+some_data_are_general_2 = वर्तमान रखें

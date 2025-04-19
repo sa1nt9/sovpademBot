@@ -27,6 +27,10 @@ export const changeSessionFieldsMiddleware = async (ctx: MyContext, next: () => 
         ctx.session.additionalFormInfo.canGoBack = false;
     }
 
+    if (ctx.session.step !== 'questions' && ctx.session.additionalFormInfo.keepUserInfo) {
+        ctx.session.additionalFormInfo.keepUserInfo = false;
+    }
+
     if (ctx.session.step !== "search_people_with_likes" && ctx.session.step !== "somebodys_liked_you" && ctx.session.step !== "complain" && ctx.session.step !== "continue_see_likes_forms" && ctx.session.step !== "complain_text" && ctx.session.additionalFormInfo.searchingLikes) {
         ctx.session.additionalFormInfo.searchingLikes = false;
     }

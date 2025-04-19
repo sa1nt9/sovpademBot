@@ -8,12 +8,12 @@ import { textQuestion } from './text';
 import { fileQuestion } from './file';
 import { addAnotherFileQuestion } from './addAnotherFile';
 import { allRightQuestion } from './allRight';
-import { ProfileType } from '@prisma/client';
 import { sportLevelQuestion } from './sportLevel';
 import { itExperienceQuestion } from './itExperience';
 import { itTechnologiesQuestion } from './itTechnologies';
 import { itGithubQuestion } from './itGithub';
 import { gameAccountQuestion } from './gameAccount';
+import { keepUserInfoQuestion } from './keepUserInfo';
 
 // export const questionsWays = {
 //     [ProfileType.RELATIONSHIP]: [
@@ -87,6 +87,9 @@ export async function questionsStep(ctx: MyContext) {
             break;
         case "all_right":
             await allRightQuestion(ctx);
+            break;
+        case "keep_user_info":
+            await keepUserInfoQuestion(ctx);
             break;
     }
 } 

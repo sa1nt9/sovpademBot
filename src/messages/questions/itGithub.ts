@@ -6,6 +6,7 @@ import { MyContext } from "../../typescript/context";
 import { IItProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
 import { githubLinkRegex } from "../../constants/regex/githubLinkRegex";
 import { checkGithubUserExists, getGithubUsername } from "../../functions/githubLink";
+import { startChangeGeneralUserData } from "../../functions/startChangeGeneralUserData";
 
 export const itGithubQuestion = async (ctx: MyContext) => {
     const message = ctx.message!.text;
@@ -80,11 +81,8 @@ export const itGithubQuestion = async (ctx: MyContext) => {
             });
         } else {
             ctx.logger.info({ userId }, 'Proceeding to age question after GitHub account');
-            ctx.session.question = 'years';
-
-            await ctx.reply(ctx.t('years_question'), {
-                reply_markup: ageKeyboard(ctx.session)
-            });
+            
+            await startChangeGeneralUserData(ctx);
         }
     }
 }

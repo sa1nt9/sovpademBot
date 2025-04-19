@@ -728,3 +728,10 @@ skip_profile = Пропустити анкету
 no_new_profiles_to_review = Немає нових анкет для перегляду
 active = Активна
 inactive = Неактивна
+
+some_data_are_general = Деякі твої дані: вік, ім'я, стать та місто - є спільними для всіх анкет. 
+
+    Заповнити їх знову чи залишити поточні?
+
+some_data_are_general_1 = Заповнити знову
+some_data_are_general_2 = Залишити поточні

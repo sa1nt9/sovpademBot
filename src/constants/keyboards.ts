@@ -568,3 +568,11 @@ export const reviewProfileReplyKeyboard = (t: TranslateFunction): ReplyKeyboardM
     resize_keyboard: true,
     one_time_keyboard: false
 })
+
+export const keepUserInfoKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("some_data_are_general_1")], 
+        [t("some_data_are_general_2")],
+    ],
+    resize_keyboard: true,
+})
