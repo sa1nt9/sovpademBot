@@ -83,6 +83,7 @@ services:
       - ./logs:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
+      - ./data/web/html:/app/data/web/html
     networks:
       - app_network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
