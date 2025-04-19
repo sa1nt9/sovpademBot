@@ -3,11 +3,33 @@ import { prisma } from "../../db/postgres";
 import { MyContext } from "../../typescript/context";
 import { IGameProfile, IHobbyProfile, IItProfile, IProfile, IRelationshipProfile, ISportProfile } from "../../typescript/interfaces/IProfile";
 import { getUserProfile, getProfileModelName } from "./profilesService";
-import { logger } from "../../logger";
 
+
+// Функция для определения допустимой разницы в возрасте 
+function getAllowedAgeDifference(age: number, profileType: ProfileType): number {
+    // Для отношений - строгие ограничения с прогрессивным ростом
+    if (profileType === ProfileType.RELATIONSHIP) {
+        if (age < 18) return 2;
+        if (age < 25) return 4;
+        if (age < 40) return 7;
+        return 10;
+    }
+    
+    // Для спорта - менее строгие ограничения
+    if (profileType === ProfileType.SPORT) {
+        if (age < 18) return 3;
+        if (age < 30) return 7;
+        return 15;
+    }
+ 
+    // Для взрослых в IT, играх и хобби - практически без ограничений
+    return 50; // Большое значение, фактически без ограничений
+}
 
 // Поиск кандидатов для анкеты отношений
 async function getRelationshipCandidate(user: User, activeProfile: IRelationshipProfile, fifteenDaysAgo: Date) {
+    
+    const ageDifference = getAllowedAgeDifference(user.age, ProfileType.RELATIONSHIP);
     
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
@@ -32,7 +54,8 @@ async function getRelationshipCandidate(user: User, activeProfile: IRelationship
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id"
                     ) AS INTEGER
-                ) as comeInAll
+                ) as comeInAll,
+                ABS("age" - ${user.age}) as ageDiff
             FROM "User" u
             WHERE "id" <> ${user.id}
                 AND "id" NOT IN (
@@ -62,7 +85,7 @@ async function getRelationshipCandidate(user: User, activeProfile: IRelationship
                     AND ub."isActive" = true
                     AND ub."bannedUntil" > ${new Date()}
                 )
-                AND ABS("age" - ${user.age}) <= 2
+                AND ABS("age" - ${user.age}) <= ${ageDifference}
                 AND EXISTS (
                     SELECT 1 FROM "RelationshipProfile" rp
                     WHERE rp."userId" = u."id"
@@ -99,6 +122,7 @@ async function getRelationshipCandidate(user: User, activeProfile: IRelationship
 async function getSportCandidate(user: User, activeProfile: ISportProfile, fifteenDaysAgo: Date) {
     
     const subTypeStr = String(activeProfile.subType);
+    const ageDifference = getAllowedAgeDifference(user.age, ProfileType.SPORT);
 
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
@@ -123,7 +147,8 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id"
                     ) AS INTEGER
-                ) as comeInAll
+                ) as comeInAll,
+                ABS("age" - ${user.age}) as ageDiff
             FROM "User" u
             WHERE "id" <> ${user.id}
                 AND "id" NOT IN (
@@ -153,7 +178,7 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                     AND ub."isActive" = true
                     AND ub."bannedUntil" > ${new Date()}
                 )
-                AND ABS("age" - ${user.age}) <= 2
+                AND ABS("age" - ${user.age}) <= ${ageDifference}
                 AND EXISTS (
                     SELECT 1 FROM "SportProfile" sp
                     WHERE sp."userId" = u."id"
@@ -185,6 +210,12 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                     AND sp."level" = ${activeProfile.level}
                 ) THEN 50
                 ELSE 0
+            END +
+            CASE 
+                WHEN ageDiff <= 1 THEN 30
+                WHEN ageDiff <= 3 THEN 20
+                WHEN ageDiff <= 5 THEN 10
+                ELSE 0
             END as totalBonus
         FROM RankedUsers u
         ORDER BY 
@@ -200,6 +231,7 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
 async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteenDaysAgo: Date) {
 
     const subTypeStr = String(activeProfile.subType);
+    const ageDifference = getAllowedAgeDifference(user.age, ProfileType.GAME);
 
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
@@ -224,7 +256,8 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id"
                     ) AS INTEGER
-                ) as comeInAll
+                ) as comeInAll,
+                ABS("age" - ${user.age}) as ageDiff
             FROM "User" u
             WHERE "id" <> ${user.id}
                 AND "id" NOT IN (
@@ -254,7 +287,7 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
                     AND ub."isActive" = true
                     AND ub."bannedUntil" > ${new Date()}
                 )
-                AND ABS("age" - ${user.age}) <= 2
+                AND ABS("age" - ${user.age}) <= ${ageDifference}
                 AND EXISTS (
                     SELECT 1 FROM "GameProfile" gp
                     WHERE gp."userId" = u."id"
@@ -276,7 +309,13 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
             LEAST(
                 comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5,
                 100
-            ) as totalBonus
+            ) +
+            CASE 
+                WHEN ageDiff <= 2 THEN 20
+                WHEN ageDiff <= 5 THEN 10
+                WHEN ageDiff <= 10 THEN 5
+                ELSE 0
+            END as totalBonus
         FROM RankedUsers
         ORDER BY 
             ownCoordSort DESC,
@@ -291,6 +330,7 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
 async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifteenDaysAgo: Date) {
     
     const subTypeStr = String(activeProfile.subType);
+    const ageDifference = getAllowedAgeDifference(user.age, ProfileType.HOBBY);
 
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
@@ -315,7 +355,8 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id"
                     ) AS INTEGER
-                ) as comeInAll
+                ) as comeInAll,
+                ABS("age" - ${user.age}) as ageDiff
             FROM "User" u
             WHERE "id" <> ${user.id}
                 AND "id" NOT IN (
@@ -345,7 +386,7 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
                     AND ub."isActive" = true
                     AND ub."bannedUntil" > ${new Date()}
                 )
-                AND ABS("age" - ${user.age}) <= 2
+                AND ABS("age" - ${user.age}) <= ${ageDifference}
                 AND EXISTS (
                     SELECT 1 FROM "HobbyProfile" hp
                     WHERE hp."userId" = u."id"
@@ -367,7 +408,13 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
             LEAST(
                 comeIn15Days * 10 + (comeInAll - comeIn15Days) * 5,
                 100
-            ) as totalBonus
+            ) +
+            CASE 
+                WHEN ageDiff <= 2 THEN 20
+                WHEN ageDiff <= 5 THEN 10
+                WHEN ageDiff <= 10 THEN 5
+                ELSE 0
+            END as totalBonus
         FROM RankedUsers
         ORDER BY 
             ownCoordSort DESC,
@@ -382,6 +429,7 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
 async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDaysAgo: Date) {
 
     const subTypeStr = String(activeProfile.subType);
+    const ageDifference = getAllowedAgeDifference(user.age, ProfileType.IT);
 
     const candidates: User[] = await prisma.$queryRaw`
         WITH RankedUsers AS (
@@ -406,7 +454,8 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
                         FROM "User" as refs 
                         WHERE refs."referrerId" = u."id"
                     ) AS INTEGER
-                ) as comeInAll
+                ) as comeInAll,
+                ABS("age" - ${user.age}) as ageDiff
             FROM "User" u
             WHERE "id" <> ${user.id}
                 AND "id" NOT IN (
@@ -436,7 +485,7 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
                     AND ub."isActive" = true
                     AND ub."bannedUntil" > ${new Date()}
                 )
-                AND ABS("age" - ${user.age}) <= 2
+                AND ABS("age" - ${user.age}) <= ${ageDifference}
                 AND EXISTS (
                     SELECT 1 FROM "ItProfile" ip
                     WHERE ip."userId" = u."id"
@@ -467,6 +516,12 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
                     AND ip."subType"::text = ${subTypeStr}
                     AND ip."experience" = ${activeProfile.experience}
                 ) THEN 200
+                ELSE 0
+            END +
+            CASE 
+                WHEN ageDiff <= 2 THEN 15
+                WHEN ageDiff <= 5 THEN 10
+                WHEN ageDiff <= 10 THEN 5
                 ELSE 0
             END as totalBonus
         FROM RankedUsers u

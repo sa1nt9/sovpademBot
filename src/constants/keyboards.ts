@@ -537,3 +537,34 @@ export const deactivateProfileKeyboard = (t: TranslateFunction, profiles: IProfi
 }
 
 
+// Reply-клавиатура для модерации жалоб
+export const moderateReportReplyKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("ban_1_day"), t("ban_1_week")],
+        [t("ban_1_month"), t("ban_1_year")],
+        [t("ban_permanent")],
+        [t("disable_report"), t("delete_report")],
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: false
+})
+
+export const waitingForBanReasonKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("skip")],
+        [t("go_back")]
+    ],
+    resize_keyboard: true,
+})
+
+// Reply-клавиатура для проверки новых анкет
+export const reviewProfileReplyKeyboard = (t: TranslateFunction): ReplyKeyboardMarkup => ({
+    keyboard: [
+        [t("ban_1_day"), t("ban_1_week")],
+        [t("ban_1_month"), t("ban_1_year")],
+        [t("ban_permanent")],
+        [t("skip_profile")],
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: false
+})

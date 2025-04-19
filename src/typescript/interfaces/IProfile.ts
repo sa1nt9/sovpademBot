@@ -30,6 +30,7 @@ export type TInterestedIn = 'male' | 'female' | 'all';
 export interface IRelationshipProfile extends IBaseProfile {
     profileType: 'RELATIONSHIP';
     interestedIn: TInterestedIn;
+    isReviewed: boolean;
 }
 
 // Интерфейс для спортивного профиля
@@ -38,6 +39,7 @@ export interface ISportProfile extends IBaseProfile {
     subType: SportType;
     level?: string;
     interestedIn: TInterestedIn;
+    isReviewed: boolean;
 }
 
 // Интерфейс для игрового профиля
@@ -46,6 +48,7 @@ export interface IGameProfile extends IBaseProfile {
     subType: GameType;
     accountLink?: string;
     interestedIn: TInterestedIn;
+    isReviewed: boolean;
 }
 
 // Интерфейс для хобби-профиля
@@ -53,6 +56,7 @@ export interface IHobbyProfile extends IBaseProfile {
     profileType: 'HOBBY';
     subType: HobbyType;
     interestedIn: TInterestedIn;
+    isReviewed: boolean;
 }
 
 // Интерфейс для IT-профиля
@@ -63,6 +67,7 @@ export interface IItProfile extends IBaseProfile {
     technologies?: string;
     github?: string;
     interestedIn: TInterestedIn;
+    isReviewed: boolean;
 }
 
 // Объединенный тип для всех профилей

@@ -1,4 +1,4 @@
-import { User, ProfileType, SportType, GameType, HobbyType, ITType } from "@prisma/client";
+import { ProfileType } from "@prisma/client";
 import { IProfile, IProfileInfo, TProfileSubType } from "./IProfile";
 
 interface IAdditionalFormInfo {
@@ -57,7 +57,11 @@ type TStep =
     "transfer_media" |
     "create_profile_type" |
     "create_profile_subtype" |
-    "you_already_have_this_profile"
+    "you_already_have_this_profile" |
+    "moderating_reports" |
+    "waiting_for_ban_reason_report" |
+    "waiting_for_ban_reason_profile" |
+    "reviewing_new_profiles";
 
 type TQuestion =
     'years' |
@@ -95,4 +99,8 @@ export interface ISessionData {
     isEditingProfile?: boolean; // Флаг, указывающий, что пользователь находится в процессе редактирования анкеты
     isCreatingProfile?: boolean;
     __language_code?: string;
+    currentReportId?: string; // ID текущей жалобы для модерации
+    currentReviewProfileId?: string; // ID текущей анкеты для проверки
+    currentReviewProfileType?: ProfileType; // Тип текущей анкеты для проверки
+    banAction?: string | null; // Выбранное действие бана (1day, 1week и т.д.)
 }

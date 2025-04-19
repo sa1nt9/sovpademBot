@@ -26,17 +26,20 @@ import { inlineQueryEvent } from './events/inline_query';
 import { switchCommand } from './commands/switch';
 import { changeSessionFieldsMiddleware } from './middlewares/changeSessionFieldsMiddleware';
 import { newLikesCommand } from './commands/new_likes';
+import { moderateReportsCommand } from './commands/moderate_reports';
 // Импортируем очереди
 import { initQueues } from './queues/initQueues';
 // Импортируем webhook
 import { setupWebhook } from './webhook';
+import { checkForBanMiddleware } from './middlewares/checkForBanMiddleware';
+import { reviewNewProfilesCommand } from './commands/review_new_profiles';
 
 dotenv.config();
-
-export const bot = new Bot<MyContext>(String(process.env.BOT_TOKEN));
-
 // Определяем режим запуска (production или development)
 const isProduction = process.env.NODE_ENV === 'production';
+
+export const bot = new Bot<MyContext>(String(isProduction ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEV));
+
 
 async function startBot() {
     try {
@@ -76,6 +79,7 @@ async function startBot() {
 
         bot.use(checkSubscriptionMiddleware);
         bot.use(rouletteMiddleware);
+        bot.use(checkForBanMiddleware);
         bot.use(changeSessionFieldsMiddleware);
 
         // Регистрация команд
@@ -92,6 +96,9 @@ async function startBot() {
         bot.command("stop_roulette", stopRouletteCommand);
         bot.command("language", languageCommand);
         bot.command("deactivate", deactivateCommand);
+        bot.command("moderate_reports", moderateReportsCommand);
+        bot.command("review_new_profiles", reviewNewProfilesCommand);
+
 
         // Регистрация обработчиков событий
         bot.on("message", messageEvent);

@@ -458,9 +458,9 @@ time_hour = h
 time_minute = min
 time_second = seg 
 
-candidates_ended = ¡Se acabaron los perfiles por hoy! Vuelve más tarde, habrá nuevos 👋
+candidates_ended = ¡Se acabaron los perfiles compatibles! Vuelve más tarde, habrá nuevos 👋
 
-    ¡Usa el comando /switch para cambiar tu perfil actual y crear uno nuevo - puede que ya haya nuevos perfiles allí!
+    ¡Usa /switch para cambiar tu perfil o crear uno nuevo - podrías encontrar nuevos perfiles allí!
 
 more_options_title = Elige lo que quieres hacer:
 # Opciones adicionales
@@ -555,7 +555,7 @@ sport_type_ski_snowboard = 🏂 Esquí/snowboard
 
 # Tipos de juegos
 game_type_title = Elige el juego:
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -602,7 +602,7 @@ sport_level_professional = 🏆 Profesional
 
 # Campos para perfil de juegos
 game_account_question_validate = Solo puedes enviar un enlace real a un perfil de juego
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Envía un enlace a tu perfil de Steam o Faceit:
 
 # Dota 2
@@ -683,3 +683,47 @@ no_new_likes = Aún no has recibido nuevos likes
 
 
 continue_searching_likes = ¿Continuamos?
+
+# Moderación de reportes
+no_reports_to_moderate = Actualmente no hay reportes activos para moderar.
+report_info = Información del reporte
+report_id = ID del reporte
+report_type = Tipo de reporte
+report_date = Fecha de creación
+additional_text = Texto adicional
+reporter_id = ID del reportador
+target_info = Información sobre el usuario reportado
+deleted_user = Usuario eliminado
+user_id = ID de usuario
+report_not_found = Reporte no encontrado o ya procesado
+
+# Botones de moderación
+ban_1_day = 🚫 Bloquear por 1 día
+ban_1_week = 🚫 Bloquear por 1 semana
+ban_1_month = 🚫 Bloquear por 1 mes
+ban_1_year = 🚫 Bloquear por 1 año
+ban_permanent = 🚫 Bloqueo permanente
+disable_report = ✅ Desactivar reporte
+delete_report = ❌ Eliminar reporte
+
+# Resultados de acciones
+user_banned_successfully = Usuario bloqueado exitosamente
+report_disabled = Reporte desactivado (estado cambiado a inactivo)
+report_deleted = Reporte eliminado de la base de datos
+no_more_reports = No hay más reportes para moderar
+error_occurred = Ocurrió un error. Por favor, inténtalo más tarde.
+user_has_active_ban_until = El usuario ya está bloqueado hasta
+write_ban_reason = Escribe la razón del bloqueo
+
+# Moderación de perfiles
+profile_info = Información del perfil
+profile_id = ID del perfil
+profile_type = Tipo de perfil
+created_date = Fecha de creación
+profile_status = Estado del perfil
+profile_type_not_found = Tipo de perfil no encontrado
+profile_skipped = Perfil omitido
+skip_profile = Omitir perfil
+no_new_profiles_to_review = No hay nuevos perfiles para revisar
+active = Activo
+inactive = Inactivo

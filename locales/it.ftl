@@ -459,9 +459,9 @@ time_hour = h
 time_minute = min
 time_second = sec 
 
-candidates_ended = Per oggi i profili sono finiti! Torna più tardi, ce ne saranno di nuovi 👋
+candidates_ended = I profili compatibili sono finiti! Torna più tardi, ce ne saranno di nuovi 👋
 
-    Usa il comando /switch per cambiare il profilo attuale e crearne uno nuovo - lì potrebbero già esserci nuovi profili!
+    Usa /switch per cambiare il tuo profilo o crearne uno nuovo - potresti trovare nuovi profili lì!
 
 more_options_title = Scegli cosa vuoi fare:
 # Opzioni aggiuntive
@@ -556,7 +556,7 @@ sport_type_ski_snowboard = 🏂 Sci/snowboard
 
 # Tipi di giochi
 game_type_title = Seleziona il gioco:
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -603,7 +603,7 @@ sport_level_professional = 🏆 Professionale
 
 # Campi per profilo di gioco
 game_account_question_validate = È possibile inviare solo un link reale al profilo di gioco
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Invia il link al tuo profilo Steam o Faceit:
 
 # Dota 2
@@ -684,3 +684,47 @@ no_new_likes = Non hai ancora ricevuto nuovi like
 
 
 continue_searching_likes = Continuiamo?
+
+# Stringhe per moderazione segnalazioni
+no_reports_to_moderate = Non ci sono attualmente segnalazioni attive da moderare.
+report_info = Informazioni sulla segnalazione
+report_id = ID segnalazione
+report_type = Tipo di segnalazione
+report_date = Data di creazione
+additional_text = Testo aggiuntivo
+reporter_id = ID segnalatore
+target_info = Informazioni sull'utente segnalato
+deleted_user = Utente eliminato
+user_id = ID utente
+report_not_found = Segnalazione non trovata o già elaborata
+
+# Pulsanti di moderazione
+ban_1_day = 🚫 Ban per 1 giorno
+ban_1_week = 🚫 Ban per 1 settimana
+ban_1_month = 🚫 Ban per 1 mese
+ban_1_year = 🚫 Ban per 1 anno
+ban_permanent = 🚫 Ban permanente
+disable_report = ✅ Disattiva segnalazione
+delete_report = ❌ Elimina segnalazione
+
+# Risultati delle azioni
+user_banned_successfully = Utente bannato con successo
+report_disabled = Segnalazione disattivata (stato impostato su inattivo)
+report_deleted = Segnalazione eliminata dal database
+no_more_reports = Non ci sono altre segnalazioni da moderare
+error_occurred = Si è verificato un errore. Riprova più tardi.
+user_has_active_ban_until = L'utente è già bannato fino al
+write_ban_reason = Scrivi il motivo del ban
+
+# Moderazione profili
+profile_info = Informazioni sul profilo
+profile_id = ID profilo
+profile_type = Tipo di profilo
+created_date = Data di creazione
+profile_status = Stato del profilo
+profile_type_not_found = Tipo di profilo non trovato
+profile_skipped = Profilo saltato
+skip_profile = Salta profilo
+no_new_profiles_to_review = Nessun nuovo profilo da esaminare
+active = Attivo
+inactive = Inattivo

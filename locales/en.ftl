@@ -455,7 +455,7 @@ time_hour = h
 time_minute = min
 time_second = sec 
 
-candidates_ended = No more profiles today! Check back later 👋
+candidates_ended = Matching profiles have run out! Check back later 👋
 
     Use /switch to change your profile or create a new one - you might find new profiles there!
 
@@ -552,7 +552,7 @@ sport_type_ski_snowboard = 🏂 Skiing/Snowboarding
 
 # Game types
 game_type_title = Choose a game:
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -599,7 +599,7 @@ sport_level_professional = 🏆 Professional
 
 # Fields for game profile
 game_account_question_validate = You can only send a real game profile link
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Send your Steam or Faceit profile link:
 
 # Dota 2
@@ -680,3 +680,47 @@ no_new_likes = No new likes yet
 
 
 continue_searching_likes = Continue?
+
+# Report moderation strings
+no_reports_to_moderate = There are currently no active reports for moderation.
+report_info = Report Information
+report_id = Report ID
+report_type = Report Type
+report_date = Creation Date
+additional_text = Additional Text
+reporter_id = Reporter ID
+target_info = Information about the reported user
+deleted_user = User deleted
+user_id = User ID
+report_not_found = Report not found or already processed
+
+# Moderation buttons
+ban_1_day = 🚫 Ban for 1 day
+ban_1_week = 🚫 Ban for 1 week
+ban_1_month = 🚫 Ban for 1 month
+ban_1_year = 🚫 Ban for 1 year
+ban_permanent = 🚫 Permanent ban
+disable_report = ✅ Disable report
+delete_report = ❌ Delete report
+
+# Action results
+user_banned_successfully = User successfully banned
+report_disabled = Report disabled (status set to inactive)
+report_deleted = Report deleted from database
+no_more_reports = No more reports for moderation
+error_occurred = An error occurred. Please try again later.
+user_has_active_ban_until = User is already banned until
+write_ban_reason = Write the reason for the ban
+
+# Profile moderation
+profile_info = Profile Information
+profile_id = Profile ID
+profile_type = Profile Type
+created_date = Creation Date
+profile_status = Profile Status
+profile_type_not_found = Profile type not found
+profile_skipped = Profile skipped
+skip_profile = Skip profile
+no_new_profiles_to_review = No new profiles to review
+active = Active
+inactive = Inactive

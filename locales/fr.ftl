@@ -459,9 +459,9 @@ time_hour = h
 time_minute = min
 time_second = sec 
 
-candidates_ended = Pour aujourd'hui, les profils sont épuisés ! Revenez plus tard, il y en aura de nouveaux 👋
+candidates_ended = Les profils compatibles sont épuisés ! Revenez plus tard, il y en aura de nouveaux 👋
 
-    Utilisez la commande /switch pour changer de profil actuel et en créer un nouveau - il pourrait déjà y avoir de nouveaux profils !
+    Utilisez /switch pour changer votre profil ou en créer un nouveau - vous pourriez y trouver de nouveaux profils !
 
 more_options_title = Choisissez ce que vous voulez faire :
 # Options supplémentaires
@@ -556,7 +556,7 @@ sport_type_ski_snowboard = 🏂 Ski/snowboard
 
 # Types de jeux
 game_type_title = Sélectionnez le jeu :
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -603,7 +603,7 @@ sport_level_professional = 🏆 Professionnel
 
 # Champs pour profil de jeu
 game_account_question_validate = Vous ne pouvez envoyer qu'un lien réel vers un profil de jeu
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Envoyez le lien vers votre profil Steam ou Faceit :
 
 # Dota 2
@@ -684,3 +684,47 @@ no_new_likes = Vous n'avez pas encore reçu de nouveaux likes
 
 
 continue_searching_likes = On continue ?
+
+# Modération des signalements
+no_reports_to_moderate = Il n'y a actuellement aucun signalement actif à modérer.
+report_info = Informations sur le signalement
+report_id = ID du signalement
+report_type = Type de signalement
+report_date = Date de création
+additional_text = Texte supplémentaire
+reporter_id = ID du signaleur
+target_info = Informations sur l'utilisateur signalé
+deleted_user = Utilisateur supprimé
+user_id = ID de l'utilisateur
+report_not_found = Signalement introuvable ou déjà traité
+
+# Boutons de modération
+ban_1_day = 🚫 Bannir pour 1 jour
+ban_1_week = 🚫 Bannir pour 1 semaine
+ban_1_month = 🚫 Bannir pour 1 mois
+ban_1_year = 🚫 Bannir pour 1 an
+ban_permanent = 🚫 Bannissement permanent
+disable_report = ✅ Désactiver le signalement
+delete_report = ❌ Supprimer le signalement
+
+# Résultats des actions
+user_banned_successfully = Utilisateur banni avec succès
+report_disabled = Signalement désactivé (statut défini comme inactif)
+report_deleted = Signalement supprimé de la base de données
+no_more_reports = Plus de signalements à modérer
+error_occurred = Une erreur s'est produite. Veuillez réessayer plus tard.
+user_has_active_ban_until = L'utilisateur est déjà banni jusqu'au
+write_ban_reason = Écrivez la raison du bannissement
+
+# Modération des profils
+profile_info = Informations sur le profil
+profile_id = ID du profil
+profile_type = Type de profil
+created_date = Date de création
+profile_status = Statut du profil
+profile_type_not_found = Type de profil introuvable
+profile_skipped = Profil ignoré
+skip_profile = Ignorer le profil
+no_new_profiles_to_review = Aucun nouveau profil à examiner
+active = Actif
+inactive = Inactif

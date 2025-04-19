@@ -14,10 +14,12 @@ import { disableFormStep } from "../messages/disable_form"
 import { formDisabledStep } from "../messages/form_disabled"
 import { friendsStep } from "../messages/friends"
 import { goMainMenuStep } from "../messages/go_main_menu"
+import { moderatingReportsStep } from "../messages/moderating_reports"
 import { optionsToUserStep } from "../messages/options_to_user"
 import { prepareMessageStep } from "../messages/prepare_message"
 import { profileStep } from "../messages/profile"
 import { questionsStep } from "../messages/questions/index"
+import { reviewingNewProfilesStep } from "../messages/reviewing_new_profiles"
 import { rouletteSearchingStep } from "../messages/roulette_searching"
 import { rouletteStartStep } from "../messages/roulette_start"
 import { searchPeopleStep } from "../messages/search_people"
@@ -27,6 +29,8 @@ import { somebodysLikedYouStep } from "../messages/somebodys_liked_you"
 import { startUsingBotStep } from "../messages/start_using_bot"
 import { switchProfileStep } from "../messages/switch_profile"
 import { textOrVideoToUserStep } from "../messages/text_or_video_to_user"
+import { waitingForBanReasonProfileStep } from "../messages/waiting_for_ban_reason_profile"
+import { waitingForBanReasonReportStep } from "../messages/waiting_for_ban_reason_report"
 import { youAlreadyHaveThisProfileStep } from "../messages/you_already_have_this_profile"
 import { youDontHaveFormStep } from "../messages/you_dont_have_form"
 import { MyContext } from "../typescript/context"
@@ -103,6 +107,14 @@ export async function messageEvent(ctx: MyContext) {
         await switchProfileStep(ctx)
     } else if (ctx.session.step === 'you_already_have_this_profile') {
         await youAlreadyHaveThisProfileStep(ctx)
+    } else if (ctx.session.step === 'moderating_reports') {
+        await moderatingReportsStep(ctx)
+    } else if (ctx.session.step === 'waiting_for_ban_reason_report') {
+        await waitingForBanReasonReportStep(ctx)
+    } else if (ctx.session.step === 'waiting_for_ban_reason_profile') {
+        await waitingForBanReasonProfileStep(ctx)
+    } else if (ctx.session.step === 'reviewing_new_profiles') {
+        await reviewingNewProfilesStep(ctx)
     } else {
         ctx.logger.warn({ 
             userId: ctx.from?.id,

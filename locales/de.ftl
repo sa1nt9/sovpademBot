@@ -459,9 +459,12 @@ time_hour = Std
 time_minute = Min
 time_second = Sek 
 
-candidates_ended = Für heute sind die Profile aufgebraucht! Schau später wieder vorbei, es wird neue geben 👋
+candidates_ended = Passende Profile sind aufgebraucht! Schau später wieder vorbei, es wird neue geben 👋
 
-    Verwende den Befehl /switch, um dein aktuelles Profil zu wechseln und ein neues zu erstellen - dort könnten bereits neue Profile sein!
+    Verwende /switch, um dein Profil zu wechseln oder ein neues zu erstellen - dort könnten bereits neue Profile sein!
+
+active = Aktiv
+inactive = Inaktiv
 
 more_options_title = Wähle, was du tun möchtest:
 # Zusätzliche Optionen
@@ -556,7 +559,7 @@ sport_type_ski_snowboard = 🏂 Ski/Snowboard
 
 # Spielarten
 game_type_title = Wähle das Spiel:
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -603,7 +606,7 @@ sport_level_professional = 🏆 Professionell
 
 # Felder für Spiel-Profil
 game_account_question_validate = Es kann nur ein echter Link zu einem Spielprofil gesendet werden
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Sende den Link zu deinem Steam- oder Faceit-Profil:
 
 # Dota 2
@@ -684,3 +687,47 @@ no_new_likes = Du hast noch keine neuen Likes erhalten
 
 
 continue_searching_likes = Weitermachen?
+
+# Meldungsmoderation
+no_reports_to_moderate = Derzeit gibt es keine aktiven Meldungen zur Moderation.
+report_info = Meldungsinformationen
+report_id = Meldungs-ID
+report_type = Meldungstyp
+report_date = Erstellungsdatum
+additional_text = Zusätzlicher Text
+reporter_id = Melder-ID
+target_info = Informationen über den gemeldeten Benutzer
+deleted_user = Benutzer gelöscht
+user_id = Benutzer-ID
+report_not_found = Meldung nicht gefunden oder bereits bearbeitet
+
+# Moderationsbuttons
+ban_1_day = 🚫 Sperre für 1 Tag
+ban_1_week = 🚫 Sperre für 1 Woche
+ban_1_month = 🚫 Sperre für 1 Monat
+ban_1_year = 🚫 Sperre für 1 Jahr
+ban_permanent = 🚫 Permanente Sperre
+disable_report = ✅ Meldung deaktivieren
+delete_report = ❌ Meldung löschen
+
+# Aktionsergebnisse
+user_banned_successfully = Benutzer erfolgreich gesperrt
+report_disabled = Meldung deaktiviert (Status auf inaktiv gesetzt)
+report_deleted = Meldung aus der Datenbank gelöscht
+no_more_reports = Keine weiteren Meldungen zur Moderation
+error_occurred = Ein Fehler ist aufgetreten. Bitte versuche es später erneut.
+user_has_active_ban_until = Benutzer ist bereits gesperrt bis
+write_ban_reason = Schreibe den Grund für die Sperre
+
+# Profilmoderation
+profile_info = Profilinformationen
+profile_id = Profil-ID
+profile_type = Profiltyp
+created_date = Erstellungsdatum
+profile_status = Profilstatus
+profile_type_not_found = Profiltyp nicht gefunden
+profile_skipped = Profil übersprungen
+skip_profile = Profil überspringen
+no_new_profiles_to_review = Keine neuen Profile zum Überprüfen
+active = Aktiv
+inactive = Inaktiv

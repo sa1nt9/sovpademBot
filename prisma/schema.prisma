@@ -48,6 +48,7 @@ model RelationshipProfile {
     description  String?
     files        Json // Массив файлов в JSON
     isActive     Boolean      @default(true)
+    isReviewed   Boolean      @default(false) // Флаг, прошла ли анкета проверку администратором
     createdAt    DateTime     @default(now())
     updatedAt    DateTime     @updatedAt
 
@@ -65,6 +66,7 @@ model SportProfile {
     description  String?
     files        Json // Массив файлов в JSON 
     isActive     Boolean      @default(true)
+    isReviewed   Boolean      @default(false) // Флаг, прошла ли анкета проверку администратором
     createdAt    DateTime     @default(now())
     updatedAt    DateTime     @updatedAt
 
@@ -84,6 +86,7 @@ model GameProfile {
     description  String?
     files        Json // Массив файлов в JSON
     isActive     Boolean      @default(true)
+    isReviewed   Boolean      @default(false) // Флаг, прошла ли анкета проверку администратором
     createdAt    DateTime     @default(now())
     updatedAt    DateTime     @updatedAt
 
@@ -102,6 +105,7 @@ model HobbyProfile {
     description  String?
     files        Json // Массив файлов в JSON
     isActive     Boolean      @default(true)
+    isReviewed   Boolean      @default(false) // Флаг, прошла ли анкета проверку администратором
     createdAt    DateTime     @default(now())
     updatedAt    DateTime     @updatedAt
 
@@ -123,6 +127,7 @@ model ItProfile {
     description  String?
     files        Json // Массив файлов в JSON
     isActive     Boolean      @default(true)
+    isReviewed   Boolean      @default(false) // Флаг, прошла ли анкета проверку администратором
     createdAt    DateTime     @default(now())
     updatedAt    DateTime     @updatedAt
 

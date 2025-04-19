@@ -455,9 +455,9 @@ time_hour = jam
 time_minute = menit
 time_second = detik 
 
-candidates_ended = Profil untuk hari ini sudah habis! Kembali lagi nanti, akan ada yang baru 👋
+candidates_ended = Profil yang cocok sudah habis! Kembali lagi nanti, akan ada yang baru 👋
 
-    Gunakan perintah /switch untuk mengganti profil saat ini dan membuat yang baru - mungkin sudah ada profil baru di sana!
+    Gunakan /switch untuk mengganti profil Anda atau membuat yang baru - Anda mungkin menemukan profil baru di sana!
 
 more_options_title = Pilih apa yang ingin Anda lakukan:
 # Opsi tambahan
@@ -552,7 +552,7 @@ sport_type_ski_snowboard = 🏂 Ski/snowboard
 
 # Jenis game
 game_type_title = Pilih game:
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -599,7 +599,7 @@ sport_level_professional = 🏆 Profesional
 
 # Bidang untuk profil game
 game_account_question_validate = Anda hanya dapat mengirim tautan profil game yang valid
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Kirim tautan ke profil Steam atau Faceit Anda:
 
 # Dota 2
@@ -680,3 +680,47 @@ no_new_likes = Anda belum mendapatkan suka baru
 
 
 continue_searching_likes = Lanjutkan?
+
+# String moderasi laporan
+no_reports_to_moderate = Saat ini tidak ada laporan aktif untuk dimoderasi.
+report_info = Informasi Laporan
+report_id = ID Laporan
+report_type = Jenis Laporan
+report_date = Tanggal Pembuatan
+additional_text = Teks Tambahan
+reporter_id = ID Pelapor
+target_info = Informasi tentang pengguna yang dilaporkan
+deleted_user = Pengguna dihapus
+user_id = ID Pengguna
+report_not_found = Laporan tidak ditemukan atau sudah diproses
+
+# Tombol moderasi
+ban_1_day = 🚫 Blokir selama 1 hari
+ban_1_week = 🚫 Blokir selama 1 minggu
+ban_1_month = 🚫 Blokir selama 1 bulan
+ban_1_year = 🚫 Blokir selama 1 tahun
+ban_permanent = 🚫 Blokir permanen
+disable_report = ✅ Nonaktifkan laporan
+delete_report = ❌ Hapus laporan
+
+# Hasil tindakan
+user_banned_successfully = Pengguna berhasil diblokir
+report_disabled = Laporan dinonaktifkan (status diubah menjadi tidak aktif)
+report_deleted = Laporan dihapus dari database
+no_more_reports = Tidak ada lagi laporan untuk dimoderasi
+error_occurred = Terjadi kesalahan. Silakan coba lagi nanti.
+user_has_active_ban_until = Pengguna sudah diblokir sampai
+write_ban_reason = Tulis alasan pemblokiran
+
+# Moderasi profil
+profile_info = Informasi Profil
+profile_id = ID Profil
+profile_type = Jenis Profil
+created_date = Tanggal Pembuatan
+profile_status = Status Profil
+profile_type_not_found = Jenis profil tidak ditemukan
+profile_skipped = Profil dilewati
+skip_profile = Lewati profil
+no_new_profiles_to_review = Tidak ada profil baru untuk ditinjau
+active = Aktif
+inactive = Tidak aktif

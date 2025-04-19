@@ -30,6 +30,7 @@ export function sessionInitial(): ISessionData {
             tempFiles: [],
             ownCoordinates: false,
             isActive: false,
+            isReviewed: false
         },
         roulette: {
             chatPartnerId: null,

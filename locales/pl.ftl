@@ -462,9 +462,9 @@ time_hour = godz
 time_minute = min
 time_second = sek 
 
-candidates_ended = Na dziś profile się skończyły! Zajrzyj później, będą nowe 👋
+candidates_ended = Profile pasujące się skończyły! Zajrzyj później, będą nowe 👋
 
-    Użyj komendy /switch aby zmienić obecny profil i utworzyć nowy - tam mogą już być nowe profile!
+    Użyj /switch, aby zmienić swój profil lub utworzyć nowy - możesz tam znaleźć nowe profile!
 
 more_options_title = Wybierz, co chcesz zrobić:
 # Opcje dodatkowe
@@ -559,7 +559,7 @@ sport_type_ski_snowboard = 🏂 Narty/snowboard
 
 # Rodzaje gier
 game_type_title = Wybierz grę:
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -606,7 +606,7 @@ sport_level_professional = 🏆 Profesjonalny
 
 # Pola dla profilu gracza
 game_account_question_validate = Możesz wysłać tylko prawdziwy link do profilu gracza
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Wyślij link do swojego profilu Steam lub Faceit:
 
 # Dota 2
@@ -687,3 +687,47 @@ no_new_likes = Nie masz jeszcze nowych polubień
 
 
 continue_searching_likes = Kontynuujemy?
+
+# Ciągi do moderacji zgłoszeń
+no_reports_to_moderate = Obecnie nie ma aktywnych zgłoszeń do moderacji.
+report_info = Informacje o zgłoszeniu
+report_id = ID zgłoszenia
+report_type = Typ zgłoszenia
+report_date = Data utworzenia
+additional_text = Dodatkowy tekst
+reporter_id = ID zgłaszającego
+target_info = Informacje o zgłoszonym użytkowniku
+deleted_user = Użytkownik usunięty
+user_id = ID użytkownika
+report_not_found = Zgłoszenie nie znalezione lub już przetworzone
+
+# Przyciski moderacji
+ban_1_day = 🚫 Ban na 1 dzień
+ban_1_week = 🚫 Ban na 1 tydzień
+ban_1_month = 🚫 Ban na 1 miesiąc
+ban_1_year = 🚫 Ban na 1 rok
+ban_permanent = 🚫 Ban permanentny
+disable_report = ✅ Wyłącz zgłoszenie
+delete_report = ❌ Usuń zgłoszenie
+
+# Wyniki działań
+user_banned_successfully = Użytkownik pomyślnie zbanowany
+report_disabled = Zgłoszenie wyłączone (status ustawiony na nieaktywny)
+report_deleted = Zgłoszenie usunięte z bazy danych
+no_more_reports = Nie ma więcej zgłoszeń do moderacji
+error_occurred = Wystąpił błąd. Spróbuj ponownie później.
+user_has_active_ban_until = Użytkownik jest już zbanowany do
+write_ban_reason = Napisz powód bana
+
+# Moderacja profili
+profile_info = Informacje o profilu
+profile_id = ID profilu
+profile_type = Typ profilu
+created_date = Data utworzenia
+profile_status = Status profilu
+profile_type_not_found = Typ profilu nie znaleziony
+profile_skipped = Profil pominięty
+skip_profile = Pomiń profil
+no_new_profiles_to_review = Brak nowych profili do przejrzenia
+active = Aktywny
+inactive = Nieaktywny

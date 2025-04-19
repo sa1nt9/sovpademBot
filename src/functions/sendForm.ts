@@ -25,6 +25,7 @@ interface IOptions {
     profileType?: ProfileType
     subType?: TProfileSubType
     translate?: TranslateFunction
+    specificProfileId?: string
 }
 
 const defaultOptions: IOptions = {
@@ -168,11 +169,23 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
             ctx.logger.info({ 
                 userId: user.id,
                 profileType,
-                subType: options.subType || (ctx.session.activeProfile as any).subType
+                subType: options.subType || (ctx.session.activeProfile as any).subType,
+                specificProfileId: options.specificProfileId
             }, 'Getting profile files');
 
-            // Получаем профиль пользователя
-            const profile = await getUserProfile(user.id, profileType, options.subType || (ctx.session.activeProfile as any).subType);
+            // Если указан конкретный ID профиля, получаем его
+            let profile;
+            if (options.specificProfileId) {
+                // Получаем профиль по его ID
+                const tempProfile = await (prisma as any)[`${profileType.toLowerCase()}Profile`].findUnique({
+                    where: { id: options.specificProfileId }
+                });
+
+                profile = await getUserProfile(user.id, profileType, profileType !== 'RELATIONSHIP' ? (tempProfile?.subType as TProfileSubType) : undefined);
+            } else {
+                // Получаем профиль пользователя стандартным способом
+                profile = await getUserProfile(user.id, profileType, options.subType || (ctx.session.activeProfile as any).subType);
+            }
 
             if (!profile || !profile.files || profile.files.length === 0) {
                 ctx.logger.info({ userId: user.id }, 'No files found for profile');

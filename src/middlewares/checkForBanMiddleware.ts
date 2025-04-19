@@ -30,9 +30,9 @@ export const checkForBanMiddleware = async (ctx: MyContext, next: () => Promise<
         const isPermanent = activeBan.bannedUntil.getFullYear() > 2100;
         
         if (isPermanent) {
-            banMessage += ctx.t("user_banned_permanent") + "\n\n";
+            banMessage += ctx.t("user_banned_permanent");
         } else {
-            banMessage += ctx.t("user_banned_until", { date: banEndDate }) + "\n\n";
+            banMessage += ctx.t("user_banned_until", { date: banEndDate });
         }
         
         if (activeBan.reason) {

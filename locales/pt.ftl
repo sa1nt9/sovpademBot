@@ -459,9 +459,9 @@ time_hour = h
 time_minute = min
 time_second = seg 
 
-candidates_ended = Por hoje os perfis acabaram! Volte mais tarde, haverá novos 👋
+candidates_ended = Os perfis compatíveis acabaram! Volte mais tarde, haverá novos 👋
 
-    Use o comando /switch para mudar seu perfil atual e criar um novo - lá já pode haver novos perfis!
+    Use /switch para mudar seu perfil ou criar um novo - você pode encontrar novos perfis lá!
 
 more_options_title = Escolha o que deseja fazer:
 # Opções adicionais
@@ -556,7 +556,7 @@ sport_type_ski_snowboard = 🏂 Esqui/snowboard
 
 # Tipos de jogos
 game_type_title = Selecione o jogo:
-game_type_cs_go = 🔫 CS:GO/CS2
+game_type_cs_go = 🔫 CS2
 game_type_dota2 = 🛡️ Dota 2
 game_type_valorant = 💥 Valorant
 game_type_rust = 🏕️ Rust
@@ -603,7 +603,7 @@ sport_level_professional = 🏆 Profissional
 
 # Campos para perfil de jogo
 game_account_question_validate = Só é possível enviar um link real para um perfil de jogo
-# CS:GO/CS2
+# CS2
 game_account_cs_go = Envie o link para seu perfil Steam ou Faceit:
 
 # Dota 2
@@ -684,3 +684,47 @@ no_new_likes = Você ainda não recebeu novos likes
 
 
 continue_searching_likes = Continuamos?
+
+# Strings para moderação de denúncias
+no_reports_to_moderate = Atualmente não há denúncias ativas para moderação.
+report_info = Informações da denúncia
+report_id = ID da denúncia
+report_type = Tipo de denúncia
+report_date = Data de criação
+additional_text = Texto adicional
+reporter_id = ID do denunciante
+target_info = Informações sobre o usuário denunciado
+deleted_user = Usuário excluído
+user_id = ID do usuário
+report_not_found = Denúncia não encontrada ou já processada
+
+# Botões de moderação
+ban_1_day = 🚫 Banir por 1 dia
+ban_1_week = 🚫 Banir por 1 semana
+ban_1_month = 🚫 Banir por 1 mês
+ban_1_year = 🚫 Banir por 1 ano
+ban_permanent = 🚫 Banimento permanente
+disable_report = ✅ Desativar denúncia
+delete_report = ❌ Excluir denúncia
+
+# Resultados de ações
+user_banned_successfully = Usuário banido com sucesso
+report_disabled = Denúncia desativada (status definido como inativo)
+report_deleted = Denúncia excluída do banco de dados
+no_more_reports = Não há mais denúncias para moderação
+error_occurred = Ocorreu um erro. Por favor, tente novamente mais tarde.
+user_has_active_ban_until = Usuário já está banido até
+write_ban_reason = Escreva o motivo do banimento
+
+# Moderação de perfis
+profile_info = Informações do perfil
+profile_id = ID do perfil
+profile_type = Tipo de perfil
+created_date = Data de criação
+profile_status = Status do perfil
+profile_type_not_found = Tipo de perfil não encontrado
+profile_skipped = Perfil ignorado
+skip_profile = Ignorar perfil
+no_new_profiles_to_review = Não há novos perfis para revisar
+active = Ativo
+inactive = Inativo
