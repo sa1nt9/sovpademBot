@@ -36,6 +36,8 @@ privacy_message = 🔐 We care about your safety!
     
     The bot doesn't collect your personal data or documents. We do everything possible to make your communication safe and pleasant! 💫
 
+    By continuing, you accept our [User Agreement](https://sovpadem.site/agreement) and [Privacy Policy](https://sovpadem.site/policy).
+
     Let's create your first profile! 🚀
 
 ok = 👌 Ok

@@ -28,15 +28,17 @@ no_such_answer = Diese Antwortmöglichkeit gibt es nicht
 
 ok_lets_start = 👌 lass uns beginnen
 
-privacy_message = 🔐 Wir sorgen uns um Ihre Sicherheit!
+privacy_message = 🔐 Wir kümmern uns um Ihre Sicherheit!
 
-    • Kommuniziere klug und teile keine persönlichen Daten mit Fremden
-    • Überweise kein Geld und klicke nicht auf verdächtige Links
-    • Wähle bei Treffen im echten Leben öffentliche Orte
+    • Kommunizieren Sie klug und teilen Sie keine persönlichen Informationen mit Fremden
+    • Überweisen Sie kein Geld und folgen Sie keinen verdächtigen Links
+    • Wählen Sie bei Treffen im echten Leben öffentliche Orte
     
-    Der Bot sammelt keine persönlichen Daten oder Dokumente. Wir tun alles, damit deine Kommunikation sicher und angenehm ist! 💫
+    Der Bot sammelt keine persönlichen Daten oder Dokumente. Wir tun alles, um Ihre Kommunikation sicher und angenehm zu gestalten! 💫
 
-    Lass uns dein erstes Profil erstellen! 🚀
+    Indem Sie fortfahren, akzeptieren Sie unsere [Nutzungsbedingungen](https://sovpadem.site/agreement) und [Datenschutzrichtlinie](https://sovpadem.site/policy).
+
+    Lassen Sie uns Ihr erstes Profil erstellen! 🚀
 
 ok = 👌 Ok
  

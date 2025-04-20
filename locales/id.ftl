@@ -30,11 +30,13 @@ ok_lets_start = 👌 Mari mulai
 
 privacy_message = 🔐 Kami peduli dengan keamanan Anda!
 
-    • Berkomunikasilah dengan bijak dan jangan bagikan informasi pribadi dengan orang asing
-    • Jangan mentransfer uang atau mengklik tautan yang mencurigakan
-    • Pilih tempat umum saat bertemu di kehidupan nyata
+    • Berkomunikasi dengan bijak dan jangan berbagi informasi pribadi dengan orang asing
+    • Jangan mentransfer uang atau mengikuti tautan mencurigakan
+    • Saat bertemu di kehidupan nyata, pilih tempat umum
     
-    Bot tidak mengumpulkan data pribadi atau dokumen Anda. Kami melakukan yang terbaik untuk membuat komunikasi Anda aman dan menyenangkan! 💫
+    Bot tidak mengumpulkan data pribadi atau dokumen Anda. Kami melakukan segala kemungkinan untuk membuat komunikasi Anda aman dan menyenangkan! 💫
+
+    Dengan melanjutkan, Anda menerima [Ketentuan Penggunaan](https://sovpadem.site/agreement) dan [Kebijakan Privasi](https://sovpadem.site/policy) kami.
 
     Mari buat profil pertama Anda! 🚀
 

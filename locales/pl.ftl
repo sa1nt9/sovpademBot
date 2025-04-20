@@ -31,10 +31,12 @@ ok_lets_start = 👌 Zaczynajmy
 privacy_message = 🔐 Dbamy o Twoje bezpieczeństwo!
 
     • Komunikuj się mądrze i nie udostępniaj danych osobowych nieznajomym
-    • Nie przekazuj pieniędzy ani nie klikaj w podejrzane linki
-    • Przy spotkaniach w rzeczywistości wybieraj miejsca publiczne
+    • Nie przelewaj pieniędzy i nie klikaj w podejrzane linki
+    • Spotykając się w rzeczywistości, wybieraj miejsca publiczne
     
     Bot nie zbiera Twoich danych osobowych ani dokumentów. Robimy wszystko, aby Twoja komunikacja była bezpieczna i przyjemna! 💫
+
+    Kontynuując, akceptujesz nasze [Warunki Użytkowania](https://sovpadem.site/agreement) oraz [Politykę Prywatności](https://sovpadem.site/policy).
 
     Stwórzmy Twój pierwszy profil! 🚀
 

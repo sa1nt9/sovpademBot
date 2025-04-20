@@ -30,11 +30,13 @@ ok_lets_start = 👌 commençons
 
 privacy_message = 🔐 Nous nous soucions de votre sécurité !
 
-    • Communiquez intelligemment et ne partagez pas d'informations personnelles avec des inconnus
-    • Ne transférez pas d'argent et ne cliquez pas sur des liens suspects
-    • Lors de rencontres en personne, choisissez des lieux publics
+    • Communiquez intelligemment et ne partagez pas d'informations personnelles avec des étrangers
+    • Ne transférez pas d'argent et ne suivez pas de liens suspects
+    • Lors de rencontres dans la vie réelle, choisissez des lieux publics
     
-    Le bot ne collecte pas vos données personnelles ni vos documents. Nous faisons tout notre possible pour que votre communication soit sûre et agréable ! 💫
+    Le bot ne collecte pas vos données personnelles ou documents. Nous faisons tout notre possible pour que votre communication soit sûre et agréable ! 💫
+
+    En continuant, vous acceptez nos [Conditions d'Utilisation](https://sovpadem.site/agreement) et notre [Politique de Confidentialité](https://sovpadem.site/policy).
 
     Créons votre premier profil ! 🚀
 

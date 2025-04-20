@@ -127,7 +127,11 @@ Welcome to the Telegram bot "Sovpadem"! We respect your privacy and strive to en
 
 ## 12. CONTACT INFORMATION
 
-12.1 If you have questions or suggestions regarding this Privacy Policy, please contact us through the official Telegram channel: @sovpadem.
+12.1 If you have any questions or suggestions regarding this Privacy Policy, please contact us:
+- Official channel: [@sovpadem](https://t.me/sovpadem)
+- Bot support: [@sovpadem_help](https://t.me/sovpadem_help)
+- For advertising and cooperation: [@sovpadem_ad](https://t.me/sovpadem_ad)
+- The bot itself: [@sovpadembot](https://t.me/sovpadembot)
 
 ## 13. FINAL PROVISIONS
 
