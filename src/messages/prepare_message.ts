@@ -13,6 +13,7 @@ export async function prepareMessageStep(ctx: MyContext) {
 
         await ctx.reply(ctx.t('privacy_message'), {
             reply_markup: acceptPrivacyKeyboard(ctx.t),
+            parse_mode: "Markdown"
         });
     } else {
         ctx.logger.warn({ userId, invalidOption: message }, 'User provided invalid response on introduction screen');

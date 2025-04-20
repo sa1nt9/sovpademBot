@@ -62,6 +62,7 @@ export const myprofileCommand = async (ctx: MyContext) => {
 
             await ctx.reply(ctx.t('privacy_message'), {
                 reply_markup: acceptPrivacyKeyboard(ctx.t),
+                parse_mode: "Markdown"
             });
         }
     }

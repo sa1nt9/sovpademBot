@@ -46,6 +46,7 @@ export async function chooseLanguageStep(ctx: MyContext) {
 
                 await ctx.reply(ctx.t('privacy_message'), {
                     reply_markup: acceptPrivacyKeyboard(ctx.t),
+                    parse_mode: "Markdown"
                 });
             }
         }
