@@ -5,20 +5,21 @@ import { i18n } from "../i18n";
 import { ISessionData } from "../typescript/interfaces/ISessionData";
 import { complainToUserKeyboard, profileKeyboard, somebodysLikedYouKeyboard } from "../constants/keyboards";
 import { sendForm } from "./sendForm";
-
-/**
- * Отправляет уведомление о лайке или взаимной симпатии напрямую пользователю
- * Логика взята из оригинальной функции sendLikesNotification
- */
+import { ProfileType } from "@prisma/client";
 export async function sendNotificationDirectly(
     ctx: MyContext,
     targetUserId: string,
     fromUserId: string,
+    targetProfileId: string,
+    fromProfileId: string,
+    profileType: ProfileType,
     isAnswer?: boolean
 ): Promise<void> {
     ctx.logger.info({ 
         fromUserId,
         targetUserId,
+        targetProfileId,
+        fromProfileId,
         isAnswer
     }, 'Sending notification directly');
 
@@ -46,7 +47,7 @@ export async function sendNotificationDirectly(
 
             // Пол пользователя для правильного склонения
             const userGender = targetUser?.gender === 'female' ? 'female' : 'male';
-
+            
             if (isAnswer) {
                 ctx.logger.info({ 
                     fromUserId,
@@ -66,7 +67,8 @@ export async function sendNotificationDirectly(
                             value: JSON.stringify({
                                 ...currentValue,
                                 pendingMutualLike: true,
-                                pendingMutualLikeProfileId: fromUserId
+                                pendingMutualLikeProfileId: fromProfileId,
+                                pendingMutualLikeProfileType: profileType
                             })
                         }
                     });
@@ -79,8 +81,8 @@ export async function sendNotificationDirectly(
                 } else {
                     const userLike = await prisma.profileLike.findFirst({
                         where: {
-                            toProfileId: targetUserId,
-                            fromProfileId: fromUserId,
+                            toProfileId: fromProfileId,
+                            fromProfileId: targetProfileId,
                             liked: true
                         },
                         orderBy: {
@@ -123,7 +125,9 @@ export async function sendNotificationDirectly(
 
                     ctx.logger.info({ 
                         fromUserId,
-                        targetUserId
+                        targetUserId,
+                        targetProfileId,
+                        fromProfileId
                     }, 'Sent mutual sympathy notification and updated session');
                 }
             } else {
@@ -132,6 +136,8 @@ export async function sendNotificationDirectly(
                 ctx.logger.info({ 
                     fromUserId,
                     targetUserId,
+                    targetProfileId,
+                    fromProfileId,
                     count,
                     gender,
                     userGender
@@ -160,13 +166,17 @@ export async function sendNotificationDirectly(
 
                 ctx.logger.info({ 
                     fromUserId,
-                    targetUserId
+                    targetUserId,
+                    targetProfileId,
+                    fromProfileId
                 }, 'Sent new likes notification and updated session');
             }
         } else {
             ctx.logger.error({ 
                 fromUserId,
-                targetUserId
+                targetUserId,
+                targetProfileId,
+                fromProfileId
             }, 'Error updating session somebodys_liked_you, session not found');
         }
 
@@ -174,6 +184,8 @@ export async function sendNotificationDirectly(
         ctx.logger.error({ 
             fromUserId,
             targetUserId,
+            targetProfileId,
+            fromProfileId,
             error: error instanceof Error ? error.message : 'Unknown error',
             stack: error instanceof Error ? error.stack : undefined
         }, 'Error sending notification directly');

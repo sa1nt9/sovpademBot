@@ -15,26 +15,29 @@ const defaultOptions: SendMutualSympathyAfterAnswerOptions = {
 
 export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: SendMutualSympathyAfterAnswerOptions = defaultOptions) => {
     const userId = String(ctx.from?.id);
-    const targetUserId = String(ctx.session.pendingMutualLikeProfileId);
-    
-    ctx.logger.info({ 
-        userId, 
-        targetUserId,
+    const targetProfileId = String(ctx.session.pendingMutualLikeProfileId)
+
+    ctx.logger.info({
+        userId,
+        targetProfileId,
         withoutSleepMenu: options.withoutSleepMenu
     }, 'Sending mutual sympathy after answer');
-    
+
     // Получаем данные пользователя, который поставил лайк
-    const likedUser = await prisma.user.findUnique({
+    const likedProfile = await (prisma as any)[`${ctx.session.pendingMutualLikeProfileType?.toLowerCase()}Profile`].findUnique({
         where: {
-            id: targetUserId
+            id: targetProfileId
+        },
+        include: {
+            user: true
         }
     });
 
-    if (likedUser) {
+    if (likedProfile) {
         const userLike = await prisma.profileLike.findFirst({
             where: {
-                fromProfileId: userId,
-                toProfileId: likedUser.id,
+                fromProfileId: likedProfile.id,
+                toProfileId: userId,
                 liked: true
             },
             orderBy: {
@@ -46,14 +49,14 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
         });
 
         // Отправляем анкету пользователя, который поставил лайк
-        await sendForm(ctx, likedUser, { myForm: false, privateNote: userLike?.privateNote });
+        await sendForm(ctx, likedProfile.user, { myForm: false, privateNote: userLike?.privateNote });
 
         ctx.session.step = 'continue_see_forms'
 
-        const userInfo = await ctx.api.getChat(likedUser.id);
+        const userInfo = await ctx.api.getChat(likedProfile.userId);
 
-        await ctx.reply(`${ctx.t('mutual_sympathy')} [${likedUser.name}](https://t.me/${userInfo.username})`, {
-            reply_markup: complainToUserKeyboard(ctx.t, String(likedUser.id)),
+        await ctx.reply(`${ctx.t('mutual_sympathy')} [${likedProfile.user?.name}](https://t.me/${userInfo.username})`, {
+            reply_markup: complainToUserKeyboard(ctx.t, String(likedProfile.userId)),
             link_preview_options: {
                 is_disabled: true
             },
@@ -69,9 +72,10 @@ export const sendMutualSympathyAfterAnswer = async (ctx: MyContext, options: Sen
 
         ctx.session.pendingMutualLike = false;
         ctx.session.pendingMutualLikeProfileId = undefined;
-        
-        ctx.logger.info({ userId, targetUserId }, 'Mutual sympathy sent successfully');
+        ctx.session.pendingMutualLikeProfileType = undefined;
+
+        ctx.logger.info({ userId, targetProfileId }, 'Mutual sympathy sent successfully');
     } else {
-        ctx.logger.warn({ userId, targetUserId }, 'Liked user not found');
+        ctx.logger.warn({ userId, targetProfileId }, 'Liked user not found');
     }
 }

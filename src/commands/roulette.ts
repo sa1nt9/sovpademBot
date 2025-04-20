@@ -4,7 +4,7 @@ import { showRouletteStart } from "../messages/roulette_start";
 import { MyContext } from "../typescript/context";
 
 export const rouletteCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting roulette command');
 

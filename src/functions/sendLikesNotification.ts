@@ -7,9 +7,9 @@ import { getLikesInfo } from "./db/getLikesInfo";
 import { sendForm } from "./sendForm";
 import { scheduleNotification } from "../queues/utils";
 import { sendNotificationDirectly } from "./sendNotificationDirectly";
-import { NotificationType } from "@prisma/client";
+import { NotificationType, ProfileType } from "@prisma/client";
 
-export async function sendLikesNotification(ctx: MyContext, targetUserId: string, isAnswer?: boolean): Promise<void> {
+export async function sendLikesNotification(ctx: MyContext, targetUserId: string, targetProfileId: string, fromProfileId: string, profileType: ProfileType, isAnswer?: boolean): Promise<void> {
     const fromUserId = String(ctx.from?.id);
 
     ctx.logger.info({
@@ -18,7 +18,6 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
         isAnswer
     }, 'Starting likes notification');
 
-    const { count, gender } = await getLikesInfo(targetUserId, 'user');
 
     try {
         const currentSession = await prisma.session.findUnique({
@@ -29,16 +28,6 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
 
         if (currentSession) {
             const currentValue = JSON.parse(currentSession.value as string) as ISessionData;
-
-            // Получаем пользователя, чтобы узнать его пол
-            const targetUser = await prisma.user.findUnique({
-                where: {
-                    id: targetUserId
-                },
-                select: {
-                    gender: true
-                }
-            });
 
 
             if (isAnswer) {
@@ -60,7 +49,8 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                             value: JSON.stringify({
                                 ...currentValue,
                                 pendingMutualLike: true,
-                                pendingMutualLikeProfileId: fromUserId
+                                pendingMutualLikeProfileId: fromProfileId,
+                                pendingMutualLikeProfileType: profileType
                             })
                         }
                     });
@@ -83,6 +73,9 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                         await scheduleNotification(
                             targetUserId,
                             fromUserId,
+                            targetProfileId,
+                            fromProfileId,
+                            profileType,
                             NotificationType.MUTUAL_LIKE,
                             {
                                 isAnswer: true,
@@ -102,8 +95,8 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
 
                     const userLike = await prisma.profileLike.findFirst({
                         where: {
-                            toProfileId: targetUserId,
-                            fromProfileId: fromUserId,
+                            toProfileId: fromProfileId,
+                            fromProfileId: targetProfileId,
                             liked: true
                         },
                         orderBy: {
@@ -113,6 +106,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                             privateNote: true
                         }
                     });
+
 
                     await sendForm(ctx, null, {
                         myForm: true,
@@ -154,6 +148,9 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                 await scheduleNotification(
                     targetUserId,
                     fromUserId,
+                    targetProfileId,
+                    fromProfileId,
+                    profileType,
                     NotificationType.LIKE,
                     {
                         isAnswer: false

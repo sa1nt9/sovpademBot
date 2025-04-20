@@ -76,6 +76,8 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
         count = await getLikesCount(String(ctx.from?.id), 'user')
     }
 
+    ctx.logger.info(options, 'Building text form');
+
     ctx.t = options.translate || ctx.t;
 
     if (options.isInline) {

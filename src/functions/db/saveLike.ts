@@ -8,10 +8,11 @@ interface SaveLikeOptions {
     videoNoteFileId?: string;
     isMutual?: boolean;
     privateNote?: string;
+    fromProfileId?: string;
 }
 
 export const saveLike = async (ctx: MyContext, targetId: string, liked: boolean, options?: SaveLikeOptions) => {
-    const profileId = ctx.session.activeProfile.id;
+    const profileId = options?.fromProfileId || ctx.session.activeProfile.id;
     ctx.logger.info({ 
         profileId,
         targetId,

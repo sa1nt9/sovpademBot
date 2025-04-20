@@ -6,6 +6,7 @@ import { sendForm } from '../functions/sendForm';
 import { sendLikesNotification } from '../functions/sendLikesNotification';
 import { MyContext } from '../typescript/context';
 import { sendMutualSympathyAfterAnswer } from '../functions/sendMutualSympathyAfterAnswer';
+import { prisma } from '../db/postgres';
 
 export async function searchPeopleWithLikesStep(ctx: MyContext) {
     const message = ctx.message!.text;
@@ -20,12 +21,29 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
             
             ctx.logger.info({ userId, candidateId, candidateUserId }, 'Creating mutual like');
 
+            const targetProfile = await (prisma as any)[`${ctx.session.currentCandidateProfile.profileType?.toLowerCase()}Profile`].findUnique({
+                where: {
+                    id: candidateId
+                }
+            });
+
+            const fromProfile = await (prisma as any)[`${ctx.session.activeProfile.profileType?.toLowerCase()}Profile`].findUnique({
+                where: targetProfile?.profileType === "RELATIONSHIP" ? {
+                    profileType: targetProfile?.profileType,
+                    userId: userId
+                } : {
+                    profileType: targetProfile?.profileType,
+                    subType: targetProfile?.subType,
+                    userId: userId
+                }
+            });
+
             await setMutualLike(candidateId, ctx.session.activeProfile.id);
-            await saveLike(ctx, candidateId, true, { isMutual: true });
+            await saveLike(ctx, candidateId, true, { isMutual: true, fromProfileId: fromProfile?.id });
 
             const userInfo = await ctx.api.getChat(candidateUserId);
 
-            await sendLikesNotification(ctx, candidateUserId, true)
+            await sendLikesNotification(ctx, candidateUserId, candidateId, fromProfile?.id, fromProfile?.profileType, true)
 
             ctx.session.step = 'continue_see_likes_forms'
 

@@ -4,7 +4,7 @@ import { getUserProfiles } from "../functions/db/profilesService";
 import { MyContext } from "../typescript/context";
 
 export const deactivateCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting deactivate command');
 

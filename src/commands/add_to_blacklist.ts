@@ -5,7 +5,7 @@ import { addToBlacklist } from "../functions/addToBlacklist";
 
 
 export const addToBlacklistCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting add to blacklist command');
 

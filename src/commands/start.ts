@@ -5,7 +5,7 @@ import { sendForm } from "../functions/sendForm";
 import { MyContext } from "../typescript/context";
 
 export const startCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
     const startParam = ctx.message?.text?.split(' ')[1];
 
     ctx.logger.info({ 

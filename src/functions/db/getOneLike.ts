@@ -11,6 +11,7 @@ export async function getOneLike(id: string, type?: 'user' | 'profile') {
     try {
         logger.info({ id, type }, 'Getting one like');
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const now = new Date();
 
         if (type === 'user') {
             // Получаем все профили пользователя
@@ -46,8 +47,8 @@ export async function getOneLike(id: string, type?: 'user' | 'profile') {
             // Формируем массив ID, на которые уже был дан ответ
             const respondedIds = alreadyRespondedToIds.map(item => item.toProfileId);
 
-            // Находим первый лайк для любого из профилей пользователя
-            const like = await prisma.profileLike.findFirst({
+            // Находим все лайки для любого из профилей пользователя
+            const likes = await prisma.profileLike.findMany({
                 where: {
                     toProfileId: {
                         in: userProfiles.map(p => p.id)
@@ -59,22 +60,46 @@ export async function getOneLike(id: string, type?: 'user' | 'profile') {
                     fromProfileId: {
                         notIn: respondedIds
                     }
+                },
+                orderBy: {
+                    createdAt: 'asc' // Сортируем по времени создания, чтобы взять самый старый лайк
                 }
             });
 
-            if (!like) return null;
-
-            // Получаем информацию о профиле, который поставил лайк
-            const fromProfileModel = getProfileModelName(like.profileType);
-            const fromProfile = await (prisma as any)[fromProfileModel].findUnique({
-                where: { id: like.fromProfileId },
-                include: { user: true }
-            });
-
-            // Проверяем, что профиль активен
-            if (!fromProfile || !fromProfile.isActive) return null;
-
-            return { ...like, fromProfile };
+            // Перебираем лайки и находим первый подходящий
+            for (const like of likes) {
+                // Получаем модель профиля из типа профиля
+                const fromProfileModel = getProfileModelName(like.profileType);
+                
+                // Проверяем, что профиль активен
+                const fromProfile = await (prisma as any)[fromProfileModel].findUnique({
+                    where: { 
+                        id: like.fromProfileId,
+                        isActive: true 
+                    },
+                    include: { user: true }
+                });
+                
+                if (!fromProfile) continue; // Пропускаем неактивные профили
+                
+                // Проверяем, что у пользователя нет активного бана
+                const activeBan = await prisma.userBan.findFirst({
+                    where: {
+                        userId: fromProfile.user.id,
+                        isActive: true,
+                        bannedUntil: {
+                            gt: now
+                        }
+                    }
+                });
+                
+                if (activeBan) continue; // Пропускаем забаненных пользователей
+                
+                // Нашли подходящий лайк
+                return { ...like, fromProfile };
+            }
+            
+            return null; // Подходящих лайков не найдено
 
         } else {
             // Получаем все профили, которым текущий профиль уже поставил лайк или дизлайк
@@ -93,9 +118,9 @@ export async function getOneLike(id: string, type?: 'user' | 'profile') {
             // Формируем массив ID, которым уже был дан ответ
             const respondedIds = alreadyRespondedToIds.map(item => item.toProfileId);
 
-            // Находим первый лайк, поставленный текущему профилю,
-            // на который пользователь еще не ответил
-            const like = await prisma.profileLike.findFirst({
+            // Находим все лайки, поставленные текущему профилю,
+            // на которые пользователь еще не ответил
+            const likes = await prisma.profileLike.findMany({
                 where: {
                     toProfileId: id,
                     liked: true,
@@ -105,22 +130,46 @@ export async function getOneLike(id: string, type?: 'user' | 'profile') {
                     fromProfileId: {
                         notIn: respondedIds
                     }
+                },
+                orderBy: {
+                    createdAt: 'asc' // Сортируем по времени создания, чтобы взять самый старый лайк
                 }
             });
 
-            if (!like) return null;
-
-            // Получаем информацию о профиле, который поставил лайк
-            const fromProfileModel = getProfileModelName(like.profileType);
-            const fromProfile = await (prisma as any)[fromProfileModel].findUnique({
-                where: { id: like.fromProfileId },
-                include: { user: true }
-            });
-
-            // Проверяем, что профиль активен
-            if (!fromProfile || !fromProfile.isActive) return null;
-
-            return { ...like, fromProfile };
+            // Перебираем лайки и находим первый подходящий
+            for (const like of likes) {
+                // Получаем модель профиля из типа профиля
+                const fromProfileModel = getProfileModelName(like.profileType);
+                
+                // Проверяем, что профиль активен
+                const fromProfile = await (prisma as any)[fromProfileModel].findUnique({
+                    where: { 
+                        id: like.fromProfileId,
+                        isActive: true 
+                    },
+                    include: { user: true }
+                });
+                
+                if (!fromProfile) continue; // Пропускаем неактивные профили
+                
+                // Проверяем, что у пользователя нет активного бана
+                const activeBan = await prisma.userBan.findFirst({
+                    where: {
+                        userId: fromProfile.user.id,
+                        isActive: true,
+                        bannedUntil: {
+                            gt: now
+                        }
+                    }
+                });
+                
+                if (activeBan) continue; // Пропускаем забаненных пользователей
+                
+                // Нашли подходящий лайк
+                return { ...like, fromProfile };
+            }
+            
+            return null; // Подходящих лайков не найдено
         }
     } catch (error) {
         logger.error({ error, id, type }, 'Error in getOneLike');

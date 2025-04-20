@@ -5,7 +5,7 @@ import { sendForm } from "../functions/sendForm";
 import { getNextNewProfile } from "../functions/profiles/profileUtils";
 
 export const reviewNewProfilesCommand = async (ctx: MyContext): Promise<void> => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
     
     // Проверка является ли пользователь администратором
     const adminIds = process.env.ADMIN_IDS?.split(',') || [];

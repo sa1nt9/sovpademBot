@@ -10,6 +10,7 @@ interface UserProfile {
 export async function getLikesCount(targetId: string, type?: 'user' | 'profile') {
     try {
         logger.info({ targetId, type }, 'Getting likes count');
+        const now = new Date();
         
         if (type === 'user') {
             // Получаем все профили пользователя
@@ -42,8 +43,8 @@ export async function getLikesCount(targetId: string, type?: 'user' | 'profile')
             // Формируем массив ID, на которые уже был дан ответ
             const respondedIds = alreadyRespondedToIds.map((item: { toProfileId: string }) => item.toProfileId);
 
-            // Подсчитываем количество лайков для всех профилей пользователя
-            const count = await prisma.profileLike.count({
+            // Получаем лайки для подсчета
+            const likes = await prisma.profileLike.findMany({
                 where: {
                     toProfileId: {
                         in: userProfiles.map((p: { id: string }) => p.id)
@@ -53,10 +54,52 @@ export async function getLikesCount(targetId: string, type?: 'user' | 'profile')
                     fromProfileId: {
                         notIn: respondedIds
                     }
+                },
+                select: {
+                    fromProfileId: true,
+                    profileType: true
                 }
             });
 
-            return count;
+            // Фильтруем лайки по активности профиля и отсутствию бана
+            let validCount = 0;
+            
+            for (const like of likes) {
+                // Получаем модель профиля из типа профиля
+                const profileModel = like.profileType.toLowerCase() + 'Profile';
+                const firstLetterUpperCase = profileModel.charAt(0).toUpperCase() + profileModel.slice(1);
+                
+                // Проверяем активность профиля
+                const fromProfile = await (prisma as any)[firstLetterUpperCase].findFirst({
+                    where: { 
+                        id: like.fromProfileId,
+                        isActive: true
+                    },
+                    select: {
+                        userId: true
+                    }
+                });
+                
+                if (!fromProfile) continue;
+                
+                // Проверяем наличие бана у пользователя
+                const activeBan = await prisma.userBan.findFirst({
+                    where: {
+                        userId: fromProfile.userId,
+                        isActive: true,
+                        bannedUntil: {
+                            gt: now
+                        }
+                    }
+                });
+                
+                // Если нет активного бана, засчитываем лайк
+                if (!activeBan) {
+                    validCount++;
+                }
+            }
+            
+            return validCount;
         } else {
             // Получаем все ID профилей, которым текущий профиль уже поставил лайк или дизлайк
             const alreadyRespondedToIds = await prisma.profileLike.findMany({
@@ -71,8 +114,8 @@ export async function getLikesCount(targetId: string, type?: 'user' | 'profile')
             // Формируем массив ID, которым уже был дан ответ
             const respondedIds = alreadyRespondedToIds.map((item: { toProfileId: string }) => item.toProfileId);
 
-            // Подсчитываем количество лайков, полученных профилем
-            const count = await prisma.profileLike.count({
+            // Получаем лайки для подсчета
+            const likes = await prisma.profileLike.findMany({
                 where: {
                     toProfileId: targetId,
                     liked: true,
@@ -80,10 +123,52 @@ export async function getLikesCount(targetId: string, type?: 'user' | 'profile')
                     fromProfileId: {
                         notIn: respondedIds
                     }
+                },
+                select: {
+                    fromProfileId: true,
+                    profileType: true
                 }
             });
 
-            return count;
+            // Фильтруем лайки по активности профиля и отсутствию бана
+            let validCount = 0;
+            
+            for (const like of likes) {
+                // Получаем модель профиля из типа профиля
+                const profileModel = like.profileType.toLowerCase() + 'Profile';
+                const firstLetterUpperCase = profileModel.charAt(0).toUpperCase() + profileModel.slice(1);
+                
+                // Проверяем активность профиля
+                const fromProfile = await (prisma as any)[firstLetterUpperCase].findFirst({
+                    where: { 
+                        id: like.fromProfileId,
+                        isActive: true
+                    },
+                    select: {
+                        userId: true
+                    }
+                });
+                
+                if (!fromProfile) continue;
+                
+                // Проверяем наличие бана у пользователя
+                const activeBan = await prisma.userBan.findFirst({
+                    where: {
+                        userId: fromProfile.userId,
+                        isActive: true,
+                        bannedUntil: {
+                            gt: now
+                        }
+                    }
+                });
+                
+                // Если нет активного бана, засчитываем лайк
+                if (!activeBan) {
+                    validCount++;
+                }
+            }
+            
+            return validCount;
         }
     } catch (error) {
         logger.error({ error, targetId, type }, 'Error in getLikesCount');
@@ -94,6 +179,7 @@ export async function getLikesCount(targetId: string, type?: 'user' | 'profile')
 export async function getLikesInfo(targetId: string, type?: 'user' | 'profile') {
     try {
         logger.info({ targetId, type }, 'Getting likes info');
+        const now = new Date();
         
         if (type === 'user') {
             // Получаем все профили пользователя
@@ -140,67 +226,55 @@ export async function getLikesInfo(targetId: string, type?: 'user' | 'profile') 
                 }
             });
 
-            const count = likers.length;
-
-            // Группируем лайки по типу профиля
-            const likersByType = likers.reduce((acc, liker) => {
-                if (!acc[liker.profileType]) {
-                    acc[liker.profileType] = [];
-                }
-                acc[liker.profileType].push(liker.fromProfileId);
-                return acc;
-            }, {} as Record<string, string[]>);
-
+            // Создаем массивы для валидных лайков и связанных с ними полов пользователей
+            const validLikerIds = [];
             const genders = new Set<string>();
 
-            // Для каждого типа профиля получаем информацию о пользователях
-            for (const [profileType, profileIds] of Object.entries(likersByType)) {
-                let users;
-
-                switch (profileType) {
-                    case 'RELATIONSHIP': {
-                        users = await prisma.relationshipProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
+            // Проверяем каждый лайк на активность профиля и отсутствие бана
+            for (const liker of likers) {
+                // Получаем модель профиля из типа профиля
+                const profileModel = liker.profileType.toLowerCase() + 'Profile';
+                const firstLetterUpperCase = profileModel.charAt(0).toUpperCase() + profileModel.slice(1);
+                
+                // Проверяем активность профиля
+                const fromProfile = await (prisma as any)[firstLetterUpperCase].findFirst({
+                    where: { 
+                        id: liker.fromProfileId,
+                        isActive: true
+                    },
+                    include: {
+                        user: {
+                            select: { 
+                                gender: true,
+                                id: true
+                            }
+                        }
                     }
-                    case 'SPORT': {
-                        users = await prisma.sportProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                    case 'GAME': {
-                        users = await prisma.gameProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                    case 'HOBBY': {
-                        users = await prisma.hobbyProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                    case 'IT': {
-                        users = await prisma.itProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                }
-
-                // Добавляем пол каждого пользователя в множество
-                users?.forEach(user => {
-                    genders.add(user.user.gender || 'male');
                 });
+                
+                if (!fromProfile) continue;
+                
+                // Проверяем наличие бана у пользователя
+                const activeBan = await prisma.userBan.findFirst({
+                    where: {
+                        userId: fromProfile.user.id,
+                        isActive: true,
+                        bannedUntil: {
+                            gt: now
+                        }
+                    }
+                });
+                
+                // Если нет активного бана, добавляем в список валидных и учитываем пол
+                if (!activeBan) {
+                    validLikerIds.push(liker.id);
+                    genders.add(fromProfile.user.gender || 'male');
+                }
             }
 
+            const count = validLikerIds.length;
+
+            // Определяем преобладающий пол
             let gender: 'female' | 'male' | 'all';
             if (genders.size === 1) {
                 gender = genders.has('female') ? 'female' : 'male';
@@ -235,67 +309,55 @@ export async function getLikesInfo(targetId: string, type?: 'user' | 'profile') 
                 }
             });
 
-            const count = likers.length;
-
-            // Группируем лайки по типу профиля
-            const likersByType = likers.reduce((acc, liker) => {
-                if (!acc[liker.profileType]) {
-                    acc[liker.profileType] = [];
-                }
-                acc[liker.profileType].push(liker.fromProfileId);
-                return acc;
-            }, {} as Record<string, string[]>);
-
+            // Создаем массивы для валидных лайков и связанных с ними полов пользователей
+            const validLikerIds = [];
             const genders = new Set<string>();
 
-            // Для каждого типа профиля получаем информацию о пользователях
-            for (const [profileType, profileIds] of Object.entries(likersByType)) {
-                let users;
-
-                switch (profileType) {
-                    case 'RELATIONSHIP': {
-                        users = await prisma.relationshipProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
+            // Проверяем каждый лайк на активность профиля и отсутствие бана
+            for (const liker of likers) {
+                // Получаем модель профиля из типа профиля
+                const profileModel = liker.profileType.toLowerCase() + 'Profile';
+                const firstLetterUpperCase = profileModel.charAt(0).toUpperCase() + profileModel.slice(1);
+                
+                // Проверяем активность профиля
+                const fromProfile = await (prisma as any)[firstLetterUpperCase].findFirst({
+                    where: { 
+                        id: liker.fromProfileId,
+                        isActive: true
+                    },
+                    include: {
+                        user: {
+                            select: { 
+                                gender: true,
+                                id: true
+                            }
+                        }
                     }
-                    case 'SPORT': {
-                        users = await prisma.sportProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                    case 'GAME': {
-                        users = await prisma.gameProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                    case 'HOBBY': {
-                        users = await prisma.hobbyProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                    case 'IT': {
-                        users = await prisma.itProfile.findMany({
-                            where: { id: { in: profileIds } },
-                            include: { user: { select: { gender: true } } }
-                        });
-                        break;
-                    }
-                }
-
-                // Добавляем пол каждого пользователя в множество
-                users?.forEach(user => {
-                    genders.add(user.user.gender || 'male');
                 });
+                
+                if (!fromProfile) continue;
+                
+                // Проверяем наличие бана у пользователя
+                const activeBan = await prisma.userBan.findFirst({
+                    where: {
+                        userId: fromProfile.user.id,
+                        isActive: true,
+                        bannedUntil: {
+                            gt: now
+                        }
+                    }
+                });
+                
+                // Если нет активного бана, добавляем в список валидных и учитываем пол
+                if (!activeBan) {
+                    validLikerIds.push(liker.id);
+                    genders.add(fromProfile.user.gender || 'male');
+                }
             }
 
+            const count = validLikerIds.length;
+
+            // Определяем преобладающий пол
             let gender: 'female' | 'male' | 'all';
             if (genders.size === 1) {
                 gender = genders.has('female') ? 'female' : 'male';

@@ -3,7 +3,7 @@ import { MyContext } from '../typescript/context';
 import { logger } from '../logger';
 import { prisma } from '../db/postgres';
 import { ILikeNotificationData } from '../typescript/interfaces/ILikeNotificationData';
-import { NotificationType } from '@prisma/client';
+import { NotificationType, ProfileType } from '@prisma/client';
 import { notificationQueue } from './notificationQueue';
 
 export async function createNotificationContext(bot: Bot<MyContext>, fromUserId: string): Promise<MyContext> {
@@ -35,6 +35,9 @@ interface IScheduleNotificationOptions {
 export async function scheduleNotification(
     targetUserId: string,
     fromUserId: string,
+    targetProfileId: string,
+    fromProfileId: string,
+    profileType: ProfileType,
     type: NotificationType,
     options: IScheduleNotificationOptions
 ): Promise<string> {
@@ -46,6 +49,8 @@ export async function scheduleNotification(
                 type: type,
                 data: {
                     fromUserId,
+                    targetProfileId,
+                    fromProfileId,
                     isAnswer: !!options.isAnswer,
                 },
                 status: 'pending'
@@ -56,6 +61,9 @@ export async function scheduleNotification(
         const job = await notificationQueue.add({
             targetUserId,
             fromUserId,
+            targetProfileId,
+            fromProfileId,
+            profileType,
             isAnswer: !!options.isAnswer,
             notificationId: notification.id,
             delay: options.delay
@@ -64,6 +72,8 @@ export async function scheduleNotification(
         logger.info({
             targetUserId,
             fromUserId,
+            targetProfileId,
+            fromProfileId,
             notificationId: notification.id,
             jobId: job.id,
             type
@@ -73,8 +83,10 @@ export async function scheduleNotification(
     } catch (error) {
         logger.error({
             error: error instanceof Error ? error.message : 'Unknown error',
-            targetUserId,
+            targetUserId,   
             fromUserId,
+            targetProfileId,
+            fromProfileId,
             type
         }, 'Error scheduling notification');
         

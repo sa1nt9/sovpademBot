@@ -1,8 +1,9 @@
 import { MyContext } from "../typescript/context";
 
 export async function checkSubscription(ctx: MyContext, channelId: string) {
+    const userId = Number(ctx.from?.id);
     try {
-        const member = await ctx.api.getChatMember(`@${channelId}`, ctx.from?.id!);
+        const member = await ctx.api.getChatMember(`@${channelId}`, userId);
         if (["member", "administrator", "creator"].includes(member.status)) {
             return true; // Подписан
         } else {

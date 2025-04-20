@@ -7,7 +7,7 @@ import { IProfile } from "../typescript/interfaces/IProfile";
 import { getProfileModelName } from "../functions/db/profilesService";
 
 export const blacklistCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting blacklist command');
 

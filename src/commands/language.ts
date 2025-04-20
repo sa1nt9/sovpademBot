@@ -3,7 +3,7 @@ import { prisma } from "../db/postgres";
 import { MyContext } from "../typescript/context";
 
 export const languageCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting language command');
 

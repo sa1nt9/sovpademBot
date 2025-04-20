@@ -10,7 +10,7 @@ import { logger } from "../logger";
 
 export async function rouletteSearchingStep(ctx: MyContext) {
     const message = ctx.message!.text;
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
     
     ctx.logger.info({ userId, action: message }, 'Roulette action');
     

@@ -12,13 +12,15 @@ export const notificationQueue = new Queue<ILikeNotificationData>('notifications
 
 // Обработчик задач в очереди
 notificationQueue.process(async (job) => {
-    const { targetUserId, fromUserId, isAnswer, notificationId } = job.data;
+    const { targetUserId, fromUserId, isAnswer, notificationId, targetProfileId, fromProfileId, profileType } = job.data;
 
     logger.info({
         targetUserId,
         fromUserId,
         isAnswer,
         notificationId,
+        targetProfileId,
+        fromProfileId,
         jobId: job.id
     }, 'Processing notification job');
 
@@ -45,6 +47,8 @@ notificationQueue.process(async (job) => {
             logger.info({
                 targetUserId,
                 fromUserId,
+                targetProfileId,
+                fromProfileId,
                 notificationId
             }, 'User is active, rescheduling notification');
 
@@ -68,7 +72,7 @@ notificationQueue.process(async (job) => {
         const ctx = await createNotificationContext(bot, fromUserId);
         
         // Отправляем уведомление
-        await sendNotificationDirectly(ctx, targetUserId, fromUserId, isAnswer);
+        await sendNotificationDirectly(ctx, targetUserId, fromUserId, targetProfileId, fromProfileId, profileType, isAnswer);
 
         // Обновляем статус уведомления
         await prisma.pendingNotification.update({
@@ -76,9 +80,11 @@ notificationQueue.process(async (job) => {
             data: { status: 'sent' }
         });
 
-        logger.info({
+        logger.info({   
             targetUserId,
             fromUserId,
+            targetProfileId,
+            fromProfileId,
             notificationId
         }, 'Notification sent successfully');
 
@@ -89,6 +95,8 @@ notificationQueue.process(async (job) => {
             stack: error instanceof Error ? error.stack : undefined,
             targetUserId,
             fromUserId,
+            targetProfileId,
+            fromProfileId,
             notificationId
         }, 'Error processing notification job');
 
@@ -143,7 +151,7 @@ async function checkUserActivity(userId: string, checkOnlyRoulette: boolean = fa
             }
         }
 
-        // Проверяем, прошло ли 10 минут с последней активности
+        // Проверяем, прошло ли 5 минут с последней активности
         const now = new Date();
         const lastActivityTime = session.updatedAt;
         const diffInMinutes = (now.getTime() - lastActivityTime.getTime()) / (1000 * 60);

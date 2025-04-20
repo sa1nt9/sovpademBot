@@ -20,7 +20,7 @@ export async function searchPeopleStep(ctx: MyContext) {
                 ctx.logger.info({ userId, candidateId }, 'User liked profile');
                 
                 await saveLike(ctx, candidateId, true);
-                await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId);
+                await sendLikesNotification(ctx, ctx.session.currentCandidateProfile.userId, candidateId, ctx.session.activeProfile.id, ctx.session.currentCandidateProfile.profileType);
 
                 // Проверяем наличие отложенной взаимной симпатии
                 if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {

@@ -9,7 +9,7 @@ import { getProfileModelName } from "../functions/db/profilesService";
 
 
 export const matchesCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting matches command');
 

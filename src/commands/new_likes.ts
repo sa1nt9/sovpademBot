@@ -5,7 +5,7 @@ import { getOneLike } from '../functions/db/getOneLike';
 import { sendForm } from '../functions/sendForm';
 
 export const newLikesCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting new likes command');
 

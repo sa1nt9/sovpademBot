@@ -7,7 +7,7 @@ import { buildInfoText } from "./sendForm";
 import { ISessionData } from "../typescript/interfaces/ISessionData";
 import { i18n } from "../i18n";
 export const findRouletteUser = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting roulette user search');
 

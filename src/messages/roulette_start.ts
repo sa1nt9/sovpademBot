@@ -8,7 +8,7 @@ import { logger } from "../logger";
 
 export const rouletteStartStep = async (ctx: MyContext) => {
     const message = ctx.message!.text;
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
     
     ctx.logger.info({ userId }, 'Starting roulette step');
 

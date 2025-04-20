@@ -6,7 +6,7 @@ import { MyContext } from "../typescript/context";
 import { restoreProfileValues } from '../functions/restoreProfileValues';
 
 export const myprofileCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ 
         userId,

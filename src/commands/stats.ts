@@ -5,7 +5,7 @@ import { formatDate, formatDuration } from "../functions/formatDate";
 import { getUserReactions } from "../functions/getUserReactions";
 
 export const statsCommand = async (ctx: MyContext) => {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
 
     ctx.logger.info({ userId }, 'Starting stats command');
 

@@ -13,7 +13,7 @@ const defaultOptions: SaveUserOptions = {
 }
 
 export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaultOptions) {
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
     
     ctx.logger.info({ 
         userId,

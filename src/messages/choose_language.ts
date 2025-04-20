@@ -8,7 +8,7 @@ import { prisma } from '../db/postgres';
 export async function chooseLanguageStep(ctx: MyContext) {
     const message = ctx.message!.text;
     const language = languages.find(i => i.name === message);
-    const userId = String(ctx.message?.from.id);
+    const userId = String(ctx.from?.id);
     
     ctx.logger.info({ userId, step: 'choose_language', selectedLanguage: message }, 'User selecting language');
 
