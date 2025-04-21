@@ -174,7 +174,7 @@ invite_friends_message = Invitez des amis et recevez plus de likes !
     Vos statistiques
     Arrivés ces 15 derniers jours : {$comeIn15Days}
     Arrivés au total : {$comeInAll}
-    Bonus à la force du profil : {$bonus}%
+    Bonus à la force de vos profils : {$bonus}%
 
     Transférez à vos amis ou publiez sur vos réseaux sociaux.
     Voici votre lien personnel 👇

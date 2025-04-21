@@ -6,6 +6,9 @@ import { ISessionData } from "../typescript/interfaces/ISessionData";
 import { complainToUserKeyboard, profileKeyboard, somebodysLikedYouKeyboard } from "../constants/keyboards";
 import { sendForm } from "./sendForm";
 import { ProfileType } from "@prisma/client";
+import { TProfileSubType } from "../typescript/interfaces/IProfile";
+
+
 export async function sendNotificationDirectly(
     ctx: MyContext,
     targetUserId: string,
@@ -13,6 +16,7 @@ export async function sendNotificationDirectly(
     targetProfileId: string,
     fromProfileId: string,
     profileType: ProfileType,
+    subType: TProfileSubType | '',
     isAnswer?: boolean
 ): Promise<void> {
     ctx.logger.info({ 
@@ -96,7 +100,9 @@ export async function sendNotificationDirectly(
                     await sendForm(ctx, null, {
                         myForm: true,
                         sendTo: targetUserId,
-                        privateNote: userLike?.privateNote
+                        privateNote: userLike?.privateNote,
+                        profileType: profileType,
+                        subType: subType || undefined
                     });
 
                     await ctx.api.sendMessage(targetUserId, `${i18n(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${ctx.from?.username || ''})`, {

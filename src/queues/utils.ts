@@ -5,6 +5,7 @@ import { prisma } from '../db/postgres';
 import { ILikeNotificationData } from '../typescript/interfaces/ILikeNotificationData';
 import { NotificationType, ProfileType } from '@prisma/client';
 import { notificationQueue } from './notificationQueue';
+import { TProfileSubType } from '../typescript/interfaces/IProfile';
 
 export async function createNotificationContext(bot: Bot<MyContext>, fromUserId: string): Promise<MyContext> {
 
@@ -38,6 +39,7 @@ export async function scheduleNotification(
     targetProfileId: string,
     fromProfileId: string,
     profileType: ProfileType,
+    subType: TProfileSubType | "",
     type: NotificationType,
     options: IScheduleNotificationOptions
 ): Promise<string> {
@@ -64,6 +66,7 @@ export async function scheduleNotification(
             targetProfileId,
             fromProfileId,
             profileType,
+            subType,
             isAnswer: !!options.isAnswer,
             notificationId: notification.id,
             delay: options.delay

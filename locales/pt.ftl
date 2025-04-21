@@ -174,7 +174,7 @@ invite_friends_message = Convide amigos e receba mais curtidas!
     Suas estatísticas
     Chegados nos últimos 15 dias: {$comeIn15Days}
     Chegados no total: {$comeInAll}
-    Bônus para força do perfil: {$bonus}%
+    Bônus para força dos seus perfis: {$bonus}%
 
     Encaminhe para amigos ou compartilhe em suas redes sociais.
     Aqui está seu link pessoal 👇

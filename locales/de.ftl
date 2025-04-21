@@ -174,7 +174,7 @@ invite_friends_message = Lade Freunde ein und erhalte mehr Likes!
     Deine Statistik
     Zugänge in den letzten 15 Tagen: {$comeIn15Days}
     Zugänge insgesamt: {$comeInAll}
-    Bonus zur Profilstärke: {$bonus}%
+    Bonus zur Stärke deiner Profile: {$bonus}%
 
     Leite an Freunde weiter oder teile in deinen sozialen Netzwerken.
     Hier ist dein persönlicher Link 👇

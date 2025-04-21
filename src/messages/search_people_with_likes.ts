@@ -27,7 +27,7 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
                 }
             });
 
-            const fromProfile = await (prisma as any)[`${ctx.session.activeProfile.profileType?.toLowerCase()}Profile`].findUnique({
+            const fromProfile = await (prisma as any)[`${targetProfile.profileType?.toLowerCase()}Profile`].findFirst({
                 where: targetProfile?.profileType === "RELATIONSHIP" ? {
                     profileType: targetProfile?.profileType,
                     userId: userId
@@ -43,7 +43,7 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
 
             const userInfo = await ctx.api.getChat(candidateUserId);
 
-            await sendLikesNotification(ctx, candidateUserId, candidateId, fromProfile?.id, fromProfile?.profileType, true)
+            await sendLikesNotification(ctx, candidateUserId, candidateId, fromProfile?.id, fromProfile?.profileType, fromProfile.subType || "", true)
 
             ctx.session.step = 'continue_see_likes_forms'
 
@@ -63,8 +63,8 @@ export async function searchPeopleWithLikesStep(ctx: MyContext) {
                     await sendMutualSympathyAfterAnswer(ctx, { withoutSleepMenu: true })
                 }
 
-                ctx.session.step = 'continue_see_forms'
-                ctx.session.additionalFormInfo.searchingLikes = false
+                ctx.session.step = 'continue_see_likes_forms'
+                ctx.session.additionalFormInfo.searchingLikes = true
 
                 await ctx.reply(ctx.t('continue_searching_likes'), {
                     reply_markup: continueKeyboard(ctx.t)

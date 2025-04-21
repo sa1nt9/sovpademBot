@@ -174,7 +174,7 @@ invite_friends_message = Invite friends and get more likes!
     Your statistics
     Arrived in 15 days: {$comeIn15Days}
     Arrived in total: {$comeInAll}
-    Profile strength bonus: {$bonus}%
+    Bonus to your profiles strength: {$bonus}%
 
     Forward to friends or post on your social media.
     Here's your personal link 👇

@@ -174,7 +174,7 @@ invite_friends_message = Undang teman dan dapatkan lebih banyak suka!
     Statistik Anda
     Datang dalam 15 hari terakhir: {$comeIn15Days}
     Datang sepanjang waktu: {$comeInAll}
-    Bonus kekuatan profil: {$bonus}%
+    Bonus kekuatan profil-profil Anda: {$bonus}%
 
     Teruskan ke teman atau bagikan di jejaring sosial Anda.
     Ini link pribadi Anda 👇

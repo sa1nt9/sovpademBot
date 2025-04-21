@@ -45,7 +45,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
             privateNote: ctx.session.privateNote
         });
 
-        await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType);
+        await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType, ctx.session.activeProfile.profileType !== 'RELATIONSHIP' ? ctx.session.activeProfile.subType : "");
         
     } else {
 
@@ -89,7 +89,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType);
+            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType, ctx.session.activeProfile.profileType !== 'RELATIONSHIP' ? ctx.session.activeProfile.subType : "");
         } else if (voice) {
             ctx.logger.info({ userId, candidateId, duration: voice.duration }, 'User sending voice message');
             if (voice.duration && voice.duration > 60) {
@@ -103,7 +103,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType);
+            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType, ctx.session.activeProfile.profileType !== 'RELATIONSHIP' ? ctx.session.activeProfile.subType : "");
         } else if (videoNote) {
             ctx.logger.info({ userId, candidateId }, 'User sending video note');
             await saveLike(ctx, candidateId, true, {
@@ -111,7 +111,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType);
+            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType, ctx.session.activeProfile.profileType !== 'RELATIONSHIP' ? ctx.session.activeProfile.subType : "");
         } else if (message) {
             ctx.logger.info({ userId, candidateId, messageLength: message.length }, 'User sending text message');
             if (message.length > 400) {
@@ -129,7 +129,7 @@ export async function textOrVideoToUserStep(ctx: MyContext) {
                 privateNote: isPrivateNote ? ctx.session.privateNote : undefined
             });
     
-            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType);
+            await sendLikesNotification(ctx, candidateUserId, candidateId, ctx.session.activeProfile.id, ctx.session.activeProfile.profileType, ctx.session.activeProfile.profileType !== 'RELATIONSHIP' ? ctx.session.activeProfile.subType : "");
         } else {
             ctx.logger.warn({ userId }, 'Invalid message type');
             await ctx.reply(ctx.t('not_message_and_not_video'));

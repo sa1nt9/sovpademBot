@@ -8,8 +8,9 @@ import { sendForm } from "./sendForm";
 import { scheduleNotification } from "../queues/utils";
 import { sendNotificationDirectly } from "./sendNotificationDirectly";
 import { NotificationType, ProfileType } from "@prisma/client";
+import { TProfileSubType } from "../typescript/interfaces/IProfile";
 
-export async function sendLikesNotification(ctx: MyContext, targetUserId: string, targetProfileId: string, fromProfileId: string, profileType: ProfileType, isAnswer?: boolean): Promise<void> {
+export async function sendLikesNotification(ctx: MyContext, targetUserId: string, targetProfileId: string, fromProfileId: string, profileType: ProfileType, subType: TProfileSubType | "", isAnswer?: boolean): Promise<void> {
     const fromUserId = String(ctx.from?.id);
 
     ctx.logger.info({
@@ -76,6 +77,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                             targetProfileId,
                             fromProfileId,
                             profileType,
+                            subType,
                             NotificationType.MUTUAL_LIKE,
                             {
                                 isAnswer: true,
@@ -108,10 +110,13 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                     });
 
 
+
                     await sendForm(ctx, null, {
                         myForm: true,
                         sendTo: targetUserId,
-                        privateNote: userLike?.privateNote
+                        privateNote: userLike?.privateNote,
+                        profileType,
+                        subType: subType || undefined
                     });
 
                     await ctx.api.sendMessage(targetUserId, `${i18n(false).t(currentValue.__language_code || "ru", 'mutual_sympathy')} [${ctx.session.activeProfile.name}](https://t.me/${ctx.from?.username || ''})`, {
@@ -151,6 +156,7 @@ export async function sendLikesNotification(ctx: MyContext, targetUserId: string
                     targetProfileId,
                     fromProfileId,
                     profileType,
+                    subType,
                     NotificationType.LIKE,
                     {
                         isAnswer: false

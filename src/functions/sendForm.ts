@@ -150,6 +150,8 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
         }
     }, 'Starting sendForm function');
 
+    ctx.logger.info(form, 'Form Form');
+
     let user: User | null | undefined = form
 
     if (options?.myForm) {

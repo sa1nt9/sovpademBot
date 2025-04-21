@@ -12,7 +12,7 @@ export const notificationQueue = new Queue<ILikeNotificationData>('notifications
 
 // Обработчик задач в очереди
 notificationQueue.process(async (job) => {
-    const { targetUserId, fromUserId, isAnswer, notificationId, targetProfileId, fromProfileId, profileType } = job.data;
+    const { targetUserId, fromUserId, isAnswer, notificationId, targetProfileId, fromProfileId, profileType, subType } = job.data;
 
     logger.info({
         targetUserId,
@@ -72,7 +72,7 @@ notificationQueue.process(async (job) => {
         const ctx = await createNotificationContext(bot, fromUserId);
         
         // Отправляем уведомление
-        await sendNotificationDirectly(ctx, targetUserId, fromUserId, targetProfileId, fromProfileId, profileType, isAnswer);
+        await sendNotificationDirectly(ctx, targetUserId, fromUserId, targetProfileId, fromProfileId, profileType, subType, isAnswer);
 
         // Обновляем статус уведомления
         await prisma.pendingNotification.update({

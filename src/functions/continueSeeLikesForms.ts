@@ -28,7 +28,7 @@ export const continueSeeLikesForms = async (ctx: MyContext) => {
         });
 
         ctx.session.currentCandidateProfile = oneLike.fromProfile
-        await sendForm(ctx, oneLike.fromProfile, { myForm: false, like: oneLike });
+        await sendForm(ctx, oneLike.fromProfile.user, { myForm: false, like: oneLike, profileType: oneLike.fromProfile.profileType, subType: oneLike.fromProfile.subType });
     } else {
         if (ctx.session.pendingMutualLike && ctx.session.pendingMutualLikeProfileId) {
             ctx.logger.info({ userId }, 'Processing pending mutual like');

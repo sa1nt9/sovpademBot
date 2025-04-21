@@ -96,8 +96,8 @@ async function startBot() {
         bot.command("stop_roulette", stopRouletteCommand);
         bot.command("language", languageCommand);
         bot.command("deactivate", deactivateCommand);
-        bot.command("moderate_reports", moderateReportsCommand);
-        bot.command("review_new_profiles", reviewNewProfilesCommand);
+        bot.command("m1", moderateReportsCommand);
+        bot.command("m2", reviewNewProfilesCommand);
 
 
         // Регистрация обработчиков событий

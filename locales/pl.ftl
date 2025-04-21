@@ -174,7 +174,7 @@ invite_friends_message = Zaproś znajomych i otrzymaj więcej polubień!
     Twoje statystyki
     Przyszło w ciągu 15 dni: {$comeIn15Days}
     Przyszło w sumie: {$comeInAll}
-    Bonus do siły profilu: {$bonus}%
+    Bonus do siły Twoich profili: {$bonus}%
 
     Prześlij znajomym lub udostępnij w swoich mediach społecznościowych.
     Oto Twój osobisty link 👇

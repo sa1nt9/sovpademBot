@@ -174,7 +174,7 @@ invite_friends_message = ¡Invita a amigos y recibe más likes!
     Tus estadísticas
     Llegaron en 15 días: {$comeIn15Days}
     Llegaron en total: {$comeInAll}
-    Bonificación de potencia de perfil: {$bonus}%
+    Bonificación de potencia de tus perfiles: {$bonus}%
 
     Reenvía a amigos o publica en tus redes sociales.
     Aquí está tu enlace personal 👇

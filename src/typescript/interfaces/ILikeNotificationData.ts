@@ -1,4 +1,5 @@
 import { ProfileType } from "@prisma/client";
+import { TProfileSubType } from "./IProfile";
 
 export interface ILikeNotificationData {
     targetUserId: string;
@@ -8,4 +9,5 @@ export interface ILikeNotificationData {
     isAnswer?: boolean;
     notificationId: string;
     profileType: ProfileType;
+    subType: TProfileSubType | ""
 }
