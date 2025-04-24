@@ -33,6 +33,7 @@ import { initQueues } from './queues/initQueues';
 import { setupWebhook } from './webhook';
 import { checkForBanMiddleware } from './middlewares/checkForBanMiddleware';
 import { reviewNewProfilesCommand } from './commands/review_new_profiles';
+import { rateLimitMiddleware } from './middlewares/rateLimitMiddleware';
 
 dotenv.config();
 // Определяем режим запуска (production или development)
@@ -81,6 +82,7 @@ async function startBot() {
         bot.use(rouletteMiddleware);
         bot.use(checkForBanMiddleware);
         bot.use(changeSessionFieldsMiddleware);
+        bot.use(rateLimitMiddleware);
 
         // Регистрация команд
         bot.command("start", startCommand);

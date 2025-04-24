@@ -733,3 +733,7 @@ some_data_are_general = Some of your data: age, name, gender and city - are comm
 
 some_data_are_general_1 = Fill out again
 some_data_are_general_2 = Keep current
+
+# Rate Limiting
+rate_limit_exceeded = Too many messages! Please wait {$seconds} seconds before sending a new message.
+rate_limit_exceeded_long = You are sending messages too frequently. The bot will be temporarily unavailable for {$minutes} minutes.

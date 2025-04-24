@@ -25,10 +25,16 @@ export function setupWebhook(bot: Bot<MyContext>) {
     
     // Эндпоинт для проверки работоспособности
     app.get('/health', (req: any, res: any) => {
-        res.status(200).send({ status: 'ok' });
+        res.status(200).send({ status: 'ok', timestamp: new Date().toISOString() });
     });
     
-    // Настраиваем веб-хук в Telegram API
+    // Обработка ошибок
+    app.use((err: any, req: any, res: any, next: any) => {
+        logger.error({ error: err, url: req.url }, 'Express server error');
+        res.status(500).send({ error: 'Internal Server Error' });
+    });
+    
+    // Проверка URL на использование HTTPS
     const webhookUrl = `https://${BOT_DOMAIN}${WEBHOOK_PATH}`;
     
     return {
@@ -37,6 +43,13 @@ export function setupWebhook(bot: Bot<MyContext>) {
         // Функция для установки вебхука
         async setWebhook() {
             try {
+                // Проверка URL на корректность
+                if (!webhookUrl.startsWith('https://')) {
+                    throw new Error('Webhook URL must start with https://');
+                }
+                
+                logger.info(`Attempting to set webhook to: ${webhookUrl}`);
+                
                 await bot.api.setWebhook(webhookUrl);
                 logger.info(`Webhook set to: ${webhookUrl}`);
                 
@@ -62,9 +75,17 @@ export function setupWebhook(bot: Bot<MyContext>) {
         // Функция для запуска Express сервера
         startServer(port = 3000) {
             return new Promise<void>((resolve) => {
-                app.listen(port, () => {
+                const server = app.listen(port, () => {
                     logger.info(`Webhook server is running on port ${port}`);
                     resolve();
+                });
+                
+                // Обработка ошибок сервера
+                server.on('error', (error: any) => {
+                    logger.error({ error }, 'Express server failed to start');
+                    if (error.code === 'EADDRINUSE') {
+                        logger.error(`Port ${port} is already in use`);
+                    }
                 });
             });
         }

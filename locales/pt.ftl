@@ -737,3 +737,7 @@ some_data_are_general = Alguns dos seus dados: idade, nome, gênero e cidade - s
 
 some_data_are_general_1 = Preencher novamente
 some_data_are_general_2 = Manter atuais
+
+# Rate Limiting
+rate_limit_exceeded = Muitas mensagens! Por favor, aguarde {$seconds} segundos antes de enviar uma nova mensagem.
+rate_limit_exceeded_long = Você está enviando mensagens com muita frequência. O bot ficará temporariamente indisponível por {$minutes} minutos.

@@ -740,3 +740,7 @@ some_data_are_general = Niektóre z Twoich danych: wiek, imię, płeć i miasto 
 
 some_data_are_general_1 = Wypełnij ponownie
 some_data_are_general_2 = Zachowaj obecne
+
+# Rate Limiting
+rate_limit_exceeded = Zbyt wiele wiadomości! Poczekaj {$seconds} sekund przed wysłaniem nowej wiadomości.
+rate_limit_exceeded_long = Wysyłasz wiadomości zbyt często. Bot będzie tymczasowo niedostępny przez {$minutes} minut.

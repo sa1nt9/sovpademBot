@@ -737,3 +737,7 @@ some_data_are_general = Некоторые твои данные: возраст
 
 some_data_are_general_1 = Заполнить заново
 some_data_are_general_2 = Оставить текущие
+
+# Rate Limiting
+rate_limit_exceeded = Слишком много сообщений! Пожалуйста, подождите {$seconds} секунд перед отправкой нового сообщения.
+rate_limit_exceeded_long = Вы отправляете сообщения слишком часто. Бот будет временно недоступен в течение {$minutes} минут.

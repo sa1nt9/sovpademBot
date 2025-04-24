@@ -733,3 +733,7 @@ some_data_are_general = Beberapa data Anda: usia, nama, jenis kelamin, dan kota 
 
 some_data_are_general_1 = Isi ulang
 some_data_are_general_2 = Pertahankan yang sekarang
+
+# Rate Limiting
+rate_limit_exceeded = Terlalu banyak pesan! Harap tunggu {$seconds} detik sebelum mengirim pesan baru.
+rate_limit_exceeded_long = Anda mengirim pesan terlalu sering. Bot akan sementara tidak tersedia selama {$minutes} menit.
