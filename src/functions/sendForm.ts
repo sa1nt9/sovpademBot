@@ -40,16 +40,32 @@ const defaultOptions: IOptions = {
 }
 
 export const buildInfoText = (ctx: MyContext, form: User, options: IOptions = defaultOptions) => {
-    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.activeProfile.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.activeProfile.location.latitude, ctx.session.activeProfile.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
+    // Проверка наличия activeProfile перед использованием
+    if (!ctx.session.activeProfile && !options.isInline) {
+        ctx.logger.warn('No active profile found in buildInfoText');
+        return `${form.name}, ${form.age}, ${form.city}`;
+    }
+    
+    return `${form.name}, ${form.age}, ${(!options.isInline && ctx.session.activeProfile?.ownCoordinates && form.ownCoordinates && !options.myForm) ? `📍${formatDistance(haversine(ctx.session.activeProfile.location.latitude, ctx.session.activeProfile.location.longitude, form.latitude, form.longitude), ctx.t)}` : form.city}`
 }
 
 // Функция для построения текста спортивной анкеты
 const buildSportProfileText = (ctx: MyContext, profile: ISportProfile, options: IOptions = defaultOptions) => {
+    if (!profile.subType) {
+        ctx.logger.warn({ profile }, 'Sport profile subType is undefined');
+        return '';
+    }
+    
     return `, ${ctx.t(`sport_type_${profile.subType.toLowerCase()}`)} - ${profile.level}`;
 }
 
 // Функция для построения текста игровой анкеты
 const buildGameProfileText = (ctx: MyContext, profile: IGameProfile, options: IOptions = defaultOptions) => {
+    if (!profile.subType) {
+        ctx.logger.warn({ profile }, 'Game profile subType is undefined');
+        return '';
+    }
+    
     const [link, platform] = profile.accountLink ? getGameProfileLink(profile.subType, profile.accountLink) : [];
     const accountLinkText = profile.accountLink ? `\n🔗 ${ctx.t('profile_link', { platform })}: [${getGameUsernameToShow(profile.subType, profile.accountLink)}](${link})` : '';
 
@@ -58,11 +74,21 @@ const buildGameProfileText = (ctx: MyContext, profile: IGameProfile, options: IO
 
 // Функция для построения текста хобби-анкеты
 const buildHobbyProfileText = (ctx: MyContext, profile: IHobbyProfile, options: IOptions = defaultOptions) => {
+    if (!profile.subType) {
+        ctx.logger.warn({ profile }, 'Hobby profile subType is undefined');
+        return '';
+    }
+    
     return `, ${ctx.t(`hobby_type_${profile.subType.toLowerCase()}`)}`;
 }
 
 // Функция для построения текста IT-анкеты
 const buildITProfileText = (ctx: MyContext, profile: IItProfile, options: IOptions = defaultOptions) => {
+    if (!profile.subType) {
+        ctx.logger.warn({ profile }, 'IT profile subType is undefined');
+        return '';
+    }
+    
     const experienceText = ` - ${profile.experience}`
     const technologiesText = profile.technologies ? `\n🛠️ ${ctx.t('technologies')}: ${profile.technologies}` : '';
     const githubText = profile.github ? `\n🔗 ${ctx.t('github')}: [${profile.github}](https://github.com/${profile.github})` : '';
@@ -149,8 +175,6 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
             subType: options.subType
         }
     }, 'Starting sendForm function');
-
-    ctx.logger.info(form, 'Form Form');
 
     let user: User | null | undefined = form
 
