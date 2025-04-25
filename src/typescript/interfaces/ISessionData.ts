@@ -88,6 +88,7 @@ export interface ISessionData {
     additionalFormInfo: IAdditionalFormInfo;
     privacyAccepted: boolean;
     referrerId?: string;
+    referrerInfo?: string;
     activeProfile: IProfile; // Текущий активный профиль пользователя
     isNeededSubscription?: boolean;
     currentCandidateProfile?: IProfile | null; // Профиль текущего кандидата

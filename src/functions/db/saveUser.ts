@@ -82,7 +82,7 @@ export async function saveUser(ctx: MyContext, options: SaveUserOptions = defaul
                         gender: userData.gender || "",
                         age: userData.age || 0,
                         longitude: userData.location.longitude,
-                        referrerId: ctx.session.referrerId || "",
+                        referrerId: ctx.session.referrerId || ctx.session.referrerInfo || "",
                         latitude: userData.location.latitude,
                         ownCoordinates: userData.ownCoordinates
                     },

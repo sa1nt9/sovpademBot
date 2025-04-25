@@ -49,9 +49,7 @@ export const startCommand = async (ctx: MyContext) => {
                 }, 'Error decoding referrer ID');
             }
         }
-    }
-
-    if (startParam?.startsWith('profile_')) {
+    } else if (startParam?.startsWith('profile_')) {
         const encodedId = startParam.substring(8);
         if (encodedId) {
             try {
@@ -102,6 +100,10 @@ export const startCommand = async (ctx: MyContext) => {
                     stack: error instanceof Error ? error.stack : undefined
                 }, 'Error decoding profile ID');
             }
+        }
+    } else if (startParam) {
+        if (!existingUser) {
+            ctx.session.referrerInfo = startParam;
         }
     }
 
