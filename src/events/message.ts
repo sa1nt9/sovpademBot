@@ -36,90 +36,99 @@ import { youDontHaveFormStep } from "../messages/you_dont_have_form"
 import { MyContext } from "../typescript/context"
 
 export async function messageEvent(ctx: MyContext) {
-    ctx.logger.info({ 
-        userId: ctx.from?.id,
-        username: ctx.from?.username,
-        step: ctx.session.step,
-        messageType: ctx.message?.text ? 'text' : ctx.message?.photo ? 'photo' : 'other'
-    }, 'Processing message event');
-
-    if (ctx.session.step === "choose_language_start") {
-        await chooseLanguageStartStep(ctx)
-    } else if (ctx.session.step === "choose_language") {
-        await chooseLanguageStep(ctx)
-    } else if (ctx.session.step === "prepare_message") {
-        await prepareMessageStep(ctx)
-    } else if (ctx.session.step === "accept_privacy") {
-        await acceptPrivacyStep(ctx)
-    } else if (ctx.session.step === "questions") {
-        await questionsStep(ctx)
-    } else if (ctx.session.step === 'profile') {
-        await profileStep(ctx)
-    } else if (ctx.session.step === 'sleep_menu') {
-        await sleepMenuStep(ctx)
-    } else if (ctx.session.step === 'friends') {
-        await friendsStep(ctx)
-    } else if (ctx.session.step === 'disable_form') {
-        await disableFormStep(ctx)
-    } else if (ctx.session.step === 'form_disabled') {
-        await formDisabledStep(ctx)
-    } else if (ctx.session.step === 'you_dont_have_form') {
-        await youDontHaveFormStep(ctx)
-    } else if (ctx.session.step === 'cannot_send_complain') {
-        await cannotSendComplainStep(ctx)
-    } else if (ctx.session.step === 'search_people') {
-        await searchPeopleStep(ctx)
-    } else if (ctx.session.step === 'search_people_with_likes') {
-        await searchPeopleWithLikesStep(ctx)
-    } else if (ctx.session.step === 'continue_see_forms') {
-        await continueSeeFormsStep(ctx)
-    } else if (ctx.session.step === 'continue_see_likes_forms') {
-        await continueSeeLikesFormsStep(ctx)
-    } else if (ctx.session.step === 'text_or_video_to_user') {
-        await textOrVideoToUserStep(ctx)
-    } else if (ctx.session.step === 'add_private_note') {
-        await addPrivateNoteStep(ctx)
-    } else if (ctx.session.step === 'added_private_note') {
-        await textOrVideoToUserStep(ctx)
-    } else if (ctx.session.step === 'somebodys_liked_you') {
-        await somebodysLikedYouStep(ctx)
-    } else if (ctx.session.step === 'complain') {
-        await complainStep(ctx)
-    } else if (ctx.session.step === 'complain_text') {
-        await complainTextStep(ctx)
-    } else if (ctx.session.step === 'roulette_searching') {
-        await rouletteSearchingStep(ctx)
-    } else if (ctx.session.step === 'roulette_start') {
-        await rouletteStartStep(ctx)
-    } else if (ctx.session.step === 'options_to_user') {
-        await optionsToUserStep(ctx)
-    } else if (ctx.session.step === 'blacklist_user') {
-        await blacklistUserStep(ctx)
-    } else if (ctx.session.step === 'go_main_menu') {
-        await goMainMenuStep(ctx)
-    } else if (ctx.session.step === 'start_using_bot') {
-        await startUsingBotStep(ctx)
-    } else if (ctx.session.step === 'create_profile_type') {
-        await createProfileTypeStep(ctx)
-    } else if (ctx.session.step === 'create_profile_subtype') {
-        await createProfileSubtypeStep(ctx)
-    } else if (ctx.session.step === 'switch_profile') {
-        await switchProfileStep(ctx)
-    } else if (ctx.session.step === 'you_already_have_this_profile') {
-        await youAlreadyHaveThisProfileStep(ctx)
-    } else if (ctx.session.step === 'moderating_reports') {
-        await moderatingReportsStep(ctx)
-    } else if (ctx.session.step === 'waiting_for_ban_reason_report') {
-        await waitingForBanReasonReportStep(ctx)
-    } else if (ctx.session.step === 'waiting_for_ban_reason_profile') {
-        await waitingForBanReasonProfileStep(ctx)
-    } else if (ctx.session.step === 'reviewing_new_profiles') {
-        await reviewingNewProfilesStep(ctx)
-    } else {
-        ctx.logger.warn({ 
+    try {
+        ctx.logger.info({ 
             userId: ctx.from?.id,
-            step: ctx.session.step 
-        }, 'Unknown step encountered');
-        await ctx.reply(ctx.t('no_such_answer'));
+            username: ctx.from?.username,
+            step: ctx.session.step,
+            messageType: ctx.message?.text ? 'text' : ctx.message?.photo ? 'photo' : 'other'
+        }, 'Processing message event');
+
+        if (ctx.session.step === "choose_language_start") {
+            await chooseLanguageStartStep(ctx)
+        } else if (ctx.session.step === "choose_language") {
+            await chooseLanguageStep(ctx)
+        } else if (ctx.session.step === "prepare_message") {
+            await prepareMessageStep(ctx)
+        } else if (ctx.session.step === "accept_privacy") {
+            await acceptPrivacyStep(ctx)
+        } else if (ctx.session.step === "questions") {
+            await questionsStep(ctx)
+        } else if (ctx.session.step === 'profile') {
+            await profileStep(ctx)
+        } else if (ctx.session.step === 'sleep_menu') {
+            await sleepMenuStep(ctx)
+        } else if (ctx.session.step === 'friends') {
+            await friendsStep(ctx)
+        } else if (ctx.session.step === 'disable_form') {
+            await disableFormStep(ctx)
+        } else if (ctx.session.step === 'form_disabled') {
+            await formDisabledStep(ctx)
+        } else if (ctx.session.step === 'you_dont_have_form') {
+            await youDontHaveFormStep(ctx)
+        } else if (ctx.session.step === 'cannot_send_complain') {
+            await cannotSendComplainStep(ctx)
+        } else if (ctx.session.step === 'search_people') {
+            await searchPeopleStep(ctx)
+        } else if (ctx.session.step === 'search_people_with_likes') {
+            await searchPeopleWithLikesStep(ctx)
+        } else if (ctx.session.step === 'continue_see_forms') {
+            await continueSeeFormsStep(ctx)
+        } else if (ctx.session.step === 'continue_see_likes_forms') {
+            await continueSeeLikesFormsStep(ctx)
+        } else if (ctx.session.step === 'text_or_video_to_user') {
+            await textOrVideoToUserStep(ctx)
+        } else if (ctx.session.step === 'add_private_note') {
+            await addPrivateNoteStep(ctx)
+        } else if (ctx.session.step === 'added_private_note') {
+            await textOrVideoToUserStep(ctx)
+        } else if (ctx.session.step === 'somebodys_liked_you') {
+            await somebodysLikedYouStep(ctx)
+        } else if (ctx.session.step === 'complain') {
+            await complainStep(ctx)
+        } else if (ctx.session.step === 'complain_text') {
+            await complainTextStep(ctx)
+        } else if (ctx.session.step === 'roulette_searching') {
+            await rouletteSearchingStep(ctx)
+        } else if (ctx.session.step === 'roulette_start') {
+            await rouletteStartStep(ctx)
+        } else if (ctx.session.step === 'options_to_user') {
+            await optionsToUserStep(ctx)
+        } else if (ctx.session.step === 'blacklist_user') {
+            await blacklistUserStep(ctx)
+        } else if (ctx.session.step === 'go_main_menu') {
+            await goMainMenuStep(ctx)
+        } else if (ctx.session.step === 'start_using_bot') {
+            await startUsingBotStep(ctx)
+        } else if (ctx.session.step === 'create_profile_type') {
+            await createProfileTypeStep(ctx)
+        } else if (ctx.session.step === 'create_profile_subtype') {
+            await createProfileSubtypeStep(ctx)
+        } else if (ctx.session.step === 'switch_profile') {
+            await switchProfileStep(ctx)
+        } else if (ctx.session.step === 'you_already_have_this_profile') {
+            await youAlreadyHaveThisProfileStep(ctx)
+        } else if (ctx.session.step === 'moderating_reports') {
+            await moderatingReportsStep(ctx)
+        } else if (ctx.session.step === 'waiting_for_ban_reason_report') {
+            await waitingForBanReasonReportStep(ctx)
+        } else if (ctx.session.step === 'waiting_for_ban_reason_profile') {
+            await waitingForBanReasonProfileStep(ctx)
+        } else if (ctx.session.step === 'reviewing_new_profiles') {
+            await reviewingNewProfilesStep(ctx)
+        } else {
+            ctx.logger.warn({ 
+                userId: ctx.from?.id,
+                step: ctx.session.step 
+            }, 'Unknown step encountered');
+            await ctx.reply(ctx.t('no_such_answer'));
+        }
+    } catch (error) {
+        ctx.logger.error({ 
+            userId: ctx.from?.id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+            step: ctx.session.step
+        }, 'Error in message event handler');
     }
 }

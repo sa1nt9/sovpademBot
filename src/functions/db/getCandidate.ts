@@ -67,6 +67,15 @@ async function getRelationshipCandidate(user: User, activeProfile: IRelationship
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
+                AND "id" NOT IN (
+                    SELECT rp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "RelationshipProfile" rp ON rp."id" = pl."fromProfileId"
+                    WHERE pl."toProfileId" IN (
+                        SELECT "id" FROM "RelationshipProfile" WHERE "userId" = ${user.id}
+                    )
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                )
                 AND NOT EXISTS (
                     SELECT 1
                     FROM "Blacklist" b
@@ -156,6 +165,15 @@ async function getSportCandidate(user: User, activeProfile: ISportProfile, fifte
                     FROM "ProfileLike" pl
                     JOIN "SportProfile" sp ON sp."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
+                        SELECT "id" FROM "SportProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
+                    )
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                )
+                AND "id" NOT IN (
+                    SELECT sp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "SportProfile" sp ON sp."id" = pl."fromProfileId"
+                    WHERE pl."toProfileId" IN (
                         SELECT "id" FROM "SportProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
@@ -269,6 +287,15 @@ async function getGameCandidate(user: User, activeProfile: IGameProfile, fifteen
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
+                AND "id" NOT IN (
+                    SELECT gp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "GameProfile" gp ON gp."id" = pl."fromProfileId"
+                    WHERE pl."toProfileId" IN (
+                        SELECT "id" FROM "GameProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
+                    )
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                )
                 AND NOT EXISTS (
                     SELECT 1
                     FROM "Blacklist" b
@@ -368,6 +395,15 @@ async function getHobbyCandidate(user: User, activeProfile: IHobbyProfile, fifte
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
                 )
+                AND "id" NOT IN (
+                    SELECT hp."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "HobbyProfile" hp ON hp."id" = pl."fromProfileId"
+                    WHERE pl."toProfileId" IN (
+                        SELECT "id" FROM "HobbyProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
+                    )
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                )
                 AND NOT EXISTS (
                     SELECT 1
                     FROM "Blacklist" b
@@ -463,6 +499,15 @@ async function getITCandidate(user: User, activeProfile: IItProfile, fifteenDays
                     FROM "ProfileLike" pl
                     JOIN "ItProfile" ip ON ip."id" = pl."toProfileId"
                     WHERE pl."fromProfileId" IN (
+                        SELECT "id" FROM "ItProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
+                    )
+                    AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}
+                )
+                AND "id" NOT IN (
+                    SELECT ip."userId"
+                    FROM "ProfileLike" pl
+                    JOIN "ItProfile" ip ON ip."id" = pl."fromProfileId"
+                    WHERE pl."toProfileId" IN (
                         SELECT "id" FROM "ItProfile" WHERE "userId" = ${user.id} AND "subType"::text = ${subTypeStr}
                     )
                     AND pl."createdAt" >= ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)}

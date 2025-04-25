@@ -26,6 +26,7 @@ interface IOptions {
     subType?: TProfileSubType
     translate?: TranslateFunction
     specificProfileId?: string
+    profile?: IProfile
 }
 
 const defaultOptions: IOptions = {
@@ -120,22 +121,22 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
         }
     }
     // Получаем тип профиля и соответствующую информацию
-    const profileType = options.profileType || ctx.session.activeProfile.profileType;
+    const profileType = options.profileType || options.profile?.profileType;
     let profileSpecificText = '';
 
     // Формируем текст в зависимости от типа профиля
     switch (profileType) {
         case 'SPORT':
-            profileSpecificText = buildSportProfileText(ctx, ctx.session.activeProfile as ISportProfile, options);
+            profileSpecificText = buildSportProfileText(ctx, options.profile as ISportProfile, options);
             break;
         case 'GAME':
-            profileSpecificText = buildGameProfileText(ctx, ctx.session.activeProfile as IGameProfile, options);
+            profileSpecificText = buildGameProfileText(ctx, options.profile as IGameProfile, options);
             break;
         case 'HOBBY':
-            profileSpecificText = buildHobbyProfileText(ctx, ctx.session.activeProfile as IHobbyProfile, options);
+            profileSpecificText = buildHobbyProfileText(ctx, options.profile as IHobbyProfile, options);
             break;
         case 'IT':
-            profileSpecificText = buildITProfileText(ctx, ctx.session.activeProfile as IItProfile, options);
+            profileSpecificText = buildITProfileText(ctx, options.profile as IItProfile, options);
             break;
         default:
             profileSpecificText = '';
@@ -150,7 +151,7 @@ export const buildTextForm = async (ctx: MyContext, form: User, options: IOption
 
 ` : '')
         +
-        `${ctx.t(`profile_type_${profileType.toLowerCase()}`)} - ${buildInfoText(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
+        `${ctx.t(`profile_type_${profileType?.toLowerCase()}`)} - ${buildInfoText(ctx, form, options)}${profileSpecificText ? `${profileSpecificText}` : ''}${options.description ? `\n\n${options.description}` : ''}`
         +
         (options.like?.message ? `
             
@@ -189,31 +190,28 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
         return;
     }
 
+    const getProfile = async (user: User, profileType: ProfileType) => {
+        // Если указан конкретный ID профиля, получаем его
+        let profile;
+        if (options.specificProfileId) {
+            // Получаем профиль по его ID
+            const tempProfile = await (prisma as any)[`${profileType.toLowerCase()}Profile`].findUnique({
+                where: { id: options.specificProfileId }
+            });
+
+            profile = await getUserProfile(user.id, profileType, profileType !== 'RELATIONSHIP' ? (tempProfile?.subType as TProfileSubType) : undefined);
+        } else {
+            // Получаем профиль пользователя стандартным способом
+            profile = await getUserProfile(user.id, profileType, options.subType || (ctx.session.activeProfile as any).subType);
+        }
+        
+        return profile
+    }
+
+    const profile = await getProfile(user, options.profileType || ctx.session.activeProfile.profileType)
+
     const getProfileFiles = async (user: User): Promise<{ files: IFile[], description: string }> => {
         try {
-            // Получаем тип профиля из сессии
-            const profileType = options.profileType || ctx.session.activeProfile.profileType as ProfileType;
-
-            ctx.logger.info({ 
-                userId: user.id,
-                profileType,
-                subType: options.subType || (ctx.session.activeProfile as any).subType,
-                specificProfileId: options.specificProfileId
-            }, 'Getting profile files');
-
-            // Если указан конкретный ID профиля, получаем его
-            let profile;
-            if (options.specificProfileId) {
-                // Получаем профиль по его ID
-                const tempProfile = await (prisma as any)[`${profileType.toLowerCase()}Profile`].findUnique({
-                    where: { id: options.specificProfileId }
-                });
-
-                profile = await getUserProfile(user.id, profileType, profileType !== 'RELATIONSHIP' ? (tempProfile?.subType as TProfileSubType) : undefined);
-            } else {
-                // Получаем профиль пользователя стандартным способом
-                profile = await getUserProfile(user.id, profileType, options.subType || (ctx.session.activeProfile as any).subType);
-            }
 
             if (!profile || !profile.files || profile.files.length === 0) {
                 ctx.logger.info({ userId: user.id }, 'No files found for profile');
@@ -249,9 +247,9 @@ export const sendForm = async (ctx: MyContext, form?: User | null, options: IOpt
         });
     
         const { __language_code } = currentSession ? JSON.parse(currentSession.value as string) as ISessionData : {} as ISessionData;
-        text = await buildTextForm(ctx, user, { ...options, description: description, translate: (...args) => i18n(false).t(__language_code || "ru", ...args) });
+        text = await buildTextForm(ctx, user, { ...options, profile: profile || ctx.session.activeProfile, description: description, translate: (...args) => i18n(false).t(__language_code || "ru", ...args) });
     } else {
-        text = await buildTextForm(ctx, user, { ...options, description: description });
+        text = await buildTextForm(ctx, user, { ...options, profile: profile || ctx.session.activeProfile, description: description });
     }
 
     ctx.logger.info({ 
