@@ -143,34 +143,3 @@ startBot().catch((error) => {
     logger.error({ error }, 'Fatal error during bot startup');
     process.exit(1);
 });
-
-bot.api.editMessageCaption(
-    "@sovpadem",
-    8,
-    {
-      caption: `🔥 Добро пожаловать в "Совпадём?"!
-  
-Здесь ты найдешь:
-• Новых друзей и интересных собеседников
-• Новости <a href="http://t.me/sovpadembot?start=s_zakrep_tg">нашего бота знакомств</a>
-• Полезные советы для общения
-  
-<a href="http://t.me/sovpadembot?start=s_zakrep_tg">Наш бот</a> поможет тебе найти человека по душе — просто, быстро и без лишних сложностей.
-<a href="http://t.me/sovpadembot?start=s_zakrep_tg">👉 Попробуй прямо сейчас 👈</a>
-<a href="http://t.me/sovpadembot?start=s_zakrep_tg">👉 Попробуй прямо сейчас 👈</a>
-<a href="http://t.me/sovpadembot?start=s_zakrep_tg">👉 Попробуй прямо сейчас 👈</a>
-
-Подписывайся на канал и не пропускай обновления! 💫`,
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "Запустить бота",
-              url: "https://t.me/sovpadembot?start=s_zakrep_tg"
-            }
-          ]
-        ]
-      }
-    }
-  );
