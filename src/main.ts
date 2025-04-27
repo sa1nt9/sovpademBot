@@ -106,6 +106,26 @@ async function startBot() {
         bot.on("message", messageEvent);
         bot.on("callback_query", callbackQueryEvent);
         bot.on("inline_query", inlineQueryEvent);
+        
+        // Обработчик события блокировки бота пользователем
+        bot.on("my_chat_member", (ctx) => {
+            const userId = ctx.update.my_chat_member.from.id;
+            const newStatus = ctx.update.my_chat_member.new_chat_member.status;
+            
+            if (newStatus === "kicked") {
+                ctx.logger.info({
+                    userId,
+                    username: ctx.update.my_chat_member.from.username,
+                    action: "bot_blocked"
+                }, "User blocked the bot");
+            } else if (newStatus === "member") {
+                ctx.logger.info({
+                    userId,
+                    username: ctx.update.my_chat_member.from.username,
+                    action: "bot_unblocked"
+                }, "User unblocked the bot");
+            }
+        });
 
         logger.info('Bot configured successfully');
 
