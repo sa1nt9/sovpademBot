@@ -83,6 +83,11 @@ start_application() {
     print_status "Статус контейнеров:"
     docker compose ps
     
+    # Запускаем скрипт для копирования логов
+    print_status "Запуск скрипта для копирования логов..."
+    chmod +x scripts/log-rotator.sh
+    nohup ./scripts/log-rotator.sh > logs/log-rotator.log 2>&1 &
+    
     # Создаем файл .htpasswd для доступа к логам
     if [ -f "scripts/init-htpasswd.sh" ]; then
       print_status "Создание файла аутентификации для доступа к логам..."
@@ -144,7 +149,8 @@ update_application() {
 # Функция для просмотра логов
 view_logs() {
   print_status "Вывод логов контейнера с ботом (для выхода нажмите Ctrl+C)..."
-  docker compose logs -f bot
+  docker compose logs -f bot > logs/bot_container.log 2>&1 &
+  tail -f logs/bot_container.log
 }
 
 # Функция для просмотра логов бэкапа
