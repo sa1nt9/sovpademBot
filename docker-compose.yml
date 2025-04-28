@@ -59,6 +59,7 @@ services:
       - app_network
     volumes:
       - ./logs:/app/logs
+      - ./data:/app/data
     deploy:
       resources:
         limits:
@@ -69,6 +70,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+        path: "/app/logs/bot_container.log"
         
   nginx:
     image: nginx:alpine
