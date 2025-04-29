@@ -212,6 +212,19 @@ start_log_viewer() {
   fi
 }
 
+# Функция для очистки логов
+clear_logs() {
+  print_status "Очистка логов..."
+  
+  # Очистка файлов логов
+  truncate -s 0 logs/*.log
+  
+  # Очистка логов контейнеров
+  docker compose logs --tail=0
+  
+  print_status "Логи успешно очищены!"
+}
+
 # Функция для вывода меню
 show_menu() {
   echo -e "\n${GREEN}=== Меню управления ботом ===${NC}"
@@ -222,8 +235,9 @@ show_menu() {
   echo -e "5. Запустить бэкап вручную"
   echo -e "6. Запустить веб-интерфейс для просмотра логов"
   echo -e "7. Остановить все контейнеры"
-  echo -e "8. Выход"
-  echo -e "Выберите действие (1-8): \c"
+  echo -e "8. Очистить логи"
+  echo -e "9. Выход"
+  echo -e "Выберите действие (1-9): \c"
   read choice
   
   case $choice in
@@ -234,8 +248,9 @@ show_menu() {
     5) run_backup ;;
     6) start_log_viewer ;;
     7) docker compose down; print_status "Все контейнеры остановлены" ;;
-    8) exit 0 ;;
-    *) print_error "Неверный выбор. Пожалуйста, выберите действие от 1 до 8." ;;
+    8) clear_logs ;;
+    9) exit 0 ;;
+    *) print_error "Неверный выбор. Пожалуйста, выберите действие от 1 до 9." ;;
   esac
 }
 
