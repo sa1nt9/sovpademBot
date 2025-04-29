@@ -1,5 +1,5 @@
 import type { ErrorHandler } from 'grammy'
-import { GrammyError } from 'grammy';
+import { GrammyError, HttpError } from 'grammy';
 import { MyContext } from '../typescript/context'
 
 export const errorHandler: ErrorHandler<MyContext> = (error) => {
@@ -10,12 +10,30 @@ export const errorHandler: ErrorHandler<MyContext> = (error) => {
         const username = ctx.from?.username || 'unknown';
 
         // Специальная обработка ошибки блокировки бота пользователем
-        if (error.error instanceof GrammyError && error.error.description === 'Forbidden: bot was blocked by the user') {
+        if (error.error instanceof GrammyError && 
+            (error.error.description === 'Forbidden: bot was blocked by the user' || 
+             error.error.description === 'Forbidden: user is deactivated')) {
             ctx.logger.warn({
                 error: 'Bot was blocked by user',
                 user_id: userId,
-                username
+                username,
+                description: error.error.description
             }, 'User blocked the bot');
+            
+            // Не пытаемся отправлять сообщения пользователю, который заблокировал бота
+            return;
+        }
+
+        // Обработка ошибок сети
+        if (error.error instanceof HttpError) {
+            ctx.logger.error({
+                error: {
+                    name: 'Network Error',
+                    message: error.error.message,
+                },
+                user_id: userId,
+                username
+            }, 'Network error occurred');
             
             return;
         }

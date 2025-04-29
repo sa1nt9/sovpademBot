@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import { Bot, session } from "grammy";
+import { Bot, session, GrammyError } from "grammy";
 import * as dotenv from 'dotenv';
 import { sessionInitial } from "./functions/sessionInitial";
 import { errorHandler } from "./handlers/error";
@@ -153,13 +153,27 @@ async function startBot() {
             await bot.start();
             logger.info('Bot started successfully with long polling');
         }
-    } catch (error) {
-        logger.error({ error }, 'Failed to start bot');
-        throw error;
+    } catch (error: unknown) {
+        // Логируем любую ошибку, но не даем ей упасть
+        logger.error({ 
+            error,
+            stack: error instanceof Error ? error.stack : undefined,
+            message: error instanceof Error ? error.message : String(error)
+        }, 'Error occurred but bot continues to work');
+        
+        // Не завершаем процесс
+        return;
     }
 }
 
-startBot().catch((error) => {
-    logger.error({ error }, 'Fatal error during bot startup');
-    process.exit(1);
+startBot().catch((error: unknown) => {
+    // Логируем любую ошибку, но не даем ей упасть
+    logger.error({ 
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        message: error instanceof Error ? error.message : String(error)
+    }, 'Error occurred but bot continues to work');
+    
+    // Не завершаем процесс
+    return;
 });

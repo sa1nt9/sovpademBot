@@ -30,8 +30,16 @@ export function setupWebhook(bot: Bot<MyContext>) {
     
     // Обработка ошибок
     app.use((err: any, req: any, res: any, next: any) => {
-        logger.error({ error: err, url: req.url }, 'Express server error');
-        res.status(500).send({ error: 'Internal Server Error' });
+        // Логируем любую ошибку, но не даем ей упасть
+        logger.error({ 
+            error: err,
+            url: req.url,
+            stack: err.stack,
+            message: err.message
+        }, 'Error occurred but bot continues to work');
+        
+        // Всегда отправляем успешный ответ, чтобы Telegram не пытался переотправить запрос
+        res.status(200).send({ status: 'ok' });
     });
     
     // Проверка URL на использование HTTPS
@@ -66,9 +74,15 @@ export function setupWebhook(bot: Bot<MyContext>) {
                 }
                 
                 return info;
-            } catch (error) {
-                logger.error({ error }, 'Failed to set webhook');
-                throw error;
+            } catch (error: unknown) {
+                // Логируем любую ошибку, но не даем ей упасть
+                logger.error({ 
+                    error,
+                    stack: error instanceof Error ? error.stack : undefined,
+                    message: error instanceof Error ? error.message : String(error)
+                }, 'Error setting webhook but bot continues to work');
+                
+                return null; // Не выбрасываем ошибку
             }
         },
         
@@ -82,7 +96,12 @@ export function setupWebhook(bot: Bot<MyContext>) {
                 
                 // Обработка ошибок сервера
                 server.on('error', (error: any) => {
-                    logger.error({ error }, 'Express server failed to start');
+                    logger.error({ 
+                        error,
+                        stack: error.stack,
+                        message: error.message
+                    }, 'Server error occurred but bot continues to work');
+                    
                     if (error.code === 'EADDRINUSE') {
                         logger.error(`Port ${port} is already in use`);
                     }
