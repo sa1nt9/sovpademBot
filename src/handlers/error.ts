@@ -17,7 +17,9 @@ export const errorHandler: ErrorHandler<MyContext> = (error) => {
                 error: 'Bot was blocked by user',
                 user_id: userId,
                 username,
-                description: error.error.description
+                description: error.error.description,
+                method: error.error.method,
+                payload: error.error.payload
             }, 'User blocked the bot');
             
             // Не пытаемся отправлять сообщения пользователю, который заблокировал бота

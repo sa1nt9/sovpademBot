@@ -3,6 +3,7 @@ import { Bot, session, GrammyError } from "grammy";
 import * as dotenv from 'dotenv';
 import { sessionInitial } from "./functions/sessionInitial";
 import { errorHandler } from "./handlers/error";
+import { errorMiddleware } from "./middlewares/errorMiddleware";
 import { i18n } from './i18n';
 import { connectPostgres, prisma } from './db/postgres';
 import { MyContext } from './typescript/context';
@@ -35,6 +36,25 @@ import { checkForBanMiddleware } from './middlewares/checkForBanMiddleware';
 import { reviewNewProfilesCommand } from './commands/review_new_profiles';
 import { rateLimitMiddleware } from './middlewares/rateLimitMiddleware';
 
+// Обработка необработанных исключений
+process.on('uncaughtException', (error) => {
+    logger.error({ 
+        error,
+        stack: error.stack,
+        message: error.message
+    }, 'Uncaught Exception occurred but bot continues to work');
+});
+
+// Обработка необработанных отклонений промисов
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error({ 
+        reason,
+        promise,
+        stack: reason instanceof Error ? reason.stack : undefined,
+        message: reason instanceof Error ? reason.message : String(reason)
+    }, 'Unhandled Rejection occurred but bot continues to work');
+});
+
 dotenv.config();
 // Определяем режим запуска (production или development)
 const isProduction = process.env.NODE_ENV === 'production';
@@ -51,7 +71,11 @@ async function startBot() {
         // Инициализация очередей
         initQueues();
 
+        // Обработчик ошибок для бота
         bot.catch(errorHandler);
+
+        // Middleware для обработки ошибок
+        bot.use(errorMiddleware);
 
         // Middleware для добавления логгера в контекст
         bot.use(async (ctx, next) => {
