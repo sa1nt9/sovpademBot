@@ -1,4 +1,4 @@
-# Sovpad Bot - Телеграм бот для знакомств
+# Sovpadem Bot - Телеграм бот для знакомств
 
 ## Деплой на сервер
 
@@ -106,3 +106,11 @@ docker compose exec bot npm run prisma:studio
    ```
 
 **Примечание:** Веб-хуки работают только в production режиме. В development режиме бот будет использовать Long Polling.
+
+
+## License
+
+This project is licensed for personal and non-commercial use only.  
+Any commercial use is prohibited without the author's written permission.  
+See [LICENSE](./LICENSE) for details.  
+Author: sa1nt9
