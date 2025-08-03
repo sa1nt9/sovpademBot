@@ -102,7 +102,7 @@ async function startBot() {
             return i18n(false).middleware()(ctx, next);
         });
 
-        bot.use(checkSubscriptionMiddleware);
+        // bot.use(checkSubscriptionMiddleware);
         bot.use(rouletteMiddleware);
         bot.use(checkForBanMiddleware);
         bot.use(changeSessionFieldsMiddleware);
