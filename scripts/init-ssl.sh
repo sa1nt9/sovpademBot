@@ -44,7 +44,6 @@ sed -i "s/BOT_DOMAIN/$DOMAIN/g" ./nginx/conf/app.conf
 # Создаем файл .env с настройками домена
 print_status "Обновляем .env файл с настройками домена"
 grep -q "BOT_DOMAIN=" .env && sed -i "s/# BOT_DOMAIN=.*/BOT_DOMAIN=$DOMAIN/" .env || echo "BOT_DOMAIN=$DOMAIN" >> .env
-grep -q "WEBHOOK_PATH=" .env && sed -i "s/# WEBHOOK_PATH=.*/WEBHOOK_PATH=\/telegram\/bnsdfbcmbeworpvcbt/" .env || echo "WEBHOOK_PATH=/telegram/bnsdfbcmbeworpvcbt" >> .env
 grep -q "NODE_ENV=" .env && sed -i "s/# NODE_ENV=.*/NODE_ENV=production/" .env || echo "NODE_ENV=production" >> .env
 
 # Проверяем наличие Docker и Docker Compose
@@ -55,7 +54,7 @@ fi
 
 # Запускаем только контейнеры Nginx и Certbot
 print_status "Запускаем временные контейнеры Nginx и Certbot для получения сертификатов"
-docker compose up -d nginx certbot
+docker compose up -d nginx
 
 # Ждем запуска Nginx
 print_status "Ожидаем запуска Nginx..."
