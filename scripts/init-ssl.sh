@@ -62,7 +62,7 @@ sleep 5
 
 # Получаем SSL сертификат
 print_status "Получаем SSL сертификат для $DOMAIN"
-docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d sovpadem.site
+docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d sovpadem.site --email webmaster@sovpadem.site --agree-tos   --non-interactive --debug-challenges
 
 # Проверяем наличие сертификата
 if [ -d "./nginx/certbot/conf/live/$DOMAIN" ]; then
